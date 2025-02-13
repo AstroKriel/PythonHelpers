@@ -1,1 +1,1 @@
-# Loki
+# Loki (Python library)
