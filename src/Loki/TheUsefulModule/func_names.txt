@@ -1,0 +1,48 @@
+[
+  'MyHelpFormatter',
+  'MyParser',
+  'DICT_OPTIONAL_ARGS',
+  'DICT_OPTIONAL_BOOL_ARGS'
+]
+
+[
+  'checkIfDirectoryExists',
+  'checkIfFileExists',
+  'checkIfJobIsInQueue',
+  'copyFile',
+  'initDirectory',
+  'createFilepath',
+  'getFilesInDirectory',
+  'makeFilter'
+]
+
+[
+  'extendListToMatchLength',
+  'flattenList',
+  'getListIntersect',
+  'getIndexOfClosestValue',
+  'getListUnion',
+  'subsetList'
+]
+
+[
+  'NumpyEncoder',
+  'appendDict2JsonFile',
+  'checkIfDictsAreDifferent',
+  'createJsonFile',
+  'deleteEmptyGroupsHDF5',
+  'filterDict2ExcludeKeys',
+  'mergeDicts',
+  'printDict',
+  'printObjAttrNames',
+  'readJsonFile2Dict',
+  'repackHDF5',
+  'saveDict2JsonFile',
+  'saveObj2JsonFile'
+]
+
+[
+  'getCommandOutput',
+  'runCommand',
+  'submitJob'
+]

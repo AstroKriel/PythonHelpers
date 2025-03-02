@@ -1,0 +1,8 @@
+[
+  'fitConstFunc',
+  'fitExpFunc',
+  'fitLineToMasked2DJPDF',
+  'fitLinearFunc',
+  'interpData',
+  'interpolateLogLogData'
+]

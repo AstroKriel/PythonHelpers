@@ -3,8 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Loki-python4science"
-version = "0.1.0"
+name = "Loki"
+version = "0.1.1"
 
-[tool.setuptools.packages]
-find = {where = ["src"]}
+[tool.setuptools.packages.find]
+where = ["src"]
+

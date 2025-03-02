@@ -1,0 +1,39 @@
+[
+  'addAxisTicks_linear',
+  'addAxisTicks_log10',
+  'addBoxOfLabels',
+  'addColorbar_fromCmap',
+  'addColorbar_fromMappble',
+  'addInsetAxis',
+  'addLegend',
+  'addLegend_fromArtists',
+  'addLegend_joinedAxis',
+  'addLegend_withBox',
+  'addSubplot_secondAxis',
+  'aniEvolution',
+  'createCmap',
+  'createFigure_grid',
+  'createNorm',
+  'labelDualAxis_sharedX',
+  'labelDualAxis_sharedY',
+  'labelLogFormatter',
+  'plotData_noAutoAxisScale',
+  'plotErrorBar_1D',
+  'plotPDF',
+  'plotScalarField',
+  'plotScatter',
+  'plotVectorField',
+  'saveFigure'
+]
+
+[
+  '_computeLIC',
+  'advectStreamline',
+  'computeLIC',
+  'computeLIC_postprocessing',
+  'equalize_adapthist',
+  'filterHighpass',
+  'interpolateBilinear',
+  'rescaledEqualize',
+  'taperPixelContribution'
+]
