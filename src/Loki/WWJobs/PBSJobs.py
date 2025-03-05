@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import subprocess
-from Loki.WWIO import Terminal
-from Loki.WWIO import FileFolderIO
+from Loki.WWIO import ShellUtils
+from Loki.WWIO import FileUtils
 
 
 ## ###############################################################
@@ -17,20 +17,19 @@ def submitJob(directory, job_name, bool_check_job_status=False):
     print("Job is already currently running:", job_name)
   else:
     print("Submitting job:", job_name)
-    Terminal.runCommand(f"qsub {job_name}", directory=directory)
-
+    ShellUtils.runCommand(f"qsub {job_name}", directory=directory)
 
 def checkIfJobIsInQueue(directory, job_filename):
-  if not FileFolderIO.checkIfFileExists(directory, job_filename):
+  if not FileUtils.checkIfFileExists(directory, job_filename):
     print(f"Note: `{job_filename}` job file does not exist in: {directory}")
     return False
   try:
-    list_job_tagnames = Terminal.getCommandOutput("qstat -f | grep Job_Name")
+    list_job_tagnames = ShellUtils.runCommand("qstat -f | grep Job_Name", bool_capture_output=True)
   except subprocess.CalledProcessError as e:
     print(f"Error retrieving job names from the queue: {e}")
     return False
   job_tagname = None
-  with open(FileFolderIO.createFilepathString(directory, job_filename), "r") as fp:
+  with open(FileUtils.createFilepathString(directory, job_filename), "r") as fp:
     for line in fp.readlines():
       if "#PBS -N" in line:
         job_tagname = line.split(" ")[-1]
