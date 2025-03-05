@@ -5,25 +5,57 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
+from copy import deepcopy
+from typing import Any
+from Loki.WWLogging import VarUtils
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def mergeDicts(dict_ref, dict2add):
-  for key, value in dict2add.items():
-    if key in dict_ref and isinstance(dict_ref[key], dict) and isinstance(value, dict):
-      mergeDicts(dict_ref[key], value)
-    else: dict_ref[key] = value
+def mergeDicts(
+    dict_1: dict[str, Any],
+    dict_2: dict[str, Any]
+  ) -> dict[str, Any]:
+  """Recursively merges two dictionaries without modifying the originals."""
+  VarUtils.assertType(dict_1, dict)
+  VarUtils.assertType(dict_2, dict)
+  dict_out = dict_1.copy()
+  for key, value in dict_2.items():
+    if key in dict_out:
+      # Case 1: Both are dictionaries, merge them recursively
+      if isinstance(dict_out[key], dict) and isinstance(value, dict):
+        dict_out[key] = mergeDicts(dict_out[key], value)
+      # Case 2: Both are lists, concatenate them
+      elif isinstance(dict_out[key], list) and isinstance(value, list):
+        dict_out[key] = dict_out[key] + value  # Concatenate lists
+      # Case 3: Both are sets, union them
+      elif isinstance(dict_out[key], set) and isinstance(value, set):
+        dict_out[key] = dict_out[key] | value  # Union sets
+      # Case 4: Other types, deepcopy to avoid modifying original dict_1
+      elif isinstance(value, (dict, list, set)):
+        dict_out[key] = deepcopy(value)
+      # Case 5: Other values, replace directly
+      else: dict_out[key] = value
+    else: dict_out[key] = value
+  return dict_out
 
-def filterDict2ExcludeKeys(input_dict, list_keys):
+def filterDict2ExcludeKeys(
+    dict_in: dict[str, Any],
+    list_keys: list
+  ) -> dict[str, Any]:
+  VarUtils.assertType(dict_in, dict)
+  VarUtils.assertType(list_keys, list)
   return {
-    k : v
-    for k, v in input_dict.items()
-    if k not in list_keys
+    key : value
+    for key, value in dict_in.items()
+    if key not in list_keys
   }
 
-def checkIfDictsAreDifferent(dict_new, dict_ref):
+def checkIfDictsAreDifferent(
+      dict_new: dict[str, Any],
+      dict_ref: dict[str, Any]
+    ) -> bool:
     ## check that the dictionaries have the same number of keys
     if len(dict_new) != len(dict_ref): return True
     ## check if any key in dict_ref is not in dict_new or if their values are different
@@ -33,7 +65,10 @@ def checkIfDictsAreDifferent(dict_new, dict_ref):
     ## otherwise the dictionaries are the same
     return False
 
-def printDict(input_dict, indent=0):
+def printDict(
+    input_dict: dict[str, Any],
+    indent : int = 0
+  ):
   def _printWithIndent(indent, str_pre, str_post=None):
     if not isinstance(str_pre, str): str_pre = str(str_pre)
     if str_post is None: print(" " * indent + str_pre)
