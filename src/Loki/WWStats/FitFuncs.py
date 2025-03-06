@@ -6,13 +6,13 @@
 ## ###############################################################
 import numpy
 import statsmodels.api as sm
-from Loki.WWLogging import FuncsUtils
+from Loki.WWLogging import FuncUtils
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-@FuncsUtils.time_function
+@FuncUtils.time_function
 def fitLineToMasked2DJPDF(bedges_cols, bedges_rows, jpdf, level):
   jpdf = numpy.array(jpdf)
   mg_rows, mg_cols = numpy.meshgrid(bedges_rows, bedges_cols, indexing="ij")

@@ -4,7 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from matplotlib import pyplot as mplplot
+import matplotlib.pyplot as mplplot
 from matplotlib.gridspec import GridSpec
 
 

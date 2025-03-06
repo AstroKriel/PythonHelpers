@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 from matplotlib.lines import Line2D
-from matplotlib.lines import Line2D
 from matplotlib.offsetbox import TextArea, VPacker, AnnotationBbox
+
 from Loki.WWCollections import ListUtils
 
 

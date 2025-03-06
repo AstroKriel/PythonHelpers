@@ -8,7 +8,7 @@ from Loki.WWCollections import DictUtils
 ## ###############################################################
 ## TESTS
 ## ###############################################################
-class TestDictFunctions(unittest.TestCase):
+class TestDictUtils(unittest.TestCase):
   def test_mergeDicts(self):
     ## usual case 1: merging two dictionaries with a mix of nested and simple keys
     dict1 = {"a": 1, "b": {"c": 2}}

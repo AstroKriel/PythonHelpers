@@ -6,11 +6,14 @@
 ## ###############################################################
 import functools
 import cmasher
-from matplotlib import pyplot as mplplot
-from matplotlib import colors as mplcolors
-from matplotlib import ticker as mplticker
+
+import matplotlib.pyplot as mplplot
+import matplotlib.colors as mplcolors
+import matplotlib.ticker as mplticker
+
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from Loki.WWPlots import PlotAnnotations
 
 

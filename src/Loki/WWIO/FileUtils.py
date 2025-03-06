@@ -38,6 +38,29 @@ def initDirectory(directory, bool_verbose=True):
 
 
 ## ###############################################################
+## WORKING WITH FILES
+## ###############################################################
+def copyFile(directory_from, directory_to, filename, bool_overwrite=False, bool_verbose=True):
+  filepath_file_from = createFilepathString([ directory_from, filename ])
+  filepath_file_to   = createFilepathString([ directory_to, filename ])
+  if not checkIfDirectoryExists(directory_from):
+    raise NotADirectoryError(f"Error: Source directory does not exist: {directory_from}")
+  if not checkIfDirectoryExists(directory_to):
+    initDirectory(directory_to, bool_verbose)
+  checkIfFileExists(directory_from, filename, bool_trigger_error=True)
+  if not(bool_overwrite) and checkIfFileExists(directory_to, filename, bool_trigger_error=False):
+    raise FileExistsError(f"Error: File already exists: {filepath_file_to}")
+  ## copy the file and it`s permissions
+  shutil.copy(filepath_file_from, filepath_file_to)
+  shutil.copymode(filepath_file_from, filepath_file_to)
+  if bool_verbose:
+    print(f"Coppied:")
+    print(f"\t> File: {filename}")
+    print(f"\t> From: {directory_from}")
+    print(f"\t> To:   {directory_to}")
+
+
+## ###############################################################
 ## FILTERING FILES IN DIRECTORY
 ## ###############################################################
 def makeFilter(
@@ -115,29 +138,6 @@ def getFilesInDirectory(
     list_filenames
   )
   return list(list_filenames_filtered)
-
-
-## ###############################################################
-## WORKING WITH FILES
-## ###############################################################
-def copyFile(directory_from, directory_to, filename, bool_overwrite=False, bool_verbose=True):
-  filepath_file_from = createFilepathString([ directory_from, filename ])
-  filepath_file_to   = createFilepathString([ directory_to, filename ])
-  if not checkIfDirectoryExists(directory_from):
-    raise NotADirectoryError(f"Error: Source directory does not exist: {directory_from}")
-  if not checkIfDirectoryExists(directory_to):
-    initDirectory(directory_to, bool_verbose)
-  checkIfFileExists(directory_from, filename, bool_trigger_error=True)
-  if not(bool_overwrite) and checkIfFileExists(directory_to, filename, bool_trigger_error=False):
-    raise FileExistsError(f"Error: File already exists: {filepath_file_to}")
-  ## copy the file and it`s permissions
-  shutil.copy(filepath_file_from, filepath_file_to)
-  shutil.copymode(filepath_file_from, filepath_file_to)
-  if bool_verbose:
-    print(f"Coppied:")
-    print(f"\t> File: {filename}")
-    print(f"\t> From: {directory_from}")
-    print(f"\t> To:   {directory_to}")
 
 
 ## END OF MODULE

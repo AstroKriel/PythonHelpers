@@ -5,7 +5,7 @@
 ## MODULES
 ## ###############################################################
 import numpy
-from Loki.WWLogging import FuncsUtils
+from Loki.WWLogging import FuncUtils
 
 
 ## ###############################################################
@@ -22,7 +22,7 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
   samples = norm_mean + norm_std * numpy.random.randn(num_samples)
   return samples
 
-@FuncsUtils.time_function
+@FuncUtils.time_function
 def computeJPDF(data_x, data_y, bedges_x, bedges_y):
   jpdf, _, _ = numpy.histogram2d(
     x    = data_x,
@@ -35,7 +35,7 @@ def computeJPDF(data_x, data_y, bedges_x, bedges_y):
   )
   return jpdf
 
-@FuncsUtils.time_function
+@FuncUtils.time_function
 def compute1DPDF(data, bin_edges=None, num_bins=None, weights=None):
   if bin_edges is not None:
     bin_counts = numpy.zeros(len(bin_edges)-1, dtype=float)
@@ -55,7 +55,7 @@ def compute1DPDF(data, bin_edges=None, num_bins=None, weights=None):
   ## return the bin edges and the computed pdf
   return bin_edges, pdf
 
-@FuncsUtils.time_function
+@FuncUtils.time_function
 def compute1DBins(data, num_bins, factor_extend=3):
   bedges, _ = compute1DPDF(data, num_bins=num_bins)
   median_bedge = numpy.median(bedges)

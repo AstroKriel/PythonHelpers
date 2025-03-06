@@ -16,8 +16,9 @@ def deleteEmptyGroupsHDF5(filepath_file):
   def findEmptyGroups(group):
     for _, item in group.items():
       if isinstance(item, h5py.Group):
-        if len(item) == 0: groups_to_delete.append(item.name)
-        else:              findEmptyGroups(item)
+        if len(item) == 0:
+          groups_to_delete.append(item.name)
+        else: findEmptyGroups(item)
   ## do stuff
   with h5py.File(filepath_file, "a") as hdf:
     groups_to_delete = []

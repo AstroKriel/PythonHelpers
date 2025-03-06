@@ -6,9 +6,12 @@
 ## ###############################################################
 import numpy
 import functools
-from matplotlib import pyplot as mplplot
-from matplotlib import colors as mplcolors
+
+import matplotlib.pyplot as mplplot
+import matplotlib.colors as mplcolors
+
 from matplotlib.collections import LineCollection
+
 from Loki.WWPlots import PlotColour
 from Loki.WWFields import FieldOperators
 
