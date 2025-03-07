@@ -38,5 +38,32 @@ def computeNorm(array1, array2, p=2, bool_normalise=False):
   else: raise ValueError(f"Invalid norm order `p={p}`. Must be positive or infinity.")
   return result
 
+def applyConvolution2D(data: numpy.ndarray, kernel: numpy.ndarray):
+  kernel_nrows, kernel_ncols = kernel.shape
+  pad_nrows   = kernel_nrows // 2
+  pad_ncols   = kernel_ncols // 2
+  padded_data = numpy.pad(data, ((pad_nrows, pad_nrows), (pad_ncols, pad_ncols)), mode="wrap")
+  data_nrows, data_ncols = data.shape
+  output = numpy.zeros((data_nrows, data_ncols), dtype=numpy.float64)
+  for index_row in range(data_nrows):
+    for index_col in range(data_ncols):
+      data_subset = padded_data[index_row:index_row+kernel_nrows, index_col:index_col+kernel_ncols]
+      output[index_row, index_col] = numpy.sum(data_subset * kernel)
+  return output
+
+def genGaussianFilter(size: int, sigma: float):
+  x = numpy.linspace(-(size // 2), size // 2, size)
+  y = numpy.linspace(-(size // 2), size // 2, size)
+  mg_x, mg_y = numpy.meshgrid(x, y)
+  kernel = numpy.exp(-(mg_x**2 + mg_y**2) / (2 * sigma**2))
+  kernel /= numpy.sum(kernel)
+  return kernel
+
+def smoothWithGaussianFilter(data: numpy.ndarray, sigma: float):
+  kernel_size = int(6 * sigma) + 1
+  kernel = genGaussianFilter(kernel_size, sigma)
+  smoothed_data = applyConvolution2D(data, kernel)
+  return smoothed_data
+
 
 ## END OF MODULE
