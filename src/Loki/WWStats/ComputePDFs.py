@@ -23,23 +23,6 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
   samples = norm_mean + norm_std * numpy.random.randn(num_samples)
   return samples
 
-# @Utils4Funcs.time_function
-# def computeJPDF(data_x, data_y, bedges_x=None, bedges_y=None, num_bins=None):
-#   if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
-#     raise ValueError("Error: you did not provide a binning option.")
-#   if bedges_x is None: bedges_x = numpy.linspace(numpy.min(data_x), numpy.max(data_x), num_bins+1)
-#   if bedges_y is None: bedges_y = numpy.linspace(numpy.min(data_y), numpy.max(data_y), num_bins+1)
-#   jpdf, _, _ = numpy.histogram2d(
-#     x    = data_x,
-#     y    = data_y,
-#     bins = [
-#       bedges_x,
-#       bedges_y
-#     ],
-#     density = True
-#   )
-#   return jpdf
-
 @Utils4Funcs.time_function
 def computeJPDF(
     data_x              : numpy.ndarray,

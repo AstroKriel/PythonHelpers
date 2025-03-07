@@ -29,7 +29,7 @@ def main():
     ax.set_ylabel(r"PDF$(x)$")
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
-  PlotUtils.saveFigure(fig, "test_Compute1DPDFs.png")
+  PlotUtils.saveFigure(fig, "test_ComputePDFs_compute1DPDF.png")
 
 
 ## ###############################################################

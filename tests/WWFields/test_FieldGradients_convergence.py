@@ -94,7 +94,7 @@ def main():
   axs[2].set_xscale("log")
   axs[2].set_yscale("log")
   print("Saving figure...")
-  PlotUtils.saveFigure(fig, "test_FieldGradients.png", bool_draft=False)
+  PlotUtils.saveFigure(fig, "test_FieldGradients_convergence.png", bool_draft=False)
 
 
 ## ###############################################################
