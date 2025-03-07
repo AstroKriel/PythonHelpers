@@ -11,12 +11,12 @@ from Loki.WWPlots import PlotUtils
 ## ###############################################################
 def generate_ellipse_samples(num_samples):
   center_x, center_y = 0, 0
-  a, b = 4, 2
-  theta = numpy.pi / 4
-  x_samples = numpy.random.normal(center_x, a, int(num_samples))
-  y_samples = numpy.random.normal(center_y, b, int(num_samples))
-  x_rot = (x_samples - center_x) * numpy.cos(theta) - (y_samples - center_y) * numpy.sin(theta) + center_x
-  y_rot = (x_samples - center_x) * numpy.sin(theta) + (y_samples - center_y) * numpy.cos(theta) + center_y
+  semi_major_axis, semi_minor_axis = 4, 2
+  rotation_angle_rad = numpy.pi / 4
+  x_samples = numpy.random.normal(center_x, semi_major_axis, int(num_samples))
+  y_samples = numpy.random.normal(center_y, semi_minor_axis, int(num_samples))
+  x_rot = (x_samples - center_x) * numpy.cos(rotation_angle_rad) - (y_samples - center_y) * numpy.sin(rotation_angle_rad) + center_x
+  y_rot = (x_samples - center_x) * numpy.sin(rotation_angle_rad) + (y_samples - center_y) * numpy.cos(rotation_angle_rad) + center_y
   return x_rot, y_rot
 
 
