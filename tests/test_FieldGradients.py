@@ -1,12 +1,16 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import numpy as np
+import numpy
 import matplotlib.pyplot as plt
 from Loki.WWFields import FieldGradients
 from Loki.WWStats import SimpleStats
 from Loki.WWPlots import PlotUtils
 
+
+## ###############################################################
+## SET GLOBAL PARAMETERS
+## ###############################################################
 plt.switch_backend("agg")
 
 
@@ -14,15 +18,15 @@ plt.switch_backend("agg")
 ## HELPER FUNCTIONS
 ## ###############################################################
 def getDomain(domain_bounds, num_points):
-  return np.linspace(domain_bounds[0], domain_bounds[1], int(num_points), endpoint=False) # to ensure periodicity
+  return numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_points), endpoint=False) # to ensure periodicity
 
 def getData(array_x):
-  # return np.sin(array_x)
-  return np.sin(2*array_x) + np.cos(array_x)
+  # return numpy.sin(array_x)
+  return numpy.sin(2*array_x) + numpy.cos(array_x)
 
 def getExactDerivative(array_x):
-  # return np.cos(array_x)
-  return 2*np.cos(2*array_x) - np.sin(array_x)
+  # return numpy.cos(array_x)
+  return 2*numpy.cos(2*array_x) - numpy.sin(array_x)
 
 def getApproxDerivative(data_x, data_y, func_dydx):
   cell_width = (data_x[-1] - data_x[0]) / len(data_x)
@@ -45,7 +49,7 @@ def main():
     {"label": "6th order", "order": -6, "func": FieldGradients.gradient_6ocd, "color": "royalblue"},
   ]
   num_samples      = 15
-  domain_bounds    = [0, 2*np.pi]
+  domain_bounds    = [0, 2*numpy.pi]
   list_num_points  = [5, 10, 20, 50, 1e2, 2e2, 5e2, 1e3]
   array_x_approx   = getDomain(domain_bounds, num_samples)
   array_x_exact    = getDomain(domain_bounds, 100)
@@ -66,14 +70,14 @@ def main():
       x = getDomain(domain_bounds, num_points)
       y = getData(x)
       array_dydx_analytic = getExactDerivative(x)
-      array_dydx_numeric = method_func(y, np.diff(x).mean(), 0)
+      array_dydx_numeric = method_func(y, numpy.diff(x).mean(), 0)
       error = SimpleStats.computeNorm(array_dydx_numeric, array_dydx_analytic, p=2, bool_normalise=True)
       list_errors.append(error)
-    array_inv_dx = np.array(list_num_points) / (domain_bounds[1] - domain_bounds[0])
+    array_inv_dx = numpy.array(list_num_points) / (domain_bounds[1] - domain_bounds[0])
     axs[2].loglog(array_inv_dx, list_errors, "o", ms=10, color=method_color, label=method_label)
-    index_fit = np.argmax(array_inv_dx)
+    index_fit = numpy.argmax(array_inv_dx)
     amplitiude = fitPowerlaw(array_inv_dx[index_fit], list_errors[index_fit], method_order)
-    array_fitted_errors = amplitiude * np.array(array_inv_dx, dtype=float)**(method_order)
+    array_fitted_errors = amplitiude * numpy.array(array_inv_dx, dtype=float)**(method_order)
     axs[2].loglog(
       array_inv_dx, array_fitted_errors,
       ls="--", lw=2, color=method_color, label=f"$O(h^{{{method_order}}})$"
