@@ -5,7 +5,7 @@
 ## MODULES
 ## ###############################################################
 import numpy
-from Loki.WWLogging import FuncUtils
+from Loki.Utils import Utils4Funcs
 
 
 ## ###############################################################
@@ -22,50 +22,79 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
   samples = norm_mean + norm_std * numpy.random.randn(num_samples)
   return samples
 
-@FuncUtils.time_function
-def computeJPDF(data_x, data_y, bedges_x, bedges_y):
-  jpdf, _, _ = numpy.histogram2d(
-    x    = data_x,
-    y    = data_y,
-    bins = [
-      bedges_x,
-      bedges_y
-    ],
-    density = True
-  )
-  return jpdf
+# @Utils4Funcs.time_function
+# def computeJPDF(data_x, data_y, bedges_x=None, bedges_y=None, num_bins=None):
+#   if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
+#     raise ValueError("Error: you did not provide a binning option.")
+#   if bedges_x is None: bedges_x = numpy.linspace(numpy.min(data_x), numpy.max(data_x), num_bins+1)
+#   if bedges_y is None: bedges_y = numpy.linspace(numpy.min(data_y), numpy.max(data_y), num_bins+1)
+#   jpdf, _, _ = numpy.histogram2d(
+#     x    = data_x,
+#     y    = data_y,
+#     bins = [
+#       bedges_x,
+#       bedges_y
+#     ],
+#     density = True
+#   )
+#   return jpdf
 
-@FuncUtils.time_function
-def compute1DPDF(data, bin_edges=None, num_bins=None, weights=None):
-  if bin_edges is not None:
-    bin_counts = numpy.zeros(len(bin_edges)-1, dtype=float)
-  elif num_bins is not None:
-    bin_edges  = numpy.linspace(numpy.min(data), numpy.max(data), num_bins+1)
-    bin_counts = numpy.zeros(num_bins, dtype=float)
-  else: raise ValueError("Error: you did not provide a binning option.")
-  ## assume uniform binning
-  bin_width = numpy.abs(bin_edges[1] - bin_edges[0])
-  ## use binary search to determine the bin index for each element in the data
-  bin_indices = numpy.searchsorted(bin_edges, data) - 1
-  ## increment the corresponding bin count for each element
-  if weights is None: numpy.add.at(bin_counts, bin_indices, 1)
+@Utils4Funcs.time_function
+def computeJPDF(
+    data_x, data_y,
+    bedges_x = None,
+    bedges_y = None,
+    num_bins = None,
+    weights  = None,
+    bedge_extend_factor = 0.0
+  ):
+  """Compute the 2D joint probability density function (JPDF)."""
+  if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
+    raise ValueError("Error: you did not provide a binning option.")
+  if bedges_x is None: bedges_x = compute1DBins(data_x, num_bins, bedge_extend_factor)
+  if bedges_y is None: bedges_y = compute1DBins(data_y, num_bins, bedge_extend_factor)
+  bin_counts    = numpy.zeros((len(bedges_x)-1, len(bedges_y)-1), dtype=float)
+  bin_indices_x = numpy.clip(numpy.searchsorted(bedges_x, data_x, side="right")-1, 0, len(bedges_x)-2)
+  bin_indices_y = numpy.clip(numpy.searchsorted(bedges_y, data_y, side="right")-1, 0, len(bedges_y)-2)
+  if weights is None:
+    numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), 1)
+  else: numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), weights)
+  bin_area = numpy.abs((bedges_x[1] - bedges_x[0]) * (bedges_y[1] - bedges_y[0]))
+  jpdf = bin_counts / (numpy.sum(bin_counts) * bin_area)
+  return bedges_x, bedges_y, jpdf
+
+@Utils4Funcs.time_function
+def compute1DPDF(
+    data,
+    bedges   = None,
+    num_bins = None,
+    weights  = None,
+    bedge_extend_factor = 0.0
+  ):
+  """Compute the 1D probability density function (PDF) from the given dataset."""
+  if bedges is None:
+    if num_bins is None: raise ValueError("Error: you did not provide a binning option.")
+    bedges = compute1DBins(data, num_bins, bedge_extend_factor)
+  bin_counts = numpy.zeros(len(bedges) - 1, dtype=float)
+  bin_width = numpy.abs(bedges[1] - bedges[0])
+  bin_indices = numpy.searchsorted(bedges, data, side="right") - 1
+  bin_indices = numpy.clip(bin_indices, 0, len(bedges)-2)
+  if weights is None:
+    numpy.add.at(bin_counts, bin_indices, 1)
   else: numpy.add.at(bin_counts, bin_indices, weights)
-  ## compute the probability density function
-  pdf = numpy.append(0, bin_counts / numpy.sum(bin_counts) / bin_width)
-  ## return the bin edges and the computed pdf
-  return bin_edges, pdf
+  pdf = numpy.append(0, bin_counts / (numpy.sum(bin_counts) * bin_width))
+  return bedges, pdf
 
-@FuncUtils.time_function
-def compute1DBins(data, num_bins, factor_extend=3):
-  bedges, _ = compute1DPDF(data, num_bins=num_bins)
-  median_bedge = numpy.median(bedges)
-  ## extend bins
-  bedges = numpy.linspace(
-    start = median_bedge - factor_extend * numpy.abs(median_bedge - bedges[0]),
-    stop  = median_bedge + factor_extend * numpy.abs(median_bedge - bedges[-1]),
-    num   = factor_extend * num_bins
+def compute1DBins(data, num_bins, extend_factor=0.0):
+  data_p16 = numpy.percentile(data, 16)
+  data_p50 = numpy.percentile(data, 50)
+  data_p84 = numpy.percentile(data, 84)
+  return numpy.linspace(
+    start = data_p16 - (2 + extend_factor) * (data_p50 - data_p16),
+    stop  = data_p84 + (2 + extend_factor) * (data_p84 - data_p50),
+    num   = num_bins
   )
-  return bedges
+
 
 
 ## END OF MODULE

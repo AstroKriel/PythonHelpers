@@ -4,8 +4,10 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+import numpy
 import matplotlib.pyplot as mplplot
 from matplotlib.gridspec import GridSpec
+from typing import Union
 from Loki.WWPlots.PlotStyler import *
 
 
@@ -13,13 +15,18 @@ from Loki.WWPlots.PlotStyler import *
 ## FUNCTIONS
 ## ###############################################################
 def initFigure(
-    num_rows         = 1,
-    num_cols         = 1,
-    fig_scale        = 1.0,
-    fig_aspect_ratio = (4, 6),
-    wspace           = -1,
-    hspace           = -1
-  ):
+    num_rows         : int   = 1,
+    num_cols         : int   = 1,
+    fig_scale        : float = 1.25,
+    fig_aspect_ratio : tuple = (4, 6),
+    wspace           : float = -1,
+    hspace           : float = -1,
+    bool_return_axis : bool  = True
+  ) -> Union[
+    tuple[mplplot.Figure, numpy.ndarray],
+    tuple[mplplot.Figure, GridSpec]
+  ]:
+  """Initialize a figure with a flexible grid layout."""
   fig = mplplot.figure(
     constrained_layout = True,
     figsize            = (
@@ -32,6 +39,13 @@ def initFigure(
     wspace = wspace,
     hspace = hspace
   )
+  if bool_return_axis:
+    if num_rows + num_cols == 2: return fig, fig.add_subplot(fig_grid[0,0])
+    axs = numpy.empty((num_rows, num_cols), dtype=object)
+    for row in range(num_rows):
+      for col in range(num_cols):
+        axs[row, col] = fig.add_subplot(fig_grid[row, col])
+    return fig, numpy.squeeze(axs)
   return fig, fig_grid
 
 def saveFigure(fig, filepath_fig, bool_tight=True, bool_draft=False, bool_verbose=True):

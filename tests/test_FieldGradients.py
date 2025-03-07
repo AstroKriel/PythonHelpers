@@ -2,16 +2,9 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-import matplotlib.pyplot as plt
 from Loki.WWFields import FieldGradients
 from Loki.WWStats import SimpleStats
 from Loki.WWPlots import PlotUtils
-
-
-## ###############################################################
-## SET GLOBAL PARAMETERS
-## ###############################################################
-plt.switch_backend("agg")
 
 
 ## ###############################################################
@@ -42,7 +35,7 @@ def fitPowerlaw(x_0, y_0, b):
 ## NUMERICAL CONVERGENCE TEST
 ## ###############################################################
 def main():
-  fig, axs = plt.subplots(ncols=1, nrows=3, figsize=(10, 3 * 5))
+  fig, axs = PlotUtils.initFigure(num_rows=3)
   dict_methods = [
     {"label": "2nd order", "order": -2, "func": FieldGradients.gradient_2ocd, "color": "red"},
     {"label": "4th order", "order": -4, "func": FieldGradients.gradient_4ocd, "color": "forestgreen"},
@@ -103,5 +96,6 @@ def main():
 ## ###############################################################
 if __name__ == "__main__":
   main()
+
 
 ## END OF TEST
