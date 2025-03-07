@@ -7,7 +7,7 @@
 import numpy
 from copy import deepcopy
 from typing import Any
-from Loki.WWLogging import VarUtils
+from Loki.Utils import Utils4Vars
 
 
 ## ###############################################################
@@ -18,8 +18,8 @@ def mergeDicts(
     dict_2: dict[str, Any]
   ) -> dict[str, Any]:
   """Recursively merges two dictionaries without modifying the originals."""
-  VarUtils.assertType(dict_1, dict)
-  VarUtils.assertType(dict_2, dict)
+  Utils4Vars.assertType(dict_1, dict)
+  Utils4Vars.assertType(dict_2, dict)
   dict_out = dict_1.copy()
   for key, value in dict_2.items():
     if key in dict_out:
@@ -44,8 +44,8 @@ def filterDict2ExcludeKeys(
     dict_in: dict[str, Any],
     list_keys: list
   ) -> dict[str, Any]:
-  VarUtils.assertType(dict_in, dict)
-  VarUtils.assertType(list_keys, list)
+  Utils4Vars.assertType(dict_in, dict)
+  Utils4Vars.assertType(list_keys, list)
   return {
     key : value
     for key, value in dict_in.items()

@@ -10,12 +10,15 @@ import warnings
 
 
 ## ###############################################################
-## FUNCTIONS
+## FUNCTION DECORATORS
 ## ###############################################################
 def time_function(func):
   def wrapper(*args, **kwargs):
     time_start = time.time()
-    result = func(*args, **kwargs)
+    try:
+      result = func(*args, **kwargs)
+    except Exception as error:
+      raise RuntimeError(f"Error occurred in {func.__name__}() while measuring the elapsed time.") from error
     time_elapsed = time.time() - time_start
     print(f"{func.__name__}() took {time_elapsed:.3f} seconds to execute.")
     return result
@@ -24,14 +27,10 @@ def time_function(func):
 def warn_if_result_is_unused(func):
   def wrapper(*args, **kwargs):
     result = func(*args, **kwargs)
+    ## check that the result is being assigned -> used
     calling_frame = inspect.currentframe().f_back
-    ## check if the result is being assigned
-    src = inspect.getsource(calling_frame)
-    call_line = src.split("\n")[calling_frame.f_lineno - calling_frame.f_code.co_firstlineno]
-    if not any([
-        elem in call_line
-        for elem in ["=", "return"]
-      ]):
+    call_line = inspect.getsource(calling_frame).split("\n")[calling_frame.f_lineno - calling_frame.f_code.co_firstlineno]
+    if ("=" not in call_line) and ("return" not in call_line) and (result is not None):
       warnings.warn(f"Return value of {func.__name__} is not being used", UserWarning, stacklevel=2)
     return result
   return wrapper

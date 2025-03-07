@@ -6,6 +6,7 @@
 ## ###############################################################
 import matplotlib.pyplot as mplplot
 from matplotlib.gridspec import GridSpec
+from Loki.WWPlots.PlotStyler import *
 
 
 ## ###############################################################

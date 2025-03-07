@@ -6,13 +6,13 @@
 ## ###############################################################
 import numpy
 from Loki.WWFields import FieldOperators
-from Loki.WWLogging import FuncUtils
+from Loki.Utils import Utils4Funcs
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-@FuncUtils.time_function
+@Utils4Funcs.time_function
 def computeTNBTerms(vfield_b, box_width=1.0, grad_order=2):
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)
@@ -41,7 +41,7 @@ def computeTNBTerms(vfield_b, box_width=1.0, grad_order=2):
   vbasis_binormal = FieldOperators.vfieldCrossProduct(vbasis_tangent, vbasis_normal)
   return vbasis_tangent, vbasis_normal, vbasis_binormal, sfield_curvature
 
-@FuncUtils.time_function
+@Utils4Funcs.time_function
 def computeCurvatureTerms(vbasis_normal, vbasis_tangent, vfield_u, box_width=1.0, grad_order=2):
   ## du_j/dx_i: (component-j, gradient-direction-i, x, y, z)
   r2tensor_grad_u = FieldOperators.vfieldGradient(vfield_u, box_width, grad_order)
@@ -53,7 +53,7 @@ def computeCurvatureTerms(vbasis_normal, vbasis_tangent, vfield_u, box_width=1.0
   sfield_compression = numpy.einsum("iixyz->xyz", r2tensor_grad_u)
   return sfield_curvature, sfield_stretching, sfield_compression
 
-@FuncUtils.time_function
+@Utils4Funcs.time_function
 def computeLorentzForce(vfield_b, box_width=1.0, grad_order=2):
   vfield_b = numpy.array(vfield_b)
   vbasis_tangent, vbasis_normal, _, sfield_kappa = computeTNBTerms(vfield_b, box_width, grad_order)

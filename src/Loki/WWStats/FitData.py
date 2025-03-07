@@ -6,7 +6,7 @@
 ## ###############################################################
 import numpy
 import statsmodels.api as sm
-from Loki.WWLogging import FuncUtils
+from Loki.Utils import Utils4Funcs
 
 
 ## ###############################################################

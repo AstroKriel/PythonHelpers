@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWLogging import VarUtils
+from Loki.Utils import Utils4Vars
 
 
 ## ###############################################################
@@ -17,8 +17,8 @@ def getIntersectOfLists(
     bool_sort: bool=False
   ) -> list:
   """Returns the intersection of two lists, optionally sorted."""
-  VarUtils.assertType(list1, list)
-  VarUtils.assertType(list2, list)
+  Utils4Vars.assertType(list1, list)
+  Utils4Vars.assertType(list2, list)
   if (len(list1) == 0) or (len(list2) == 0): return []
   set_intersect = set(list1) & set(list2)
   return sorted(set_intersect) if bool_sort else list(set_intersect)
@@ -29,8 +29,8 @@ def getUnionOfLists(
     bool_sort: bool=False
   ) -> list:
   """Returns the union of two lists, optionally sorted."""
-  VarUtils.assertType(list1, list)
-  VarUtils.assertType(list2, list)
+  Utils4Vars.assertType(list1, list)
+  Utils4Vars.assertType(list2, list)
   if (len(list1) == 0) or (len(list2) == 0): return list1 + list2
   set_union = set(list1) | set(list2)
   return sorted(set_union) if bool_sort else list(set_union)
@@ -40,8 +40,8 @@ def getIndexOfClosestValue(
     target_value: float
   ) -> int:
   """Finds the index of the value in `list_vals` that is closest to `target_value`."""
-  VarUtils.assertType(list_vals, list)
-  VarUtils.assertType(target_value, (int, float))
+  Utils4Vars.assertType(list_vals, list)
+  Utils4Vars.assertType(target_value, (int, float))
   if len(list_vals) == 0: raise ValueError("Input list cannot be empty")
   array_vals = numpy.asarray(list_vals)
   if target_value is None: return None
@@ -51,7 +51,7 @@ def getIndexOfClosestValue(
 
 def flattenList(list_elems: list) -> list:
   """Flattens a nested list into a single list."""
-  VarUtils.assertType(list_elems, list)
+  Utils4Vars.assertType(list_elems, list)
   if all(
     not isinstance(elem, list)
     for elem in list_elems

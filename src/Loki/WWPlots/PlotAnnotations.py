@@ -7,7 +7,7 @@
 from matplotlib.lines import Line2D
 from matplotlib.offsetbox import TextArea, VPacker, AnnotationBbox
 
-from Loki.WWCollections import ListUtils
+from Loki.Utils import Utils4Lists
 
 
 ## ###############################################################
@@ -51,8 +51,8 @@ def addLegend_fromArtists(
   ):
   if len(list_artists) + len(list_legend_labels) == 0: return
   ## check that the config are the correct length
-  ListUtils.extendListToMatchLength(list_artists,       list_legend_labels)
-  ListUtils.extendListToMatchLength(list_marker_colors, list_legend_labels)
+  Utils4Lists.extendListToMatchLength(list_artists,       list_legend_labels)
+  Utils4Lists.extendListToMatchLength(list_marker_colors, list_legend_labels)
   ## iniialise list of artists to draw
   list_legend_artists = []
   ## lists of artists the user can choose from
@@ -108,7 +108,7 @@ def addBoxOfLabels(
     fontsize    = 16,
   ):
   if len(list_labels) == 0: return
-  ListUtils.extendListToMatchLength(list_colors, list_labels)
+  Utils4Lists.extendListToMatchLength(list_colors, list_labels)
   list_text_areas = [
     TextArea(label, textprops={
       "fontsize" : fontsize,

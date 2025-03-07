@@ -7,7 +7,7 @@
 import os
 import shutil
 import numpy
-from Loki.WWCollections import ListUtils
+from Loki.Utils import Utils4Lists
 
 
 ## ###############################################################
@@ -16,7 +16,7 @@ from Loki.WWCollections import ListUtils
 def createFilepathString(list_directories_and_filename):
   return os.path.normpath(
     os.path.join(
-      *ListUtils.flattenList(list_directories_and_filename)
+      *Utils4Lists.flattenList(list_directories_and_filename)
     )
   )
 
