@@ -35,15 +35,15 @@ def fitPowerlaw(x_0, y_0, b):
 ## NUMERICAL CONVERGENCE TEST
 ## ###############################################################
 def main():
-  fig, axs = PlotUtils.initFigure(num_rows=3)
+  fig, axs = PlotUtils.initFigure(num_rows=3, fig_scale=1.35)
   dict_methods = [
     {"label": "2nd order", "order": -2, "func": FieldGradients.gradient_2ocd, "color": "red"},
     {"label": "4th order", "order": -4, "func": FieldGradients.gradient_4ocd, "color": "forestgreen"},
     {"label": "6th order", "order": -6, "func": FieldGradients.gradient_6ocd, "color": "royalblue"},
   ]
   num_samples      = 15
-  domain_bounds    = [0, 2*numpy.pi]
-  list_num_points  = [5, 10, 20, 50, 1e2, 2e2, 5e2, 1e3]
+  domain_bounds    = [ 0, 2*numpy.pi ]
+  list_num_points  = [ 5, 10, 20, 50, 1e2, 2e2, 5e2, 1e3 ]
   array_x_approx   = getDomain(domain_bounds, num_samples)
   array_x_exact    = getDomain(domain_bounds, 100)
   array_y_approx   = getData(array_x_approx)
@@ -75,6 +75,12 @@ def main():
       array_inv_dx, array_fitted_errors,
       ls="--", lw=2, color=method_color, label=f"$O(h^{{{method_order}}})$"
     )
+  dydx_min = numpy.min(array_dydx_exact)
+  dydx_max = numpy.max(array_dydx_exact)
+  axs[1].set_ylim([ 
+    1.2 * dydx_min if (numpy.sign(dydx_min) < 0.0) else 0.8 * dydx_min,
+    0.8 * dydx_max if (numpy.sign(dydx_max) < 0.0) else 1.65 * dydx_max
+  ])
   axs[1].text(0.5, 0.95, f"example with {num_samples} sampled points", ha="center", va="top", transform=axs[1].transAxes)
   axs[0].set_xlabel(r"$x$")
   axs[1].set_xlabel(r"$x$")

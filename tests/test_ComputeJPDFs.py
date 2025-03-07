@@ -33,7 +33,7 @@ def main():
   # ax.scatter(x_samples, y_samples, color="red", s=10, alpha=1e-1)
   ax.set_xlim([ numpy.min(bedges_x), numpy.max(bedges_x) ])
   ax.set_ylim([ numpy.min(bedges_y), numpy.max(bedges_y) ])
-  PlotUtils.saveFigure(fig, "test_FitData.png")
+  PlotUtils.saveFigure(fig, "test_ComputeJPDFs.png")
 
 
 ## ###############################################################
