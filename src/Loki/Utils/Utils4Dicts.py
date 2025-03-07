@@ -6,7 +6,6 @@
 ## ###############################################################
 import numpy
 from copy import deepcopy
-from typing import Any
 from Loki.Utils import Utils4Vars
 
 
@@ -14,9 +13,9 @@ from Loki.Utils import Utils4Vars
 ## FUNCTIONS
 ## ###############################################################
 def mergeDicts(
-    dict_1: dict[str, Any],
-    dict_2: dict[str, Any]
-  ) -> dict[str, Any]:
+    dict_1: dict,
+    dict_2: dict
+  ) -> dict:
   """Recursively merges two dictionaries without modifying the originals."""
   Utils4Vars.assertType(dict_1, dict)
   Utils4Vars.assertType(dict_2, dict)
@@ -41,9 +40,9 @@ def mergeDicts(
   return dict_out
 
 def filterDict2ExcludeKeys(
-    dict_in: dict[str, Any],
+    dict_in: dict,
     list_keys: list
-  ) -> dict[str, Any]:
+  ) -> dict:
   Utils4Vars.assertType(dict_in, dict)
   Utils4Vars.assertType(list_keys, list)
   return {
@@ -53,8 +52,8 @@ def filterDict2ExcludeKeys(
   }
 
 def checkIfDictsAreDifferent(
-      dict_new: dict[str, Any],
-      dict_ref: dict[str, Any]
+      dict_new: dict,
+      dict_ref: dict
     ) -> bool:
     ## check that the dictionaries have the same number of keys
     if len(dict_new) != len(dict_ref): return True
@@ -66,7 +65,7 @@ def checkIfDictsAreDifferent(
     return False
 
 def printDict(
-    input_dict: dict[str, Any],
+    input_dict: dict,
     indent : int = 0
   ):
   def _printWithIndent(indent, str_pre, str_post=None):
