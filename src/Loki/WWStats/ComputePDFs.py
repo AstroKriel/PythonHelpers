@@ -41,12 +41,13 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
 
 @Utils4Funcs.time_function
 def computeJPDF(
-    data_x, data_y,
-    bedges_x = None,
-    bedges_y = None,
-    num_bins = None,
-    weights  = None,
-    bedge_extend_factor = 0.0
+    data_x              : numpy.ndarray,
+    data_y              : numpy.ndarray,
+    bedges_x            : numpy.ndarray = None,
+    bedges_y            : numpy.ndarray = None,
+    num_bins            : int   = None,
+    weights             : float = None,
+    bedge_extend_factor : float = 0.0,
   ):
   """Compute the 2D joint probability density function (JPDF)."""
   if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
@@ -65,11 +66,11 @@ def computeJPDF(
 
 @Utils4Funcs.time_function
 def compute1DPDF(
-    data,
-    bedges   = None,
-    num_bins = None,
-    weights  = None,
-    bedge_extend_factor = 0.0
+    data     : numpy.ndarray,
+    bedges   : numpy.ndarray = None,
+    num_bins : int   = None,
+    weights  : float = None,
+    bedge_extend_factor : float = 0.0
   ):
   """Compute the 1D probability density function (PDF) from the given dataset."""
   if bedges is None:
@@ -85,14 +86,18 @@ def compute1DPDF(
   pdf = numpy.append(0, bin_counts / (numpy.sum(bin_counts) * bin_width))
   return bedges, pdf
 
-def compute1DBins(data, num_bins, extend_factor=0.0):
+def compute1DBins(
+    data          : numpy.ndarray,
+    num_bins      : int,
+    extend_factor : float = 0.0
+  ):
   data_p16 = numpy.percentile(data, 16)
   data_p50 = numpy.percentile(data, 50)
   data_p84 = numpy.percentile(data, 84)
   return numpy.linspace(
     start = data_p16 - (2 + extend_factor) * (data_p50 - data_p16),
     stop  = data_p84 + (2 + extend_factor) * (data_p84 - data_p50),
-    num   = num_bins
+    num   = int(num_bins)
   )
 
 
