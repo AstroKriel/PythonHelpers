@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWStats import ComputePDFs
+from Loki.WWData import ComputePDFs
 from Loki.WWPlots import PlotUtils
 
 
@@ -29,7 +29,7 @@ def main():
     ax.set_ylabel(r"PDF$(x)$")
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
-  PlotUtils.saveFigure(fig, "test_ComputePDFs_compute1DPDF.png")
+  PlotUtils.saveFigure(fig, "estimate_1d_pdf.png")
 
 
 ## ###############################################################

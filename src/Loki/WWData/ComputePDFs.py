@@ -6,7 +6,7 @@
 ## ###############################################################
 import numpy
 from Loki.Utils import Utils4Funcs
-from Loki.WWStats import SimpleStats
+from Loki.WWData import SimpleStats
 
 
 ## ###############################################################

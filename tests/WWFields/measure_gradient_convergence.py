@@ -2,9 +2,9 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWFields import FieldGradients
-from Loki.WWStats import SimpleStats
+from Loki.WWData import SimpleStats
 from Loki.WWPlots import PlotUtils
+from Loki.WWFields import FieldGradients
 
 
 ## ###############################################################
@@ -14,11 +14,9 @@ def getDomain(domain_bounds, num_points):
   return numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_points), endpoint=False) # to ensure periodicity
 
 def getData(array_x):
-  # return numpy.sin(array_x)
   return numpy.sin(2*array_x) + numpy.cos(array_x)
 
 def getExactDerivative(array_x):
-  # return numpy.cos(array_x)
   return 2*numpy.cos(2*array_x) - numpy.sin(array_x)
 
 def getApproxDerivative(data_x, data_y, func_dydx):
@@ -94,7 +92,7 @@ def main():
   axs[2].set_xscale("log")
   axs[2].set_yscale("log")
   print("Saving figure...")
-  PlotUtils.saveFigure(fig, "test_FieldGradients_convergence.png", bool_draft=False)
+  PlotUtils.saveFigure(fig, "measure_gradient_convergence.png", bool_draft=False)
 
 
 ## ###############################################################
