@@ -34,16 +34,17 @@ def checkIfShellPrivilegesAreRequired(command):
 
 def runCommand(
     command,
-    directory = None,
-    timeout   = None,
-    bool_capture_output = True,
+    directory           : str   = None,
+    timeout_seconds     : float = 15,
+    bool_capture_output : bool  = True,
+    bool_force_shell    : bool  = False,
   ):
-  bool_shell_required = checkIfShellPrivilegesAreRequired(command)
+  bool_shell_required = bool_force_shell or checkIfShellPrivilegesAreRequired(command)
   try:
     result = subprocess.run(
       command if bool_shell_required else shlex.split(command),
       cwd            = directory,
-      timeout        = timeout,
+      timeout        = timeout_seconds,
       capture_output = bool_capture_output,
       shell          = bool_shell_required,
       check          = False,
@@ -52,7 +53,7 @@ def runCommand(
   except FileNotFoundError as exception:
     raise RuntimeError(f"Command `{command}` could not be executed.") from exception
   except subprocess.TimeoutExpired as exception:
-    raise RuntimeError(f"Command `{command}` timed out after `{timeout}` seconds.") from exception
+    raise RuntimeError(f"Command `{command}` timed out after `{timeout_seconds}` seconds.") from exception
   if bool_capture_output and (result.returncode != 0):
     message = f"The following command failed with return code `{result.returncode}`: {command}"
     if result.stdout: message += f"\nstdout: {result.stdout.strip()}"
