@@ -40,17 +40,17 @@ def main():
     smoothing_length = 2.0
   )
   fig, ax = PlotUtils.initFigure(num_cols=1)
-  ax.contourf(bedges_rows[:-1], bedges_cols[:-1], jpdf.T, levels=20, cmap="Blues")
+  ax.contourf(bedges_cols[:-1], bedges_rows[:-1], jpdf, levels=20, cmap="Blues")
   ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
-  # x_range = numpy.linspace(numpy.min(x_samples), numpy.max(x_samples), 100)
-  # intercept, slope = FitData.fitLineToMasked2DJPDF(bedges_cols, bedges_rows, jpdf, percent_threshold=0.85, ax=ax)
-  # intercept = intercept / 1.75
-  # print(f"estimated fit: y = {slope:.3f} x + {intercept:.3f}")
-  # ax.plot(x_range, x_range/slope - intercept, ls="--", color="black", zorder=7)
+  x_range = numpy.linspace(numpy.min(x_samples), numpy.max(x_samples), 100)
+  intercept, slope = FitData.fitLineToMasked2DJPDF(bedges_rows, bedges_cols, jpdf, percent_threshold=0.85, ax=ax)
+  intercept = intercept / 1.75
+  print(f"estimated fit: y = {slope:.3f} x + {intercept:.3f}")
+  ax.plot(x_range, x_range/slope - intercept, ls="--", color="red", zorder=7)
   ax.axhline(y=0, color="black", ls="--", zorder=1)
   ax.axvline(x=0, color="black", ls="--", zorder=1)
-  # ax.set_xlim([ numpy.min(bedges_cols), numpy.max(bedges_cols) ])
-  # ax.set_ylim([ numpy.min(bedges_rows), numpy.max(bedges_rows) ])
+  ax.set_xlim([ numpy.min(bedges_cols), numpy.max(bedges_cols) ])
+  ax.set_ylim([ numpy.min(bedges_rows), numpy.max(bedges_rows) ])
   ax.grid(True, which="both", linestyle="--", linewidth=0.5)
   PlotUtils.saveFigure(fig, "estimate_and_fit_jpdf.png")
 
