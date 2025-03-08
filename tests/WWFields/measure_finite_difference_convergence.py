@@ -92,7 +92,7 @@ def main():
   axs[2].set_xscale("log")
   axs[2].set_yscale("log")
   print("Saving figure...")
-  PlotUtils.saveFigure(fig, "measure_gradient_convergence.png", bool_draft=False)
+  PlotUtils.saveFigure(fig, "measure_finite_difference_convergence.png", bool_draft=False)
 
 
 ## ###############################################################

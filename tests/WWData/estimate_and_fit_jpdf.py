@@ -69,7 +69,7 @@ def main():
   num_points = 1e5
   num_bins   = 1e2
   bool_plot_samples = 0
-  fig, ax = PlotUtils.initFigure(num_cols=1)
+  fig, ax = PlotUtils.initFigure()
   x_samples, y_samples = sampleFromEllipse(num_points, ax)
   bedges_rows, bedges_cols, jpdf = ComputePDFs.computeJPDF(
     data_x   = x_samples,
