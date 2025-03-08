@@ -23,36 +23,11 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
   samples = norm_mean + norm_std * numpy.random.randn(num_samples)
   return samples
 
-@Utils4Funcs.time_function
-def computeJPDF(
-    data_x              : numpy.ndarray,
-    data_y              : numpy.ndarray,
-    bedges_x            : numpy.ndarray = None,
-    bedges_y            : numpy.ndarray = None,
-    num_bins            : int   = None,
-    weights             : float = None,
-    bedge_extend_factor : float = 0.0,
-  ):
-  """Compute the 2D joint probability density function (JPDF)."""
-  if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
-    raise ValueError("Error: you did not provide a binning option.")
-  if bedges_x is None: bedges_x = compute1DBins(data_x, num_bins, bedge_extend_factor)
-  if bedges_y is None: bedges_y = compute1DBins(data_y, num_bins, bedge_extend_factor)
-  bin_counts    = numpy.zeros((len(bedges_x)-1, len(bedges_y)-1), dtype=float)
-  bin_indices_x = numpy.clip(numpy.searchsorted(bedges_x, data_x, side="right")-1, 0, len(bedges_x)-2)
-  bin_indices_y = numpy.clip(numpy.searchsorted(bedges_y, data_y, side="right")-1, 0, len(bedges_y)-2)
-  if weights is None:
-    numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), 1)
-  else: numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), weights)
-  bin_area = numpy.abs((bedges_x[1] - bedges_x[0]) * (bedges_y[1] - bedges_y[0]))
-  jpdf = bin_counts / (numpy.sum(bin_counts) * bin_area)
-  return bedges_x, bedges_y, jpdf
-
 def computeJPDF(
   data_x              : numpy.ndarray,
   data_y              : numpy.ndarray,
-  bedges_x            : numpy.ndarray = None,
-  bedges_y            : numpy.ndarray = None,
+  bedges_cols         : numpy.ndarray = None,
+  bedges_rows         : numpy.ndarray = None,
   num_bins            : int = None,
   weights             : numpy.ndarray = None,
   bedge_extend_factor : float = 0.0,
@@ -61,22 +36,22 @@ def computeJPDF(
   """Compute the 2D joint probability density function (JPDF)."""
   if (len(data_x) == 0) or (len(data_y) == 0):
     raise ValueError("Error: Data arrays must not be empty.")
-  if (bedges_x is None) and (bedges_y is None) and (num_bins is None):
+  if (bedges_cols is None) and (bedges_rows is None) and (num_bins is None):
     raise ValueError("Error: You did not provide a binning option.")
-  if bedges_x is None: bedges_x = compute1DBins(data_x, num_bins, bedge_extend_factor)
-  if bedges_y is None: bedges_y = compute1DBins(data_y, num_bins, bedge_extend_factor)
-  bin_counts    = numpy.zeros((len(bedges_x) - 1, len(bedges_y) - 1), dtype=float)
-  bin_indices_x = numpy.clip(numpy.searchsorted(bedges_x, data_x, side="right") - 1, 0, len(bedges_x) - 2)
-  bin_indices_y = numpy.clip(numpy.searchsorted(bedges_y, data_y, side="right") - 1, 0, len(bedges_y) - 2)
+  if bedges_cols is None: bedges_cols = compute1DBins(data_x, num_bins, bedge_extend_factor)
+  if bedges_rows is None: bedges_rows = compute1DBins(data_y, num_bins, bedge_extend_factor)
+  bin_counts    = numpy.zeros((len(bedges_rows)-1, len(bedges_cols)-1), dtype=float)
+  bin_indices_cols = numpy.clip(numpy.searchsorted(bedges_cols, data_x, side="right")-1, 0, len(bedges_cols)-2)
+  bin_indices_rows = numpy.clip(numpy.searchsorted(bedges_rows, data_y, side="right")-1, 0, len(bedges_rows)-2)
   if weights is not None:
     if weights.size != data_x.size:
       raise ValueError("Error: The size of weights must match the size of data arrays.")
-    numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), weights)
-  else: numpy.add.at(bin_counts, (bin_indices_x, bin_indices_y), 1)
-  bin_area = numpy.abs((bedges_x[1] - bedges_x[0]) * (bedges_y[1] - bedges_y[0]))
+    numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), weights)
+  else: numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), 1)
+  bin_area = numpy.abs((bedges_cols[1] - bedges_cols[0]) * (bedges_rows[1] - bedges_rows[0]))
   jpdf = bin_counts / (numpy.sum(bin_counts) * bin_area)
   if smoothing_length is not None: jpdf = SimpleStats.smoothWithGaussianFilter(jpdf, smoothing_length)
-  return bedges_x, bedges_y, jpdf
+  return bedges_rows, bedges_cols, jpdf
 
 @Utils4Funcs.time_function
 def compute1DPDF(
