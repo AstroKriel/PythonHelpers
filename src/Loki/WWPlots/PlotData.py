@@ -34,7 +34,7 @@ def plotData_noAutoAxisScale(
   )
   ax.add_collection(col, autolim=False)
 
-def plotErrorBar_1D(
+def plotErrorBar(
     ax, x, array_y,
     label   = None,
     color   = "k",

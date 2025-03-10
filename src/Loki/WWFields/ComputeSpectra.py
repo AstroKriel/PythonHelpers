@@ -69,7 +69,7 @@ def sphericalIntegrate(
     spectrum_global = numpy.empty_like(spectrum_local)
     MPI_WORLD.Allreduce(spectrum_local, spectrum_global, op=MPI.SUM)
     ## avoid redundant operations by only having the root process return the final global result
-    return k_modes, spectrum_global if MPI_WORLD.Get_rank() == 0 else None
+    return k_modes, spectrum_global if MPI_WORLD.Get_rank() == 0 else None, None
   return k_modes, spectrum_local
 
 def computePowerSpectrum_1D(
@@ -80,6 +80,7 @@ def computePowerSpectrum_1D(
   spectrum_3d = computePowerSpectrum_3D(vfield_q, bool_use_mpi)
   if spectrum_3d is None: return None, None
   k_modes, spectrum_1d = sphericalIntegrate(spectrum_3d, bool_use_mpi)
+  if (k_modes is None) or (spectrum_1d is None): return None, None
   return k_modes, spectrum_1d
 
 

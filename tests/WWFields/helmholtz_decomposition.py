@@ -9,52 +9,52 @@ from Loki.WWPlots import PlotUtils
 ## ###############################################################
 ## FUNCTION: HELMHOLTZ DECOMPOSITION
 ## ###############################################################
-def computeHelmholtzDecomposition(vfield: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
+def computeHelmholtzDecomposition(vfield_q: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
   """
   Decomposes a 3D vector field into its solenoidal (divergence-free) and 
   compressive (curl-free) components using Helmholtz decomposition.
 
   Args:
-    vfield (numpy.ndarray): Input velocity field of shape (3, Nx, Ny, Nz),
-              where 3 corresponds to (vx, vy, vz).
+    vfield_q (numpy.ndarray): Input velocity field of shape (3, num_cells_x, num_cells_y, num_cells_z),
+              where 3 corresponds to (sfield_qx, sfield_qy, sfield_qz).
 
   Returns:
     tuple[numpy.ndarray, numpy.ndarray]: 
-    - Solenoidal component (3, Nx, Ny, Nz)
-    - Compressive component (3, Nx, Ny, Nz)
+    - solenoidal component (3, num_cells_x, num_cells_y, num_cells_z)
+    - compressive component (3, num_cells_x, num_cells_y, num_cells_z)
   """
-  assert vfield.shape[0] == 3, "Input vector field must have shape (3, Nx, Ny, Nz)"
-  vx, vy, vz = vfield
-  Nx, Ny, Nz = vx.shape
-  kx = numpy.fft.fftfreq(Nx) * Nx
-  ky = numpy.fft.fftfreq(Ny) * Ny
-  kz = numpy.fft.fftfreq(Nz) * Nz
-  kx, ky, kz = numpy.meshgrid(kx, ky, kz, indexing="ij")
-  k_squared = kx**2 + ky**2 + kz**2
-  ## avoid division by zero
-  k_squared[0, 0, 0] = 1
-  v_hat_x = numpy.fft.fftn(vx)
-  v_hat_y = numpy.fft.fftn(vy)
-  v_hat_z = numpy.fft.fftn(vz)
+  assert vfield_q.shape[0] == 3, "Input vector field must have shape (3, num_cells_x, num_cells_y, num_cells_z)"
+  sfield_qx, sfield_qy, sfield_qz = vfield_q
+  num_cells_x, num_cells_y, num_cells_z = sfield_qx.shape
+  array_kx = numpy.fft.fftfreq(num_cells_x) * num_cells_x
+  array_ky = numpy.fft.fftfreq(num_cells_y) * num_cells_y
+  array_kz = numpy.fft.fftfreq(num_cells_z) * num_cells_z
+  grid_kx, grid_ky, grid_kz = numpy.meshgrid(array_kx, array_ky, array_kz, indexing="ij")
+  grid_k_magn = grid_kx**2 + grid_ky**2 + grid_kz**2
+  grid_k_magn[0, 0, 0] = 1 # avoid division by zero
+  sfield_hat_qx = numpy.fft.fftn(sfield_qx)
+  sfield_hat_qy = numpy.fft.fftn(sfield_qy)
+  sfield_hat_qz = numpy.fft.fftn(sfield_qz)
   # dot product: for compressive component
-  k_dot_v = kx * v_hat_x + ky * v_hat_y + kz * v_hat_z
+  sfield_q_dot_k = grid_kx * sfield_hat_qx + grid_ky * sfield_hat_qy + grid_kz * sfield_hat_qz
   ## compressive (curl-free) component
-  v_hat_comp_x = (k_dot_v / k_squared) * kx
-  v_hat_comp_y = (k_dot_v / k_squared) * ky
-  v_hat_comp_z = (k_dot_v / k_squared) * kz
+  sfield_hat_qx_comp = (sfield_q_dot_k / grid_k_magn) * grid_kx
+  sfield_hat_qy_comp = (sfield_q_dot_k / grid_k_magn) * grid_ky
+  sfield_hat_qz_comp = (sfield_q_dot_k / grid_k_magn) * grid_kz
   ## solenoidal (divergence-free) component
-  v_hat_sol_x = v_hat_x - v_hat_comp_x
-  v_hat_sol_y = v_hat_y - v_hat_comp_y
-  v_hat_sol_z = v_hat_z - v_hat_comp_z
+  sfield_hat_qx_sol = sfield_hat_qx - sfield_hat_qx_comp
+  sfield_hat_qy_sol = sfield_hat_qy - sfield_hat_qy_comp
+  sfield_hat_qz_sol = sfield_hat_qz - sfield_hat_qz_comp
+  ## convert back to real space
   v_sol = numpy.stack([
-    numpy.fft.ifftn(v_hat_sol_x).real,
-    numpy.fft.ifftn(v_hat_sol_y).real,
-    numpy.fft.ifftn(v_hat_sol_z).real
+    numpy.fft.ifftn(sfield_hat_qx_sol).real,
+    numpy.fft.ifftn(sfield_hat_qy_sol).real,
+    numpy.fft.ifftn(sfield_hat_qz_sol).real
   ])
   v_comp = numpy.stack([
-    numpy.fft.ifftn(v_hat_comp_x).real,
-    numpy.fft.ifftn(v_hat_comp_y).real,
-    numpy.fft.ifftn(v_hat_comp_z).real
+    numpy.fft.ifftn(sfield_hat_qx_comp).real,
+    numpy.fft.ifftn(sfield_hat_qy_comp).real,
+    numpy.fft.ifftn(sfield_hat_qz_comp).real
   ])
   return v_sol, v_comp
 
@@ -62,50 +62,50 @@ def computeHelmholtzDecomposition(vfield: numpy.ndarray) -> tuple[numpy.ndarray,
 ## ###############################################################
 ## ANALYTIC TEST FIELDS
 ## ###############################################################
-def genSolenoidalVField(Nx, Ny, Nz):
+def genSolenoidalvfield_q(num_cells_x, num_cells_y, num_cells_z):
   """Generate a divergence-free (solenoidal) vector field: curl of a potential."""
-  x, y, z = numpy.meshgrid(numpy.arange(Nx), numpy.arange(Ny), numpy.arange(Nz), indexing="ij")
-  vx =  numpy.sin(y) * numpy.cos(z)
-  vy = -numpy.cos(x) * numpy.sin(z)
-  vz =  numpy.sin(x) * numpy.cos(y)
-  return numpy.stack([vx, vy, vz])
+  x, y, z = numpy.meshgrid(numpy.arange(num_cells_x), numpy.arange(num_cells_y), numpy.arange(num_cells_z), indexing="ij")
+  sfield_qx =  numpy.sin(y) * numpy.cos(z)
+  sfield_qy = -numpy.cos(x) * numpy.sin(z)
+  sfield_qz =  numpy.sin(x) * numpy.cos(y)
+  return numpy.stack([ sfield_qx, sfield_qy, sfield_qz ])
   
-def genCompressiveVField(Nx, Ny, Nz):
+def genCompressivevfield_q(num_cells_x, num_cells_y, num_cells_z):
   """Generate a curl-free (compressive) vector field: gradient of a potential."""
-  x, y, z = numpy.meshgrid(numpy.arange(Nx), numpy.arange(Ny), numpy.arange(Nz), indexing="ij")
-  vx = x
-  vy = y
-  vz = z
-  return numpy.stack([vx, vy, vz])
+  x, y, z = numpy.meshgrid(numpy.arange(num_cells_x), numpy.arange(num_cells_y), numpy.arange(num_cells_z), indexing="ij")
+  sfield_qx = x
+  sfield_qy = y
+  sfield_qz = z
+  return numpy.stack([ sfield_qx, sfield_qy, sfield_qz ])
 
-def genMixedVField(Nx, Ny, Nz):
-  sol_field = genSolenoidalVField(Nx, Ny, Nz)
-  comp_field = genCompressiveVField(Nx, Ny, Nz)
-  return sol_field + comp_field
+def genMixedvfield_q(num_cells_x, num_cells_y, num_cells_z):
+  sfield_sol  = genSolenoidalvfield_q(num_cells_x, num_cells_y, num_cells_z)
+  sfield_comp = genCompressivevfield_q(num_cells_x, num_cells_y, num_cells_z)
+  return sfield_sol + sfield_comp
 
 
 ## ###############################################################
 ## TESTING HELMHOLTZ DECOMPOSITION WITH ANALYTIC FIELDS
 ## ###############################################################
 def main():
-  Nx, Ny, Nz = 64, 64, 64
-  print(f"Testing Helmholtz decomposition on grid: {Nx}x{Ny}x{Nz}")
+  num_cells_x, num_cells_y, num_cells_z = 64, 64, 64
+  print(f"Testing Helmholtz decomposition on grid: {num_cells_x}x{num_cells_y}x{num_cells_z}")
   analytic_fields = {
-    "Solenoidal Field"  : genSolenoidalVField(Nx, Ny, Nz),
-    "Compressive Field" : genCompressiveVField(Nx, Ny, Nz),
-    "Mixed Field"       : genMixedVField(Nx, Ny, Nz)
+    "Solenoidal Field"  : genSolenoidalvfield_q(num_cells_x, num_cells_y, num_cells_z),
+    "Compressive Field" : genCompressivevfield_q(num_cells_x, num_cells_y, num_cells_z),
+    "Mixed Field"       : genMixedvfield_q(num_cells_x, num_cells_y, num_cells_z)
   }
   fig, axs = PlotUtils.initFigure(num_rows=3, num_cols=3)
-  for field_idx, (field_name, vfield) in enumerate(analytic_fields.items()):
+  for field_idx, (field_name, vfield_q) in enumerate(analytic_fields.items()):
     print(f"Testing {field_name}...")
     start_time = time.perf_counter()
-    vfield_sol, vfield_comp = computeHelmholtzDecomposition(vfield)
+    vfield_q_sol, vfield_q_comp = computeHelmholtzDecomposition(vfield_q)
     end_time = time.perf_counter()
     print(f"Decomposition completed in {end_time - start_time:.3f} seconds.")
-    slice_idx = Nz // 2
+    slice_idx = num_cells_z // 2
     for i, (label, data) in enumerate(zip(
         ["Original", "Solenoidal", "Compressive"],
-        [vfield, vfield_sol, vfield_comp])
+        [vfield_q, vfield_q_sol, vfield_q_comp])
       ):
       ax = axs[i, field_idx]
       im = ax.imshow(data[0,:,slice_idx,:].T, origin="lower", cmap="coolwarm")
