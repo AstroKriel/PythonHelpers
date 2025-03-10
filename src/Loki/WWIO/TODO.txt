@@ -1,0 +1,2 @@
+Things to do:
+- test hdf5 IO

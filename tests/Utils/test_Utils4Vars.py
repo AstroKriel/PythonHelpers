@@ -23,7 +23,7 @@ class Test_Utils4Vars_assertType(unittest.TestCase):
       Utils4Vars.assertType(42, str)
 
   def test_incorrect_type_multiple(self):
-    ## edge case 2: variable doesn't match any of the required types.
+    ## edge case 2: variable does not match any of the required types.
     with self.assertRaises(TypeError):
       Utils4Vars.assertType(42.5, (str, int))
 

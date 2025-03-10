@@ -86,7 +86,6 @@ def plotPDF(
     ax.fill_between(list_bin_edges, list_dens_norm, step="pre", alpha=0.2, color=color)
   return list_bin_edges, list_dens_norm
 
-
 def plotScalarField(
     field_slice,
     fig               = None,

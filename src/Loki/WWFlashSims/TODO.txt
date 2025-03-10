@@ -1,0 +1,2 @@
+Things to do:
+- plot different (spectra, volume-integrated) FLASH data
