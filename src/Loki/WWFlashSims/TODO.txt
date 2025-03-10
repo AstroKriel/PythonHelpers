@@ -1,2 +1,2 @@
 Things to do:
-- plot different (spectra, volume-integrated) FLASH data
+- add ploting code for different (spectra, volume-integrated) FLASH data

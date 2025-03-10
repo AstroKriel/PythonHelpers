@@ -51,39 +51,4 @@ def computePowerSpectrum_1D(vfield_q: numpy.ndarray) -> tuple[numpy.ndarray, num
   return k_modes, spectrum_1d
 
 
-import numpy as np
-
-def generate_isotropic_powerlaw_field(grid_size: int, alpha: float = 5./3.) -> numpy.ndarray:
-  """Generates a random isotropic scalar field with a power-law power spectrum: P(k) = k^(-alpha)."""
-  k_modes = numpy.fft.fftfreq(grid_size) * grid_size
-  grid_kx, grid_ky, grid_kz = numpy.meshgrid(k_modes, k_modes, k_modes, indexing="ij")
-  grid_k_magn = numpy.sqrt(grid_kx**2 + grid_ky**2 + grid_kz**2)
-  ## avoid division by zero
-  grid_k_magn[0, 0, 0] = 1
-  random_field = numpy.random.randn(grid_size, grid_size, grid_size) + 1j * numpy.random.randn(grid_size, grid_size, grid_size)
-  amplitude = grid_k_magn**(-(alpha + 2) / 2.0)
-  power_spectrum = 10 * random_field * amplitude
-  return numpy.fft.ifftn(power_spectrum).real
-
-
-def generate_anisotropic_powerlaw_field(grid_size: int, alpha_perp: float = 5./3., alpha_para: float = 5./3.) -> numpy.ndarray:
-  """
-  Generates a random anisotropic scalar field with a power-law power spectrum: 
-  P(k) = k_perp^(-alpha_perp) * k_para^(-alpha_para).
-  """
-  k_modes = numpy.fft.fftfreq(grid_size) * grid_size
-  grid_kx, grid_ky, grid_kz = numpy.meshgrid(k_modes, k_modes, k_modes, indexing="ij")
-  ## compute perpendicular and parallel components
-  grid_k_perp = numpy.sqrt(grid_kx**2 + grid_ky**2)
-  grid_k_para = numpy.abs(grid_kz)
-  ## avoid division by zero
-  grid_k_perp[grid_k_perp == 0] = 1
-  grid_k_para[grid_k_para == 0] = 1
-  random_field = numpy.random.randn(grid_size, grid_size, grid_size) + 1j * numpy.random.randn(grid_size, grid_size, grid_size)
-  ## scale by anisotropic power-law spectrum
-  amplitude = grid_k_perp**(-alpha_perp / 2.0) * grid_k_para**(-alpha_para / 2.0)
-  power_spectrum = 10 * random_field * amplitude
-  return numpy.fft.ifftn(power_spectrum).real
-
-
 ## END OF MODULE

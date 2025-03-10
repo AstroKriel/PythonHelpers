@@ -50,7 +50,7 @@ def computeJPDF(
   else: numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), 1)
   bin_area = numpy.abs((bedges_cols[1] - bedges_cols[0]) * (bedges_rows[1] - bedges_rows[0]))
   jpdf = bin_counts / (numpy.sum(bin_counts) * bin_area)
-  if smoothing_length is not None: jpdf = SimpleStats.smoothWithGaussianFilter(jpdf, smoothing_length)
+  if smoothing_length is not None: jpdf = SimpleStats.smooth2DDataWithGaussianFilter(jpdf, smoothing_length)
   return bedges_rows, bedges_cols, jpdf
 
 @Utils4Funcs.time_function

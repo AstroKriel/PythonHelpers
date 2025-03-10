@@ -1,4 +1,4 @@
 Things to do:
 - interpolation
 - fit linear and exponential models
-- plot different (spectra, volume-integrated) types of data
+- add plotting code for different (spectra, volume-integrated) types of data

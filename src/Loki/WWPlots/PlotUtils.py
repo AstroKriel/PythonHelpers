@@ -48,13 +48,21 @@ def initFigure(
     return fig, numpy.squeeze(axs)
   return fig, fig_grid
 
-def saveFigure(fig, filepath_fig, bool_tight=True, bool_draft=False, bool_verbose=True):
-  if bool_tight and not(fig.get_constrained_layout()): fig.set_tight_layout(True)
-  if bool_draft: dpi = 100
-  else: dpi = 200
-  fig.savefig(filepath_fig, dpi=dpi)
-  mplplot.close(fig)
-  if bool_verbose: print("Saved figure:", filepath_fig)
+def saveFigure(fig, filepath_fig, bool_draft=False, bool_verbose=True):
+  try:
+    fig.set_constrained_layout(True)
+    dpi = 100 if bool_draft else 200
+    fig.savefig(filepath_fig, dpi=dpi)
+    mplplot.close(fig)
+    if bool_verbose: print("Saved figure:", filepath_fig)
+  except FileNotFoundError as exception:
+    print(f"FileNotFoundError: `{filepath_fig}` does not exist.")
+    print(f"Details: {exception}")
+  except IOError as exception:
+    print(f"IOError: An error occurred while trying to save the figure to '{filepath_fig}'. This might be due to a permission issue or invalid file format.")
+    print(f"Details: {exception}")
+  except Exception as exception:
+    print(f"Unexpected error: {exception}")
 
 
 ## END OF MODULE

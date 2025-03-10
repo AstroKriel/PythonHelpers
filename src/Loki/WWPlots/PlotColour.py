@@ -30,9 +30,7 @@ def createColormap(
     NormType = mplcolors.Normalize
   ):
   if vmid is not None: NormType = functools.partial(mplcolors.TwoSlopeNorm, vcenter=vmid)
-  ## cmaps span cmin=0.0 to cmax=1.0, so pass (cmin, cmax) to subset a cmap color-range
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
-  ## define value range of colorbar: [vmin, vmax]
   norm = createNorm(vmin, vmax, NormType)
   return cmap, norm
 

@@ -6,7 +6,7 @@
 ## ###############################################################
 import subprocess
 from Loki.WWIO import IOShell
-from Loki.WWIO import IOFiles
+from Loki.WWIO import IOFnF
 
 
 ## ###############################################################
@@ -26,7 +26,7 @@ def submitJob(directory, job_name, bool_check_job_status=False) -> bool:
 
 def checkIfJobIsInQueue(directory, job_filename):
   """Checks if a job name is already in the queue."""
-  if not IOFiles.checkIfFileExists(directory, job_filename):
+  if not IOFnF.checkIfFileExists(directory, job_filename):
     print(f"`{job_filename}` job file does not exist in: {directory}")
     return False
   job_tagname = getJobName(directory, job_filename)
@@ -39,7 +39,7 @@ def checkIfJobIsInQueue(directory, job_filename):
 
 def getJobName(directory, job_filename):
   """Gets the job name from a PBS job script."""
-  with open(IOFiles.createFilepathString(directory, job_filename), "r") as fp:
+  with open(IOFnF.createFilepathString(directory, job_filename), "r") as fp:
     for line in fp:
       if "#PBS -N" in line:
         return line.strip().split(" ")[-1] if line.strip() else None

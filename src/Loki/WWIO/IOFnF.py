@@ -20,13 +20,6 @@ def createFilepathString(list_directories_and_filename):
     )
   )
 
-def checkIfFileExists(directory, filename, bool_trigger_error=False):
-  filepath_file = createFilepathString([directory, filename])
-  bool_filepath_exists = os.path.isfile(filepath_file)
-  if not(bool_filepath_exists) and bool_trigger_error:
-    raise Exception(f"Error: File does not exist: {filepath_file}")
-  else: return bool_filepath_exists
-
 def checkIfDirectoryExists(directory):
   return os.path.isdir(directory)
 
@@ -36,10 +29,13 @@ def initDirectory(directory, bool_verbose=True):
     if bool_verbose: print("Successfully initialised directory:", directory)
   elif bool_verbose: print("No need to initialise diectory (already exists):", directory)
 
+def checkIfFileExists(directory, filename, bool_trigger_error=False):
+  filepath_file = createFilepathString([directory, filename])
+  bool_filepath_exists = os.path.isfile(filepath_file)
+  if not(bool_filepath_exists) and bool_trigger_error:
+    raise Exception(f"Error: File does not exist: {filepath_file}")
+  else: return bool_filepath_exists
 
-## ###############################################################
-## WORKING WITH FILES
-## ###############################################################
 def copyFile(directory_from, directory_to, filename, bool_overwrite=False, bool_verbose=True):
   filepath_file_from = createFilepathString([ directory_from, filename ])
   filepath_file_to   = createFilepathString([ directory_to, filename ])
