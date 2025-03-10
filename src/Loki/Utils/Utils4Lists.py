@@ -58,17 +58,5 @@ def flattenList(list_elems: list) -> list:
   ): return list_elems
   return list(numpy.concatenate(list_elems).flat)
 
-def extendListToMatchLength(
-    list_input: list,
-    list_ref: list
-  ) -> list:
-  """Extends `list_input` to match the length of `list_ref` by repeating its first element."""
-  if not list_input or not list_ref: raise ValueError("Input and reference lists cannot be empty")
-  if len(list_input) < len(list_ref):
-    list_input.extend(
-      [list_input[0]] * (len(list_ref) - len(list_input))
-    )
-  return list_input
-
 
 ## END OF MODULE

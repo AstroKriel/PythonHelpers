@@ -85,23 +85,6 @@ class Test_Utils4Lists(unittest.TestCase):
     list_expected = [1, 2, 3]
     self.assertEqual(list_output, list_expected)
 
-  def test_extendListToMatchLength(self):
-    ## typical case: extending the list to match length of reference list
-    list_input = [1, 2]
-    list_ref = [1, 2, 3, 4]
-    Utils4Lists.extendListToMatchLength(list_input, list_ref)
-    self.assertEqual(list_input, [1, 2, 1, 1])
-    ## edge case 1: list already has equal length, no change
-    list_input = [1, 2, 3]
-    list_ref = [4, 5, 6]
-    Utils4Lists.extendListToMatchLength(list_input, list_ref)
-    self.assertEqual(list_input, [1, 2, 3])
-    ## edge case 2: input list is longer than the reference list
-    list_input = [1, 2, 3, 4]
-    list_ref = [5, 6]
-    Utils4Lists.extendListToMatchLength(list_input, list_ref)
-    self.assertEqual(list_input, [1, 2, 3, 4])
-
 
 ## ###############################################################
 ## TEST ENTRY POINT

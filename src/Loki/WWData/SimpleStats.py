@@ -54,8 +54,8 @@ def applyConvolution2D(data: numpy.ndarray, kernel: numpy.ndarray):
 def genGaussianFilter(size: int, sigma: float):
   x = numpy.linspace(-(size // 2), size // 2, size)
   y = numpy.linspace(-(size // 2), size // 2, size)
-  mg_x, mg_y = numpy.meshgrid(x, y)
-  kernel = numpy.exp(-(mg_x**2 + mg_y**2) / (2 * sigma**2))
+  grid_x, grid_y = numpy.meshgrid(x, y)
+  kernel = numpy.exp(-(grid_x**2 + grid_y**2) / (2 * sigma**2))
   kernel /= numpy.sum(kernel)
   return kernel
 

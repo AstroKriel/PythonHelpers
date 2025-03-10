@@ -197,10 +197,10 @@ def plotVectorField(
     field_slice_xcols_subset = field_slice_xcols[::quiver_step_rows, ::quiver_step_cols]
     coords_row = numpy.linspace(-1.0, 1.0, field_slice_xrows_subset.shape[0])
     coords_col = numpy.linspace(-1.0, 1.0, field_slice_xcols_subset.shape[1])
-    mg_x, mg_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
+    grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
     ax.quiver(
-      mg_x,
-      mg_y,
+      grid_x,
+      grid_y,
       field_slice_xcols_subset,
       field_slice_xrows_subset,
       width = quiver_width,
@@ -209,13 +209,13 @@ def plotVectorField(
   if bool_plot_streamlines:
     coords_row = numpy.linspace(-1.0, 1.0, field_slice_xrows.shape[0])
     coords_col = numpy.linspace(-1.0, 1.0, field_slice_xcols.shape[1])
-    mg_x, mg_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
+    grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
     if streamline_width is None:
       if streamline_weights is not None: streamline_width = streamline_scale * (1 + streamline_weights / numpy.max(streamline_weights))
       else: streamline_width = 1
     ax.streamplot(
-      mg_x,
-      mg_y,
+      grid_x,
+      grid_y,
       field_slice_xcols,
       field_slice_xrows,
       color      = field_color,

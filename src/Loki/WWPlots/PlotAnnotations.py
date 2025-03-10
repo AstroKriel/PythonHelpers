@@ -40,7 +40,7 @@ def addLegend_fromArtists(
     loc                = "upper right",
     bbox               = (1.0, 1.0),
     ms                 = 8,
-    lw                 = 2,
+    lw                 = 1.5,
     title              = None,
     ncol               = 1,
     handletextpad      = 0.5,
@@ -50,9 +50,6 @@ def addLegend_fromArtists(
     alpha              = 0.6
   ):
   if len(list_artists) + len(list_legend_labels) == 0: return
-  ## check that the config are the correct length
-  Utils4Lists.extendListToMatchLength(list_artists,       list_legend_labels)
-  Utils4Lists.extendListToMatchLength(list_marker_colors, list_legend_labels)
   ## iniialise list of artists to draw
   list_legend_artists = []
   ## lists of artists the user can choose from
@@ -93,11 +90,6 @@ def addLegend_fromArtists(
   ## draw legend
   ax.add_artist(legend)
 
-def labelLogFormatter(x):
-  if x % 1 == 0:
-    return r"$10^{" + f"{x:.0f}" + "}$"
-  else: return r"$10^{" + f"{x:.1f}" + "}$"
-
 def addBoxOfLabels(
     fig, ax, list_labels,
     list_colors = [ "k" ],
@@ -108,7 +100,6 @@ def addBoxOfLabels(
     fontsize    = 16,
   ):
   if len(list_labels) == 0: return
-  Utils4Lists.extendListToMatchLength(list_colors, list_labels)
   list_text_areas = [
     TextArea(label, textprops={
       "fontsize" : fontsize,
