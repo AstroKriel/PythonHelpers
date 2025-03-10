@@ -6,6 +6,18 @@
 ## ###############################################################
 import numpy
 
+try:
+  from mpi4py import MPI
+  BOOL_MPI_AVAILABLE = True
+  MPI_WORLD     = MPI.COMM_WORLD
+  MPI_RANK      = MPI_WORLD.Get_rank()
+  MPI_NUM_PROCS = MPI_WORLD.Get_size()
+except ImportError:
+  BOOL_MPI_AVAILABLE = False
+  MPI_WORLD     = None
+  MPI_RANK      = 0
+  MPI_NUM_PROCS = 1
+
 
 ## ###############################################################
 ## FUNCTIONS
@@ -22,32 +34,52 @@ def computeAverageNormalisedSpectrum(spectra_group_t: list[numpy.ndarray]) -> nu
     for spectrum in spectra_group_t
   ]), axis=0)
 
-def computePowerSpectrum_3D(field: numpy.ndarray) -> numpy.ndarray:
+def computePowerSpectrum_3D(
+    field: numpy.ndarray,
+    bool_use_mpi: bool = False
+  ) -> numpy.ndarray:
   """Computes the power spectrum of an arbitrary-dimensional field."""
   assert len(field.shape) >= 3, "Field should have at least 3 spatial dimensions."
   fft_field = numpy.fft.fftshift(numpy.fft.fftn(field, axes=(-3, -2, -1), norm="forward"), axes=(-3, -2, -1))
-  power_spectrum = numpy.sum(
+  spectrum_local = numpy.sum(
     numpy.power(numpy.abs(fft_field), 2),
     axis = tuple(range(len(field.shape) - 3))
   )
-  return power_spectrum
+  if bool_use_mpi and BOOL_MPI_AVAILABLE:
+    spectrum_global = numpy.empty_like(spectrum_local)
+    MPI_WORLD.Allreduce(spectrum_local, spectrum_global, op=MPI.SUM)
+    ## avoid redundant operations by only having the root process return the final global result
+    return spectrum_global if MPI_WORLD.Get_rank() == 0 else None
+  else: return spectrum_local
 
-def sphericalIntegrate(spectrum_3d: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
+def sphericalIntegrate(
+    spectrum_3d: numpy.ndarray,
+    bool_use_mpi: bool = False
+  ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Integrates a 3D power spectrum over spherical shells of constant k."""
-  grid_kz, grid_ky, grid_kx = numpy.indices(spectrum_3d.shape)
-  k_center    = numpy.array([(_ki_size-1)/2.0 for _ki_size in spectrum_3d.shape], dtype=float)
-  grid_k_magn = numpy.sqrt((grid_kx - k_center[0])**2 + (grid_ky - k_center[1])**2 + (grid_kz - k_center[2])**2)
   num_k_modes = spectrum_3d.shape[0] // 2
   k_bedges    = numpy.linspace(1, num_k_modes, num_k_modes+1)
-  bin_indices = numpy.digitize(grid_k_magn, k_bedges)
-  spectrum_1d = numpy.bincount(bin_indices.ravel(), weights=spectrum_3d.ravel(), minlength=num_k_modes+1)[1:]
   k_modes     = (k_bedges[:-1] + k_bedges[1:]) / 2
-  return k_modes, spectrum_1d
+  k_center    = numpy.array([(_ki_size-1)/2.0 for _ki_size in spectrum_3d.shape], dtype=float)
+  grid_kz, grid_ky, grid_kx = numpy.indices(spectrum_3d.shape)
+  grid_k_magn    = numpy.sqrt((grid_kx - k_center[0])**2 + (grid_ky - k_center[1])**2 + (grid_kz - k_center[2])**2)
+  bin_indices    = numpy.digitize(grid_k_magn, k_bedges)
+  spectrum_local = numpy.bincount(bin_indices.ravel(), weights=spectrum_3d.ravel(), minlength=num_k_modes+1)[1:]
+  if bool_use_mpi and BOOL_MPI_AVAILABLE:
+    spectrum_global = numpy.empty_like(spectrum_local)
+    MPI_WORLD.Allreduce(spectrum_local, spectrum_global, op=MPI.SUM)
+    ## avoid redundant operations by only having the root process return the final global result
+    return k_modes, spectrum_global if MPI_WORLD.Get_rank() == 0 else None
+  return k_modes, spectrum_local
 
-def computePowerSpectrum_1D(vfield_q: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
+def computePowerSpectrum_1D(
+    vfield_q: numpy.ndarray,
+    bool_use_mpi: bool = False
+  ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Computes the full power spectrum including radial integration."""
-  spectrum_3d = computePowerSpectrum_3D(vfield_q)
-  k_modes, spectrum_1d = sphericalIntegrate(spectrum_3d)
+  spectrum_3d = computePowerSpectrum_3D(vfield_q, bool_use_mpi)
+  if spectrum_3d is None: return None, None
+  k_modes, spectrum_1d = sphericalIntegrate(spectrum_3d, bool_use_mpi)
   return k_modes, spectrum_1d
 
 
