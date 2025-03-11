@@ -10,15 +10,6 @@ from Loki.WWFields import FieldOperators, DeriveQuantities
 ## ###############################################################
 ## EXAMPLE VECTOR FIELDS
 ## ###############################################################
-def genSolenoidalVField(domain_bounds, num_cells):
-  """Generate a solenoidal (divergence-free) vector field."""
-  domain_component = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
-  grid_x, grid_y, grid_z = numpy.meshgrid(domain_component, domain_component, domain_component, indexing="ij")
-  sfield_qx = numpy.zeros_like(grid_x)
-  sfield_qy = numpy.zeros_like(grid_y)
-  sfield_qz = grid_y
-  return numpy.stack([ sfield_qx, sfield_qy, sfield_qz ])
-
 def genCompressiveVField(domain_bounds, num_cells):
   """Generate a compressive (curl-free) vector field."""
   domain_component = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
@@ -28,10 +19,19 @@ def genCompressiveVField(domain_bounds, num_cells):
   sfield_qz = 2 * grid_z
   return numpy.stack([ sfield_qx, sfield_qy, sfield_qz ])
 
+def genSolenoidalVField(domain_bounds, num_cells):
+  """Generate a solenoidal (divergence-free) vector field."""
+  domain_component = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
+  grid_x, grid_y, grid_z = numpy.meshgrid(domain_component, domain_component, domain_component, indexing="ij")
+  sfield_qx = numpy.zeros_like(grid_x)
+  sfield_qy = numpy.zeros_like(grid_y)
+  sfield_qz = grid_y
+  return numpy.stack([ sfield_qx, sfield_qy, sfield_qz ])
+
 def genMixedVField(domain_bounds, num_cells):
-  sfield_sol  = genSolenoidalVField(domain_bounds, num_cells)
   sfield_comp = genCompressiveVField(domain_bounds, num_cells)
-  return sfield_sol + sfield_comp
+  sfield_sol  = genSolenoidalVField(domain_bounds, num_cells)
+  return sfield_comp + sfield_sol
 
 
 ## ###############################################################

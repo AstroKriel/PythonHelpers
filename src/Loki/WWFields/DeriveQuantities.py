@@ -20,11 +20,13 @@ def computeHelmholtzDecomposition(
   assert vfield_q.shape[0] == 3, "Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)"
   assert len(domain_size) == 3, "Input domain size must have shape: (length_x, length_y, length_z)"
   num_cells_x, num_cells_y, num_cells_z = vfield_q.shape[1:]
-  array_kx = numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
-  array_ky = numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
-  array_kz = numpy.fft.fftfreq(num_cells_z) * num_cells_z / domain_size[2]
+  array_kx = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
+  array_ky = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
+  array_kz = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_z) * num_cells_z / domain_size[2]
   grid_kx, grid_ky, grid_kz = numpy.meshgrid(array_kx, array_ky, array_kz, indexing="ij")
   grid_k_magn = grid_kx**2 + grid_ky**2 + grid_kz**2
+  ## avoid division by zero
+  ## note, numpy.fft.fftn assumes the zero frequency is at index 0
   grid_k_magn[0, 0, 0] = 1
   sfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
   ## vec{k} cdot vec{F}(vec{k})
