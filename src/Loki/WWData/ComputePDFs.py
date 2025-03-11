@@ -5,7 +5,6 @@
 ## MODULES
 ## ###############################################################
 import numpy
-from Loki.Utils import Utils4Funcs
 from Loki.WWData import SimpleStats
 
 
@@ -23,7 +22,7 @@ def sampleGaussianDistributionFromQuantiles(p1, p2, x1, x2, num_samples=10**3):
   samples = norm_mean + norm_std * numpy.random.randn(num_samples)
   return samples
 
-def computeJPDF(
+def compute2DJPDF(
   data_x              : numpy.ndarray,
   data_y              : numpy.ndarray,
   bedges_cols         : numpy.ndarray = None,
@@ -53,26 +52,43 @@ def computeJPDF(
   if smoothing_length is not None: jpdf = SimpleStats.smooth2DDataWithGaussianFilter(jpdf, smoothing_length)
   return bedges_rows, bedges_cols, jpdf
 
-@Utils4Funcs.time_function
 def compute1DPDF(
     data     : numpy.ndarray,
     bedges   : numpy.ndarray = None,
     num_bins : int   = None,
     weights  : float = None,
-    bedge_extend_factor : float = 0.0
+    bedge_extend_factor : float = 0.0,
+    delta_threshold: float = 1e-5,
   ):
   """Compute the 1D probability density function (PDF) from the given dataset."""
+  if len(data) == 0: raise ValueError("Error: Cannot compute a PDF for an empty dataset.")
+  ## check if the data is essentially a delta function (there is little variantion in values)
+  data_std = numpy.std(data)
+  if data_std < delta_threshold:
+    if data[0] == 0:
+      bedges = numpy.array([0, 1e-3])
+    else: bedges = numpy.array([data[0], data[0]*(1+1e-3)])
+    bin_width = bedges[1] - bedges[0]
+    pdf = numpy.zeros_like(bedges)
+    pdf[0] = 1 / bin_width
+    return bedges, pdf
   if bedges is None:
     if num_bins is None: raise ValueError("Error: you did not provide a binning option.")
     bedges = compute1DBins(data, num_bins, bedge_extend_factor)
-  bin_counts = numpy.zeros(len(bedges) - 1, dtype=float)
-  bin_width = numpy.abs(bedges[1] - bedges[0])
+  elif not numpy.all(bedges[:-1] <= bedges[1:]):
+    raise ValueError("Error: Bin edges must be sorted in ascending order.")
+  bin_counts = numpy.zeros(len(bedges)-1, dtype=float)
+  bin_width  = numpy.abs(bedges[1] - bedges[0])
+  if bin_width == 0: raise ValueError("Error: Bin width is zero.")
   bin_indices = numpy.searchsorted(bedges, data, side="right") - 1
   bin_indices = numpy.clip(bin_indices, 0, len(bedges)-2)
   if weights is None:
     numpy.add.at(bin_counts, bin_indices, 1)
   else: numpy.add.at(bin_counts, bin_indices, weights)
-  pdf = numpy.append(0, bin_counts / (numpy.sum(bin_counts) * bin_width))
+  total_counts = numpy.sum(bin_counts)
+  ## handle when no data points fall into any bins
+  if total_counts == 0: return bedges, numpy.zeros_like(bin_counts)
+  pdf = numpy.append(0, bin_counts / (total_counts * bin_width))
   return bedges, pdf
 
 def compute1DBins(
