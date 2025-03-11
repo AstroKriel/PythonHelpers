@@ -3,7 +3,7 @@
 ## ###############################################################
 import time
 import numpy
-from Loki.WWPlots import PlotUtils, PlotData, PlotAnnotations
+from Loki.WWPlots import PlotUtils, PlotAnnotations
 
 
 ## ###############################################################

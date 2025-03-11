@@ -13,6 +13,36 @@ from Loki.Utils import Utils4Funcs
 ## FUNCTIONS
 ## ###############################################################
 @Utils4Funcs.time_function
+def computeHelmholtzDecomposition(
+    vfield_q: numpy.ndarray,
+    domain_size: tuple[float, float, float]
+  ) -> tuple[numpy.ndarray, numpy.ndarray]:
+  assert vfield_q.shape[0] == 3, "Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)"
+  assert len(domain_size) == 3, "Input domain size must have shape: (length_x, length_y, length_z)"
+  num_cells_x, num_cells_y, num_cells_z = vfield_q.shape[1:]
+  array_kx = numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
+  array_ky = numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
+  array_kz = numpy.fft.fftfreq(num_cells_z) * num_cells_z / domain_size[2]
+  grid_kx, grid_ky, grid_kz = numpy.meshgrid(array_kx, array_ky, array_kz, indexing="ij")
+  grid_k_magn = grid_kx**2 + grid_ky**2 + grid_kz**2
+  grid_k_magn[0, 0, 0] = 1
+  sfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
+  ## vec{k} cdot vec{F}(vec{k})
+  sfield_k_dot_fft_q = grid_kx * sfield_fft_q[0] + grid_ky * sfield_fft_q[1] + grid_kz * sfield_fft_q[2]
+  ## compressive (curl-free) component: (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
+  sfield_fft_compressive = numpy.stack([
+    (grid_kx / grid_k_magn) * sfield_k_dot_fft_q,
+    (grid_ky / grid_k_magn) * sfield_k_dot_fft_q,
+    (grid_kz / grid_k_magn) * sfield_k_dot_fft_q
+  ])
+  ## solenoidal (divergence-free) component: vec{F}(vec{k}) - (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
+  sfield_fft_solenoidal = sfield_fft_q - sfield_fft_compressive
+  ## transform back to real space
+  vfield_compressive = numpy.fft.ifftn(sfield_fft_compressive, axes=(1,2,3), norm="forward").real
+  vfield_solenoidal = numpy.fft.ifftn(sfield_fft_solenoidal, axes=(1,2,3), norm="forward").real
+  return vfield_compressive, vfield_solenoidal
+
+@Utils4Funcs.time_function
 def computeTNBTerms(vfield_b, box_width=1.0, grad_order=2):
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)

@@ -4,7 +4,6 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import subprocess
 from Loki.WWIO import IOShell
 from Loki.WWIO import IOFnF
 

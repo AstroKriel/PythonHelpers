@@ -29,18 +29,18 @@ def deleteEmptyGroupsHDF5(filepath_file):
 
 def repackHDF5(filepath_file):
   ## helper function
-  def _recursive_copy(source, destination):
+  def _recursiveCopy(source, destination):
     for name, item in source.items():
       if isinstance(item, h5py.Group):
         new_group = destination.create_group(name)
-        _recursive_copy(item, new_group)
+        _recursiveCopy(item, new_group)
       elif isinstance(item, h5py.Dataset):
         destination.create_dataset(name, data=item[()])
   ## do stuff
   _filepath_file = filepath_file + "_temp"
   with h5py.File(filepath_file, "r") as old_file:
     with h5py.File(_filepath_file, "w") as new_file:
-      _recursive_copy(old_file, new_file)
+      _recursiveCopy(old_file, new_file)
   os.remove(filepath_file)
   os.rename(_filepath_file, filepath_file)
   print("Repacked:", filepath_file)

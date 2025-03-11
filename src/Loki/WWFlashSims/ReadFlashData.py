@@ -11,8 +11,7 @@ import multiprocessing as mproc
 import concurrent.futures as cfut
 
 ## import user defined modules
-from Loki.TheFlashModule import LoadData, FileNames
-from Loki.ThePlottingModule import PlotFuncs
+from Loki.WWFlashSims import FileNames
 
 
 ## ###############################################################

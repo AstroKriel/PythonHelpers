@@ -53,3 +53,5 @@ rcParams.update({
   "savefig.transparent": False,
   "savefig.pad_inches": 0.1, # padding around figure when saving
 })
+
+## END OF PARAMETERS

@@ -10,6 +10,20 @@ from matplotlib.lines import Line2D
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+def addInsetAxis(
+    ax, 
+    ax_inset_bounds = [ 0.0, 1.0, 1.0, 0.5 ],
+    label_x         = None,
+    label_y         = None,
+    fontsize        = 20
+  ):
+  ax_inset = ax.inset_axes(ax_inset_bounds)
+  ax_inset.tick_params(top=True, bottom=True, labeltop=True, labelbottom=False)
+  ax_inset.set_xlabel(label_x, fontsize=fontsize)
+  ax_inset.set_ylabel(label_y, fontsize=fontsize)
+  ax_inset.xaxis.set_label_position("top")
+  return ax_inset
+
 def addCustomLegend(
     ax, list_artists, list_labels, list_colors,
     label_color   = "black",
@@ -56,20 +70,6 @@ def addCustomLegend(
     edgecolor      = "grey"
   )
   ax.add_artist(legend)
-
-def addInsetAxis(
-    ax, 
-    ax_inset_bounds = [ 0.0, 1.0, 1.0, 0.5 ],
-    label_x         = None,
-    label_y         = None,
-    fontsize        = 20
-  ):
-  ax_inset = ax.inset_axes(ax_inset_bounds)
-  ax_inset.tick_params(top=True, bottom=True, labeltop=True, labelbottom=False)
-  ax_inset.set_xlabel(label_x, fontsize=fontsize)
-  ax_inset.set_ylabel(label_y, fontsize=fontsize)
-  ax_inset.xaxis.set_label_position("top")
-  return ax_inset
 
 
 ## END OF MODULE
