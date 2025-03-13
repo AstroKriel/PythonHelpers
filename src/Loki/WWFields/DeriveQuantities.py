@@ -31,18 +31,20 @@ def computeHelmholtzDecomposition(
   sfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
   ## vec{k} cdot vec{F}(vec{k})
   sfield_k_dot_fft_q = grid_kx * sfield_fft_q[0] + grid_ky * sfield_fft_q[1] + grid_kz * sfield_fft_q[2]
-  ## compressive (curl-free) component: (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
-  sfield_fft_compressive = numpy.stack([
+  ## divergence (curl-free) component: (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
+  sfield_fft_div = numpy.stack([
     (grid_kx / grid_k_magn) * sfield_k_dot_fft_q,
     (grid_ky / grid_k_magn) * sfield_k_dot_fft_q,
     (grid_kz / grid_k_magn) * sfield_k_dot_fft_q
   ])
   ## solenoidal (divergence-free) component: vec{F}(vec{k}) - (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
-  sfield_fft_solenoidal = sfield_fft_q - sfield_fft_compressive
+  sfield_fft_sol = sfield_fft_q - sfield_fft_div
   ## transform back to real space
-  vfield_compressive = numpy.fft.ifftn(sfield_fft_compressive, axes=(1,2,3), norm="forward").real
-  vfield_solenoidal = numpy.fft.ifftn(sfield_fft_solenoidal, axes=(1,2,3), norm="forward").real
-  return vfield_compressive, vfield_solenoidal
+  vfield_div = numpy.fft.ifftn(sfield_fft_div, axes=(1,2,3), norm="forward").real
+  vfield_sol = numpy.fft.ifftn(sfield_fft_sol, axes=(1,2,3), norm="forward").real
+  del array_kx, array_ky, array_kz, grid_kx, grid_ky, grid_kz, grid_k_magn
+  del sfield_fft_q, sfield_k_dot_fft_q, sfield_fft_div, sfield_fft_sol
+  return vfield_div, vfield_sol
 
 @Utils4Funcs.time_function
 def computeTNBTerms(vfield_b, box_width=1.0, grad_order=2):

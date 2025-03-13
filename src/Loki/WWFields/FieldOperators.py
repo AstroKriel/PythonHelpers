@@ -13,7 +13,7 @@ from Loki.WWFields import FieldGradients
 ## ###############################################################
 def sfieldRMS(sfield_q):
   sfield_q = numpy.array(sfield_q)
-  return numpy.sqrt(numpy.mean(sfield_q**2))
+  return numpy.sqrt(numpy.mean(numpy.square(sfield_q)))
 
 def vfieldCrossProduct(vfield_q1, vfield_q2):
   return numpy.array([
