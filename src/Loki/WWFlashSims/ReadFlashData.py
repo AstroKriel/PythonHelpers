@@ -2,7 +2,7 @@
 
 
 ## ###############################################################
-## MODULES
+## DEPENDENCIES
 ## ###############################################################
 import os, functools, fnmatch, h5py
 import numpy
@@ -10,7 +10,6 @@ import xarray as xr
 import multiprocessing as mproc
 import concurrent.futures as cfut
 
-## import user defined modules
 from Loki.WWFlashSims import FileNames
 
 
