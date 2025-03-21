@@ -17,12 +17,12 @@ from Loki.WWFlashSims import FileNames
 ## READ / UPDATE DRIVING PARAMETERS
 ## ###############################################################
 def readDrivingAmplitude(directory):
-  filepath_file = f"{directory}/{FileNames.FILENAME_DRIVING_INPUT}"
+  file_path = f"{directory}/{FileNames.FILENAME_DRIVING_INPUT}"
   ## check the file exists
-  if not os.path.isfile(filepath_file):
+  if not os.path.isfile(file_path):
     raise Exception("Error: turbulence driving input file does not exist:", FileNames.FILENAME_DRIVING_INPUT)
   ## open file
-  with open(filepath_file) as fp:
+  with open(file_path) as fp:
     for line in fp.readlines():
       list_line_elems = line.split()
       ## ignore empty lines
@@ -32,22 +32,22 @@ def readDrivingAmplitude(directory):
   raise Exception(f"Error: could not read `ampl_factor` in the turbulence generator")
 
 def updateDrivingAmplitude(directory, driving_amplitude):
-  filepath_file = f"{directory}/{FileNames.FILENAME_DRIVING_INPUT}"
+  file_path = f"{directory}/{FileNames.FILENAME_DRIVING_INPUT}"
   ## read previous driving parameters
   list_lines = []
-  with open(filepath_file, "r") as fp:
+  with open(file_path, "r") as fp:
     for line in fp.readlines():
       if "ampl_factor" in line:
         new_line = line.replace(line.split("=")[1].split()[0], str(driving_amplitude))
         list_lines.append(new_line)
       else: list_lines.append(line)
   ## write updated driving paramaters
-  with open(filepath_file, "w") as output_file:
+  with open(file_path, "w") as output_file:
     output_file.writelines(list_lines)
 
 def updateDrivingHistory(directory, current_time, measured_Mach, old_driving_amplitude, new_driving_amplitude):
-  filepath_file = f"{directory}/{FileNames.FILENAME_DRIVING_HISTORY}"
-  with open(filepath_file, "a") as fp:
+  file_path = f"{directory}/{FileNames.FILENAME_DRIVING_HISTORY}"
+  with open(file_path, "a") as fp:
     fp.write(f"{current_time} {measured_Mach} {old_driving_amplitude} {new_driving_amplitude}\n")
 
 
@@ -286,8 +286,8 @@ def addSpectrum2Xarray(ds, dict_spectrum, spectrum_name, bool_overwrite=False):
   return ds
 
 def saveSimOutputs(ds, directory, bool_verbose=True):
-  filepath_file = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
-  with h5py.File(filepath_file, "w") as h5_file:
+  file_path = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
+  with h5py.File(file_path, "w") as h5_file:
     ## save dataset variables
     for var_name, var_data in ds.data_vars.items():
       h5_file.create_dataset(var_name, data=var_data.values)
@@ -299,14 +299,14 @@ def saveSimOutputs(ds, directory, bool_verbose=True):
     ## save global attributes of the dataset
     for attr_name, attr_value in ds.attrs.items():
       h5_file.attrs[attr_name] = attr_value
-  if bool_verbose: print("Saved dataset:", filepath_file)
+  if bool_verbose: print("Saved dataset:", file_path)
 
 def readSimOutputs(directory, bool_verbose=True):
-  filepath_file = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
-  if bool_verbose: print("Reading:", filepath_file)
+  file_path = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
+  if bool_verbose: print("Reading:", file_path)
   data_vars = {}
   coords = {}
-  with h5py.File(filepath_file, "r") as h5_file:
+  with h5py.File(file_path, "r") as h5_file:
     ## explicityly read the table-coordinates (e.g., t_turb, k_turb)
     if "coords/array_t_turb" in h5_file: coords["array_t_turb"] = h5_file["coords/array_t_turb"][:]
     if "coords/array_k_turb" in h5_file: coords["array_k_turb"] = h5_file["coords/array_k_turb"][:]
@@ -326,8 +326,8 @@ def readSimOutputs(directory, bool_verbose=True):
   return ds
 
 def saveSimSummary(directory, dict_sim_summary):
-  filepath_file = f"{directory}/{FileNames.FILENAME_SIM_SUMMARY}"
-  WWObjs.saveDict2JsonFile(filepath_file, dict_sim_summary)
+  file_path = f"{directory}/{FileNames.FILENAME_SIM_SUMMARY}"
+  WWObjs.saveDict2JsonFile(file_path, dict_sim_summary)
 
 def readSimSummary(directory, bool_verbose=True):
   dict_sim_summary = WWObjs.readJsonFile2Dict(
@@ -338,9 +338,9 @@ def readSimSummary(directory, bool_verbose=True):
   return dict_sim_summary
 
 def saveSimConfig(directory, sim_config):
-  filepath_file = f"{directory}/{FileNames.FILENAME_sim_config}"
-  if   type(sim_config) is dict:           WWObjs.saveDict2JsonFile(filepath_file, sim_config)
-  elif type(sim_config) is SimInputParams: WWObjs.saveObj2JsonFile(filepath_file, sim_config)
+  file_path = f"{directory}/{FileNames.FILENAME_sim_config}"
+  if   type(sim_config) is dict:           WWObjs.saveDict2JsonFile(file_path, sim_config)
+  elif type(sim_config) is SimInputParams: WWObjs.saveObj2JsonFile(file_path, sim_config)
 
 def readSimConfig(directory, bool_verbose=True):
   dict_sim_config = WWObjs.readJsonFile2Dict(

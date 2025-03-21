@@ -84,7 +84,7 @@ def processLine(
 ## ###############################################################
 ## WRITE TURBULENCE DRIVING FILE
 ## ###############################################################
-def writeTurbDrivingFile(filepath_ref, filepath_to, dict_params):
+def writeTurbDrivingFile(file_path_ref, file_path_to, dict_params):
   ## helper function
   def _addParamAssign(param_name, param_value, comment):
     addParamAssign(
@@ -139,10 +139,10 @@ def writeTurbDrivingFile(filepath_ref, filepath_to, dict_params):
     comment     = "Number of turbulence driving pattern updates per turnover time"
   )
   ## read from reference file and write to new files
-  filepath_ref  = f"{filepath_ref}/{FileNames.FILENAME_DRIVING_INPUT}"
-  filepath_file = f"{filepath_to}/{FileNames.FILENAME_DRIVING_INPUT}"
-  with open(filepath_ref, "r") as ref_file:
-    with open(filepath_file, "w") as new_file:
+  file_path_ref  = f"{file_path_ref}/{FileNames.FILENAME_DRIVING_INPUT}"
+  file_path = f"{file_path_to}/{FileNames.FILENAME_DRIVING_INPUT}"
+  with open(file_path_ref, "r") as ref_file:
+    with open(file_path, "w") as new_file:
       for ref_line in ref_file.readlines():
         new_line = processLine(
           ref_line, dict_assigns,
@@ -164,7 +164,7 @@ def writeTurbDrivingFile(filepath_ref, filepath_to, dict_params):
 ## WRITE FLASH INPUT PARAMETER FILE
 ## ###############################################################
 def writeFlashParamFile(
-    filepath_ref, filepath_to, dict_sim_config, max_hours,
+    file_path_ref, file_path_to, dict_sim_config, max_hours,
     str_restart = ".false.",
     str_chk_num = "0",
     str_plt_num = "0"
@@ -265,10 +265,10 @@ def writeFlashParamFile(
     param_value = str_plt_num
   )
   ## read from reference file and write to new files
-  filepath_ref  = f"{filepath_ref}/{FileNames.FILENAME_FLASH_INPUT}"
-  filepath_file = f"{filepath_to}/{FileNames.FILENAME_FLASH_INPUT}"
-  with open(filepath_ref, "r") as ref_file:
-    with open(filepath_file, "w") as new_file:
+  file_path_ref  = f"{file_path_ref}/{FileNames.FILENAME_FLASH_INPUT}"
+  file_path = f"{file_path_to}/{FileNames.FILENAME_FLASH_INPUT}"
+  with open(file_path_ref, "r") as ref_file:
+    with open(file_path, "w") as new_file:
       for ref_line in ref_file.readlines():
         new_line = processLine(
           ref_line, dict_assigns,
@@ -282,7 +282,7 @@ def writeFlashParamFile(
     if not(dict_assigns[param_name]["bool_assigned"]):
       list_params_not_assigned.append(param_name)
   if len(list_params_not_assigned) == 0:
-    print(f"Successfully defined: {filepath_file}")
+    print(f"Successfully defined: {file_path}")
   else: raise Exception("Error: failed to define the following flash input parameters:", list_params_not_assigned)
 
 
@@ -362,8 +362,8 @@ class JobRunSim():
     chk_num = LoadData.readFromChkFile(f"{self.directory_sim}/{last_chk_filename}", "integer scalars", "checkpointfilenumber")
     plt_num = LoadData.readFromChkFile(f"{self.directory_sim}/{last_chk_filename}", "integer scalars", "plotfilenumber")
     writeFlashParamFile(
-      filepath_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
-      filepath_to     = self.directory_sim,
+      file_path_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
+      file_path_to     = self.directory_sim,
       dict_sim_config = self.dict_sim_config,
       max_hours       = self.max_hours,
       str_restart     = ".true.",
@@ -374,8 +374,8 @@ class JobRunSim():
   def prepForRestartFromScratch(self):
     ## write a new flash input file
     writeFlashParamFile(
-      filepath_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
-      filepath_to     = self.directory_sim,
+      file_path_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
+      file_path_to     = self.directory_sim,
       dict_sim_config = self.dict_sim_config,
       max_hours       = self.max_hours,
     )
@@ -391,19 +391,19 @@ class JobRunSim():
     )
     ## write driving parameter file
     writeTurbDrivingFile(
-      filepath_ref = FileNames.DIRECTORY_FILE_BACKUPS,
-      filepath_to  = self.directory_sim,
+      file_path_ref = FileNames.DIRECTORY_FILE_BACKUPS,
+      file_path_to  = self.directory_sim,
       dict_params  = self.dict_driving_params
     )
     ## write flash parameter file
     writeFlashParamFile(
-      filepath_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
-      filepath_to     = self.directory_sim,
+      file_path_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
+      file_path_to     = self.directory_sim,
       dict_sim_config = self.dict_sim_config,
       max_hours       = self.max_hours
     )
 
-  def prepFromReference(self, filepath_ref_sim):
+  def prepFromReference(self, file_path_ref_sim):
     ## copy flash4 executable
     WWFnF.copyFile(
       directory_from = FileNames.DIRECTORY_FILE_BACKUPS,
@@ -412,22 +412,22 @@ class JobRunSim():
     )
     ## copy driving parameter file
     WWFnF.copyFile(
-      directory_from = filepath_ref_sim,
+      directory_from = file_path_ref_sim,
       directory_to   = self.directory_sim,
       filename       = FileNames.FILENAME_DRIVING_INPUT
     )
     ## make sure higher resolution simulation input parameters matches the reference
-    ref_sim_input = ReadFlashData.readSimConfig(filepath_ref_sim, bool_verbose=False)
+    ref_sim_input = ReadFlashData.readSimConfig(file_path_ref_sim, bool_verbose=False)
     self.dict_sim_config["cfl"]                = ref_sim_input["cfl"]
     self.dict_sim_config["init_rms_b"]         = ref_sim_input["init_rms_b"]
     self.dict_sim_config["max_num_t_turb"]     = ref_sim_input["max_num_t_turb"]
     self.dict_sim_config["bool_driving_tuned"] = ref_sim_input["bool_driving_tuned"]
     ReadFlashData.saveSimConfig(self.directory_sim, self.dict_sim_config)
-    print("\t> Copied key parameters from:", filepath_ref_sim)
+    print("\t> Copied key parameters from:", file_path_ref_sim)
     ## write the new flash parameter file
     writeFlashParamFile(
-      filepath_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
-      filepath_to     = self.directory_sim,
+      file_path_ref    = FileNames.DIRECTORY_FILE_BACKUPS,
+      file_path_to     = self.directory_sim,
       dict_sim_config = self.dict_sim_config,
       max_hours   = self.max_hours
     )

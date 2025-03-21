@@ -48,12 +48,12 @@ def reformatFlashField(field, num_blocks, num_procs):
 
 @WWFuncs.time_function
 def loadFlashDataCube(
-    filepath_file, num_blocks, num_procs, field_name,
+    file_path, num_blocks, num_procs, field_name,
     bool_norm_rms     = False,
     bool_print_h5keys = False
   ):
   ## open hdf5 file stream
-  with h5py.File(filepath_file, "r") as h5file:
+  with h5py.File(file_path, "r") as h5file:
     ## create list of field-keys to extract from hdf5 file
     list_keys_stored = list(h5file.keys())
     list_keys_used = [
@@ -61,7 +61,7 @@ def loadFlashDataCube(
       for key in list_keys_stored
       if key.startswith(field_name)
     ]
-    if len(list_keys_used) == 0: raise Exception(f"Error: field-name '{field_name}' not found in {filepath_file}")
+    if len(list_keys_used) == 0: raise Exception(f"Error: field-name '{field_name}' not found in {file_path}")
     ## check which keys are stored
     if bool_print_h5keys: 
       print("--------- All the keys stored in the FLASH hdf5 file:\n\t" + "\n\t".join(list_keys_stored))
@@ -107,7 +107,7 @@ def loadAllFlashDataCubes(
   list_t_turb   = []
   for filename in list_filenames[::read_every]:
     field_magnitude = loadFlashDataCube(
-      filepath_file = f"{directory}/{filename}",
+      file_path = f"{directory}/{filename}",
       num_blocks    = dict_sim_config["num_blocks"],
       num_procs     = dict_sim_config["num_procs"],
       field_name    = field_name
@@ -186,8 +186,8 @@ def loadVIData(
   data_field_subset = data_field[index_start : index_end]
   return data_time_subset, data_field_subset
 
-def loadSpectrum(filepath_file, spectrum_name, spectrum_component="total"):
-  with open(filepath_file, "r") as fp:
+def loadSpectrum(file_path, spectrum_name, spectrum_component="total"):
+  with open(file_path, "r") as fp:
     dataset = fp.readlines()
     ## find row where header details are printed
     header_index = next((
@@ -195,7 +195,7 @@ def loadSpectrum(filepath_file, spectrum_name, spectrum_component="total"):
       for line_index, line_contents in enumerate(list(dataset))
       if "#" in line_contents
     ), None)
-    if header_index is None: raise Exception("Error: no instances of `#` (which indicates the header was not) found in:", filepath_file)
+    if header_index is None: raise Exception("Error: no instances of `#` (which indicates the header was not) found in:", file_path)
     ## read main dataset
     data = numpy.array([
       lines.strip().split() # remove leading/trailing whitespace + separate by whitespace-delimiter
@@ -218,7 +218,7 @@ def loadSpectrum(filepath_file, spectrum_name, spectrum_component="total"):
     elif "mag" in spectrum_name.lower(): data_power = data_power / (8 * numpy.pi)
     elif "cur" in spectrum_name.lower(): data_power = data_power / (4 * numpy.pi)
     # elif "rho" in spectrum_name.lower(): data_power = data_power
-    else: raise Exception(f"Error: {spectrum_name} is an invalid spectra field. Failed to read and process:", filepath_file)
+    else: raise Exception(f"Error: {spectrum_name} is an invalid spectra field. Failed to read and process:", file_path)
     return data_k, data_power
 
 def loadAllSpectra(
@@ -253,7 +253,7 @@ def loadAllSpectra(
     turb_time = float(filename.split("_")[-3]) / outputs_per_t_turb
     ## load data
     list_k_turb, spectrum = loadSpectrum(
-      filepath_file = f"{directory}/{filename}",
+      file_path = f"{directory}/{filename}",
       spectrum_name   = spectrum_name,
       spectrum_component    = spectrum_component
     )

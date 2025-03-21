@@ -14,13 +14,13 @@ from Loki.Utils import Utils4Dicts
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def readJsonFile2Dict(directory, filename, bool_verbose=True):
-  filepath_file = f"{directory}/{filename}"
-  if os.path.isfile(filepath_file):
-    if bool_verbose: print("Reading in json-file:", filepath_file)
-    with open(filepath_file, "r") as fp:
+def readJsonFile2Dict(directory, file_name, bool_verbose=True):
+  file_path = f"{directory}/{file_name}"
+  if os.path.isfile(file_path):
+    if bool_verbose: print("Reading in json-file:", file_path)
+    with open(file_path, "r") as fp:
       return copy.deepcopy(json.load(fp))
-  else: raise Exception(f"Error: No json-file found: {filepath_file}")
+  else: raise Exception(f"Error: No json-file found: {file_path}")
 
 class NumpyEncoder(json.JSONEncoder):
   def default(self, obj):
@@ -30,8 +30,8 @@ class NumpyEncoder(json.JSONEncoder):
     elif isinstance(obj, numpy.ndarray):  return obj.tolist()
     return json.JSONEncoder.default(self, obj)
 
-def saveObj2JsonFile(filepath_file, obj, bool_verbose=True):
-  with open(filepath_file, "w") as fp:
+def saveObj2JsonFile(file_path, obj, bool_verbose=True):
+  with open(file_path, "w") as fp:
     json.dump(
       obj       = vars(obj), # store member-variables in a dictionary
       fp        = fp,
@@ -39,15 +39,15 @@ def saveObj2JsonFile(filepath_file, obj, bool_verbose=True):
       sort_keys = True,
       indent    = 2
     )
-  if bool_verbose: print("Saved json-file:", filepath_file)
+  if bool_verbose: print("Saved json-file:", file_path)
 
-def saveDict2JsonFile(filepath_file, input_dict, bool_verbose=True):
-  if os.path.isfile(filepath_file): appendDict2JsonFile(filepath_file, input_dict, bool_verbose)
-  else: createJsonFile(filepath_file, input_dict, bool_verbose)
+def saveDict2JsonFile(file_path, input_dict, bool_verbose=True):
+  if os.path.isfile(file_path): appendDict2JsonFile(file_path, input_dict, bool_verbose)
+  else: createJsonFile(file_path, input_dict, bool_verbose)
 
-def createJsonFile(filepath_file, dict2save, bool_verbose=True):
-  filepath_file = filepath_file.replace("//", "/")
-  with open(filepath_file, "w") as fp:
+def createJsonFile(file_path, dict2save, bool_verbose=True):
+  file_path = file_path.replace("//", "/")
+  with open(file_path, "w") as fp:
     json.dump(
       obj       = dict2save,
       fp        = fp,
@@ -55,13 +55,13 @@ def createJsonFile(filepath_file, dict2save, bool_verbose=True):
       sort_keys = True,
       indent    = 2
     )
-  if bool_verbose: print("Saved json-file:", filepath_file)
+  if bool_verbose: print("Saved json-file:", file_path)
 
-def appendDict2JsonFile(filepath_file, dict2add, bool_verbose=True):
-  with open(filepath_file, "r") as fp_r:
+def appendDict2JsonFile(file_path, dict2add, bool_verbose=True):
+  with open(file_path, "r") as fp_r:
     dict_old = json.load(fp_r)
   Utils4Dicts.mergeDicts(dict_old, dict2add)
-  with open(filepath_file, "w+") as fp_w:
+  with open(file_path, "w+") as fp_w:
     json.dump(
       obj       = dict_old,
       fp        = fp_w,
@@ -69,7 +69,7 @@ def appendDict2JsonFile(filepath_file, dict2add, bool_verbose=True):
       sort_keys = True,
       indent    = 2
     )
-  if bool_verbose: print("Updated json-file:", filepath_file)
+  if bool_verbose: print("Updated json-file:", file_path)
 
 
 ## END OF MODULE
