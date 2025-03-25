@@ -1,1 +1,1 @@
-# Loki (Python library)
+# Python library for computing plasma statistics
