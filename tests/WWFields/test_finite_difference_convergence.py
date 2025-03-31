@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import SimpleStats
+from Loki.WWData import SmoothData
 from Loki.WWPlots import PlotUtils
 from Loki.WWFields import FieldGradients
 
@@ -33,7 +33,7 @@ def fitPowerlawAmplitude(x_0, y_0, b):
 ## NUMERICAL CONVERGENCE TEST
 ## ###############################################################
 def main():
-  fig, axs = PlotUtils.initFigure(num_rows=2, num_cols=2, fig_scale=1.35)
+  fig, axs = PlotUtils.create_figure(num_rows=2, num_cols=2, fig_scale=1.35)
   dict_methods = [
     {"label": "2nd order", "order": -2, "func": FieldGradients.gradient_2ocd, "color": "red"},
     {"label": "4th order", "order": -4, "func": FieldGradients.gradient_4ocd, "color": "forestgreen"},
@@ -63,7 +63,7 @@ def main():
       y = getData(x)
       array_dydx_analytic = getExactDerivative(x)
       array_dydx_numeric = method_func(y, numpy.diff(x).mean(), 0)
-      error = SimpleStats.computeNorm(array_dydx_numeric, array_dydx_analytic, p=2, bool_normalise=True)
+      error = SmoothData.compute_p_norm(array_dydx_numeric, array_dydx_analytic, p=2, bool_normalise=True)
       list_errors.append(error)
     array_inv_dx = numpy.array(list_num_points) / (domain_bounds[1] - domain_bounds[0])
     axs[0,1].plot(array_inv_dx, list_errors, "o", ms=10, color=method_color, label=method_label)
@@ -102,7 +102,7 @@ def main():
   axs[1,1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
   axs[1,1].grid(True, which="both", linestyle="--", linewidth=0.5)
   print("Saving figure...")
-  PlotUtils.saveFigure(fig, "finite_difference_convergence.png", bool_draft=False)
+  PlotUtils.save_figure(fig, "finite_difference_convergence.png", bool_draft=False)
   assert len(list_failed_methods) == 0, f"Convergence test failed for the following method(s): {list_failed_methods}"
   print("Test passed successfully!")
 

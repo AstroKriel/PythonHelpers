@@ -11,16 +11,16 @@ import subprocess
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def checkIfShellPrivilegesAreRequired(command):
-  dict_shell_syntax = {
-    "|",      # pipe: `ls | grep .py`
+def does_shell_command_require_privileges(command):
+  special_shell_tokens = {
+    "|",        # pipe: `ls | grep .py`
     # "&",      # background execution: `sleep 5 &`
     # ";",      # command separator: `cmd1; cmd2`
-    "<",      # input redirection: `sort < file.txt`
-    ">",      # output redirection: `echo "hi" > file.txt`
+    "<",        # input redirection: `sort < file.txt`
+    ">",        # output redirection: `echo "hi" > file.txt`
     # "(", ")", # subshell execution: `(cd /tmp && ls)`
-    "$",      # variable expansion: `echo $HOME`
-    "*", "?", # wildcards: `rm *.txt`, `ls file?.txt`
+    "$",        # variable expansion: `echo $HOME`
+    "*", "?",   # wildcards: `rm *.txt`, `ls file?.txt`
     # "#",      # comment: `echo hello # ignored part`
     # "{", "}", # brace expansion: `echo {a,b,c}`
     # "=",      # variable assignment: `VAR=value`
@@ -28,25 +28,25 @@ def checkIfShellPrivilegesAreRequired(command):
     # "~",      # home directory: `cd ~`
   }
   return any(
-    char in dict_shell_syntax
-    for char in command
+    word in special_shell_tokens
+    for word in command
   )
 
-def runCommand(
+def execute_shell_command(
     command,
-    directory           : str   = None,
-    timeout_seconds     : float = 15,
-    bool_capture_output : bool  = True,
-    bool_force_shell    : bool  = False,
+    working_directory : str   = None,
+    timeout_seconds   : float = 15,
+    capture_output    : bool  = True,
+    enforce_shell     : bool  = False,
   ):
-  bool_shell_required = bool_force_shell or checkIfShellPrivilegesAreRequired(command)
+  is_shell_required = enforce_shell or does_shell_command_require_privileges(command)
   try:
     result = subprocess.run(
-      command if bool_shell_required else shlex.split(command),
-      cwd            = directory,
+      command if is_shell_required else shlex.split(command),
+      cwd            = working_directory,
       timeout        = timeout_seconds,
-      capture_output = bool_capture_output,
-      shell          = bool_shell_required,
+      capture_output = capture_output,
+      shell          = is_shell_required,
       check          = False,
       text           = True,
     )
@@ -54,12 +54,12 @@ def runCommand(
     raise RuntimeError(f"Command `{command}` could not be executed.") from exception
   except subprocess.TimeoutExpired as exception:
     raise RuntimeError(f"Command `{command}` timed out after `{timeout_seconds}` seconds.") from exception
-  if bool_capture_output and (result.returncode != 0):
-    message = f"The following command failed with return code `{result.returncode}`: {command}"
-    if result.stdout: message += f"\nstdout: {result.stdout.strip()}"
-    if result.stderr: message += f"\nstderr: {result.stderr.strip()}"
-    raise RuntimeError(message)
-  return result.stdout if bool_capture_output else result
+  if result.returncode != 0:
+    error_message = f"The following command failed with return code `{result.returncode}`: {command}"
+    if result.stdout: error_message += f"\nstdout: {result.stdout.strip()}"
+    if result.stderr: error_message += f"\nstderr: {result.stderr.strip()}"
+    raise RuntimeError(error_message)
+  return result.stdout if capture_output else result
 
 
 ## END OF MODULE

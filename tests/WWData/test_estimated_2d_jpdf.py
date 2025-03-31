@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import ComputePDFs
+from Loki.WWData import Distributions
 from Loki.WWPlots import PlotUtils
 
 
@@ -36,28 +36,28 @@ def main():
   num_bins           = 1e2
   bool_plot_samples  = False
   integral_tolerance = 1e-2
-  fig, ax = PlotUtils.initFigure()
+  fig, ax = PlotUtils.create_figure()
   x_samples, y_samples = sampleFromEllipse(num_points, ax)
-  bedges_rows, bedges_cols, jpdf = ComputePDFs.compute2DJPDF(
+  bin_edges_rows, bin_edges_cols, jpdf = Distributions.compute_jpdf(
     data_x   = x_samples,
     data_y   = y_samples,
     num_bins = num_bins,
     smoothing_length = 2.0
   )
   ## assuming uniform binning
-  bin_width_x = bedges_cols[1] - bedges_cols[0]
-  bin_width_y = bedges_rows[1] - bedges_rows[0]
+  bin_width_x = bin_edges_cols[1] - bin_edges_cols[0]
+  bin_width_y = bin_edges_rows[1] - bin_edges_rows[0]
   pdf_integral = numpy.sum(jpdf * bin_width_x * bin_width_y)
-  ax.contourf(bedges_cols[:-1], bedges_rows[:-1], jpdf, levels=20, cmap="Blues")
+  ax.contourf(bin_edges_cols[:-1], bin_edges_rows[:-1], jpdf, levels=20, cmap="Blues")
   if bool_plot_samples: ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
   ## add annotations
   ax.set_xlabel(r"$x$")
   ax.set_ylabel(r"$y$")
   ax.axhline(y=0, color="black", ls="--", zorder=1)
   ax.axvline(x=0, color="black", ls="--", zorder=1)
-  ax.set_xlim([ numpy.min(bedges_cols), numpy.max(bedges_cols) ])
-  ax.set_ylim([ numpy.min(bedges_rows), numpy.max(bedges_rows) ])
-  PlotUtils.saveFigure(fig, "estimated_2d_jpdf.png")
+  ax.set_xlim([ numpy.min(bin_edges_cols), numpy.max(bin_edges_cols) ])
+  ax.set_ylim([ numpy.min(bin_edges_rows), numpy.max(bin_edges_rows) ])
+  PlotUtils.save_figure(fig, "estimated_2d_jpdf.png")
   assert abs(pdf_integral - 1.0) < integral_tolerance, f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
   print("Test passed successfully!")
 

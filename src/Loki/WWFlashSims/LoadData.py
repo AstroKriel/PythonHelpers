@@ -73,14 +73,14 @@ def loadFlashDataCube(
     ]
     ## close file stream
     h5file.close()
-  ## reformat data
+  ## reformat values
   field_sorted_group_comps = []
   for field_comp in field_group_comp:
     field_comp_sorted = reformatFlashField(field_comp, num_blocks, num_procs)
     ## normalise by rms-value
-    if bool_norm_rms: field_comp_sorted /= WWFields.sfieldRMS(field_comp_sorted)
+    if bool_norm_rms: field_comp_sorted /= WWFields.compute_sfield_rms(field_comp_sorted)
     field_sorted_group_comps.append(field_comp_sorted)
-  ## return spatial-components of data
+  ## return spatial-components of values
   return numpy.squeeze(field_sorted_group_comps)
 
 def loadAllFlashDataCubes(
@@ -91,7 +91,7 @@ def loadAllFlashDataCubes(
   ):
   outputs_per_t_turb = dict_sim_config["outputs_per_t_turb"]
   ## get all plt files in the directory
-  list_filenames = WWFnF.getFilesInDirectory(
+  list_filenames = WWFnF.get_files_in_directory(
     directory             = directory,
     filename_starts_with  = FileNames.FILENAME_FLASH_PLT_FILES,
     filename_not_contains = "spect",
@@ -130,7 +130,7 @@ def loadVIData(
     time_start   = 1,
     time_end     = numpy.inf,
     bool_debug   = False,
-    bool_verbose = False
+    verbose = False
   ):
   ## define which quantities to read in
   time_index = 0
@@ -152,7 +152,7 @@ def loadVIData(
   prev_time  = numpy.inf
   with open(f"{directory}/{FileNames.FILENAME_FLASH_VI_DATA}", "r") as fp:
     num_fields = len(fp.readline().split())
-    ## read data in backwards
+    ## read values in backwards
     for line in reversed(fp.readlines()):
       data_split_columns = line.replace("\n", "").split()
       ## only read where every field has been processed
@@ -162,26 +162,26 @@ def loadVIData(
       if "#" in data_split_columns[field_index]: continue
       ## compute time in units of eddy turnover time
       this_time = float(data_split_columns[time_index]) / t_turb
-      ## only read data that has progressed in time
+      ## only read values that has progressed in time
       if this_time < prev_time:
         data_val = float(data_split_columns[field_index])
         ## something might have gone wrong: it is very unlikely to encounter a 0-value exactly
         if (data_val == 0.0) and (0 < this_time):
           warning_message = f"{FileNames.FILENAME_FLASH_VI_DATA}: value of field-index = {field_index} is 0.0 at time = {this_time}"
           if bool_debug: raise Exception(f"Error: {warning_message}")
-          if bool_verbose: print(f"Warning: {warning_message}")
+          if verbose: print(f"Warning: {warning_message}")
           continue
-        ## store data
+        ## store values
         data_time.append(this_time)
         data_field.append(data_val)
         ## step backwards
         prev_time = this_time
-  ## re-order data
+  ## re-order values
   data_time  = data_time[::-1]
   data_field = data_field[::-1]
-  ## subset data based on provided time bounds
-  index_start = WWLists.getIndexOfClosestValue(data_time, time_start)
-  index_end   = WWLists.getIndexOfClosestValue(data_time, time_end)
+  ## subset values based on provided time bounds
+  index_start = WWLists.get_index_of_closest_value(data_time, time_start)
+  index_end   = WWLists.get_index_of_closest_value(data_time, time_end)
   data_time_subset  = data_time[index_start  : index_end]
   data_field_subset = data_field[index_start : index_end]
   return data_time_subset, data_field_subset
@@ -197,7 +197,7 @@ def loadSpectrum(file_path, spectrum_name, spectrum_component="total"):
     ), None)
     if header_index is None: raise Exception("Error: no instances of `#` (which indicates the header was not) found in:", file_path)
     ## read main dataset
-    data = numpy.array([
+    values = numpy.array([
       lines.strip().split() # remove leading/trailing whitespace + separate by whitespace-delimiter
       for lines in dataset[header_index:] # read from after header
     ])
@@ -211,8 +211,8 @@ def loadSpectrum(file_path, spectrum_name, spectrum_component="total"):
       else: field_index = 7 # if there is no spectrum decomposition
     else: raise Exception(f"Error: {spectrum_component} is an invalid spectra component.")
     ## read fields from file
-    data_k     = numpy.array(data[:, iproc_index_], dtype=float)
-    data_power = numpy.array(data[:, field_index], dtype=float)
+    data_k     = numpy.array(values[:, iproc_index_], dtype=float)
+    data_power = numpy.array(values[:, field_index], dtype=float)
     if   "vel" in spectrum_name.lower(): data_power = data_power / 2
     elif "kin" in spectrum_name.lower(): data_power = data_power / 2
     elif "mag" in spectrum_name.lower(): data_power = data_power / (8 * numpy.pi)
@@ -227,7 +227,7 @@ def loadAllSpectra(
     file_start_time    = 2,
     file_end_time      = numpy.inf,
     read_every         = 1,
-    bool_verbose       = True
+    verbose       = True
   ):
   if   "vel" in spectrum_name.lower(): file_end_str = "spect_velocity.dat"
   elif "kin" in spectrum_name.lower(): file_end_str = "spect_kinetic.dat"
@@ -236,14 +236,14 @@ def loadAllSpectra(
   # elif "rho" in spectrum_name.lower(): file_end_str = "spect_density.dat"
   else: raise Exception("Error: invalid spectra field-type provided:", spectrum_name)
   ## get list of spect-filenames in directory
-  list_spectra_filenames = WWFnF.getFilesInDirectory(
+  list_spectra_filenames = WWFnF.get_files_in_directory(
     directory          = directory,
     filename_ends_with = file_end_str,
     loc_file_index     = -3,
     file_start_index   = outputs_per_t_turb * file_start_time,
     file_end_index     = outputs_per_t_turb * file_end_time
   )
-  ## initialise list of spectra data
+  ## initialise list of spectra values
   list_t_turb        = []
   list_k_turb        = None
   spectra_group_t = []
@@ -251,16 +251,16 @@ def loadAllSpectra(
   for filename in list_spectra_filenames[::read_every]:
     ## convert file index to simulation time
     turb_time = float(filename.split("_")[-3]) / outputs_per_t_turb
-    ## load data
+    ## load values
     list_k_turb, spectrum = loadSpectrum(
       file_path = f"{directory}/{filename}",
       spectrum_name   = spectrum_name,
       spectrum_component    = spectrum_component
     )
-    ## store data
+    ## store values
     spectra_group_t.append(spectrum)
     list_t_turb.append(turb_time)
-  ## return spectra data
+  ## return spectra values
   return {
     "list_t_turb"        : list_t_turb,
     "list_k_turb"        : list_k_turb,

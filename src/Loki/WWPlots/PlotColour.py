@@ -20,10 +20,10 @@ from Loki.WWPlots import PlotAnnotations
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def createNorm(vmin=0.0, vmax=1.0, NormType=mplcolors.Normalize):
+def create_norm(vmin=0.0, vmax=1.0, NormType=mplcolors.Normalize):
   return NormType(vmin=vmin, vmax=vmax)
 
-def createColormap(
+def create_cmap(
     cmap_name,
     cmin=0.0, cmax=1.0,
     vmin=0.0, vmid=None, vmax=1.0,
@@ -31,10 +31,10 @@ def createColormap(
   ):
   if vmid is not None: NormType = functools.partial(mplcolors.TwoSlopeNorm, vcenter=vmid)
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
-  norm = createNorm(vmin, vmax, NormType)
+  norm = create_norm(vmin, vmax, NormType)
   return cmap, norm
 
-def addColorbar_fromCmap(
+def add_cbar_from_cmap(
     fig, ax, cmap,
     norm=None, vmin=0.0, vmax=1.0,
     orientation    = "horizontal",
@@ -44,7 +44,7 @@ def addColorbar_fromCmap(
     fontsize       = 16,
     size           = 10
   ):
-  if norm is None: norm = createNorm(vmin, vmax)
+  if norm is None: norm = create_norm(vmin, vmax)
   mappable = ScalarMappable(cmap=cmap, norm=norm)
   ax_div = make_axes_locatable(ax)
   if   "h" == orientation[0].lower():
@@ -67,7 +67,7 @@ def addColorbar_fromCmap(
     if bool_log_ticks: ax_cbar.yaxis.set_major_formatter(mplticker.FuncFormatter(PlotAnnotations.labelLogFormatter))
   return cbar
 
-def addColorbar_fromMappble(
+def add_cbar_from_mappable(
     mappable,
     fig         = None,
     ax          = None,

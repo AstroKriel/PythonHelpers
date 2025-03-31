@@ -19,7 +19,7 @@ from Loki.WWFields import FieldOperators
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def plotData_noAutoAxisScale(
+def plot_data_wo_scaling_axis(
     ax, x, y,
     color="k", ls=":", lw=1, label=None, alpha=1.0, zorder=1
   ):
@@ -34,7 +34,7 @@ def plotData_noAutoAxisScale(
   )
   ax.add_collection(col, autolim=False)
 
-def plotErrorBar(
+def plot_error_bar(
     ax, x, array_y,
     label   = None,
     color   = "k",
@@ -69,7 +69,7 @@ def plotErrorBar(
     elinewidth=1.5, linestyle="None"
   )
 
-def plotPDF(
+def plot_pdf(
     ax, list_data,
     num_bins     = 10,
     weights      = None,
@@ -86,7 +86,7 @@ def plotPDF(
     ax.fill_between(list_bin_edges, list_dens_norm, step="pre", alpha=0.2, color=color)
   return list_bin_edges, list_dens_norm
 
-def plotScalarField(
+def plot_sfield_slice(
     field_slice,
     fig               = None,
     ax                = None,
@@ -115,7 +115,7 @@ def plotScalarField(
   )
   ## add colorbar
   if bool_add_colorbar:
-    PlotColour.addColorbar_fromMappble(
+    PlotColour.add_cbar_from_mappable(
       fig         = fig,
       ax          = ax,
       mappable    = im_obj,
@@ -134,7 +134,7 @@ def plotScalarField(
     ax.set_yticks([])
   return fig, ax
 
-def plotVectorField(
+def plot_vfield_slice(
     field_slice_xrows,
     field_slice_xcols,
     fig                   = None,
@@ -164,8 +164,8 @@ def plotVectorField(
   if (fig is None) and not(ax is None): fig = ax.figure
   ## plot magnitude of vector field
   if bool_plot_magnitude:
-    field_magnitude = FieldOperators.vfieldMagnitude([field_slice_xrows, field_slice_xcols])
-    if bool_norm_sfield:  field_magnitude = field_magnitude**2 / FieldOperators.sfieldRMS(field_magnitude)**2
+    field_magnitude = FieldOperators.compute_vfield_magnitude([field_slice_xrows, field_slice_xcols])
+    if bool_norm_sfield:  field_magnitude = field_magnitude**2 / FieldOperators.compute_sfield_rms(field_magnitude)**2
     if bool_log10_sfield: field_magnitude = numpy.log10(field_magnitude)
     if bool_center_cbar:  NormType = functools.partial(mplcolors.TwoSlopeNorm, vcenter=0)
     else:                 NormType = mplcolors.Normalize
@@ -181,7 +181,7 @@ def plotVectorField(
     )
     ## add colorbar
     if bool_add_colorbar:
-      PlotColour.addColorbar_fromMappble(
+      PlotColour.add_cbar_from_mappable(
         fig         = fig,
         ax          = ax,
         mappable    = im_obj,

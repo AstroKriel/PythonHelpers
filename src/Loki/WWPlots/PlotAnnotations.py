@@ -10,7 +10,7 @@ from matplotlib.lines import Line2D
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def addInsetAxis(
+def add_inset_axis(
     ax, 
     ax_inset_bounds = [ 0.0, 1.0, 1.0, 0.5 ],
     label_x         = None,
@@ -24,7 +24,7 @@ def addInsetAxis(
   ax_inset.xaxis.set_label_position("top")
   return ax_inset
 
-def addCustomLegend(
+def add_custom_legend(
     ax, list_artists, list_labels, list_colors,
     label_color   = "black",
     loc           = "upper right",

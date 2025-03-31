@@ -127,7 +127,7 @@ def callFuncForAllDirectories(func, list_directories, bool_debug_mode=False):
           func,
           lock            = lock,
           bool_debug_mode = bool_debug_mode,
-          bool_verbose    = False
+          verbose    = False
         ),
         directory
       ) for directory in list_directories
@@ -171,7 +171,7 @@ def callFuncForAllSimulations(
     func(
       directory_sim    = directory_sim,
       bool_debug_mode  = bool_debug_mode,
-      bool_verbose     = True
+      verbose     = True
     )
     for directory_sim in list_directory_sims
   ]
@@ -222,7 +222,7 @@ def addLabel_simConfig(
 #   if len(array_t_turb) != len(array_power_group_t):
 #     raise ValueError("Error: Mismatched lengths of `list_t_turb` and `spectra_group_t`.")
 #   new_data_array = xr.DataArray(
-#     data   = array_power_group_t,
+#     values   = array_power_group_t,
 #     dims   = [ "array_t_turb", "array_k_turb" ],
 #     coords = {
 #       "array_t_turb" : array_t_turb,
@@ -234,12 +234,12 @@ def addLabel_simConfig(
 #     else:
 #       ## merge time points
 #       _array_t_turb = numpy.union1d(ds["array_t_turb"].values, array_t_turb)
-#       ## reindex both the existing and new data arrays to accommodate for new time points
+#       ## reindex both the existing and new values arrays to accommodate for new time points
 #       old_data_array = ds[spectrum_name].reindex(array_t_turb=_array_t_turb, method=None)
 #       new_data_array = new_data_array.reindex(array_t_turb=_array_t_turb, method=None)
-#       ## combine the data and have new data take precedence
+#       ## combine the values and have new values take precedence
 #       merged_data_array = new_data_array.combine_first(old_data_array)
-#       ## update the data array
+#       ## update the values array
 #       ds = ds.reindex(array_t_turb=_array_t_turb, method=None)
 #       ds[spectrum_name] = merged_data_array
 #   else:
@@ -258,7 +258,7 @@ def addSpectrum2Xarray(ds, dict_spectrum, spectrum_name, bool_overwrite=False):
   if len(array_t_turb) != len(array_power_group_t):
     raise ValueError("Error: Mismatched lengths of `list_t_turb` and `spectra_group_t`.")
   new_data_array = xr.DataArray(
-    data=array_power_group_t,
+    values=array_power_group_t,
     dims=["array_t_turb", "array_k_turb"],
     coords={
       "array_t_turb": array_t_turb,
@@ -285,39 +285,39 @@ def addSpectrum2Xarray(ds, dict_spectrum, spectrum_name, bool_overwrite=False):
       ds[spectrum_name] = merged_data
   return ds
 
-def saveSimOutputs(ds, directory, bool_verbose=True):
+def saveSimOutputs(ds, directory, verbose=True):
   file_path = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
   with h5py.File(file_path, "w") as h5_file:
     ## save dataset variables
     for var_name, var_data in ds.data_vars.items():
-      h5_file.create_dataset(var_name, data=var_data.values)
+      h5_file.create_dataset(var_name, values=var_data.values)
       dims_str = ",".join(var_data.dims)
       h5_file[var_name].attrs["dims"] = dims_str
     ## save table-coordinates
     for coord_name, coord_data in ds.coords.items():
-      h5_file.create_dataset(f"coords/{coord_name}", data=coord_data.values)
+      h5_file.create_dataset(f"coords/{coord_name}", values=coord_data.values)
     ## save global attributes of the dataset
     for attr_name, attr_value in ds.attrs.items():
       h5_file.attrs[attr_name] = attr_value
-  if bool_verbose: print("Saved dataset:", file_path)
+  if verbose: print("Saved dataset:", file_path)
 
-def readSimOutputs(directory, bool_verbose=True):
+def readSimOutputs(directory, verbose=True):
   file_path = f"{directory}/{FileNames.FILENAME_SIM_SPECTRA}"
-  if bool_verbose: print("Reading:", file_path)
+  if verbose: print("Reading:", file_path)
   data_vars = {}
   coords = {}
   with h5py.File(file_path, "r") as h5_file:
     ## explicityly read the table-coordinates (e.g., t_turb, k_turb)
     if "coords/array_t_turb" in h5_file: coords["array_t_turb"] = h5_file["coords/array_t_turb"][:]
     if "coords/array_k_turb" in h5_file: coords["array_k_turb"] = h5_file["coords/array_k_turb"][:]
-    ## read data variables
+    ## read values variables
     for var_name in h5_file.keys():
       ## skip groups (like "coords/") and only read datasets
       if isinstance(h5_file[var_name], h5py.Group): continue
-      data = h5_file[var_name][:]
+      values = h5_file[var_name][:]
       dims_str = h5_file[var_name].attrs.get("dims", "")
       dims = dims_str.split(",")
-      data_vars[var_name] = (dims, data)
+      data_vars[var_name] = (dims, values)
   ## manually create a Xarray-Dataset + assign the correct coordinates
   ds = xr.Dataset(
     data_vars = data_vars,
@@ -327,31 +327,31 @@ def readSimOutputs(directory, bool_verbose=True):
 
 def saveSimSummary(directory, dict_sim_summary):
   file_path = f"{directory}/{FileNames.FILENAME_SIM_SUMMARY}"
-  WWObjs.saveDict2JsonFile(file_path, dict_sim_summary)
+  WWObjs.save_dict_to_json_file(file_path, dict_sim_summary)
 
-def readSimSummary(directory, bool_verbose=True):
-  dict_sim_summary = WWObjs.readJsonFile2Dict(
+def readSimSummary(directory, verbose=True):
+  dict_sim_summary = WWObjs.read_json_file_into_dict(
     directory     = directory,
     filename     = FileNames.FILENAME_SIM_SUMMARY,
-    bool_verbose = bool_verbose
+    verbose = verbose
   )
   return dict_sim_summary
 
 def saveSimConfig(directory, sim_config):
   file_path = f"{directory}/{FileNames.FILENAME_sim_config}"
-  if   type(sim_config) is dict:           WWObjs.saveDict2JsonFile(file_path, sim_config)
-  elif type(sim_config) is SimInputParams: WWObjs.saveObj2JsonFile(file_path, sim_config)
+  if   type(sim_config) is dict:           WWObjs.save_dict_to_json_file(file_path, sim_config)
+  elif type(sim_config) is SimInputParams: WWObjs.save_obj_to_json_file(file_path, sim_config)
 
-def readSimConfig(directory, bool_verbose=True):
-  dict_sim_config = WWObjs.readJsonFile2Dict(
+def readSimConfig(directory, verbose=True):
+  dict_sim_config = WWObjs.read_json_file_into_dict(
     directory     = directory,
     filename     = FileNames.FILENAME_sim_config,
-    bool_verbose = bool_verbose
+    verbose = verbose
   )
   ## make sure that every parameter is in the config class is defined
   obj_sim_config = SimInputParams(**dict_sim_config)
   ## save updated dictionary if new parameters were defined
-  bool_new_params_defined = WWObjs.checkIfDictsAreDifferent(dict_sim_config, obj_sim_config.__dict__)
+  bool_new_params_defined = WWObjs.are_dicts_different(dict_sim_config, obj_sim_config.__dict__)
   if bool_new_params_defined: saveSimConfig(directory, obj_sim_config)
   ## return dictionary object
   return obj_sim_config.__dict__
@@ -443,12 +443,12 @@ class SimInputParams():
 
   def defineParams(self):
     ## check that the required input arguments are the right type
-    WWVariables.assertType("suite_folder", self.suite_folder, str)
-    WWVariables.assertType("sim_folder",   self.sim_folder,   str)
-    WWVariables.assertType("res_folder",   self.res_folder,   str)
-    WWVariables.assertType("num_blocks",   self.num_blocks,   list)
-    WWVariables.assertType("k_turb",       self.k_turb,      (int, float))
-    WWVariables.assertType("mach_number",  self.mach_number, (int, float))
+    WWVariables.assert_type("suite_folder", self.suite_folder, str)
+    WWVariables.assert_type("sim_folder",   self.sim_folder,   str)
+    WWVariables.assert_type("res_folder",   self.res_folder,   str)
+    WWVariables.assert_type("num_blocks",   self.num_blocks,   list)
+    WWVariables.assert_type("k_turb",       self.k_turb,      (int, float))
+    WWVariables.assert_type("mach_number",  self.mach_number, (int, float))
     ## perform routines
     list_undefined_plasma_params = [
       param is None

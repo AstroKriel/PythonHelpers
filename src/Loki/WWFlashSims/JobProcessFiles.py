@@ -8,10 +8,10 @@ class JobProcessFiles():
       directory_plt, dict_sim_config, list_spect_datasets,
       file_start_index = None,
       file_end_index   = None,
-      bool_verbose     = True
+      verbose     = True
     ):
     self.directory_plt = directory_plt
-    self.bool_verbose = bool_verbose
+    self.verbose = verbose
     self.max_hours    = int(24)
     self.num_procs    = int(dict_sim_config["res_folder"]) // 6
     self.max_mem      = int(4 * self.num_procs)
@@ -53,7 +53,7 @@ class JobProcessFiles():
       job_file.write(". ~/modules_flash\n")
       job_file.write(f"{self.command} 1>{self.job_output} 2>&1\n")
     ## indicate progress
-    if self.bool_verbose:
+    if self.verbose:
       print(f"defined PBS job:")
       print(f"\t> Job name:",  self.job_name)
       print(f"\t> Directory:", self.directory_plt)

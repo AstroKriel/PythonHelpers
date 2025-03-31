@@ -320,7 +320,7 @@ class JobRunSim():
     )
     k_turb = self.dict_sim_config["k_turb"]
     if k_turb < 2: raise Exception(f"Error: k_turb cannot be < 2. You have requested k_turb = {k_turb}")
-    if WWFnF.checkIfFileExists(self.directory_sim, FileNames.FILENAME_DRIVING_HISTORY):
+    if WWFnF.does_file_exist(self.directory_sim, FileNames.FILENAME_DRIVING_HISTORY):
       des_amplitude = ReadFlashData.readDrivingAmplitude(self.directory_sim)
     else: des_amplitude = 0.1
     self.dict_driving_params = {
@@ -384,7 +384,7 @@ class JobRunSim():
     if not os.path.exists(FileNames.DIRECTORY_FILE_BACKUPS):
       raise Exception("Error: folder containing flash backups does not exist:", FileNames.DIRECTORY_FILE_BACKUPS)
     ## copy flash4 executable
-    WWFnF.copyFile(
+    WWFnF.copy_file(
       directory_from = FileNames.DIRECTORY_FILE_BACKUPS,
       directory_to   = self.directory_sim,
       filename       = self.filename_flash_exe
@@ -405,19 +405,19 @@ class JobRunSim():
 
   def prepFromReference(self, file_path_ref_sim):
     ## copy flash4 executable
-    WWFnF.copyFile(
+    WWFnF.copy_file(
       directory_from = FileNames.DIRECTORY_FILE_BACKUPS,
       directory_to   = self.directory_sim,
       filename       = self.filename_flash_exe
     )
     ## copy driving parameter file
-    WWFnF.copyFile(
+    WWFnF.copy_file(
       directory_from = file_path_ref_sim,
       directory_to   = self.directory_sim,
       filename       = FileNames.FILENAME_DRIVING_INPUT
     )
     ## make sure higher resolution simulation input parameters matches the reference
-    ref_sim_input = ReadFlashData.readSimConfig(file_path_ref_sim, bool_verbose=False)
+    ref_sim_input = ReadFlashData.readSimConfig(file_path_ref_sim, verbose=False)
     self.dict_sim_config["cfl"]                = ref_sim_input["cfl"]
     self.dict_sim_config["init_rms_b"]         = ref_sim_input["init_rms_b"]
     self.dict_sim_config["max_num_t_turb"]     = ref_sim_input["max_num_t_turb"]

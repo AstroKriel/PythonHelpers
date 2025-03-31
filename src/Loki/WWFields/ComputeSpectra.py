@@ -22,19 +22,7 @@ except ImportError:
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def normaliseSpectrum(spectrum: numpy.ndarray) -> numpy.ndarray:
-  """Normalizes a power spectrum so that it sums to 1."""
-  return spectrum / numpy.sum(spectrum)
-
-def computeAverageNormalisedSpectrum(spectra_group_t: list[numpy.ndarray]) -> numpy.ndarray:
-  """Computes the average normalised spectrum over multiple samples."""
-  if len(spectra_group_t) == 0: raise ValueError("List of spectra is empty.")
-  return numpy.mean(numpy.stack([
-    normaliseSpectrum(spectrum)
-    for spectrum in spectra_group_t
-  ]), axis=0)
-
-def computePowerSpectrum_3D(
+def compute_3d_power_spectrum(
     field: numpy.ndarray,
     bool_use_mpi: bool = False
   ) -> numpy.ndarray:
@@ -52,18 +40,18 @@ def computePowerSpectrum_3D(
     return spectrum_global if MPI_WORLD.Get_rank() == 0 else None
   else: return spectrum_local
 
-def sphericalIntegrate(
+def perform_spherical_integration(
     spectrum_3d: numpy.ndarray,
     bool_use_mpi: bool = False
   ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Integrates a 3D power spectrum over spherical shells of constant k."""
   num_k_modes = spectrum_3d.shape[0] // 2
-  k_bedges    = numpy.linspace(1, num_k_modes, num_k_modes+1)
-  k_modes     = (k_bedges[:-1] + k_bedges[1:]) / 2
+  k_bin_edges    = numpy.linspace(1, num_k_modes, num_k_modes+1)
+  k_modes     = (k_bin_edges[:-1] + k_bin_edges[1:]) / 2
   k_center    = numpy.array([(_ki_size-1)/2.0 for _ki_size in spectrum_3d.shape], dtype=float)
   grid_kz, grid_ky, grid_kx = numpy.indices(spectrum_3d.shape)
   grid_k_magn    = numpy.sqrt((grid_kx - k_center[0])**2 + (grid_ky - k_center[1])**2 + (grid_kz - k_center[2])**2)
-  bin_indices    = numpy.digitize(grid_k_magn, k_bedges)
+  bin_indices    = numpy.digitize(grid_k_magn, k_bin_edges)
   spectrum_local = numpy.bincount(bin_indices.ravel(), weights=spectrum_3d.ravel(), minlength=num_k_modes+1)[1:]
   if bool_use_mpi and BOOL_MPI_AVAILABLE:
     spectrum_global = numpy.empty_like(spectrum_local)
@@ -72,14 +60,14 @@ def sphericalIntegrate(
     return k_modes, spectrum_global if MPI_WORLD.Get_rank() == 0 else None, None
   return k_modes, spectrum_local
 
-def computePowerSpectrum_1D(
+def compute_1d_power_spectrum(
     vfield_q: numpy.ndarray,
     bool_use_mpi: bool = False
   ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Computes the full power spectrum including radial integration."""
-  spectrum_3d = computePowerSpectrum_3D(vfield_q, bool_use_mpi)
+  spectrum_3d = compute_3d_power_spectrum(vfield_q, bool_use_mpi)
   if spectrum_3d is None: return None, None
-  k_modes, spectrum_1d = sphericalIntegrate(spectrum_3d, bool_use_mpi)
+  k_modes, spectrum_1d = perform_spherical_integration(spectrum_3d, bool_use_mpi)
   if (k_modes is None) or (spectrum_1d is None): return None, None
   return k_modes, spectrum_1d
 

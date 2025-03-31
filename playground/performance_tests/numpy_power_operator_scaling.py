@@ -12,7 +12,7 @@ from Loki.WWPlots import PlotUtils, PlotAnnotations
 def main():
   num_repeats = 10
   exponent = 2.5
-  fig, ax = PlotUtils.initFigure(fig_aspect_ratio=(5,6))
+  fig, ax = PlotUtils.create_figure(fig_aspect_ratio=(5,6))
   for num_dims in [ 3 ]:
     list_sizes = []
     list_ave_timings_operator = []
@@ -59,7 +59,7 @@ def main():
   ax.set_yscale("log")
   ax.set_xlabel("Total number of elements")
   ax.set_ylabel("Execution time (seconds)")
-  PlotAnnotations.addCustomLegend(
+  PlotAnnotations.add_custom_legend(
     ax           = ax,
     list_artists = [ "-", ":", "o", "s", "D" ],
     list_labels  = [ "a**b", "numpy.power(a,b)", "1D array", "2D array", "3D array" ],
@@ -69,7 +69,7 @@ def main():
     bbox         = (0.0, 1.0),
   )
   ax.grid(True, which="major", linestyle="--", linewidth=0.5)
-  PlotUtils.saveFigure(fig, "numpy_power_operator_scaling.png")
+  PlotUtils.save_figure(fig, "numpy_power_operator_scaling.png")
 
 
 ## ###############################################################

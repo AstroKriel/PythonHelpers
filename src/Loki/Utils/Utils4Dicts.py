@@ -12,89 +12,46 @@ from Loki.Utils import Utils4Vars
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def mergeDicts(
-    dict_1: dict,
-    dict_2: dict
+def merge_dicts(
+    dict_a: dict,
+    dict_b: dict
   ) -> dict:
-  """Recursively merges two dictionaries without modifying the originals."""
-  Utils4Vars.assertType(dict_1, dict)
-  Utils4Vars.assertType(dict_2, dict)
-  dict_out = dict_1.copy()
-  for key, value in dict_2.items():
-    if key in dict_out:
-      # Case 1: Both are dictionaries, merge them recursively
-      if isinstance(dict_out[key], dict) and isinstance(value, dict):
-        dict_out[key] = mergeDicts(dict_out[key], value)
-      # Case 2: Both are lists, concatenate them
-      elif isinstance(dict_out[key], list) and isinstance(value, list):
-        dict_out[key] = dict_out[key] + value  # Concatenate lists
-      # Case 3: Both are sets, union them
-      elif isinstance(dict_out[key], set) and isinstance(value, set):
-        dict_out[key] = dict_out[key] | value  # Union sets
-      # Case 4: Other types, deepcopy to avoid modifying original dict_1
+  """Recursively merge two dictionaries (without modifying the originals), with preference for the second."""
+  Utils4Vars.assert_type(dict_a, dict)
+  Utils4Vars.assert_type(dict_b, dict)
+  merged_dict = dict_a.copy()
+  for key, value in dict_b.items():
+    if key in merged_dict:
+      # both are dictionaries: merge them recursively
+      if isinstance(merged_dict[key], dict) and isinstance(value, dict):
+        merged_dict[key] = merge_dicts(merged_dict[key], value)
+      # both are lists: concatenate them
+      elif isinstance(merged_dict[key], list) and isinstance(value, list):
+        merged_dict[key] = merged_dict[key] + value
+      # both are sets: get union of them
+      elif isinstance(merged_dict[key], set) and isinstance(value, set):
+        merged_dict[key] = merged_dict[key] | value
+      # other types, deepcopy to avoid modifying original dict_a
       elif isinstance(value, (dict, list, set)):
-        dict_out[key] = deepcopy(value)
-      # Case 5: Other values, replace directly
-      else: dict_out[key] = value
-    else: dict_out[key] = value
-  return dict_out
+        print("here:", key, value)
+        merged_dict[key] = deepcopy(value)
+      # replace directly
+      else: merged_dict[key] = value
+    else: merged_dict[key] = value
+  return merged_dict
 
-def filterDict2ExcludeKeys(
-    dict_in: dict,
-    list_keys: list
-  ) -> dict:
-  Utils4Vars.assertType(dict_in, dict)
-  Utils4Vars.assertType(list_keys, list)
-  return {
-    key : value
-    for key, value in dict_in.items()
-    if key not in list_keys
-  }
-
-def checkIfDictsAreDifferent(
-      dict_new: dict,
-      dict_ref: dict
+def are_dicts_different(
+      dict_a: dict,
+      dict_b: dict
     ) -> bool:
     ## check that the dictionaries have the same number of keys
-    if len(dict_new) != len(dict_ref): return True
-    ## check if any key in dict_ref is not in dict_new or if their values are different
-    for key in dict_ref:
-      if (key not in dict_new) or (dict_ref[key] != dict_new[key]):
+    if len(dict_a) != len(dict_b): return True
+    ## check if any key in dict_b is not in dict_a or if their values are different
+    for key in dict_b:
+      if (key not in dict_a) or (dict_b[key] != dict_a[key]):
         return True
     ## otherwise the dictionaries are the same
     return False
-
-def printDict(
-    input_dict: dict,
-    indent : int = 0
-  ):
-  def _printWithIndent(indent, str_pre, str_post=None):
-    if not isinstance(str_pre, str): str_pre = str(str_pre)
-    if str_post is None: print(" " * indent + str_pre)
-    else:                print(" " * indent + f"{str_pre} : {str_post}")
-  def _shorten_and_format(value):
-    if isinstance(value, (list, numpy.ndarray)):
-      return list(value[:3]) + ["..."] if len(value) > 3 else value
-    return value
-  def _printDict(d, indent):
-    for key in sorted(d.keys()):
-      value = d[key]
-      value_type = f"[{type(value).__name__}]"
-      if isinstance(value, dict):
-        _printWithIndent(indent, key, "[dict]")
-        _printDict(value, indent+4)
-      elif isinstance(value, numpy.ndarray):
-        _printWithIndent(indent, key, value_type)
-        shortened_value = _shorten_and_format(value)
-        _printWithIndent(indent+4, value.shape, shortened_value)
-      elif isinstance(value, list):
-        _printWithIndent(indent, key)
-        shortened_value = _shorten_and_format(value)
-        _printWithIndent(indent+4, len(value), shortened_value)
-      else:
-        _printWithIndent(indent, key, f"[{value_type}]")
-        _printWithIndent(indent+4, value_type, value)
-  _printDict(input_dict, indent)
 
 
 ## END OF MODULE

@@ -11,52 +11,52 @@ from Loki.Utils import Utils4Vars
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def getIntersectOfLists(
-    list1: list,
-    list2: list,
-    bool_sort: bool=False
+def get_intersect_of_lists(
+    list_a: list,
+    list_b: list,
+    sort_values: bool = False
   ) -> list:
-  """Returns the intersection of two lists, optionally sorted."""
-  Utils4Vars.assertType(list1, list)
-  Utils4Vars.assertType(list2, list)
-  if (len(list1) == 0) or (len(list2) == 0): return []
-  set_intersect = set(list1) & set(list2)
-  return sorted(set_intersect) if bool_sort else list(set_intersect)
+  """Find the intersection of two lists (optionally sorted)."""
+  Utils4Vars.assert_type(list_a, list)
+  Utils4Vars.assert_type(list_b, list)
+  if (len(list_a) == 0) or (len(list_b) == 0): return []
+  set_intersect = set(list_a) & set(list_b)
+  return sorted(set_intersect) if sort_values else list(set_intersect)
 
-def getUnionOfLists(
-    list1: list,
-    list2: list,
-    bool_sort: bool=False
+def get_union_of_lists(
+    list_a: list,
+    list_b: list,
+    sort_values: bool = False
   ) -> list:
-  """Returns the union of two lists, optionally sorted."""
-  Utils4Vars.assertType(list1, list)
-  Utils4Vars.assertType(list2, list)
-  if (len(list1) == 0) or (len(list2) == 0): return list1 + list2
-  set_union = set(list1) | set(list2)
-  return sorted(set_union) if bool_sort else list(set_union)
+  """Find the union of two lists (optionally sorted)."""
+  Utils4Vars.assert_type(list_a, list)
+  Utils4Vars.assert_type(list_b, list)
+  if (len(list_a) == 0) or (len(list_b) == 0): return list_a + list_b
+  set_union = set(list_a) | set(list_b)
+  return sorted(set_union) if sort_values else list(set_union)
 
-def getIndexOfClosestValue(
-    list_vals: list,
-    target_value: float
+def get_index_of_closest_value(
+    values: list,
+    target: float
   ) -> int:
-  """Finds the index of the value in `list_vals` that is closest to `target_value`."""
-  Utils4Vars.assertType(list_vals, list)
-  Utils4Vars.assertType(target_value, (int, float))
-  if len(list_vals) == 0: raise ValueError("Input list cannot be empty")
-  array_vals = numpy.asarray(list_vals)
-  if target_value is None: return None
-  if target_value ==  numpy.inf: return int(numpy.nanargmax(array_vals))
-  if target_value == -numpy.inf: return int(numpy.nanargmin(array_vals))
-  return int(numpy.nanargmin(numpy.abs(array_vals - target_value)))
+  """Find the index of the closest value to a `target` value."""
+  Utils4Vars.assert_type(values, list)
+  Utils4Vars.assert_type(target, (int, float))
+  if len(values) == 0: raise ValueError("Input list cannot be empty")
+  array_vals = numpy.asarray(values)
+  if target is None: return None
+  if target ==  numpy.inf: return int(numpy.nanargmax(array_vals))
+  if target == -numpy.inf: return int(numpy.nanargmin(array_vals))
+  return int(numpy.nanargmin(numpy.abs(array_vals - target)))
 
-def flattenList(list_elems: list) -> list:
-  """Flattens a nested list into a single list."""
-  Utils4Vars.assertType(list_elems, list)
+def flatten_list(elems: list) -> list:
+  """Flatten a nested list into a single list."""
+  Utils4Vars.assert_type(elems, list)
   if all(
     not isinstance(elem, list)
-    for elem in list_elems
-  ): return list_elems
-  return list(numpy.concatenate(list_elems).flat)
+    for elem in elems
+  ): return elems
+  return list(numpy.concatenate(elems).flat)
 
 
 ## END OF MODULE

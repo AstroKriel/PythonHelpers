@@ -38,15 +38,15 @@ def genMixedVField(domain_bounds, num_cells):
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
-def computeFieldFraction(bedges, pdf):
+def computeFieldFraction(bin_edges, pdf):
   nonzero_indices = numpy.where(pdf > 0)[0]
   if len(nonzero_indices) > 0:
-    first_percent = bedges[nonzero_indices[0]]
-    last_percent = bedges[nonzero_indices[-1]]
+    first_percent = bin_edges[nonzero_indices[0]]
+    last_percent = bin_edges[nonzero_indices[-1]]
     return first_percent if first_percent == last_percent else (last_percent - first_percent)
   return 0.0
 
-def plotVectorFieldSlice(ax, vfield_q, domain_bounds):
+def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
   _, num_cells_x, num_cells_y, _ = vfield_q.shape
   index_z = num_cells_x // 2 # middle slice in the z-direction
   grid_x, grid_y = numpy.meshgrid(
@@ -54,7 +54,7 @@ def plotVectorFieldSlice(ax, vfield_q, domain_bounds):
     numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_y),
     indexing="xy"
   )
-  sfield_q_magn_slice = FieldOperators.vfieldMagnitude(vfield_q[:,:,:,index_z])
+  sfield_q_magn_slice = FieldOperators.compute_vfield_magnitude(vfield_q[:,:,:,index_z])
   sfield_q_magn_min = numpy.min(sfield_q_magn_slice)
   sfield_q_magn_max = numpy.max(sfield_q_magn_slice)
   ax.imshow(
@@ -99,16 +99,16 @@ def main():
     {"label": "solenoidal", "vfield": genSolenoidalVField(domain_bounds, num_cells)},
     {"label": "mixed",      "vfield": genMixedVField(domain_bounds, num_cells)},
   ]
-  fig, axs = PlotUtils.initFigure(num_rows=3, num_cols=3, fig_aspect_ratio=(5,5))
+  fig, axs = PlotUtils.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(5,5))
   list_failed_vfields = []
   for vfield_index, vfield_entry in enumerate(list_vfields):
     vfield_name = vfield_entry["label"]
     vfield_q    = vfield_entry["vfield"]
     print(f"input: {vfield_name} field")
-    vfield_q_div, vfield_q_sol   = DeriveQuantities.computeHelmholtzDecomposition(vfield_q, domain_size)
-    sfield_check_q_diff          = FieldOperators.vfieldMagnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
-    sfield_check_div_is_sol_free = FieldOperators.vfieldMagnitude(FieldOperators.vfieldCurl(vfield_q_div))
-    sfield_check_sol_is_div_free = FieldOperators.vfieldDivergence(vfield_q_sol)
+    vfield_q_div, vfield_q_sol   = DeriveQuantities.compute_helmholtz_decomposition(vfield_q, domain_size)
+    sfield_check_q_diff          = FieldOperators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
+    sfield_check_div_is_sol_free = FieldOperators.compute_vfield_magnitude(FieldOperators.compute_vfield_curl(vfield_q_div))
+    sfield_check_sol_is_div_free = FieldOperators.compute_vfield_divergence(vfield_q_sol)
     ave_q_diff     = numpy.median(numpy.abs(sfield_check_q_diff))
     ave_sol_in_div = numpy.median(numpy.abs(sfield_check_div_is_sol_free))
     ave_div_in_sol = numpy.median(numpy.abs(sfield_check_sol_is_div_free))
@@ -121,9 +121,9 @@ def main():
     print(f"|q - (q_div + q_div)| / |q| = {ave_q_diff:.2f} +/- {std_q_diff:.2f}")
     print(f"curl(q_div) = {ave_sol_in_div:.2f} +/- {std_sol_in_div:.2f}")
     print(f"div(q_div) = {ave_div_in_sol:.2f} +/- {std_div_in_sol:.2f}")
-    plotVectorFieldSlice(axs[vfield_index,0], vfield_q, domain_bounds)
-    plotVectorFieldSlice(axs[vfield_index,1], vfield_q_div, domain_bounds)
-    plotVectorFieldSlice(axs[vfield_index,2], vfield_q_sol, domain_bounds)
+    plot_vfield_sliceSlice(axs[vfield_index,0], vfield_q, domain_bounds)
+    plot_vfield_sliceSlice(axs[vfield_index,1], vfield_q_div, domain_bounds)
+    plot_vfield_sliceSlice(axs[vfield_index,2], vfield_q_sol, domain_bounds)
     axs[vfield_index,0].text(
       0.05, 0.05,
       f"input: {vfield_name} field",
@@ -149,7 +149,7 @@ def main():
       list_failed_vfields.append(vfield_name)
     else: print("Test passed successfully!")
     print(" ")
-  PlotUtils.saveFigure(fig, "helmholtz_decomposition.png")
+  PlotUtils.save_figure(fig, "helmholtz_decomposition.png")
   assert len(list_failed_vfields) == 0, f"Test failed for the following vector field(s): {list_failed_vfields}"
   print("All tests passed successfully!")
 

@@ -31,10 +31,10 @@ class MyParser(argparse.ArgumentParser):
     self.print_help()
     sys.exit(2)
 
-  def createSubGroup(self, title=None, description=None):
+  def create_sub_group(self, title=None, description=None):
     return self.add_argument_group(title=title, description=description)
 
-  def addArgument(self, group, name, type=None, is_bool=False, is_required=False, **kwargs):
+  def add_argument(self, group, name, type=None, is_bool=False, is_required=False, **kwargs):
     if group is None: group = self
     dict_arg_settings = { "help" : "type: %(type)s, default: %(default)s" }
     if (type is None) and not(is_bool): raise ValueError(f"You need to define a `type` for argument `{name}`.")
