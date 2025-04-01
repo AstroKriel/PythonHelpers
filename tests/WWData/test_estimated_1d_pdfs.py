@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import Distributions
+from Loki.WWData import ComputeStats
 from Loki.WWPlots import PlotUtils
 
 
@@ -11,33 +11,32 @@ from Loki.WWPlots import PlotUtils
 ## ###############################################################
 def main():
   num_samples = int(1e5)
-  list_bin_sizes = [ 5, 10, 50, 100 ]
-  dict_pdfs = {
+  num_bins_to_test = [ 5, 10, 50, 100 ]
+  pdfs_to_test = {
     "delta"       : numpy.random.normal(loc=10, scale=1e-9, size=num_samples),
     "uniform"     : numpy.random.uniform(low=0, high=1, size=num_samples),
     "normal"      : numpy.random.normal(loc=0, scale=1, size=num_samples),
     "exponential" : numpy.random.exponential(scale=1, size=num_samples),
   }
   integral_tolerance = 1e-2
-  num_pdfs = len(dict_pdfs)
+  num_pdfs = len(pdfs_to_test)
   fig, axs = PlotUtils.create_figure(num_rows=num_pdfs)
   if num_pdfs == 1: axs = list(axs)
-  list_failed_methods = []
-  for pdf_index, (label, values) in enumerate(dict_pdfs.items()):
+  pdfs_that_failed = []
+  for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
     ax = axs[pdf_index]
-    for num_bins in list_bin_sizes:
-      bin_edges, pdf = Distributions.compute_pdf(values, num_bins=num_bins, extend_bin_edge_percent=0.5)
-      ax.step(bin_edges, pdf, where="pre", lw=2, label=f"{num_bins} bins")
-      ## assuming uniform binning
-      bin_widths = bin_edges[1] - bin_edges[0]
-      pdf_integral = numpy.sum(pdf * bin_widths)
-      if abs(pdf_integral - 1.0) > integral_tolerance: list_failed_methods.append(label)
-    ax.text(0.95, 0.95, label, ha="right", va="top", transform=ax.transAxes)
+    for num_bins in num_bins_to_test:
+      bin_edges, estimated_pdf = ComputeStats.compute_pdf(pdf_samples, num_bins=num_bins, extend_bin_edge_percent=0.5)
+      ax.step(bin_edges, estimated_pdf, where="pre", lw=2, label=f"{num_bins} bins")
+      bin_width = bin_edges[1] - bin_edges[0] # assuming uniform binning
+      pdf_integral = numpy.sum(estimated_pdf * bin_width)
+      if abs(pdf_integral - 1.0) > integral_tolerance: pdfs_that_failed.append(pdf_label)
+    ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
     ax.set_ylabel(r"PDF$(x)$")
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
   PlotUtils.save_figure(fig, "estimated_1d_pdfs.png")
-  assert len(list_failed_methods) == 0, f"Test failed for the following methods: {list_failed_methods}"
+  assert len(pdfs_that_failed) == 0, f"Test failed for the following methods: {pdfs_that_failed}"
   print("All tests passed successfully!")
 
 
