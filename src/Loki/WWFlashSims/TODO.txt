@@ -1,2 +1,0 @@
-Things to do:
-- add ploting code for different (spectra, volume-integrated) FLASH values
