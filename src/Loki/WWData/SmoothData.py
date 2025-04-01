@@ -11,10 +11,10 @@ import numpy
 ## FUNCTIONS
 ## ###############################################################
 def apply_2d_convolution(
-    values: numpy.ndarray,
-    kernel: numpy.ndarray
+    values : numpy.ndarray,
+    smoothing_kernel : numpy.ndarray
   ) -> numpy.ndarray:
-  kernel_nrows, kernel_ncols = kernel.shape
+  kernel_nrows, kernel_ncols = smoothing_kernel.shape
   pad_nrows   = kernel_nrows // 2
   pad_ncols   = kernel_ncols // 2
   padded_data = numpy.pad(values, ((pad_nrows, pad_nrows), (pad_ncols, pad_ncols)), mode="wrap")
@@ -23,7 +23,7 @@ def apply_2d_convolution(
   for index_row in range(data_nrows):
     for index_col in range(data_ncols):
       data_subset = padded_data[index_row:index_row+kernel_nrows, index_col:index_col+kernel_ncols]
-      output[index_row, index_col] = numpy.sum(data_subset * kernel)
+      output[index_row, index_col] = numpy.sum(data_subset * smoothing_kernel)
   return output
 
 def define_2d_gaussian_filter_kernel(
@@ -33,9 +33,9 @@ def define_2d_gaussian_filter_kernel(
   x = numpy.linspace(-(size // 2), size // 2, size)
   y = numpy.linspace(-(size // 2), size // 2, size)
   grid_x, grid_y = numpy.meshgrid(x, y)
-  kernel = numpy.exp(-(grid_x**2 + grid_y**2) / (2 * sigma**2))
-  kernel /= numpy.sum(kernel)
-  return kernel
+  smoothing_kernel = numpy.exp(-(grid_x**2 + grid_y**2) / (2 * sigma**2))
+  smoothing_kernel /= numpy.sum(smoothing_kernel)
+  return smoothing_kernel
 
 def smooth_2d_data_with_gaussian_filter(
     values: numpy.ndarray,
