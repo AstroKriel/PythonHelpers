@@ -21,8 +21,8 @@ def evaluate_exact_function_derivative_at_points(x_values):
   return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 def estimate_function_derivative(x_values, y_values, func_dydx):
-  cell_width = (x_values[-1] - x_values[0]) / len(x_values) # assumes uniform sampling
-  return func_dydx(y_values, cell_width, gradient_dir=0)
+  cell_width = (x_values[-1] - x_values[0]) / len(x_values) # assumes uniform samples
+  return func_dydx(y_values, cell_width, grad_axis=0)
 
 def calculate_powerlaw_amplitude(x_0, y_0, b):
   """Solve for the amplitude of a power law y = a * x^b given a coordinate (x_0, y_0) that the power-law passed through."""
@@ -39,10 +39,10 @@ class TestFiniteDifferenceConvergence:
     self.num_samples_for_exact_soln  = 100
     self.num_samples_for_approx_soln = 15
     self.num_points_to_test = [ 10, 20, 50, 1e2, 2e2, 5e2 ]
-    self.gradient_methods = [
-      {"func": FieldGradients.gradient_2ocd, "expected_scaling": -2, "label": "2nd order", "color": "red"},
-      {"func": FieldGradients.gradient_4ocd, "expected_scaling": -4, "label": "4th order", "color": "forestgreen"},
-      {"func": FieldGradients.gradient_6ocd, "expected_scaling": -6, "label": "6th order", "color": "royalblue"}
+    self.grad_methods = [
+      {"func": FieldGradients.second_order_centered_difference, "expected_scaling": -2, "label": "2nd order", "color": "red"},
+      {"func": FieldGradients.fourth_order_centered_difference, "expected_scaling": -4, "label": "4th order", "color": "forestgreen"},
+      {"func": FieldGradients.sixth_order_centered_difference,  "expected_scaling": -6, "label": "6th order", "color": "royalblue"}
     ]
 
   def run(self):
@@ -69,18 +69,19 @@ class TestFiniteDifferenceConvergence:
 
   def _test_method_scaling(self):
     failed_methods = []
-    for method in self.gradient_methods:
-      expected_scaling = method["expected_scaling"]
-      grad_func        = method["func"]
-      color            = method["color"]
-      label            = method["label"]
+    for grad_method in self.grad_methods:
+      expected_scaling = grad_method["expected_scaling"]
+      grad_func        = grad_method["func"]
+      color            = grad_method["color"]
+      label            = grad_method["label"]
       self._plot_approx_soln(grad_func, color, label)
       errors = []
       for num_points in self.num_points_to_test:
         x_values    = sample_domain(self.domain_bounds, num_points)
         y_values    = evaluate_function_at_points(x_values)
         dydx_exact  = evaluate_exact_function_derivative_at_points(x_values)
-        dydx_approx = grad_func(y_values, numpy.diff(x_values).mean(), 0)
+        cell_width = x_values[1] - x_values[0] # assumes uniform samples
+        dydx_approx = grad_func(y_values, cell_width, grad_axis=0)
         error = ComputeStats.compute_p_norm(
           array_a             = dydx_exact,
           array_b             = dydx_approx,

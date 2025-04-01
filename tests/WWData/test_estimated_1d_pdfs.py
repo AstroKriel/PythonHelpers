@@ -26,10 +26,14 @@ def main():
   for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
     ax = axs[pdf_index]
     for num_bins in num_bins_to_test:
-      bin_edges, estimated_pdf = ComputeStats.compute_pdf(pdf_samples, num_bins=num_bins, extend_bin_edge_percent=0.5)
-      ax.step(bin_edges, estimated_pdf, where="pre", lw=2, label=f"{num_bins} bins")
-      bin_width = bin_edges[1] - bin_edges[0] # assuming uniform binning
-      pdf_integral = numpy.sum(estimated_pdf * bin_width)
+      bin_centers, estimated_pdf = ComputeStats.compute_pdf(pdf_samples, num_bins=num_bins, bin_range_percent=1.5)
+      assert len(bin_centers) >= 3, f"Error: Bin centers for {pdf_label} with {num_bins} bins should have at least 3 bins, but got {len(bin_centers)}"
+      assert bin_centers.shape == estimated_pdf.shape, f"Error: Mismatch in shapes of `bin_centers` ({bin_centers.shape}) and `estimated_pdf` ({estimated_pdf.shape}) for {pdf_label} with {num_bins} bins"
+      if len(bin_centers) > 3: assert len(bin_centers) == num_bins, f"Error: The number of `bin_centers` ({len(bin_centers)}) does not match the expected number of bins ({num_bins}) for {pdf_label}"
+      ax.step(bin_centers, estimated_pdf, where="mid", lw=2, label=f"{num_bins} bins")
+      bin_widths = numpy.diff(bin_centers)
+      bin_widths = numpy.append(bin_widths, bin_widths[-1])
+      pdf_integral = numpy.sum(estimated_pdf * bin_widths)
       if abs(pdf_integral - 1.0) > integral_tolerance: pdfs_that_failed.append(pdf_label)
     ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
     ax.set_ylabel(r"PDF$(x)$")

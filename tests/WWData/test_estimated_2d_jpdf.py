@@ -2,14 +2,14 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import Distributions
+from Loki.WWData import ComputeStats
 from Loki.WWPlots import PlotUtils
 
 
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
-def sampleFromEllipse(num_samples, ax=None):
+def sample_from_ellipse(num_samples, ax=None):
   center_x = 30
   center_y = 100
   semi_major_axis = 10
@@ -23,7 +23,7 @@ def sampleFromEllipse(num_samples, ax=None):
   slope = numpy.tan(angle_rad)
   intercept = center_y - slope * center_x
   str_sign = "-" if (intercept < 0) else "+"
-  label = f"true trend: $y = {slope:.3f} x {str_sign} {numpy.abs(intercept):.3f}$"
+  label = f"true trend: $y = {slope:.1f} x {str_sign} {numpy.abs(intercept):.1f}$"
   if ax is not None: ax.text(0.05, 0.95, label, ha="left", va="top", transform=ax.transAxes, fontsize=20)
   return x_rotated, y_rotated
 
@@ -32,31 +32,31 @@ def sampleFromEllipse(num_samples, ax=None):
 ## BINNING CONVERGENCE TEST
 ## ###############################################################
 def main():
-  num_points         = 1e5
+  num_points         = 3e5
   num_bins           = 1e2
-  bool_plot_samples  = False
+  plot_samples       = False
   integral_tolerance = 1e-2
   fig, ax = PlotUtils.create_figure()
-  x_samples, y_samples = sampleFromEllipse(num_points, ax)
-  bin_edges_rows, bin_edges_cols, jpdf = Distributions.compute_jpdf(
-    data_x   = x_samples,
-    data_y   = y_samples,
-    num_bins = num_bins,
+  x_samples, y_samples = sample_from_ellipse(num_points, ax)
+  bin_centers_rows, bin_centers_cols, jpdf = ComputeStats.compute_jpdf(
+    data_x           = x_samples,
+    data_y           = y_samples,
+    num_bins         = num_bins,
     smoothing_length = 2.0
   )
   ## assuming uniform binning
-  bin_width_x = bin_edges_cols[1] - bin_edges_cols[0]
-  bin_width_y = bin_edges_rows[1] - bin_edges_rows[0]
+  bin_width_x = bin_centers_cols[1] - bin_centers_cols[0]
+  bin_width_y = bin_centers_rows[1] - bin_centers_rows[0]
   pdf_integral = numpy.sum(jpdf * bin_width_x * bin_width_y)
-  ax.contourf(bin_edges_cols[:-1], bin_edges_rows[:-1], jpdf, levels=20, cmap="Blues")
-  if bool_plot_samples: ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
+  ax.contourf(bin_centers_cols, bin_centers_rows, jpdf, levels=20, cmap="Blues")
+  if plot_samples: ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
   ## add annotations
   ax.set_xlabel(r"$x$")
   ax.set_ylabel(r"$y$")
   ax.axhline(y=0, color="black", ls="--", zorder=1)
   ax.axvline(x=0, color="black", ls="--", zorder=1)
-  ax.set_xlim([ numpy.min(bin_edges_cols), numpy.max(bin_edges_cols) ])
-  ax.set_ylim([ numpy.min(bin_edges_rows), numpy.max(bin_edges_rows) ])
+  ax.set_xlim([ numpy.min(bin_centers_cols), numpy.max(bin_centers_cols) ])
+  ax.set_ylim([ numpy.min(bin_centers_rows), numpy.max(bin_centers_rows) ])
   PlotUtils.save_figure(fig, "estimated_2d_jpdf.png")
   assert abs(pdf_integral - 1.0) < integral_tolerance, f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
   print("Test passed successfully!")
