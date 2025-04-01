@@ -14,11 +14,11 @@ def main():
   exponent = 2.5
   fig, ax = PlotUtils.create_figure(fig_aspect_ratio=(5,6))
   for num_dims in [ 3 ]:
-    list_sizes = []
-    list_ave_timings_operator = []
-    list_ave_timings_power    = []
-    list_std_timings_operator = []
-    list_std_timings_power    = []
+    number_of_values = []
+    ave_execution_time_of_operator = []
+    std_execution_time_of_operator = []
+    ave_execution_time_of_power    = []
+    std_execution_time_of_power    = []
     if   num_dims == 1: marker = "o"
     elif num_dims == 2: marker = "s"
     elif num_dims == 3: marker = "D"
@@ -34,27 +34,37 @@ def main():
         shape = (side_length, side_length, side_length)
       else: raise ValueError("Unsupported array dimensions.")
       random_array = numpy.random.rand(*shape)
-      actual_num_elems = random_array.size
-      list_sizes.append(actual_num_elems)
-      timings_operator = []
-      timings_power = []
+      true_number_of_values = len(random_array)
+      number_of_values.append(true_number_of_values)
+      execution_times_of_operator = []
+      execution_times_of_power    = []
       for _ in range(num_repeats):
-        ## measure time for `a**b`
+        ## measure execution time of `a**b`
         start_time = time.perf_counter()
         _ = random_array ** exponent
         end_time = time.perf_counter()
-        timings_operator.append(end_time - start_time)
-        ## measure time for `numpy.power(a,b)`
+        execution_times_of_operator.append(end_time - start_time)
+        ## measure execution time of `numpy.power(a,b)`
         start_time = time.perf_counter()
         _ = numpy.power(random_array, exponent)
         end_time = time.perf_counter()
-        timings_power.append(end_time - start_time)
-      list_ave_timings_operator.append(numpy.mean(timings_operator))
-      list_std_timings_operator.append(numpy.std(timings_operator))
-      list_ave_timings_power.append(numpy.mean(timings_power))
-      list_std_timings_power.append(numpy.std(timings_power))
-    ax.errorbar(list_sizes, list_ave_timings_operator, yerr=list_std_timings_operator, fmt=marker, capsize=7.5, color="blue", ls="-")
-    ax.errorbar(list_sizes, list_ave_timings_power,    yerr=list_std_timings_power,    fmt=marker, capsize=7.5, color="red", ls=":")
+        execution_times_of_power.append(end_time - start_time)
+      ave_execution_time_of_operator.append(numpy.mean(execution_times_of_operator))
+      std_execution_time_of_operator.append(numpy.std(execution_times_of_operator))
+      ave_execution_time_of_power.append(numpy.mean(execution_times_of_power))
+      std_execution_time_of_power.append(numpy.std(execution_times_of_power))
+    ax.errorbar(
+      number_of_values,
+      ave_execution_time_of_operator,
+      yerr = std_execution_time_of_operator,
+      fmt=marker, capsize=7.5, color="blue", ls="-"
+    )
+    ax.errorbar(
+      number_of_values,
+      ave_execution_time_of_power,
+      yerr = std_execution_time_of_power,
+      fmt=marker, capsize=7.5, color="red", ls=":"
+    )
   ax.set_xscale("log")
   ax.set_yscale("log")
   ax.set_xlabel("Total number of elements")
@@ -70,7 +80,7 @@ def main():
     enable_frame = True
   )
   ax.grid(True, which="major", linestyle="--", linewidth=0.5)
-  PlotUtils.save_figure(fig, "numpy_power_operator_scaling.png")
+  PlotUtils.save_figure(fig, "scaling_of_numpy_power_and_operator.png")
 
 
 ## ###############################################################
