@@ -48,7 +48,15 @@ def main():
   bin_width_x = bin_centers_cols[1] - bin_centers_cols[0]
   bin_width_y = bin_centers_rows[1] - bin_centers_rows[0]
   pdf_integral = numpy.sum(jpdf * bin_width_x * bin_width_y)
-  ax.contourf(bin_centers_cols, bin_centers_rows, jpdf, levels=20, cmap="Blues")
+  ax.imshow(
+    jpdf,
+    extent = [
+      bin_centers_cols.min(), bin_centers_cols.max(),
+      bin_centers_rows.min(), bin_centers_rows.max()
+    ],
+    origin="lower", aspect="auto", cmap="Blues"
+  )
+  # ax.contourf(bin_centers_cols, bin_centers_rows, jpdf, levels=20, cmap="Blues") # (x, y, value)
   if plot_samples: ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
   ## add annotations
   ax.set_xlabel(r"$x$")
