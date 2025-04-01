@@ -61,12 +61,13 @@ def main():
   ax.set_ylabel("Execution time (seconds)")
   PlotAnnotations.add_custom_legend(
     ax           = ax,
-    list_artists = [ "-", ":", "o", "s", "D" ],
-    list_labels  = [ "a**b", "numpy.power(a,b)", "1D array", "2D array", "3D array" ],
-    list_colors  = [ "blue", "red", "black", "black", "black" ],
-    label_color  = "black",
-    loc          = "upper left",
-    bbox         = (0.0, 1.0),
+    artists      = [ "-", ":", "o", "s", "D" ],
+    labels       = [ "a**b", "numpy.power(a,b)", "1D array", "2D array", "3D array" ],
+    colors       = [ "blue", "red", "black", "black", "black" ],
+    text_color   = "black",
+    position     = "upper left",
+    anchor       = (0.0, 1.0),
+    enable_frame = True
   )
   ax.grid(True, which="major", linestyle="--", linewidth=0.5)
   PlotUtils.save_figure(fig, "numpy_power_operator_scaling.png")

@@ -4,7 +4,8 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from matplotlib.lines import Line2D
+from matplotlib.axes import Axes as mpl_axes
+from matplotlib.lines import Line2D as mpl_line2d
 
 
 ## ###############################################################
@@ -12,62 +13,60 @@ from matplotlib.lines import Line2D
 ## ###############################################################
 def add_inset_axis(
     ax, 
-    ax_inset_bounds = [ 0.0, 1.0, 1.0, 0.5 ],
-    label_x         = None,
-    label_y         = None,
-    fontsize        = 20
+    bounds   = [ 0.0, 1.0, 1.0, 0.5 ],
+    x_label  = None,
+    y_label  = None,
+    fontsize = 20
   ):
-  ax_inset = ax.inset_axes(ax_inset_bounds)
+  ax_inset = ax.inset_axes(bounds)
   ax_inset.tick_params(top=True, bottom=True, labeltop=True, labelbottom=False)
-  ax_inset.set_xlabel(label_x, fontsize=fontsize)
-  ax_inset.set_ylabel(label_y, fontsize=fontsize)
+  ax_inset.set_xlabel(x_label, fontsize=fontsize)
+  ax_inset.set_ylabel(y_label, fontsize=fontsize)
   ax_inset.xaxis.set_label_position("top")
   return ax_inset
 
 def add_custom_legend(
-    ax, list_artists, list_labels, list_colors,
-    label_color   = "black",
-    loc           = "upper right",
-    bbox          = (1.0, 1.0),
-    bool_frame    = False,
-    title         = None,
-    ms            = 8,
-    lw            = 1.5,
-    ncol          = 1,
-    handletextpad = 0.5,
-    rspacing      = 0.5,
-    cspacing      = 0.5,
-    fontsize      = 16,
-    alpha         = 0.6
+    ax             : mpl_axes,
+    artists        : list[str],
+    labels         : list[str],
+    colors         : list[str],
+    marker_size    : float = 8,
+    line_width     : float = 1.5,
+    fontsize       : float = 16,
+    text_color     : str = "black",
+    position       : str = "upper right",
+    anchor         : tuple[float, float] = (1.0, 1.0),
+    enable_frame   : bool = False,
+    frame_alpha    : float = 0.5,
+    num_cols       : float = 1,
+    text_padding   : float = 0.5,
+    label_spacing  : float = 0.5,
+    column_spacing : float = 0.5,
   ):
-  if len(list_artists) + len(list_labels) == 0: return
-  list_artists_to_draw = []
-  list_valid_markers   = [ ".", "o", "s", "D", "^", "v" ]
-  list_valid_lines     = [ "-", "--", "-.", ":" ]
-  for artist, color in zip(list_artists, list_colors):
-    if artist in list_valid_markers:
-      obj_to_draw = Line2D([0], [0], marker=artist, color=color, linewidth=0, markeredgecolor="black", markersize=ms)
-    elif artist in list_valid_lines:
-      obj_to_draw = Line2D([0], [0], linestyle=artist, color=color, linewidth=lw)
-    else: raise ValueError(f"Error: `{artist}` is not a valid marker or line style.")
-    list_artists_to_draw.append(obj_to_draw)
+  artists_to_draw = []
+  valid_markers   = [ ".", "o", "s", "D", "^", "v" ]
+  valid_lines     = [ "-", "--", "-.", ":" ]
+  for artist, color in zip(artists, colors):
+    if artist in valid_markers: artist_to_draw = mpl_line2d([0], [0], marker=artist, color=color, linewidth=0, markeredgecolor="black", markersize=marker_size)
+    elif artist in valid_lines: artist_to_draw = mpl_line2d([0], [0], linestyle=artist, color=color, linewidth=line_width)
+    else: raise ValueError(f"Invalid artist = `{artist}`. Must be a valid marker ({valid_markers}) or line style ({valid_lines}).")
+    artists_to_draw.append(artist_to_draw)
   legend = ax.legend(
-    list_artists_to_draw,
-    list_labels,
-    frameon        = bool_frame,
-    title          = title,
-    loc            = loc,
-    bbox_to_anchor = bbox,
-    ncol           = ncol,
-    borderpad      = 0.45,
-    handletextpad  = handletextpad,
-    labelspacing   = rspacing,
-    columnspacing  = cspacing,
+    artists_to_draw,
+    labels,
+    bbox_to_anchor = anchor,
+    loc            = position,
     fontsize       = fontsize,
-    labelcolor     = label_color,
-    framealpha     = alpha,
+    labelcolor     = text_color,
+    frameon        = enable_frame,
+    framealpha     = frame_alpha,
     facecolor      = "white",
-    edgecolor      = "grey"
+    edgecolor      = "grey",
+    ncol           = num_cols,
+    borderpad      = 0.45,
+    handletextpad  = text_padding,
+    labelspacing   = label_spacing,
+    columnspacing  = column_spacing,
   )
   ax.add_artist(legend)
 

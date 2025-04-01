@@ -5,9 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-import matplotlib.pyplot as mplplot
-from matplotlib.gridspec import GridSpec
-from typing import Union
+import matplotlib.pyplot as mpl_plot
 from Loki.WWPlots.PlotStyler import *
 
 
@@ -21,48 +19,32 @@ def create_figure(
     fig_aspect_ratio : tuple = (4, 6),
     wspace           : float = -1,
     hspace           : float = -1,
-    bool_return_axis : bool  = True
-  ) -> Union[
-    tuple[mplplot.Figure, numpy.ndarray],
-    tuple[mplplot.Figure, GridSpec]
-  ]:
+  ) -> tuple[mpl_plot.Figure, numpy.ndarray]:
   """Initialize a figure with a flexible grid layout."""
-  fig = mplplot.figure(
-    constrained_layout = True,
-    figsize            = (
-      fig_scale * fig_aspect_ratio[1] * num_cols,
-      fig_scale * fig_aspect_ratio[0] * num_rows
-  ))
-  fig_grid = GridSpec(
-    num_rows, num_cols,
-    figure = fig,
-    wspace = wspace,
-    hspace = hspace
-  )
-  if bool_return_axis:
-    if num_rows + num_cols == 2: return fig, fig.add_subplot(fig_grid[0,0])
-    axs = numpy.empty((num_rows, num_cols), dtype=object)
-    for row in range(num_rows):
-      for col in range(num_cols):
-        axs[row, col] = fig.add_subplot(fig_grid[row, col])
-    return fig, numpy.squeeze(axs)
-  return fig, fig_grid
+  fig_width  = fig_scale * fig_aspect_ratio[1] * num_cols
+  fig_height = fig_scale * fig_aspect_ratio[0] * num_rows
+  fig, axs = mpl_plot.subplots(num_rows, num_cols, figsize=(fig_width, fig_height))
+  fig.subplots_adjust(wspace=wspace, hspace=hspace)
+  if (num_rows > 1) or (num_cols > 1): axs = numpy.squeeze(axs)
+  return fig, axs
 
-def save_figure(fig, file_path_fig, bool_draft=False, verbose=True):
+def save_figure(fig, file_path, bool_draft=False, verbose=True):
   try:
     fig.set_constrained_layout(True)
     dpi = 100 if bool_draft else 200
-    fig.savefig(file_path_fig, dpi=dpi)
-    mplplot.close(fig)
-    if verbose: print("Saved figure:", file_path_fig)
+    fig.savefig(file_path, dpi=dpi)
+    mpl_plot.close(fig)
+    if verbose: print("Saved figure:", file_path)
   except FileNotFoundError as exception:
-    print(f"FileNotFoundError: `{file_path_fig}` does not exist.")
+    print(f"FileNotFoundError: {exception}")
+  except PermissionError as exception:
+    print(f"PermissionError: You do not have permission to save to: {file_path}")
     print(f"Details: {exception}")
   except IOError as exception:
-    print(f"IOError: An error occurred while trying to save the figure to '{file_path_fig}'. This might be due to a permission issue or invalid file format.")
+    print(f"IOError: An error occurred while trying to save the figure to: {file_path}")
     print(f"Details: {exception}")
   except Exception as exception:
-    print(f"Unexpected error: {exception}")
+    print(f"Unexpected error while saving the figure to {file_path}: {exception}")
 
 
 ## END OF MODULE
