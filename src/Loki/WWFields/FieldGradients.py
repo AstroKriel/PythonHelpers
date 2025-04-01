@@ -10,32 +10,32 @@ import numpy
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def gradient_2ocd(sfield_q, cell_width, gradient_dir):
-  F = -1 # shift forwards
-  B = +1 # shift backwards
-  q_p = numpy.roll(sfield_q, int(1*F), axis=gradient_dir)
-  q_m = numpy.roll(sfield_q, int(1*B), axis=gradient_dir)
-  return (q_p - q_m) / (2*cell_width)
+def second_order_centered_difference(sfield_q, cell_width, grad_axis):
+  forward  = -1
+  backward = +1
+  q_p = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)
+  q_m = numpy.roll(sfield_q, int(1 * backward), axis=grad_axis)
+  return (q_p - q_m) / (2 * cell_width)
 
-def gradient_4ocd(sfield_q, cell_width, gradient_dir):
-  F = -1 # shift forwards
-  B = +1 # shift backwards
-  q_p1 = numpy.roll(sfield_q, int(1*F), axis=gradient_dir)
-  q_p2 = numpy.roll(sfield_q, int(2*F), axis=gradient_dir)
-  q_m1 = numpy.roll(sfield_q, int(1*B), axis=gradient_dir)
-  q_m2 = numpy.roll(sfield_q, int(2*B), axis=gradient_dir)
-  return (-q_p2 + 8*q_p1 - 8*q_m1 + q_m2) / (12*cell_width)
+def fourth_order_centered_difference(sfield_q, cell_width, grad_axis):
+  forward  = -1
+  backward = +1
+  q_p1 = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)
+  q_p2 = numpy.roll(sfield_q, int(2 * forward),  axis=grad_axis)
+  q_m1 = numpy.roll(sfield_q, int(1 * backward), axis=grad_axis)
+  q_m2 = numpy.roll(sfield_q, int(2 * backward), axis=grad_axis)
+  return (-q_p2 + 8*q_p1 - 8*q_m1 + q_m2) / (12 * cell_width)
 
-def gradient_6ocd(sfield_q, cell_width, gradient_dir):
-  F = -1 # shift forwards
-  B = +1 # shift backwards
-  q_p1 = numpy.roll(sfield_q, int(1*F), axis=gradient_dir)
-  q_p2 = numpy.roll(sfield_q, int(2*F), axis=gradient_dir)
-  q_p3 = numpy.roll(sfield_q, int(3*F), axis=gradient_dir)
-  q_m1 = numpy.roll(sfield_q, int(1*B), axis=gradient_dir)
-  q_m2 = numpy.roll(sfield_q, int(2*B), axis=gradient_dir)
-  q_m3 = numpy.roll(sfield_q, int(3*B), axis=gradient_dir)
-  return (q_p3 - 9*q_p2 + 45*q_p1 - 45*q_m1 + 9*q_m2 - q_m3) / (60*cell_width)
+def sixth_order_centered_difference(sfield_q, cell_width, grad_axis):
+  forward  = -1
+  backward = +1
+  q_p1 = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)
+  q_p2 = numpy.roll(sfield_q, int(2 * forward),  axis=grad_axis)
+  q_p3 = numpy.roll(sfield_q, int(3 * forward),  axis=grad_axis)
+  q_m1 = numpy.roll(sfield_q, int(1 * backward), axis=grad_axis)
+  q_m2 = numpy.roll(sfield_q, int(2 * backward), axis=grad_axis)
+  q_m3 = numpy.roll(sfield_q, int(3 * backward), axis=grad_axis)
+  return (q_p3 - 9*q_p2 + 45*q_p1 - 45*q_m1 + 9*q_m2 - q_m3) / (60 * cell_width)
 
 
 ## END OF MODULE
