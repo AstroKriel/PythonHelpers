@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.ww_plots import plot_color
+from loki.ww_plots import add_color
 from loki.ww_fields import field_operators
 
 
@@ -25,7 +25,7 @@ def plot_sfield_slice(
   if field_slice.ndim != 2: raise ValueError("Error: `field_slice` must be a 2D array.")
   vmin = 0.9 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
   vmax = 1.1 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
-  cmap, norm = plot_color.create_colormap(
+  cmap, norm = add_color.create_colormap(
     cmap_name = cmap_name,
     vmin      = vmin,
     vmax      = vmax,
@@ -39,7 +39,7 @@ def plot_sfield_slice(
   ax.set_xlim([axis_bounds[0], axis_bounds[1]])
   ax.set_ylim([axis_bounds[2], axis_bounds[3]])
   if add_colorbar:
-    plot_color.add_cbar_from_cmap(
+    add_color.add_cbar_from_cmap(
       ax    = ax,
       cmap  = cmap,
       norm  = norm,
@@ -91,7 +91,7 @@ def plot_vfield_slice(
     )
     ## add colorbar
     if bool_add_colorbar:
-      plot_color.add_cbar_from_mappable(
+      add_color.add_cbar_from_mappable(
         fig         = fig,
         ax          = ax,
         mappable    = im_obj,

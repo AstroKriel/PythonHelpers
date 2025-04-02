@@ -3,7 +3,7 @@
 ## ###############################################################
 import time
 import numpy
-from loki.ww_plots import plot_manager, PlotAnnotations
+from loki.ww_plots import plot_manager, add_annotations
 
 
 ## ###############################################################
@@ -69,7 +69,7 @@ def main():
   ax.set_yscale("log")
   ax.set_xlabel("Total number of elements")
   ax.set_ylabel("Execution time (seconds)")
-  PlotAnnotations.add_custom_legend(
+  add_annotations.add_custom_legend(
     ax           = ax,
     artists      = [ "-", ":", "o", "s", "D" ],
     labels       = [ "a**b", "numpy.power(a,b)", "1D array", "2D array", "3D array" ],

@@ -2,7 +2,7 @@
 ## DEPENDANCIES
 ## ###############################################################
 import numpy
-from loki.ww_plots import plot_manager, plot_color, plot_data
+from loki.ww_plots import plot_manager, plot_data
 
 
 ## ###############################################################

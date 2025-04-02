@@ -12,17 +12,6 @@ from matplotlib.lines import Line2D as mpl_line2d
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def tick_log_formater(tick_value, _):
-   # Handle special cases for ticks close to 0 or below 0
-  if tick_value <= 0: return "N/A"
-  # when the value is a power of 10, display it as "10^n"
-  elif numpy.isclose(tick_value, 1): return "1"
-  elif tick_value == 10:   return "$10^1$"
-  elif tick_value == 100:  return "$10^2$"
-  elif tick_value == 1000: return "$10^3$"
-  # use scientific notation
-  else: return f"${tick_value:.1e}$"
-
 def add_inset_axis(
     ax, 
     bounds   = [ 0.0, 1.0, 1.0, 0.5 ],
