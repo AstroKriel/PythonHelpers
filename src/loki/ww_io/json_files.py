@@ -8,7 +8,8 @@ import os
 import json
 import copy
 import numpy
-from loki.Utils import Utils4Dicts, Utils4IO
+from loki.ww_io import file_manager
+from loki.utils import dict_utils
 
 
 ## ###############################################################
@@ -19,7 +20,7 @@ def read_json_file_into_dict(
     file_name : str,
     verbose   : bool = True
   ):
-  file_path = Utils4IO.create_file_path([directory, file_name])
+  file_path = file_manager.create_file_path([directory, file_name])
   if os.path.isfile(file_path):
     if verbose: print("Reading in json-file:", file_path)
     with open(file_path, "r") as fp:
@@ -65,7 +66,7 @@ def add_dict_to_json_file(
   ):
   with open(file_path, "r") as fp_r:
     dict_old = json.load(fp_r)
-  Utils4Dicts.merge_dicts(dict_old, input_dict)
+  dict_utils.merge_dicts(dict_old, input_dict)
   with open(file_path, "w+") as fp_w:
     json.dump(
       obj       = dict_old,

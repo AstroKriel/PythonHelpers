@@ -11,8 +11,8 @@ import matplotlib.pyplot as mplplot
 import matplotlib.colors as mplcolors
 
 
-from loki.WWPlots import PlotColour
-from loki.WWFields import FieldOperators
+from loki.ww_plots import plot_color
+from loki.ww_fields import field_operators
 
 
 ## ###############################################################
@@ -37,7 +37,7 @@ def plot_sfield_slice(
     )
   )
   if add_colorbar:
-    PlotColour.add_cbar_from_mappable(
+    plot_color.add_cbar_from_mappable(
       fig         = fig,
       ax          = ax,
       mappable    = im_obj,
@@ -72,8 +72,8 @@ def plot_vfield_slice(
   fig = ax.figure
   ## plot magnitude of vector field
   if bool_plot_magnitude:
-    field_magnitude = FieldOperators.compute_vfield_magnitude([field_slice_xrows, field_slice_xcols])
-    if bool_norm_sfield:  field_magnitude = field_magnitude**2 / FieldOperators.compute_sfield_rms(field_magnitude)**2
+    field_magnitude = field_operators.compute_vfield_magnitude([field_slice_xrows, field_slice_xcols])
+    if bool_norm_sfield:  field_magnitude = field_magnitude**2 / field_operators.compute_sfield_rms(field_magnitude)**2
     if bool_log10_sfield: field_magnitude = numpy.log10(field_magnitude)
     if bool_center_cbar:  NormType = functools.partial(mplcolors.TwoSlopeNorm, vcenter=0)
     else:                 NormType = mplcolors.Normalize
@@ -89,7 +89,7 @@ def plot_vfield_slice(
     )
     ## add colorbar
     if bool_add_colorbar:
-      PlotColour.add_cbar_from_mappable(
+      plot_color.add_cbar_from_mappable(
         fig         = fig,
         ax          = ax,
         mappable    = im_obj,

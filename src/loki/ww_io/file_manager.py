@@ -7,7 +7,7 @@
 import os
 import shutil
 import numpy
-from loki.Utils import Utils4Lists
+from loki.utils import list_utils
 
 
 ## ###############################################################
@@ -16,7 +16,7 @@ from loki.Utils import Utils4Lists
 def create_file_path(file_path_elems):
   return os.path.normpath(
     os.path.join(
-      *Utils4Lists.flatten_list(file_path_elems)
+      *list_utils.flatten_list(file_path_elems)
     )
   )
 

@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.WWData import ComputeStats
-from loki.WWPlots import PlotUtils
+from loki.ww_data import compute_stats
+from loki.ww_plots import plot_manager
 
 
 ## ###############################################################
@@ -20,13 +20,13 @@ def main():
   }
   integral_tolerance = 1e-2
   num_pdfs = len(pdfs_to_test)
-  fig, axs = PlotUtils.create_figure(num_rows=num_pdfs)
+  fig, axs = plot_manager.create_figure(num_rows=num_pdfs)
   if num_pdfs == 1: axs = list(axs)
   pdfs_that_failed = []
   for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
     ax = axs[pdf_index]
     for num_bins in num_bins_to_test:
-      bin_centers, estimated_pdf = ComputeStats.compute_pdf(pdf_samples, num_bins=num_bins, bin_range_percent=1.5)
+      bin_centers, estimated_pdf = compute_stats.compute_pdf(pdf_samples, num_bins=num_bins, bin_range_percent=1.5)
       assert len(bin_centers) >= 3, f"Error: Bin centers for {pdf_label} with {num_bins} bins should have at least 3 bins, but got {len(bin_centers)}"
       assert bin_centers.shape == estimated_pdf.shape, f"Error: Mismatch in shapes of `bin_centers` ({bin_centers.shape}) and `estimated_pdf` ({estimated_pdf.shape}) for {pdf_label} with {num_bins} bins"
       if len(bin_centers) > 3: assert len(bin_centers) == num_bins, f"Error: The number of `bin_centers` ({len(bin_centers)}) does not match the expected number of bins ({num_bins}) for {pdf_label}"
@@ -39,7 +39,7 @@ def main():
     ax.set_ylabel(r"PDF$(x)$")
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
-  PlotUtils.save_figure(fig, "estimated_1d_pdfs.png")
+  plot_manager.save_figure(fig, "estimated_1d_pdfs.png")
   assert len(pdfs_that_failed) == 0, f"Test failed for the following methods: {pdfs_that_failed}"
   print("All tests passed successfully!")
 

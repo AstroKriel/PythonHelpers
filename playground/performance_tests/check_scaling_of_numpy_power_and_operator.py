@@ -3,7 +3,7 @@
 ## ###############################################################
 import time
 import numpy
-from loki.WWPlots import PlotUtils, PlotAnnotations
+from loki.ww_plots import plot_manager, PlotAnnotations
 
 
 ## ###############################################################
@@ -12,7 +12,7 @@ from loki.WWPlots import PlotUtils, PlotAnnotations
 def main():
   num_repeats = 10
   exponent = 2.5
-  fig, ax = PlotUtils.create_figure(fig_aspect_ratio=(5,6))
+  fig, ax = plot_manager.create_figure(fig_aspect_ratio=(5,6))
   for num_dims in [ 3 ]:
     number_of_values = []
     ave_execution_time_of_operator = []
@@ -80,7 +80,7 @@ def main():
     enable_frame = True
   )
   ax.grid(True, which="major", linestyle="--", linewidth=0.5)
-  PlotUtils.save_figure(fig, "scaling_of_numpy_power_and_operator.png")
+  plot_manager.save_figure(fig, "scaling_of_numpy_power_and_operator.png")
 
 
 ## ###############################################################

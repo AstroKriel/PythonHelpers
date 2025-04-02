@@ -5,14 +5,14 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.WWFields import FieldOperators
-from loki.Utils import Utils4Funcs
+from loki.ww_fields import field_operators
+from loki.utils import func_utils
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-@Utils4Funcs.time_function
+@func_utils.time_function
 def compute_helmholtz_decomposition(
     vfield_q: numpy.ndarray,
     domain_size: tuple[float, float, float]
@@ -46,18 +46,18 @@ def compute_helmholtz_decomposition(
   del sfield_fft_q, sfield_k_dot_fft_q, sfield_fft_div, sfield_fft_sol
   return vfield_div, vfield_sol
 
-@Utils4Funcs.time_function
+@func_utils.time_function
 def compute_tnb_terms(vfield_b, box_width=1.0, grad_order=2):
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)
   ## ---- COMPUTE TANGENT BASIS
   ## (f_k f_k)^(1/2)
-  sfield_magn_b = FieldOperators.compute_vfield_magnitude(vfield_b)
+  sfield_magn_b = field_operators.compute_vfield_magnitude(vfield_b)
   ## f_i / (f_k f_k)^(1/2)
   vbasis_tangent = vfield_b * sfield_magn_b**(-1)
   ## ---- COMPUTE NORMAL BASIS
   ## df_j/dx_i: (component-j, gradient-direction-i, x, y, z)
-  r2tensor_grad_b = FieldOperators.compute_vfield_gradient(vfield_b, box_width, grad_order)
+  r2tensor_grad_b = field_operators.compute_vfield_gradient(vfield_b, box_width, grad_order)
   ## f_i df_j/dx_i
   vbasis_normal_term1 = numpy.einsum("ixyz,jixyz->jxyz", vfield_b, r2tensor_grad_b)
   ## f_i f_j f_m df_m/dx_i
@@ -67,18 +67,18 @@ def compute_tnb_terms(vfield_b, box_width=1.0, grad_order=2):
   ## clean up temporary quantities
   del vbasis_normal_term1, vbasis_normal_term2
   ## field curvature
-  sfield_curvature = FieldOperators.compute_vfield_magnitude(vfield_kappa)
+  sfield_curvature = field_operators.compute_vfield_magnitude(vfield_kappa)
   ## normal basis
   vbasis_normal = vfield_kappa / sfield_curvature
   ## ---- COMPUTE BINORMAL BASIS
   ## by definition it is orthogonal to both t- and n-basis
-  vbasis_binormal = FieldOperators.compute_vfield_cross_product(vbasis_tangent, vbasis_normal)
+  vbasis_binormal = field_operators.compute_vfield_cross_product(vbasis_tangent, vbasis_normal)
   return vbasis_tangent, vbasis_normal, vbasis_binormal, sfield_curvature
 
-@Utils4Funcs.time_function
+@func_utils.time_function
 def compute_magnetic_curvature_terms(vbasis_normal, vbasis_tangent, vfield_u, box_width=1.0, grad_order=2):
   ## du_j/dx_i: (component-j, gradient-direction-i, x, y, z)
-  r2tensor_grad_u = FieldOperators.compute_vfield_gradient(vfield_u, box_width, grad_order)
+  r2tensor_grad_u = field_operators.compute_vfield_gradient(vfield_u, box_width, grad_order)
   ## n_i n_j du_j/dx_i
   sfield_curvature = numpy.einsum("ixyz,jxyz,jixyz->xyz", vbasis_normal, vbasis_normal, r2tensor_grad_u)
   ## t_i t_j du_j/dx_i
@@ -87,12 +87,12 @@ def compute_magnetic_curvature_terms(vbasis_normal, vbasis_tangent, vfield_u, bo
   sfield_compression = numpy.einsum("iixyz->xyz", r2tensor_grad_u)
   return sfield_curvature, sfield_stretching, sfield_compression
 
-@Utils4Funcs.time_function
+@func_utils.time_function
 def compute_lorentz_force_terms(vfield_b, box_width=1.0, grad_order=2):
   vfield_b = numpy.array(vfield_b)
   vbasis_tangent, vbasis_normal, _, sfield_kappa = compute_tnb_terms(vfield_b, box_width, grad_order)
-  sfield_sq_magn_b           = FieldOperators.compute_vfield_magnitude(vfield_b)**2
-  vfield_tot_grad_pressure   = 0.5 * FieldOperators.compute_sfield_gradient(sfield_sq_magn_b, box_width, grad_order)
+  sfield_sq_magn_b           = field_operators.compute_vfield_magnitude(vfield_b)**2
+  vfield_tot_grad_pressure   = 0.5 * field_operators.compute_sfield_gradient(sfield_sq_magn_b, box_width, grad_order)
   vfield_align_grad_pressure = numpy.einsum("ixyz,jxyz,jxyz->ixyz", vbasis_tangent, vbasis_tangent, vfield_tot_grad_pressure)
   vfield_tension_force       = sfield_sq_magn_b * sfield_kappa * vbasis_normal
   vfield_ortho_grad_pressure = vfield_tot_grad_pressure - vfield_align_grad_pressure
@@ -101,16 +101,16 @@ def compute_lorentz_force_terms(vfield_b, box_width=1.0, grad_order=2):
   return vfield_lorentz_force, vfield_tension_force, vfield_ortho_grad_pressure
 
 def compute_dissipation_function(vfield_u):
-  r2tensor_gradj_ui = FieldOperators.compute_vfield_gradient(vfield_u)
+  r2tensor_gradj_ui = field_operators.compute_vfield_gradient(vfield_u)
   sfield_div_u = numpy.einsum("iixyz->xyz", r2tensor_gradj_ui)
   r2tensor_bulk = 1/3 * numpy.einsum("xyz,ij->ijxyz", sfield_div_u, numpy.identity(3))
   ## S_ij = 0.5 ( \partial_i f_j + \partial_j f_i ) - 1/3 \delta_{ij} \partial_k f_k
   r2tensor_srt = 0.5 * (r2tensor_gradj_ui.transpose(1, 0, 2, 3, 4) + r2tensor_gradj_ui) - r2tensor_bulk
   ## \partial_j S_ij
   vfield_df = numpy.array([
-    numpy.sum(FieldOperators.compute_vfield_gradient(r2tensor_srt[:,0,:,:,:])[0], axis=0),
-    numpy.sum(FieldOperators.compute_vfield_gradient(r2tensor_srt[:,1,:,:,:])[1], axis=0),
-    numpy.sum(FieldOperators.compute_vfield_gradient(r2tensor_srt[:,2,:,:,:])[2], axis=0),
+    numpy.sum(field_operators.compute_vfield_gradient(r2tensor_srt[:,0,:,:,:])[0], axis=0),
+    numpy.sum(field_operators.compute_vfield_gradient(r2tensor_srt[:,1,:,:,:])[1], axis=0),
+    numpy.sum(field_operators.compute_vfield_gradient(r2tensor_srt[:,2,:,:,:])[2], axis=0),
   ])
   del vfield_u, r2tensor_gradj_ui, sfield_div_u, r2tensor_bulk, r2tensor_srt, vfield_df
   return vfield_df

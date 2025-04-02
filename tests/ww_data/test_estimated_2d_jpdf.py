@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.WWData import ComputeStats
-from loki.WWPlots import PlotUtils
+from loki.ww_data import compute_stats
+from loki.ww_plots import plot_manager
 
 
 ## ###############################################################
@@ -36,9 +36,9 @@ def main():
   num_bins           = 1e2
   plot_samples       = False
   integral_tolerance = 1e-2
-  fig, ax = PlotUtils.create_figure()
+  fig, ax = plot_manager.create_figure()
   x_samples, y_samples = sample_from_ellipse(num_points, ax)
-  bin_centers_rows, bin_centers_cols, jpdf = ComputeStats.compute_jpdf(
+  bin_centers_rows, bin_centers_cols, jpdf = compute_stats.compute_jpdf(
     data_x           = x_samples,
     data_y           = y_samples,
     num_bins         = num_bins,
@@ -65,7 +65,7 @@ def main():
   ax.axvline(x=0, color="black", ls="--", zorder=1)
   ax.set_xlim([ numpy.min(bin_centers_cols), numpy.max(bin_centers_cols) ])
   ax.set_ylim([ numpy.min(bin_centers_rows), numpy.max(bin_centers_rows) ])
-  PlotUtils.save_figure(fig, "estimated_2d_jpdf.png")
+  plot_manager.save_figure(fig, "estimated_2d_jpdf.png")
   assert abs(pdf_integral - 1.0) < integral_tolerance, f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
   print("Test passed successfully!")
 

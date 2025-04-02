@@ -6,11 +6,10 @@
 ## ###############################################################
 import cmasher
 
-import matplotlib.pyplot as mpl_plot
 import matplotlib.colors as mpl_colors
 import matplotlib.ticker as mpl_ticker
 
-from loki.WWPlots import PlotAnnotations
+from loki.ww_plots import plot_annotations
 
 
 ## ###############################################################
@@ -69,11 +68,11 @@ def add_cbar_from_cmap(
     ax_cbar.set_title(cbar_title, fontsize=fontsize, pad=cbar_title_pad)
     ax_cbar.xaxis.set_ticks_position("top")
     ax_cbar.set_xscale("linear")
-    if bool_log_ticks: ax_cbar.xaxis.set_major_formatter(mpl_ticker.FuncFormatter(PlotAnnotations.labelLogFormatter))
+    if bool_log_ticks: ax_cbar.xaxis.set_major_formatter(mpl_ticker.FuncFormatter(plot_annotations.labelLogFormatter))
   else:
     ax_cbar.set_ylabel(cbar_title, fontsize=fontsize, rotation=-90, va="bottom")
     ax_cbar.set_yscale("linear")
-    if bool_log_ticks: ax_cbar.yaxis.set_major_formatter(mpl_ticker.FuncFormatter(PlotAnnotations.labelLogFormatter))
+    if bool_log_ticks: ax_cbar.yaxis.set_major_formatter(mpl_ticker.FuncFormatter(plot_annotations.labelLogFormatter))
   return cbar
 
 

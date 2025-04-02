@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.Utils import Utils4Vars
+from loki.utils import var_utils
 
 
 ## ###############################################################
@@ -17,8 +17,8 @@ def get_intersect_of_lists(
     sort_values: bool = False
   ) -> list:
   """Find the intersection of two lists (optionally sorted)."""
-  Utils4Vars.assert_type(list_a, list)
-  Utils4Vars.assert_type(list_b, list)
+  var_utils.assert_type(list_a, list)
+  var_utils.assert_type(list_b, list)
   if (len(list_a) == 0) or (len(list_b) == 0): return []
   set_intersect = set(list_a) & set(list_b)
   return sorted(set_intersect) if sort_values else list(set_intersect)
@@ -29,8 +29,8 @@ def get_union_of_lists(
     sort_values: bool = False
   ) -> list:
   """Find the union of two lists (optionally sorted)."""
-  Utils4Vars.assert_type(list_a, list)
-  Utils4Vars.assert_type(list_b, list)
+  var_utils.assert_type(list_a, list)
+  var_utils.assert_type(list_b, list)
   if (len(list_a) == 0) or (len(list_b) == 0): return list_a + list_b
   set_union = set(list_a) | set(list_b)
   return sorted(set_union) if sort_values else list(set_union)
@@ -40,8 +40,8 @@ def get_index_of_closest_value(
     target: float
   ) -> int:
   """Find the index of the closest value to a `target` value."""
-  Utils4Vars.assert_type(values, list)
-  Utils4Vars.assert_type(target, (int, float))
+  var_utils.assert_type(values, list)
+  var_utils.assert_type(target, (int, float))
   if len(values) == 0: raise ValueError("Input list cannot be empty")
   array_vals = numpy.asarray(values)
   if target is None: return None
@@ -51,7 +51,7 @@ def get_index_of_closest_value(
 
 def flatten_list(elems: list) -> list:
   """Flatten a nested list into a single list."""
-  Utils4Vars.assert_type(elems, list)
+  var_utils.assert_type(elems, list)
   if all(
     not isinstance(elem, list)
     for elem in elems

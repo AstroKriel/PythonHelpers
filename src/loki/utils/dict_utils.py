@@ -4,9 +4,8 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import numpy
 from copy import deepcopy
-from loki.Utils import Utils4Vars
+from loki.utils import var_utils
 
 
 ## ###############################################################
@@ -17,8 +16,8 @@ def merge_dicts(
     dict_b: dict
   ) -> dict:
   """Recursively merge two dictionaries (without modifying the originals), with preference for the second."""
-  Utils4Vars.assert_type(dict_a, dict)
-  Utils4Vars.assert_type(dict_b, dict)
+  var_utils.assert_type(dict_a, dict)
+  var_utils.assert_type(dict_b, dict)
   merged_dict = dict_a.copy()
   for key, value in dict_b.items():
     if key in merged_dict:

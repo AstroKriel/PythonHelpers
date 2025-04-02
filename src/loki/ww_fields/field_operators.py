@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.WWFields import FieldGradients
+from loki.ww_data import finite_difference
 
 
 ## ###############################################################
@@ -31,9 +31,9 @@ def compute_vfield_magnitude(vfield_q):
 
 def _lookup_grad_func(grad_order: int):
   implemented_grad_funcs = {
-    2: FieldGradients.second_order_centered_difference,
-    4: FieldGradients.fourth_order_centered_difference,
-    6: FieldGradients.sixth_order_centered_difference,
+    2: finite_difference.second_order_centered_difference,
+    4: finite_difference.fourth_order_centered_difference,
+    6: finite_difference.sixth_order_centered_difference,
   }
   if grad_order not in implemented_grad_funcs: raise ValueError(f"Gradient order `{grad_order}` is invalid.")
   grad_func = implemented_grad_funcs[grad_order]

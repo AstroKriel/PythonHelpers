@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 from loki.WWIO import IOShell
-from loki.Utils import Utils4IO
+from loki.ww_io import file_manager
 
 
 ## ###############################################################
@@ -25,7 +25,7 @@ def submit_job(directory, job_name, bool_check_job_status=False) -> bool:
 
 def is_job_already_in_queue(directory, job_filename):
   """Checks if a job name is already in the queue."""
-  if not Utils4IO.does_file_exist(directory, job_filename):
+  if not file_manager.does_file_exist(directory, job_filename):
     print(f"`{job_filename}` job file does not exist in: {directory}")
     return False
   job_tagname = get_job_name_from_pbs_script(directory, job_filename)
@@ -38,7 +38,7 @@ def is_job_already_in_queue(directory, job_filename):
 
 def get_job_name_from_pbs_script(directory, job_filename):
   """Gets the job name from a PBS job script."""
-  with open(Utils4IO.create_file_path(directory, job_filename), "r") as fp:
+  with open(file_manager.create_file_path(directory, job_filename), "r") as fp:
     for line in fp:
       if "#PBS -N" in line:
         return line.strip().split(" ")[-1] if line.strip() else None

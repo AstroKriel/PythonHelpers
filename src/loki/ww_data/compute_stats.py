@@ -5,7 +5,7 @@
 ## DEPENDANCIES
 ## ###############################################################
 import numpy
-from loki.WWData import SmoothData
+from loki.ww_data import smooth_data
 
 
 ## ###############################################################
@@ -96,7 +96,7 @@ def compute_jpdf(
   bin_widths_rows = numpy.diff(bin_edges_rows)
   bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
   jpdf = bin_counts / (numpy.sum(bin_counts) * bin_areas)
-  if smoothing_length is not None: jpdf = SmoothData.smooth_2d_data_with_gaussian_filter(jpdf, smoothing_length)
+  if smoothing_length is not None: jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(jpdf, smoothing_length)
   return bin_centers_rows, bin_centers_cols, jpdf
 
 def compute_pdf(

@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.WWPlots import PlotUtils
-from loki.WWFields import FieldOperators, DeriveQuantities
+from loki.ww_plots import plot_manager
+from loki.ww_fields import field_operators, derive_quantities
 
 
 ## ###############################################################
@@ -54,7 +54,7 @@ def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
     numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_y),
     indexing="xy"
   )
-  sfield_q_magn_slice = FieldOperators.compute_vfield_magnitude(vfield_q[:,:,:,index_z])
+  sfield_q_magn_slice = field_operators.compute_vfield_magnitude(vfield_q[:,:,:,index_z])
   sfield_q_magn_min = numpy.min(sfield_q_magn_slice)
   sfield_q_magn_max = numpy.max(sfield_q_magn_slice)
   ax.imshow(
@@ -99,16 +99,16 @@ def main():
     {"label": "solenoidal", "vfield": genSolenoidalVField(domain_bounds, num_cells)},
     {"label": "mixed",      "vfield": genMixedVField(domain_bounds, num_cells)},
   ]
-  fig, axs = PlotUtils.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(5,5))
+  fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(5,5))
   list_failed_vfields = []
   for vfield_index, vfield_entry in enumerate(list_vfields):
     vfield_name = vfield_entry["label"]
     vfield_q    = vfield_entry["vfield"]
     print(f"input: {vfield_name} field")
-    vfield_q_div, vfield_q_sol   = DeriveQuantities.compute_helmholtz_decomposition(vfield_q, domain_size)
-    sfield_check_q_diff          = FieldOperators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
-    sfield_check_div_is_sol_free = FieldOperators.compute_vfield_magnitude(FieldOperators.compute_vfield_curl(vfield_q_div))
-    sfield_check_sol_is_div_free = FieldOperators.compute_vfield_divergence(vfield_q_sol)
+    vfield_q_div, vfield_q_sol   = derive_quantities.compute_helmholtz_decomposition(vfield_q, domain_size)
+    sfield_check_q_diff          = field_operators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
+    sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(field_operators.compute_vfield_curl(vfield_q_div))
+    sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(vfield_q_sol)
     ave_q_diff     = numpy.median(numpy.abs(sfield_check_q_diff))
     ave_sol_in_div = numpy.median(numpy.abs(sfield_check_div_is_sol_free))
     ave_div_in_sol = numpy.median(numpy.abs(sfield_check_sol_is_div_free))
@@ -149,7 +149,7 @@ def main():
       list_failed_vfields.append(vfield_name)
     else: print("Test passed successfully!")
     print(" ")
-  PlotUtils.save_figure(fig, "helmholtz_decomposition.png")
+  plot_manager.save_figure(fig, "helmholtz_decomposition.png")
   assert len(list_failed_vfields) == 0, f"Test failed for the following vector field(s): {list_failed_vfields}"
   print("All tests passed successfully!")
 

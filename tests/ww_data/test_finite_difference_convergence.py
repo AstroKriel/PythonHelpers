@@ -3,9 +3,8 @@
 ## ###############################################################
 import sys
 import numpy
-from loki.WWData import ComputeStats
-from loki.WWPlots import PlotUtils
-from loki.WWFields import FieldGradients
+from loki.ww_data import compute_stats, finite_difference
+from loki.ww_plots import plot_manager
 
 
 ## ###############################################################
@@ -40,17 +39,17 @@ class TestFiniteDifferenceConvergence:
     self.num_samples_for_approx_soln = 15
     self.num_points_to_test = [ 10, 20, 50, 1e2, 2e2, 5e2 ]
     self.grad_methods = [
-      {"func": FieldGradients.second_order_centered_difference, "expected_scaling": -2, "label": "2nd order", "color": "red"},
-      {"func": FieldGradients.fourth_order_centered_difference, "expected_scaling": -4, "label": "4th order", "color": "forestgreen"},
-      {"func": FieldGradients.sixth_order_centered_difference,  "expected_scaling": -6, "label": "6th order", "color": "royalblue"}
+      {"func": finite_difference.second_order_centered_difference, "expected_scaling": -2, "label": "2nd order", "color": "red"},
+      {"func": finite_difference.fourth_order_centered_difference, "expected_scaling": -4, "label": "4th order", "color": "forestgreen"},
+      {"func": finite_difference.sixth_order_centered_difference,  "expected_scaling": -6, "label": "6th order", "color": "royalblue"}
     ]
 
   def run(self):
-    fig, self.axs = PlotUtils.create_figure(num_rows=2, num_cols=2, fig_scale=1.35)
+    fig, self.axs = plot_manager.create_figure(num_rows=2, num_cols=2, fig_scale=1.35)
     self._plot_exact_soln()
     failed_methods = self._test_method_scaling()
     self._annotate_figure()
-    PlotUtils.save_figure(fig, "finite_difference_convergence.png", bool_draft=False)
+    plot_manager.save_figure(fig, "finite_difference_convergence.png", bool_draft=False)
     assert len(failed_methods) == 0, f"Convergence test failed for the following method(s): {failed_methods}"
     print("Test passed successfully!")
 
@@ -82,7 +81,7 @@ class TestFiniteDifferenceConvergence:
         dydx_exact  = evaluate_exact_function_derivative_at_points(x_values)
         cell_width = x_values[1] - x_values[0] # assumes uniform samples
         dydx_approx = grad_func(y_values, cell_width, grad_axis=0)
-        error = ComputeStats.compute_p_norm(
+        error = compute_stats.compute_p_norm(
           array_a             = dydx_exact,
           array_b             = dydx_approx,
           p_norm_order        = 2,
