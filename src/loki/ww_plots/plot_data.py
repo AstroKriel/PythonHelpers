@@ -36,8 +36,8 @@ def plot_sfield_slice(
     cmap   = cmap,
     norm   = norm
   )
-  ax.set_xlim([axis_bounds[0], axis_bounds[1]])
-  ax.set_ylim([axis_bounds[2], axis_bounds[3]])
+  ax.set_xlim([ axis_bounds[0], axis_bounds[1] ])
+  ax.set_ylim([ axis_bounds[2], axis_bounds[3] ])
   if add_colorbar:
     add_color.add_cbar_from_cmap(
       ax    = ax,
@@ -48,93 +48,73 @@ def plot_sfield_slice(
     )
   return im_obj
 
-def plot_vfield_slice(
+def _generate_grid(field_shape, axis_bounds):
+  if not (isinstance(axis_bounds, tuple) and len(axis_bounds) == 4 and all(isinstance(value, (int, float)) for value in axis_bounds)):
+    raise ValueError("Error: `axis_bounds` must be a tuple of four floats.")
+  coords_row = numpy.linspace(axis_bounds[0], axis_bounds[1], field_shape[0])
+  coords_col = numpy.linspace(axis_bounds[2], axis_bounds[3], field_shape[1])
+  grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
+  return grid_x, grid_y
+
+def plot_vfield_slice_quiver(
     ax,
-    field_slice_xrows,
-    field_slice_xcols,
-    bool_plot_magnitude   = True,
-    bool_add_colorbar     = False,
-    bool_norm_sfield      = False,
-    bool_log10_sfield     = False,
-    bool_center_cbar      = False,
-    cmap_name             = "cmr.iceburn",
-    cbar_orientation      = "horizontal",
-    cbar_bounds           = None,
-    cbar_title            = None,
-    bool_plot_quiver      = False,
-    num_quivers           = 25,
-    quiver_width          = 5e-3,
-    bool_plot_streamlines = True,
-    streamline_weights    = None,
-    streamline_width      = None,
-    streamline_scale      = 1.5,
-    streamline_linestyle  = "-",
-    field_color           = "white",
+    field_slice_rows : numpy.ndarray,
+    field_slice_cols : numpy.ndarray,
+    axis_bounds      : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    num_quivers      : int = 25,
+    quiver_width     : float = 5e-3,
+    field_color      : str = "white",
   ):
-  fig = ax.figure
-  ## plot magnitude of vector field
-  if bool_plot_magnitude:
-    field_magnitude = field_operators.compute_vfield_magnitude([field_slice_xrows, field_slice_xcols])
-    if bool_norm_sfield:  field_magnitude = field_magnitude**2 / field_operators.compute_sfield_rms(field_magnitude)**2
-    if bool_log10_sfield: field_magnitude = numpy.log10(field_magnitude)
-    if bool_center_cbar:  NormType = functools.partial(mpl_colors.TwoSlopeNorm, vcenter=0)
-    else:                 NormType = mpl_colors.Normalize
-    im_obj = ax.imshow(
-      field_magnitude,
-      origin = "lower",
-      extent = [-1.0, 1.0, -1.0, 1.0],
-      cmap   = mpl_plot.get_cmap(cmap_name),
-      norm   = NormType(
-        vmin = 0.9 * numpy.min(field_magnitude) if cbar_bounds is None else cbar_bounds[0],
-        vmax = 1.1 * numpy.max(field_magnitude) if cbar_bounds is None else cbar_bounds[1]
-      )
-    )
-    ## add colorbar
-    if bool_add_colorbar:
-      add_color.add_cbar_from_mappable(
-        fig         = fig,
-        ax          = ax,
-        mappable    = im_obj,
-        cbar_title  = cbar_title,
-        orientation = cbar_orientation
-      )
-  ## overlay vector field
-  if bool_plot_quiver:
-    quiver_step_rows = field_slice_xrows.shape[0] // num_quivers
-    quiver_step_cols = field_slice_xcols.shape[1] // num_quivers
-    field_slice_xrows_subset = field_slice_xrows[::quiver_step_rows, ::quiver_step_cols]
-    field_slice_xcols_subset = field_slice_xcols[::quiver_step_rows, ::quiver_step_cols]
-    coords_row = numpy.linspace(-1.0, 1.0, field_slice_xrows_subset.shape[0])
-    coords_col = numpy.linspace(-1.0, 1.0, field_slice_xcols_subset.shape[1])
-    grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
-    ax.quiver(
-      grid_x,
-      grid_y,
-      field_slice_xcols_subset,
-      field_slice_xrows_subset,
-      width = quiver_width,
-      color = field_color
-    )
-  if bool_plot_streamlines:
-    coords_row = numpy.linspace(-1.0, 1.0, field_slice_xrows.shape[0])
-    coords_col = numpy.linspace(-1.0, 1.0, field_slice_xcols.shape[1])
-    grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
-    if streamline_width is None:
-      if streamline_weights is not None: streamline_width = streamline_scale * (1 + streamline_weights / numpy.max(streamline_weights))
-      else: streamline_width = 1
-    ax.streamplot(
-      grid_x,
-      grid_y,
-      field_slice_xcols,
-      field_slice_xrows,
-      color      = field_color,
-      arrowstyle = streamline_linestyle,
-      linewidth  = streamline_width,
-      density    = 2.0,
-      arrowsize  = 1.0,
-    )
-  ax.set_xlim([-1, 1])
-  ax.set_ylim([-1, 1])
+  if field_slice_rows.shape != field_slice_cols.shape:
+    raise ValueError("Error: `field_slice_rows` and `field_slice_cols` must have the same shape.")
+  grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
+  quiver_step_rows = max(1, field_slice_rows.shape[0] // num_quivers)
+  quiver_step_cols = max(1, field_slice_cols.shape[1] // num_quivers)
+  field_slice_xrows_subset = field_slice_rows[::quiver_step_rows, ::quiver_step_cols]
+  field_slice_xcols_subset = field_slice_cols[::quiver_step_rows, ::quiver_step_cols]
+  ax.quiver(
+    grid_x[::quiver_step_rows, ::quiver_step_cols],
+    grid_y[::quiver_step_rows, ::quiver_step_cols],
+    field_slice_xcols_subset,
+    field_slice_xrows_subset,
+    width = quiver_width,
+    color = field_color
+  )
+  ax.set_xlim([ axis_bounds[0], axis_bounds[1] ])
+  ax.set_ylim([ axis_bounds[2], axis_bounds[3] ])
+
+def plot_vfield_slice_streamplot(
+    ax,
+    field_slice_rows     : numpy.ndarray,
+    field_slice_cols     : numpy.ndarray,
+    axis_bounds          : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    streamline_weights   : numpy.ndarray = None,
+    streamline_width     : float = None,
+    streamline_scale     : float = 1.5,
+    streamline_linestyle : str = "-",
+    field_color          : str = "white",
+  ):
+  if field_slice_rows.shape != field_slice_cols.shape:
+    raise ValueError("Error: `field_slice_rows` and `field_slice_cols` must have the same shape.")
+  grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
+  if streamline_width is None:
+    if streamline_weights is None: streamline_width = 1
+    elif streamline_weights.shape != field_slice_cols.shape:
+      raise ValueError("Error: `streamline_weights` must have the same shape as field slices.")
+    else: streamline_width = streamline_scale * (1 + streamline_weights / numpy.max(streamline_weights))
+  ax.streamplot(
+    grid_x,
+    grid_y,
+    field_slice_cols,
+    field_slice_rows,
+    color     = field_color,
+    linewidth = streamline_width,
+    density   = 2.0,
+    arrowsize = 1.0,
+    linestyle = streamline_linestyle,
+  )
+  ax.set_xlim([ axis_bounds[0], axis_bounds[1] ])
+  ax.set_ylim([ axis_bounds[2], axis_bounds[3] ])
 
 
 ## END OF MODULE
