@@ -10,7 +10,7 @@ import matplotlib.pyplot as mpl_plot
 import matplotlib.colors as mpl_colors
 import matplotlib.ticker as mpl_ticker
 
-from Loki.WWPlots import PlotAnnotations
+from loki.WWPlots import PlotAnnotations
 
 
 ## ###############################################################
@@ -74,29 +74,6 @@ def add_cbar_from_cmap(
     ax_cbar.set_ylabel(cbar_title, fontsize=fontsize, rotation=-90, va="bottom")
     ax_cbar.set_yscale("linear")
     if bool_log_ticks: ax_cbar.yaxis.set_major_formatter(mpl_ticker.FuncFormatter(PlotAnnotations.labelLogFormatter))
-  return cbar
-
-def add_cbar_from_mappable(
-    mappable,
-    fig         = None,
-    ax          = None,
-    orientation = "vertical",
-    cbar_title  = None,
-    title_pad   = 12.5,
-    fontsize    = 20
-  ):
-  if (fig is None) or (ax is None):
-    ax  = mappable.axes
-    fig = ax.figure
-  box = ax.get_position()
-  if   "h" in orientation: ax_cbar = fig.add_axes([box.x0, box.y1 + 0.02, box.width, 0.05])
-  elif "v" in orientation: ax_cbar = fig.add_axes([box.x1 + 0.02, box.y0, 0.05, box.height])
-  cbar = fig.colorbar(mappable=mappable, cax=ax_cbar, orientation=orientation)
-  if "h" in orientation:
-    ax_cbar.set_title(cbar_title, fontsize=fontsize, pad=title_pad)
-    ax_cbar.xaxis.set_ticks_position("top")
-  else: cbar.ax.set_ylabel(cbar_title, fontsize=fontsize, rotation=-90, va="bottom")
-  mpl_plot.sca(ax)
   return cbar
 
 

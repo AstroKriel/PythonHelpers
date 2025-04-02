@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWFields import FieldGradients
+from loki.WWFields import FieldGradients
 
 
 ## ###############################################################

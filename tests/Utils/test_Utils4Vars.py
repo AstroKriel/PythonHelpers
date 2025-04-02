@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import unittest
-from Loki.Utils import Utils4Vars
+from loki.Utils import Utils4Vars
 
 
 ## ###############################################################
@@ -50,7 +50,7 @@ class Test_Utils4Vars_assertType(unittest.TestCase):
     ## expect "unknown variable" in the error message if `var_name` is not provided
     with self.assertRaises(TypeError) as cm:
       Utils4Vars.assert_type(42, str)
-    self.assertIn("unknown variable", str(cm.exception))
+    self.assertIn("name not provided", str(cm.exception))
     self.assertIn("str", str(cm.exception))
     self.assertIn("int", str(cm.exception))
 

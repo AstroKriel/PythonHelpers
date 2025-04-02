@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import unittest
-from Loki.Utils import Utils4Dicts
+from loki.Utils import Utils4Dicts
 
 
 ## ###############################################################
@@ -18,7 +18,7 @@ class Test_Utils4Dicts(unittest.TestCase):
     dict_expected = {"a": 1, "b": {"c": 2, "d": 3}, "e": 4, "d": {"f": 10}}
     self.assertEqual(dict_merged, dict_expected)
     self.assertEqual(dict1, {"a": 1, "b": {"c": 2}})
-    self.assertEqual(dict2, {"b": {"d": 3}, "e": 4})
+    self.assertEqual(dict2, {"b": {"d": 3}, "e": 4, "d": {"f": 10}})
     ## usual case 2: merging two dictionaries with lists in the same key
     dict_with_list = {"a": [1, 2], "b": 3}
     dict_to_merge = {"a": [3, 4], "c": 5}

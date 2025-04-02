@@ -5,7 +5,7 @@
 ## DEPENDANCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import SmoothData
+from loki.WWData import SmoothData
 
 
 ## ###############################################################

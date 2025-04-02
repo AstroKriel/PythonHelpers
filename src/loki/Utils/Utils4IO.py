@@ -7,7 +7,7 @@
 import os
 import shutil
 import numpy
-from Loki.Utils import Utils4Lists
+from loki.Utils import Utils4Lists
 
 
 ## ###############################################################

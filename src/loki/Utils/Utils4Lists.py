@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.Utils import Utils4Vars
+from loki.Utils import Utils4Vars
 
 
 ## ###############################################################

@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWFields import FieldOperators
-from Loki.Utils import Utils4Funcs
+from loki.WWFields import FieldOperators
+from loki.Utils import Utils4Funcs
 
 
 ## ###############################################################

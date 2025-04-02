@@ -3,7 +3,7 @@
 ## ###############################################################
 import unittest
 import numpy
-from Loki.WWData import ComputeStats
+from loki.WWData import ComputeStats
 
 
 ## ###############################################################

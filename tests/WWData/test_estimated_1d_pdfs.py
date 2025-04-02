@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWData import ComputeStats
-from Loki.WWPlots import PlotUtils
+from loki.WWData import ComputeStats
+from loki.WWPlots import PlotUtils
 
 
 ## ###############################################################

@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from Loki.WWPlots import PlotUtils
-from Loki.WWFields import FieldOperators, DeriveQuantities
+from loki.WWPlots import PlotUtils
+from loki.WWFields import FieldOperators, DeriveQuantities
 
 
 ## ###############################################################

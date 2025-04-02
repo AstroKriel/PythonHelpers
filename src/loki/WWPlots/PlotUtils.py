@@ -6,7 +6,7 @@
 ## ###############################################################
 import numpy
 import matplotlib.pyplot as mpl_plot
-from Loki.WWPlots.PlotStyler import *
+from loki.WWPlots.PlotStyler import *
 
 
 ## ###############################################################

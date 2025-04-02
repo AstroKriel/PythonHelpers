@@ -6,7 +6,7 @@
 ## ###############################################################
 import numpy
 from copy import deepcopy
-from Loki.Utils import Utils4Vars
+from loki.Utils import Utils4Vars
 
 
 ## ###############################################################
@@ -33,7 +33,6 @@ def merge_dicts(
         merged_dict[key] = merged_dict[key] | value
       # other types, deepcopy to avoid modifying original dict_a
       elif isinstance(value, (dict, list, set)):
-        print("here:", key, value)
         merged_dict[key] = deepcopy(value)
       # replace directly
       else: merged_dict[key] = value

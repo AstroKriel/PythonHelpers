@@ -4,8 +4,8 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from Loki.WWIO import IOShell
-from Loki.Utils import Utils4IO
+from loki.WWIO import IOShell
+from loki.Utils import Utils4IO
 
 
 ## ###############################################################

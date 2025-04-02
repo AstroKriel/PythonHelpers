@@ -6,7 +6,7 @@
 ## ###############################################################
 import h5py
 import numpy
-from Loki.WWFlashSims import FileNames
+from loki.WWFlashSims import FileNames
 
 
 ## ###############################################################

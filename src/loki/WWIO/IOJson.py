@@ -8,7 +8,7 @@ import os
 import json
 import copy
 import numpy
-from Loki.Utils import Utils4Dicts, Utils4IO
+from loki.Utils import Utils4Dicts, Utils4IO
 
 
 ## ###############################################################
