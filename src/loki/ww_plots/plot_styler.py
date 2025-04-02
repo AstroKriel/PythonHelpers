@@ -1,7 +1,7 @@
-import matplotlib.pyplot as mplplot
+import matplotlib.pyplot as mpl_plot
 from matplotlib import rcParams
 
-mplplot.switch_backend("agg")
+mpl_plot.switch_backend("agg")
 
 ## default font sizes
 FONT_SIZES = {

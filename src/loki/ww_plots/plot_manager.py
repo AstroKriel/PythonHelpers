@@ -15,10 +15,10 @@ from loki.ww_plots.plot_styler import *
 def create_figure(
     num_rows         : int   = 1,
     num_cols         : int   = 1,
-    fig_scale        : float = 1.25,
+    fig_scale        : float = 1.0,
     fig_aspect_ratio : tuple = (4, 6),
-    wspace           : float = -1,
-    hspace           : float = -1,
+    wspace           : float = 0.05,
+    hspace           : float = 0.05,
   ) -> tuple[mpl_plot.Figure, numpy.ndarray]:
   """Initialize a figure with a flexible grid layout."""
   fig_width  = fig_scale * fig_aspect_ratio[1] * num_cols
@@ -30,7 +30,6 @@ def create_figure(
 
 def save_figure(fig, file_path, bool_draft=False, verbose=True):
   try:
-    fig.set_constrained_layout(True)
     dpi = 100 if bool_draft else 200
     fig.savefig(file_path, dpi=dpi)
     mpl_plot.close(fig)

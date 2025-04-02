@@ -3,7 +3,7 @@
 ## ###############################################################
 import numpy
 from loki.ww_plots import plot_manager
-from loki.ww_fields import field_operators, derive_quantities
+from loki.ww_fields import field_operators, decompose_fields
 
 
 ## ###############################################################
@@ -77,11 +77,13 @@ def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
     broken_streamlines = False,
   )
   ax.text(
-    0.95, 0.95,
+    0.5, 0.95,
     f"magnitude: [{sfield_q_magn_min:.3f}, {sfield_q_magn_max:.3f}]",
-    va="top", ha="right", transform=ax.transAxes,
+    va="top", ha="center", transform=ax.transAxes,
     bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3")
   )
+  ax.set_xlim([ domain_bounds[0], domain_bounds[1] ])
+  ax.set_ylim([ domain_bounds[0], domain_bounds[1] ])
   ax.set_xticks([])
   ax.set_yticks([])
 
@@ -99,13 +101,13 @@ def main():
     {"label": "solenoidal", "vfield": genSolenoidalVField(domain_bounds, num_cells)},
     {"label": "mixed",      "vfield": genMixedVField(domain_bounds, num_cells)},
   ]
-  fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(5,5))
+  fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(7,7))
   list_failed_vfields = []
   for vfield_index, vfield_entry in enumerate(list_vfields):
     vfield_name = vfield_entry["label"]
     vfield_q    = vfield_entry["vfield"]
     print(f"input: {vfield_name} field")
-    vfield_q_div, vfield_q_sol   = derive_quantities.compute_helmholtz_decomposition(vfield_q, domain_size)
+    vfield_q_div, vfield_q_sol   = decompose_fields.compute_helmholtz_decomposition(vfield_q, domain_size)
     sfield_check_q_diff          = field_operators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
     sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(field_operators.compute_vfield_curl(vfield_q_div))
     sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(vfield_q_sol)
@@ -125,21 +127,21 @@ def main():
     plot_vfield_sliceSlice(axs[vfield_index,1], vfield_q_div, domain_bounds)
     plot_vfield_sliceSlice(axs[vfield_index,2], vfield_q_sol, domain_bounds)
     axs[vfield_index,0].text(
-      0.05, 0.05,
+      0.5, 0.05,
       f"input: {vfield_name} field",
-      va="bottom", ha="left", transform=axs[vfield_index,0].transAxes,
+      va="bottom", ha="center", transform=axs[vfield_index,0].transAxes,
       bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3")
     )
     axs[vfield_index,1].text(
-      0.05, 0.05,
+      0.5, 0.05,
       "measured: divergence component",
-      va="bottom", ha="left", transform=axs[vfield_index,1].transAxes,
+      va="bottom", ha="center", transform=axs[vfield_index,1].transAxes,
       bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3")
     )
     axs[vfield_index,2].text(
-      0.05, 0.05,
+      0.5, 0.05,
       "measured: solenoidal component",
-      va="bottom", ha="left", transform=axs[vfield_index,2].transAxes,
+      va="bottom", ha="center", transform=axs[vfield_index,2].transAxes,
       bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3")
     )
     if not(bool_q_returned and bool_div_is_sol_free and bool_sol_is_div_free):

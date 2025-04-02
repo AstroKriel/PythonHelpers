@@ -4,8 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from loki.WWIO import IOShell
-from loki.ww_io import file_manager
+from loki.ww_io import file_manager, shell_manager
 
 
 ## ###############################################################
@@ -17,7 +16,7 @@ def submit_job(directory, job_name, bool_check_job_status=False) -> bool:
     return False
   print("Submitting job:", job_name)
   try:
-    IOShell.execute_shell_command(f"qsub {job_name}", directory=directory, bool_force_shell=True)
+    shell_manager.execute_shell_command(f"qsub {job_name}", directory=directory, bool_force_shell=True)
     return True
   except RuntimeError as e:
     print(f"Failed to submit job `{job_name}`: {e}")
@@ -47,7 +46,7 @@ def get_job_name_from_pbs_script(directory, job_filename):
 def get_list_of_queued_jobs():
   """Collects all job names currently in the queue."""
   try:
-    output = IOShell.execute_shell_command("qstat -f | grep Job_Name", bool_capture_output=True)
+    output = shell_manager.execute_shell_command("qstat -f | grep Job_Name", bool_capture_output=True)
     return {
         line.strip().split()[-1]
         for line in output.split("\n") if line.strip()

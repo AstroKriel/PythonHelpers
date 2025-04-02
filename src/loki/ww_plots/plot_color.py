@@ -5,10 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import cmasher
-
 import matplotlib.colors as mpl_colors
 import matplotlib.ticker as mpl_ticker
-
 from loki.ww_plots import plot_annotations
 
 
@@ -47,33 +45,6 @@ def create_colormap(
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
   norm = create_norm(vmin, vmax, vmid, norm_type)
   return cmap, norm
-
-def add_cbar_from_cmap(
-    fig, ax, cmap,
-    norm=None, vmin=0.0, vmax=1.0,
-    orientation    = "horizontal",
-    bool_log_ticks = False,
-    cbar_title     = None,
-    cbar_title_pad = 10,
-    fontsize       = 16,
-  ):
-  if norm is None: norm = create_norm(vmin, vmax)
-  box = ax.get_position()
-  if   "h" in orientation: ax_cbar = fig.add_axes([box.x0, box.y1 + 0.02, box.width, 0.05])
-  elif "v" in orientation: ax_cbar = fig.add_axes([box.x1 + 0.02, box.y0, 0.05, box.height])
-  else: raise Exception(f"Error: `{orientation}` is not a supported orientation!")
-  # fig.add_axes(ax_cbar)
-  cbar = fig.colorbar(mappable=None, cmap=cmap, norm=norm, cax=ax_cbar, orientation=orientation)
-  if "h" in orientation:
-    ax_cbar.set_title(cbar_title, fontsize=fontsize, pad=cbar_title_pad)
-    ax_cbar.xaxis.set_ticks_position("top")
-    ax_cbar.set_xscale("linear")
-    if bool_log_ticks: ax_cbar.xaxis.set_major_formatter(mpl_ticker.FuncFormatter(plot_annotations.labelLogFormatter))
-  else:
-    ax_cbar.set_ylabel(cbar_title, fontsize=fontsize, rotation=-90, va="bottom")
-    ax_cbar.set_yscale("linear")
-    if bool_log_ticks: ax_cbar.yaxis.set_major_formatter(mpl_ticker.FuncFormatter(plot_annotations.labelLogFormatter))
-  return cbar
 
 
 ## END OF MODULE

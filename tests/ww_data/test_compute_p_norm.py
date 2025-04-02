@@ -24,7 +24,7 @@ class Test_Compute_P_Norm(unittest.TestCase):
   def test_l1_norm(self):
     ## Manhattan distance
     array_output = compute_stats.compute_p_norm([1, 2, 3], [4, 5, 6], 1)
-    expected_output = 9.0  ## sum of absolute differences
+    expected_output = 9.0 # sum of absolute differences
     self.assertEqual(array_output, expected_output)
     array_output = compute_stats.compute_p_norm([1, 2, 3], [1, 2, 3], 1)
     expected_output = 0
@@ -55,10 +55,8 @@ class Test_Compute_P_Norm(unittest.TestCase):
     self.assertAlmostEqual(array_output, expected_output, places=5)
 
   def test_invalid_norm_order(self):
-    ## edge case 1: negative value
     with self.assertRaises(ValueError):
       compute_stats.compute_p_norm([1, 2, 3], [4, 5, 6], -1)
-    ## edge case 2: non-numeric value
     with self.assertRaises(ValueError):
       compute_stats.compute_p_norm([1, 2, 3], [4, 5, 6], "invalid")
 
