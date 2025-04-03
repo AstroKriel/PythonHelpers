@@ -33,12 +33,12 @@ class NumpyEncoder(json.JSONEncoder):
     elif isinstance(obj, numpy.floating): return float(obj)
     elif isinstance(obj, numpy.bool_):    return bool(obj)
     elif isinstance(obj, numpy.ndarray):  return obj.tolist()
-    return json.JSONEncoder.default(self, obj)
+    return super().default(obj)
 
 def save_dict_to_json_file(
     file_path  : str,
     input_dict : dict,
-    verbose    : bool =True
+    verbose    : bool = True
   ):
   if os.path.isfile(file_path): add_dict_to_json_file(file_path, input_dict, verbose)
   else: create_json_file_from_dict(file_path, input_dict, verbose)
@@ -46,7 +46,7 @@ def save_dict_to_json_file(
 def create_json_file_from_dict(
     file_path  : str,
     input_dict : dict,
-    verbose    : bool =True
+    verbose    : bool = True
   ):
   file_path = file_path.replace("//", "/")
   with open(file_path, "w") as fp:

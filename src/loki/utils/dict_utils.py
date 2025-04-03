@@ -15,25 +15,25 @@ def merge_dicts(
     dict_a: dict,
     dict_b: dict
   ) -> dict:
-  """Recursively merge two dictionaries (without modifying the originals), with preference for the second."""
+  """Recursively merge two dictionaries (without modifying the inputs; where relevant, `dict_b` will be prefered)."""
   var_utils.assert_type(dict_a, dict)
   var_utils.assert_type(dict_b, dict)
   merged_dict = dict_a.copy()
   for key, value in dict_b.items():
     if key in merged_dict:
-      # both are dictionaries: merge them recursively
+      ## both elements are dictionaries: merge them recursively
       if isinstance(merged_dict[key], dict) and isinstance(value, dict):
         merged_dict[key] = merge_dicts(merged_dict[key], value)
-      # both are lists: concatenate them
+      ## both elements are lists: concatenate them
       elif isinstance(merged_dict[key], list) and isinstance(value, list):
         merged_dict[key] = merged_dict[key] + value
-      # both are sets: get union of them
+      ## both elements are sets: get union of them
       elif isinstance(merged_dict[key], set) and isinstance(value, set):
         merged_dict[key] = merged_dict[key] | value
-      # other types, deepcopy to avoid modifying original dict_a
+      ## other types, deepcopy to avoid modifying original dict_a
       elif isinstance(value, (dict, list, set)):
         merged_dict[key] = copy.deepcopy(value)
-      # replace directly
+      ## replace directly
       else: merged_dict[key] = value
     else: merged_dict[key] = value
   return merged_dict

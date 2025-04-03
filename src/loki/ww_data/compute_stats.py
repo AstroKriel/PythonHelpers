@@ -12,12 +12,12 @@ from loki.ww_data import smooth_data
 ## FUNCTIONS
 ## ###############################################################
 def compute_p_norm(
-    array_a: numpy.ndarray,
-    array_b: numpy.ndarray,
-    p_norm_order: float = 2,
-    normalise_by_length: bool = False
+    array_a             : numpy.ndarray,
+    array_b             : numpy.ndarray,
+    p_norm_order        : float = 2,
+    normalise_by_length : bool = False
   ) -> float:
-  """Compute the p_norm_order-norm between two arrays and optionally normalise by num_points^(1/p_norm_order)."""
+  """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm_order)."""
   array_a = numpy.asarray(array_a)
   array_b = numpy.asarray(array_b)
   errors = []
@@ -40,14 +40,14 @@ def compute_p_norm(
     result = numpy.count_nonzero(array_diff)
   elif p_norm_order > 0:
     ## general case for p_norm_order > 0
-    ## note numerical stability improvement: scale by maximum value
+    ## note improved numerical stability: scale by maximum value
     max_diff = numpy.max(array_diff)
     if max_diff > 0:
         scaled_diff = array_diff / max_diff
         result = max_diff * numpy.power(numpy.sum(numpy.power(scaled_diff, p_norm_order)), 1/p_norm_order)
         if normalise_by_length: result /= numpy.power(len(array_a), 1/p_norm_order)
     else: result = 0
-  else: raise ValueError(f"Invalid norm order `p_norm_order={p_norm_order}`. Must be positive or infinity.")
+  else: raise ValueError(f"Invalid norm order `p_norm_order = {p_norm_order}`. Must be positive or infinity.")
   return result
 
 def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**3):
@@ -57,29 +57,29 @@ def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**
   cdf_inv_p1 = numpy.sqrt(2) * numpy.erfinv(2 * q1 - 1)
   cdf_inv_p2 = numpy.sqrt(2) * numpy.erfinv(2 * q2 - 1)
   ## calculate the mean and standard deviation of the normal distribution
-  norm_mean = ((p1 * cdf_inv_p2) - (p2 * cdf_inv_p1)) / (cdf_inv_p2 - cdf_inv_p1)
-  norm_std = (p2 - p1) / (cdf_inv_p2 - cdf_inv_p1)
+  mean = ((p1 * cdf_inv_p2) - (p2 * cdf_inv_p1)) / (cdf_inv_p2 - cdf_inv_p1)
+  std = (p2 - p1) / (cdf_inv_p2 - cdf_inv_p1)
   ## generate sampled points from the normal distribution
-  samples = norm_mean + norm_std * numpy.random.randn(num_samples)
+  samples = mean + std * numpy.random.randn(num_samples)
   return samples
 
-def compute_jpdf(
-  data_x            : numpy.ndarray,
-  data_y            : numpy.ndarray,
-  data_weights      : numpy.ndarray = None,
-  bin_centers_cols  : numpy.ndarray = None,
-  bin_centers_rows  : numpy.ndarray = None,
-  num_bins          : int = None,
-  bin_range_percent : float = 1.0,
-  smoothing_length  : float = None,
+def estimate_jpdf(
+    data_x            : numpy.ndarray,
+    data_y            : numpy.ndarray,
+    data_weights      : numpy.ndarray = None,
+    bin_centers_cols  : numpy.ndarray = None,
+    bin_centers_rows  : numpy.ndarray = None,
+    num_bins          : int = None,
+    bin_range_percent : float = 1.0,
+    smoothing_length  : float = None,
   ):
   """Compute the 2D joint probability density function (JPDF)."""
   if (len(data_x) == 0) or (len(data_y) == 0):
     raise ValueError("Error: Data arrays must not be empty.")
   if (bin_centers_cols is None) and (bin_centers_rows is None) and (num_bins is None):
     raise ValueError("Error: You did not provide a binning option.")
-  if bin_centers_cols is None: bin_centers_cols = compute_uniformly_spaced_bin_centers(data_x, num_bins, bin_range_percent)
-  if bin_centers_rows is None: bin_centers_rows = compute_uniformly_spaced_bin_centers(data_y, num_bins, bin_range_percent)
+  if bin_centers_cols is None: bin_centers_cols = create_uniformly_spaced_bin_centers(data_x, num_bins, bin_range_percent)
+  if bin_centers_rows is None: bin_centers_rows = create_uniformly_spaced_bin_centers(data_y, num_bins, bin_range_percent)
   bin_edges_rows = get_bin_edges_from_centers(bin_centers_rows)
   bin_edges_cols = get_bin_edges_from_centers(bin_centers_cols)
   bin_indices_rows = numpy.searchsorted(bin_edges_rows, data_y, side="right") - 1
@@ -99,7 +99,7 @@ def compute_jpdf(
   if smoothing_length is not None: jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(jpdf, smoothing_length)
   return bin_centers_rows, bin_centers_cols, jpdf
 
-def compute_pdf(
+def estimate_pdf(
     values            : numpy.ndarray,
     weights           : numpy.ndarray = None,
     num_bins          : int = None,
@@ -119,11 +119,11 @@ def compute_pdf(
       mean_value,
       mean_value + epsilon
     ])
-    pdf = numpy.array([ 0.0, 1.0 / epsilon, 0.0 ])
+    pdf = numpy.array([ 0.0, 1/epsilon, 0.0 ])
     return bin_centers, pdf
   if bin_centers is None:
     if num_bins is None: raise ValueError("Error: you did not provide a binning option.")
-    bin_centers = compute_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
+    bin_centers = create_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
   elif not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
     raise ValueError("Error: Bin edges must be sorted in ascending order.")
   bin_widths = numpy.diff(bin_centers)
@@ -143,19 +143,19 @@ def compute_pdf(
   return bin_centers, pdf
 
 def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
-    """Convert bin centers to edges."""
-    bin_widths     = numpy.diff(bin_centers)
-    left_bin_edge  = bin_centers[0]  - 0.5 * bin_widths[0]
-    right_bin_edge = bin_centers[-1] + 0.5 * bin_widths[-1]
-    return numpy.concatenate([
-      [ left_bin_edge ],
-      bin_centers[:-1] + 0.5 * bin_widths,
-      [ right_bin_edge ]
-    ])
+  """Convert bin centers to edges."""
+  bin_widths     = numpy.diff(bin_centers)
+  left_bin_edge  = bin_centers[0]  - 0.5 * bin_widths[0]
+  right_bin_edge = bin_centers[-1] + 0.5 * bin_widths[-1]
+  return numpy.concatenate([
+    [ left_bin_edge ],
+    bin_centers[:-1] + 0.5 * bin_widths,
+    [ right_bin_edge ]
+  ])
 
-def compute_uniformly_spaced_bin_centers(
-    values   : numpy.ndarray,
-    num_bins : int,
+def create_uniformly_spaced_bin_centers(
+    values            : numpy.ndarray,
+    num_bins          : int,
     bin_range_percent : float = 1.0
   ):
   data_p16 = numpy.percentile(values, 16)

@@ -11,14 +11,14 @@ import numpy
 ## FUNCTIONS
 ## ###############################################################
 def apply_2d_convolution(
-    values : numpy.ndarray,
+    data             : numpy.ndarray,
     smoothing_kernel : numpy.ndarray
   ) -> numpy.ndarray:
   kernel_nrows, kernel_ncols = smoothing_kernel.shape
   pad_nrows   = kernel_nrows // 2
   pad_ncols   = kernel_ncols // 2
-  padded_data = numpy.pad(values, ((pad_nrows, pad_nrows), (pad_ncols, pad_ncols)), mode="wrap")
-  data_nrows, data_ncols = values.shape
+  padded_data = numpy.pad(data, ((pad_nrows, pad_nrows), (pad_ncols, pad_ncols)), mode="wrap")
+  data_nrows, data_ncols = data.shape
   output = numpy.zeros((data_nrows, data_ncols), dtype=numpy.float64)
   for index_row in range(data_nrows):
     for index_col in range(data_ncols):
@@ -27,8 +27,8 @@ def apply_2d_convolution(
   return output
 
 def define_2d_gaussian_filter_kernel(
-    size: int,
-    sigma: float
+    size  : int,
+    sigma : float
   ) -> numpy.ndarray:
   x = numpy.linspace(-(size // 2), size // 2, size)
   y = numpy.linspace(-(size // 2), size // 2, size)
@@ -38,12 +38,12 @@ def define_2d_gaussian_filter_kernel(
   return smoothing_kernel
 
 def smooth_2d_data_with_gaussian_filter(
-    values: numpy.ndarray,
-    sigma: float
+    data  : numpy.ndarray,
+    sigma : float
   ) -> numpy.ndarray:
   kernel_size      = int(6 * sigma) + 1
   smoothing_kernel = define_2d_gaussian_filter_kernel(kernel_size, sigma)
-  smoothed_data    = apply_2d_convolution(values, smoothing_kernel)
+  smoothed_data    = apply_2d_convolution(data, smoothing_kernel)
   return smoothed_data
 
 

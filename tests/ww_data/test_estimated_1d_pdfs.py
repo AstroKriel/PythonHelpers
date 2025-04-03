@@ -26,7 +26,7 @@ def main():
   for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
     ax = axs[pdf_index]
     for num_bins in num_bins_to_test:
-      bin_centers, estimated_pdf = compute_stats.compute_pdf(pdf_samples, num_bins=num_bins, bin_range_percent=1.5)
+      bin_centers, estimated_pdf = compute_stats.estimate_pdf(pdf_samples, num_bins=num_bins, bin_range_percent=1.5)
       assert len(bin_centers) >= 3, f"Error: Bin centers for {pdf_label} with {num_bins} bins should have at least 3 bins, but got {len(bin_centers)}"
       assert bin_centers.shape == estimated_pdf.shape, f"Error: Mismatch in shapes of `bin_centers` ({bin_centers.shape}) and `estimated_pdf` ({estimated_pdf.shape}) for {pdf_label} with {num_bins} bins"
       if len(bin_centers) > 3: assert len(bin_centers) == num_bins, f"Error: The number of `bin_centers` ({len(bin_centers)}) does not match the expected number of bins ({num_bins}) for {pdf_label}"

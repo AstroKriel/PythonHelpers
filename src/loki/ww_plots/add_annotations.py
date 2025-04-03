@@ -4,7 +4,6 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import numpy
 from matplotlib.axes import Axes as mpl_axes
 from matplotlib.lines import Line2D as mpl_line2d
 

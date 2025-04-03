@@ -12,8 +12,8 @@ def assert_type(
   """Assert that an object is of a specific type."""
   if not required_types: raise ValueError("Error: no required types were passed.")
   if obj_name is None: obj_name = "<name not provided>"
-  ## isinstance() only accepts either a single instance or a tuple of instances
-  ## note: lists are mutable, whereas tuples are immutable
+  ## isinstance() accepts either a single instance or a tuple of instances.
+  ## this is because lists are mutable, whereas tuples are immutable
   if   isinstance(required_types, type): required_types = (required_types,)
   elif isinstance(required_types, list): required_types = tuple(required_types)
   if not isinstance(obj, required_types):

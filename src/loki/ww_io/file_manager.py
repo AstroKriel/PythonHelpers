@@ -13,38 +13,51 @@ from loki.utils import list_utils
 ## ###############################################################
 ## INTERACTING WITH FILES AND FOLDERS
 ## ###############################################################
-def create_file_path(file_path_elems):
+def create_file_path(file_path_elems : list[str]) -> str:
   return os.path.normpath(
     os.path.join(
       *list_utils.flatten_list(file_path_elems)
     )
   )
 
-def does_directory_exist(directory):
+def does_directory_exist(directory : str) -> bool:
   return os.path.isdir(directory)
 
-def init_directory(directory, verbose=True):
+def init_directory(
+    directory : str,
+    verbose   : bool = True
+  ) -> None:
   if not does_directory_exist(directory):
     os.makedirs(directory)
     if verbose: print("Successfully initialised directory:", directory)
   elif verbose: print("No need to initialise diectory (already exists):", directory)
 
-def does_file_exist(directory, file_name, raise_error_if_not_found=False):
+def does_file_exist(
+    directory   : str,
+    file_name   : str,
+    raise_error : bool = False
+  ):
   file_path = create_file_path([directory, file_name])
-  bool_file_path_exists = os.path.isfile(file_path)
-  if not(bool_file_path_exists) and raise_error_if_not_found:
+  file_path_exists = os.path.isfile(file_path)
+  if not(file_path_exists) and raise_error:
     raise Exception(f"Error: File does not exist: {file_path}")
-  else: return bool_file_path_exists
+  else: return file_path_exists
 
-def copy_file(directory_from, directory_to, file_name, bool_overwrite=False, verbose=True):
+def copy_file(
+    directory_from : str,
+    directory_to   : str,
+    file_name      : str,
+    overwrite      : bool = False,
+    verbose        : bool = True
+  ) -> None:
   file_path_from = create_file_path([ directory_from, file_name ])
   file_path_to   = create_file_path([ directory_to, file_name ])
   if not does_directory_exist(directory_from):
     raise NotADirectoryError(f"Error: Source directory does not exist: {directory_from}")
   if not does_directory_exist(directory_to):
     init_directory(directory_to, verbose)
-  does_file_exist(directory_from, file_name, raise_error_if_not_found=True)
-  if not(bool_overwrite) and does_file_exist(directory_to, file_name, raise_error_if_not_found=False):
+  does_file_exist(directory_from, file_name, raise_error=True)
+  if not(overwrite) and does_file_exist(directory_to, file_name, raise_error=False):
     raise FileExistsError(f"Error: File already exists: {file_path_to}")
   ## copy the file and it`s permissions
   shutil.copy(file_path_from, file_path_to)
@@ -59,26 +72,21 @@ def copy_file(directory_from, directory_to, file_name, bool_overwrite=False, ver
 ## ###############################################################
 ## FILTERING FILES IN DIRECTORY
 ## ###############################################################
-def create_filter_for_files(
-    include_string,
-    exclude_string,
-    prefix,
-    suffix,
-    delimiter,
-    num_parts,
-    index_of_value,
-    min_value,
-    max_value,
+def _create_filter_for_files(
+    include_string, exclude_string,
+    prefix, suffix,
+    delimiter, num_parts,
+    index_of_value, min_value, max_value,
   ):
   def _does_file_meet_criteria(file_name):
     list_filename_parts = file_name.split(delimiter)
-    ## if basic conditions are met then proceed
+    ## make sure that basic conditions are met first
     if not all([
-        (include_string     is None) or (include_string in file_name),
+        (include_string is None) or (include_string in file_name),
         (exclude_string is None) or not(exclude_string in file_name),
-        (prefix  is None) or file_name.startswith(prefix),
-        (suffix    is None) or file_name.endswith(suffix),
-        (num_parts    is None) or (len(list_filename_parts) == num_parts),
+        (prefix         is None) or file_name.startswith(prefix),
+        (suffix         is None) or file_name.endswith(suffix),
+        (num_parts      is None) or (len(list_filename_parts) == num_parts),
       ]): return False
     if index_of_value is not None:
       ## check that the value falls within the specified range
@@ -95,8 +103,8 @@ def filter_files_in_directory(
     prefix         : str = None,
     suffix         : str = None,
     delimiter      : str = "_",
-    num_parts      : int= None,
-    index_of_value : int= None,
+    num_parts      : int = None,
+    index_of_value : int = None,
     min_value      : int = 0,
     max_value      : int = numpy.inf,
   ):
@@ -112,7 +120,7 @@ def filter_files_in_directory(
     - `min_value`      : The minimum valid value (inclusive) stored at `index_of_value`.
     - `max_value`      : The maximum valid value (inclusive) stored at `index_of_value`.
   """
-  file_filter = create_filter_for_files(
+  file_filter = _create_filter_for_files(
     include_string = include_string,
     exclude_string = exclude_string,
     prefix         = prefix,

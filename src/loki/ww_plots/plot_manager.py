@@ -28,9 +28,9 @@ def create_figure(
   if (num_rows > 1) or (num_cols > 1): axs = numpy.squeeze(axs)
   return fig, axs
 
-def save_figure(fig, file_path, bool_draft=False, verbose=True):
+def save_figure(fig, file_path, draft=False, verbose=True):
   try:
-    dpi = 100 if bool_draft else 200
+    dpi = 100 if draft else 200
     fig.savefig(file_path, dpi=dpi)
     mpl_plot.close(fig)
     if verbose: print("Saved figure:", file_path)

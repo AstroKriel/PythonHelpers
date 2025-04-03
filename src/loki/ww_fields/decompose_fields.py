@@ -14,11 +14,11 @@ from loki.ww_fields import field_operators
 ## ###############################################################
 @func_utils.time_function
 def compute_helmholtz_decomposition(
-    vfield_q: numpy.ndarray,
-    domain_size: tuple[float, float, float]
+    vfield_q    : numpy.ndarray,
+    domain_size : tuple[float, float, float]
   ) -> tuple[numpy.ndarray, numpy.ndarray]:
-  assert vfield_q.shape[0] == 3, "Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)"
-  assert len(domain_size) == 3, "Input domain size must have shape: (length_x, length_y, length_z)"
+  if vfield_q.shape[0] != 3: raise ValueError("Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)")
+  if len(domain_size)  != 3: raise ValueError("Input domain size must have shape: (length_x, length_y, length_z)")
   num_cells_x, num_cells_y, num_cells_z = vfield_q.shape[1:]
   array_kx = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
   array_ky = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
@@ -47,7 +47,11 @@ def compute_helmholtz_decomposition(
   return vfield_div, vfield_sol
 
 @func_utils.time_function
-def compute_tnb_terms(vfield_b, box_width=1.0, grad_order=2):
+def compute_tnb_terms(
+    vfield_b   : numpy.ndarray,
+    box_width  : float = 1.0,
+    grad_order : int = 2
+  ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)
   ## ---- COMPUTE TANGENT BASIS
@@ -71,7 +75,7 @@ def compute_tnb_terms(vfield_b, box_width=1.0, grad_order=2):
   ## normal basis
   vbasis_normal = vfield_kappa / sfield_curvature
   ## ---- COMPUTE BINORMAL BASIS
-  ## by definition it is orthogonal to both t- and n-basis
+  ## by definition b-basis is orthogonal to both t- and n-basis
   vbasis_binormal = field_operators.compute_vfield_cross_product(vbasis_tangent, vbasis_normal)
   return vbasis_tangent, vbasis_normal, vbasis_binormal, sfield_curvature
 

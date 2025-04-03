@@ -20,7 +20,7 @@ def create_norm(
       return mpl_colors.TwoSlopeNorm(vmin=vmin, vcenter=vmid, vmax=vmax)
     else: return mpl_colors.Normalize(vmin=vmin, vmax=vmax)
 
-def create_colormap(
+def create_cmap(
     cmap_name: str,
     cmin: float = 0.0,
     cmax: float = 1.0,
@@ -46,13 +46,15 @@ def add_cbar_from_cmap(
   if side in [ "left", "right" ]:
     orientation = "vertical"
     cbar_size = box.width * percentage
-    if side == "right": cbar_bounds = [ box.x1 + cbar_padding, box.y0, cbar_size, box.height ]
-    else:               cbar_bounds = [ box.x0 - cbar_size - cbar_padding, box.y0, cbar_size, box.height ]
+    if side == "right":
+      cbar_bounds = [ box.x1 + cbar_padding, box.y0, cbar_size, box.height ]
+    else: cbar_bounds = [ box.x0 - cbar_size - cbar_padding, box.y0, cbar_size, box.height ]
   elif side in [ "top", "bottom" ]:
     orientation = "horizontal"
     cbar_size = box.height * percentage
-    if side == "top": cbar_bounds = [ box.x0, box.y1 + cbar_padding, box.width, cbar_size ]
-    else:             cbar_bounds = [ box.x0, box.y0 - cbar_size - cbar_padding, box.width, cbar_size ]
+    if side == "top":
+      cbar_bounds = [ box.x0, box.y1 + cbar_padding, box.width, cbar_size ]
+    else: cbar_bounds = [ box.x0, box.y0 - cbar_size - cbar_padding, box.width, cbar_size ]
   else: raise ValueError(f"Unsupported side: {side}")
   ax_cbar = fig.add_axes(cbar_bounds)
   cbar = fig.colorbar(mappable=None, cmap=cmap, norm=norm, cax=ax_cbar, orientation=orientation)

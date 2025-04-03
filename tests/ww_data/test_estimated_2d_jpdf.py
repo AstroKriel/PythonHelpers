@@ -38,7 +38,7 @@ def main():
   integral_tolerance = 1e-2
   fig, ax = plot_manager.create_figure()
   x_samples, y_samples = sample_from_ellipse(num_points, ax)
-  bin_centers_rows, bin_centers_cols, jpdf = compute_stats.compute_jpdf(
+  bin_centers_rows, bin_centers_cols, jpdf = compute_stats.estimate_jpdf(
     data_x           = x_samples,
     data_y           = y_samples,
     num_bins         = num_bins,
