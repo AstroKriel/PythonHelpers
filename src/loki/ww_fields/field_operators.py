@@ -17,7 +17,7 @@ def compute_sfield_rms(sfield_q : numpy.ndarray) -> numpy.ndarray:
 
 def compute_vfield_cross_product(
     vfield_q1 : numpy.ndarray,
-    vfield_q2 : numpy.ndarray
+    vfield_q2 : numpy.ndarray,
   ) -> numpy.ndarray:
   return numpy.array([
     vfield_q1[1] * vfield_q2[2] - vfield_q1[2] * vfield_q2[1],
@@ -27,7 +27,7 @@ def compute_vfield_cross_product(
 
 def compute_vfield_dot_product(
     vfield_q1 : numpy.ndarray,
-    vfield_q2 : numpy.ndarray
+    vfield_q2 : numpy.ndarray,
   ) -> numpy.ndarray:
   return numpy.einsum("ixyz,ixyz->xyz", vfield_q1, vfield_q2)
 
@@ -48,7 +48,7 @@ def get_grad_func(grad_order: int):
 def compute_vfield_curl(
     vfield_q   : numpy.ndarray,
     box_width  : float = 1.0,
-    grad_order : int = 2
+    grad_order : int = 2,
   ) -> numpy.ndarray:
   grad_func = get_grad_func(grad_order)
   ## input format: (vector-component, x, y, z), assuming cubic domain with uniform grid
@@ -65,7 +65,7 @@ def compute_vfield_curl(
 def compute_sfield_gradient(
     sfield_q   : numpy.ndarray,
     box_width  : float = 1.0,
-    grad_order : int = 2
+    grad_order : int = 2,
   ):
   grad_func = get_grad_func(grad_order)
   ## input format: (x, y, z), assuming cubic domain with uniform grid
@@ -80,7 +80,7 @@ def compute_sfield_gradient(
 def compute_vfield_gradient(
     vfield_q   : numpy.ndarray,
     box_width  : float = 1.0,
-    grad_order : int = 2
+    grad_order : int = 2,
   ):
   ## df_i/dx_j: (component-i, gradient-direction-j, x, y, z)
   return numpy.array([
@@ -91,7 +91,7 @@ def compute_vfield_gradient(
 def compute_vfield_divergence(
     vfield_q   : numpy.ndarray,
     box_width  : float = 1.0,
-    grad_order : int = 2
+    grad_order : int = 2,
   ):
   r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_width, grad_order)
   # return numpy.sum(numpy.array([

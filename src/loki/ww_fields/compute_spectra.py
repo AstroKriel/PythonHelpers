@@ -24,7 +24,7 @@ except ImportError:
 ## ###############################################################
 def compute_3d_power_spectrum(
     field   : numpy.ndarray,
-    use_mpi : bool = False
+    use_mpi : bool = False,
   ) -> numpy.ndarray:
   """Computes the power spectrum of an arbitrary-dimensional field."""
   assert len(field.shape) >= 3, "Field should have at least 3 spatial dimensions."
@@ -42,7 +42,7 @@ def compute_3d_power_spectrum(
 
 def perform_spherical_integration(
     spectrum_3d : numpy.ndarray,
-    use_mpi     : bool = False
+    use_mpi     : bool = False,
   ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Integrates a 3D power spectrum over spherical shells of constant k."""
   num_k_modes = spectrum_3d.shape[0] // 2
@@ -62,7 +62,7 @@ def perform_spherical_integration(
 
 def compute_1d_power_spectrum(
     field   : numpy.ndarray,
-    use_mpi : bool = False
+    use_mpi : bool = False,
   ) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Computes the full power spectrum including radial integration."""
   spectrum_3d = compute_3d_power_spectrum(field, use_mpi)

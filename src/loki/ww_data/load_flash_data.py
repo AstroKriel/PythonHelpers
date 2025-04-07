@@ -12,7 +12,11 @@ from loki.utils import list_utils
 ## ###############################################################
 ## FUNCTIONS FOR LOADING FLASH DATA
 ## ###############################################################
-def reformat_flash_sfield_v1(sfield, num_blocks, num_procs):
+def reformat_flash_sfield_v1(
+    sfield     : numpy.ndarray,
+    num_blocks : tuple[int, int, int],
+    num_procs  : tuple[int, int, int],
+  ):
   xblocks, yblocks, zblocks = num_blocks
   iprocs, jprocs, kprocs = num_procs
   sfield_sorted = numpy.zeros(
@@ -39,7 +43,11 @@ def reformat_flash_sfield_v1(sfield, num_blocks, num_procs):
   sfield_sorted = numpy.transpose(sfield_sorted, [2, 1, 0])
   return sfield_sorted
 
-def reformat_flash_sfield_v2(sfield, num_blocks, num_procs):
+def reformat_flash_sfield_v2(
+    sfield     : numpy.ndarray,
+    num_blocks : tuple[int, int, int],
+    num_procs  : tuple[int, int, int],
+  ):
   xblocks, yblocks, zblocks = num_blocks
   iprocs, jprocs, kprocs = num_procs
   sfield_sorted = sfield.reshape(kprocs, jprocs, iprocs, zblocks, yblocks, xblocks)
@@ -51,7 +59,11 @@ def reformat_flash_sfield_v2(sfield, num_blocks, num_procs):
   )
   return numpy.moveaxis(sfield_sorted, [0, 1, 2], [2, 1, 0])
 
-def reformat_flash_sfield_v3(sfield, num_blocks, num_procs):
+def reformat_flash_sfield_v3(
+    sfield     : numpy.ndarray,
+    num_blocks : tuple[int, int, int],
+    num_procs  : tuple[int, int, int],
+  ):
   xblocks, yblocks, zblocks = num_blocks
   iprocs, jprocs, kprocs = num_procs
   sfield = sfield.transpose(0, 2, 1, 3)
@@ -66,7 +78,13 @@ def reformat_flash_sfield_v3(sfield, num_blocks, num_procs):
   )
   return numpy.transpose(sfield_sorted, [2, 1, 0])
 
-def loadFlashDataCube(file_path, num_blocks, num_procs, field_name, print_h5keys=False):
+def loadFlashDataCube(
+    file_path    : str,
+    field_name   : str,
+    num_blocks   : tuple[int, int, int],
+    num_procs    : tuple[int, int, int],
+    print_h5keys : bool = False,
+  ):
   ## open hdf5 file stream
   with h5py.File(file_path, "r") as h5file:
     ## create list of field-keys to extract from hdf5 file

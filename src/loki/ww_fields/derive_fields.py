@@ -18,7 +18,7 @@ def compute_magnetic_curvature_terms(
     vbasis_tangent : numpy.ndarray,
     vfield_u       : numpy.ndarray,
     box_width      : float = 1.0,
-    grad_order     : int = 2
+    grad_order     : int = 2,
   ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   ## du_j/dx_i: (component-j, gradient-direction-i, x, y, z)
   r2tensor_grad_u = field_operators.compute_vfield_gradient(vfield_u, box_width, grad_order)
@@ -34,7 +34,7 @@ def compute_magnetic_curvature_terms(
 def compute_lorentz_force_terms(
     vfield_b   : numpy.ndarray,
     box_width  : float = 1.0,
-    grad_order : int = 2
+    grad_order : int = 2,
   ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   vfield_b = numpy.array(vfield_b)
   vbasis_tangent, vbasis_normal, _, sfield_kappa = decompose_fields.compute_tnb_terms(vfield_b, box_width, grad_order)

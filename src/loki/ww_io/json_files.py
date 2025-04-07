@@ -18,7 +18,7 @@ from loki.utils import dict_utils
 def read_json_file_into_dict(
     directory : str,
     file_name : str,
-    verbose   : bool = True
+    verbose   : bool = True,
   ):
   file_path = file_manager.create_file_path([directory, file_name])
   if os.path.isfile(file_path):
@@ -38,7 +38,7 @@ class NumpyEncoder(json.JSONEncoder):
 def save_dict_to_json_file(
     file_path  : str,
     input_dict : dict,
-    verbose    : bool = True
+    verbose    : bool = True,
   ):
   if os.path.isfile(file_path): add_dict_to_json_file(file_path, input_dict, verbose)
   else: create_json_file_from_dict(file_path, input_dict, verbose)
@@ -46,7 +46,7 @@ def save_dict_to_json_file(
 def create_json_file_from_dict(
     file_path  : str,
     input_dict : dict,
-    verbose    : bool = True
+    verbose    : bool = True,
   ):
   file_path = file_path.replace("//", "/")
   with open(file_path, "w") as fp:
@@ -62,7 +62,7 @@ def create_json_file_from_dict(
 def add_dict_to_json_file(
     file_path  : str,
     input_dict : dict,
-    verbose    : bool = True
+    verbose    : bool = True,
   ):
   with open(file_path, "r") as fp_r:
     dict_old = json.load(fp_r)
@@ -73,7 +73,7 @@ def add_dict_to_json_file(
       fp        = fp_w,
       cls       = NumpyEncoder,
       sort_keys = True,
-      indent    = 2
+      indent    = 2,
     )
   if verbose: print("Updated json-file:", file_path)
 

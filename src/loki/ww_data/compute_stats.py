@@ -15,7 +15,7 @@ def compute_p_norm(
     array_a             : numpy.ndarray,
     array_b             : numpy.ndarray,
     p_norm_order        : float = 2,
-    normalise_by_length : bool = False
+    normalise_by_length : bool = False,
   ) -> float:
   """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm_order)."""
   array_a = numpy.asarray(array_a)
@@ -156,7 +156,7 @@ def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
 def create_uniformly_spaced_bin_centers(
     values            : numpy.ndarray,
     num_bins          : int,
-    bin_range_percent : float = 1.0
+    bin_range_percent : float = 1.0,
   ):
   data_p16 = numpy.percentile(values, 16)
   data_p50 = numpy.percentile(values, 50)

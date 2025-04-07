@@ -14,7 +14,7 @@ from loki.utils import var_utils
 def get_intersect_of_lists(
     list_a: list,
     list_b: list,
-    sort_values: bool = False
+    sort_values: bool = False,
   ) -> list:
   """Find the intersection of two lists (optionally sorted)."""
   var_utils.assert_type(list_a, list)
@@ -26,7 +26,7 @@ def get_intersect_of_lists(
 def get_union_of_lists(
     list_a: list,
     list_b: list,
-    sort_values: bool = False
+    sort_values: bool = False,
   ) -> list:
   """Find the union of two lists (optionally sorted)."""
   var_utils.assert_type(list_a, list)
@@ -37,7 +37,7 @@ def get_union_of_lists(
 
 def get_index_of_closest_value(
     values: list,
-    target: float
+    target: float,
   ) -> int:
   """Find the index of the closest value to a `target` value."""
   var_utils.assert_type(values, list)

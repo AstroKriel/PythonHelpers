@@ -26,7 +26,7 @@ def apply_2d_convolution(
       output[index_row, index_col] = numpy.sum(data_subset * smoothing_kernel)
   return output
 
-def define_2d_gaussian_filter_kernel(
+def define_2d_gaussian_kernel(
     size  : int,
     sigma : float
   ) -> numpy.ndarray:
@@ -42,7 +42,7 @@ def smooth_2d_data_with_gaussian_filter(
     sigma : float
   ) -> numpy.ndarray:
   kernel_size      = int(6 * sigma) + 1
-  smoothing_kernel = define_2d_gaussian_filter_kernel(kernel_size, sigma)
+  smoothing_kernel = define_2d_gaussian_kernel(kernel_size, sigma)
   smoothed_data    = apply_2d_convolution(data, smoothing_kernel)
   return smoothed_data
 

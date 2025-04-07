@@ -16,7 +16,7 @@ def add_inset_axis(
     bounds   = [ 0.0, 1.0, 1.0, 0.5 ],
     x_label  = None,
     y_label  = None,
-    fontsize = 20
+    fontsize = 20,
   ):
   ax_inset = ax.inset_axes(bounds)
   ax_inset.tick_params(top=True, bottom=True, labeltop=True, labelbottom=False)

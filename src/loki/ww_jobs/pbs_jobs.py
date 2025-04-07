@@ -11,11 +11,11 @@ from loki.ww_io import file_manager, shell_manager
 ## FUNCTIONS
 ## ###############################################################
 def submit_job(
-    directory        : str,
-    job_name         : str,
-    check_job_status : bool = False
+    directory    : str,
+    job_name     : str,
+    check_status : bool = False,
   ) -> bool:
-  if check_job_status and is_job_already_in_queue(directory, job_name):
+  if check_status and is_job_already_in_queue(directory, job_name):
     print("Job is already currently running:", job_name)
     return False
   print("Submitting job:", job_name)
@@ -28,7 +28,7 @@ def submit_job(
 
 def is_job_already_in_queue(
     directory    : str,
-    job_filename : str
+    job_filename : str,
   ) -> bool:
   """Checks if a job name is already in the queue."""
   if not file_manager.does_file_exist(directory, job_filename):
@@ -44,7 +44,7 @@ def is_job_already_in_queue(
 
 def get_job_name_from_pbs_script(
     directory    : str,
-    job_filename : str
+    job_filename : str,
   ) -> str:
   """Gets the job name from a PBS job script."""
   with open(file_manager.create_file_path(directory, job_filename), "r") as fp:

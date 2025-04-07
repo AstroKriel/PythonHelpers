@@ -13,7 +13,7 @@ from loki.utils import var_utils
 ## ###############################################################
 def merge_dicts(
     dict_a: dict,
-    dict_b: dict
+    dict_b: dict,
   ) -> dict:
   """Recursively merge two dictionaries (without modifying the inputs; where relevant, `dict_b` will be prefered)."""
   var_utils.assert_type(dict_a, dict)
@@ -40,7 +40,7 @@ def merge_dicts(
 
 def are_dicts_different(
       dict_a: dict,
-      dict_b: dict
+      dict_b: dict,
     ) -> bool:
     ## check that the dictionaries have the same number of keys
     if len(dict_a) != len(dict_b): return True

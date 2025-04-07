@@ -101,7 +101,7 @@ def main():
     {"label": "solenoidal", "vfield": genSolenoidalVField(domain_bounds, num_cells)},
     {"label": "mixed",      "vfield": genMixedVField(domain_bounds, num_cells)},
   ]
-  fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, fig_aspect_ratio=(7,7))
+  fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7,7))
   list_failed_vfields = []
   for vfield_index, vfield_entry in enumerate(list_vfields):
     vfield_name = vfield_entry["label"]

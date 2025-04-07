@@ -35,7 +35,7 @@ def init_directory(
 def does_file_exist(
     directory   : str,
     file_name   : str,
-    raise_error : bool = False
+    raise_error : bool = False,
   ):
   file_path = create_file_path([directory, file_name])
   file_path_exists = os.path.isfile(file_path)
@@ -48,7 +48,7 @@ def copy_file(
     directory_to   : str,
     file_name      : str,
     overwrite      : bool = False,
-    verbose        : bool = True
+    verbose        : bool = True,
   ) -> None:
   file_path_from = create_file_path([ directory_from, file_name ])
   file_path_to   = create_file_path([ directory_to, file_name ])
