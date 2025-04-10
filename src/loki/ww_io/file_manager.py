@@ -33,11 +33,22 @@ def init_directory(
   elif verbose: print("No need to initialise diectory (already exists):", directory)
 
 def does_file_exist(
-    directory   : str,
-    file_name   : str,
+    file_path   : str | None = None,
+    directory   : str | None = None,
+    file_name   : str | None = None,
     raise_error : bool = False,
   ):
-  file_path = create_file_path([directory, file_name])
+  if file_path is None:
+    missing = []
+    if (directory is None): missing.append("directory")
+    if (file_name is None): missing.append("file_name")
+    if missing:
+      raise ValueError(
+        "Error: You have not provided enough information about the file and where it is."
+        f"You are missing: {list_utils.cast_to_string(missing)}."
+        "Alternatively, provide `file_path` directly."
+      )
+    file_path = create_file_path([directory, file_name])
   file_path_exists = os.path.isfile(file_path)
   if not(file_path_exists) and raise_error:
     raise Exception(f"Error: File does not exist: {file_path}")
@@ -56,8 +67,8 @@ def copy_file(
     raise NotADirectoryError(f"Error: Source directory does not exist: {directory_from}")
   if not does_directory_exist(directory_to):
     init_directory(directory_to, verbose)
-  does_file_exist(directory_from, file_name, raise_error=True)
-  if not(overwrite) and does_file_exist(directory_to, file_name, raise_error=False):
+  does_file_exist(file_path=file_path_from, raise_error=True)
+  if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
     raise FileExistsError(f"Error: File already exists: {file_path_to}")
   ## copy the file and it`s permissions
   shutil.copy(file_path_from, file_path_to)

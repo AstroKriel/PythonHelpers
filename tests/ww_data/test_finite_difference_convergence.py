@@ -3,6 +3,7 @@
 ## ###############################################################
 import sys
 import numpy
+from loki.utils import list_utils
 from loki.ww_data import compute_stats, finite_difference
 from loki.ww_plots import plot_manager
 
@@ -50,7 +51,7 @@ class TestFiniteDifferenceConvergence:
     failed_methods = self._test_method_scaling()
     self._annotate_figure()
     plot_manager.save_figure(fig, "finite_difference_convergence.png", bool_draft=False)
-    assert len(failed_methods) == 0, f"Convergence test failed for the following method(s): {failed_methods}"
+    assert len(failed_methods) == 0, f"Convergence test failed for the following method(s): {list_utils.cast_to_string(failed_methods)}"
     print("Test passed successfully!")
 
   def _plot_exact_soln(self):
@@ -145,7 +146,7 @@ class TestFiniteDifferenceConvergence:
 
 
 ## ###############################################################
-## SCRIPT ENTRY POINT
+## TEST ENTRY POINT
 ## ###############################################################
 if __name__ == "__main__":
   test = TestFiniteDifferenceConvergence()

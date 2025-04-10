@@ -54,8 +54,8 @@ def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**
   """Sample a normal distribution with quantiles 0 < q1 < q2 < 100 and corresponding probabilities 0 < p1 < p2 < 1."""
   if not (0 < q1 < q2 < 1): raise ValueError("Invalid quantile probabilities")
   ## calculate the inverse of the CDF
-  cdf_inv_p1 = numpy.sqrt(2) * numpy.erfinv(2 * q1 - 1)
-  cdf_inv_p2 = numpy.sqrt(2) * numpy.erfinv(2 * q2 - 1)
+  cdf_inv_p1 = numpy.sqrt(2) * numpy.erfinv(2 * q1 - 1) # type: ignore
+  cdf_inv_p2 = numpy.sqrt(2) * numpy.erfinv(2 * q2 - 1) # type: ignore
   ## calculate the mean and standard deviation of the normal distribution
   mean = ((p1 * cdf_inv_p2) - (p2 * cdf_inv_p1)) / (cdf_inv_p2 - cdf_inv_p1)
   std = (p2 - p1) / (cdf_inv_p2 - cdf_inv_p1)
@@ -66,20 +66,23 @@ def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**
 def estimate_jpdf(
     data_x            : numpy.ndarray,
     data_y            : numpy.ndarray,
-    data_weights      : numpy.ndarray = None,
-    bin_centers_cols  : numpy.ndarray = None,
-    bin_centers_rows  : numpy.ndarray = None,
-    num_bins          : int = None,
+    data_weights      : numpy.ndarray | None = None,
+    bin_centers_cols  : numpy.ndarray | None = None,
+    bin_centers_rows  : numpy.ndarray | None = None,
+    num_bins          : int | None = None,
     bin_range_percent : float = 1.0,
-    smoothing_length  : float = None,
+    smoothing_length  : float | None = None,
   ):
   """Compute the 2D joint probability density function (JPDF)."""
   if (len(data_x) == 0) or (len(data_y) == 0):
     raise ValueError("Error: Data arrays must not be empty.")
   if (bin_centers_cols is None) and (bin_centers_rows is None) and (num_bins is None):
     raise ValueError("Error: You did not provide a binning option.")
-  if bin_centers_cols is None: bin_centers_cols = create_uniformly_spaced_bin_centers(data_x, num_bins, bin_range_percent)
-  if bin_centers_rows is None: bin_centers_rows = create_uniformly_spaced_bin_centers(data_y, num_bins, bin_range_percent)
+  if num_bins is None:
+    if bin_centers_cols is not None: num_bins = len(bin_centers_cols)
+    if bin_centers_rows is not None: num_bins = len(bin_centers_rows)
+  if bin_centers_cols is None: bin_centers_cols = create_uniformly_spaced_bin_centers(data_x, num_bins, bin_range_percent) # type: ignore
+  if bin_centers_rows is None: bin_centers_rows = create_uniformly_spaced_bin_centers(data_y, num_bins, bin_range_percent) # type: ignore
   bin_edges_rows = get_bin_edges_from_centers(bin_centers_rows)
   bin_edges_cols = get_bin_edges_from_centers(bin_centers_cols)
   bin_indices_rows = numpy.searchsorted(bin_edges_rows, data_y, side="right") - 1
@@ -101,9 +104,9 @@ def estimate_jpdf(
 
 def estimate_pdf(
     values            : numpy.ndarray,
-    weights           : numpy.ndarray = None,
-    num_bins          : int = None,
-    bin_centers       : numpy.ndarray = None,
+    weights           : numpy.ndarray | None = None,
+    num_bins          : int | None = None,
+    bin_centers       : numpy.ndarray | None = None,
     bin_range_percent : float = 1.0,
     delta_threshold   : float = 1e-5,
   ):

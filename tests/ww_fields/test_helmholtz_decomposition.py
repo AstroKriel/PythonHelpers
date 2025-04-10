@@ -2,6 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
+from loki.utils import list_utils
 from loki.ww_plots import plot_manager
 from loki.ww_fields import field_operators, decompose_fields
 
@@ -102,7 +103,7 @@ def main():
     {"label": "mixed",      "vfield": genMixedVField(domain_bounds, num_cells)},
   ]
   fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7,7))
-  list_failed_vfields = []
+  failed_vfields = []
   for vfield_index, vfield_entry in enumerate(list_vfields):
     vfield_name = vfield_entry["label"]
     vfield_q    = vfield_entry["vfield"]
@@ -148,16 +149,16 @@ def main():
       if not(bool_q_returned): print("Failed test. q_div + q_div =/= q")
       if not(bool_div_is_sol_free): print("Failed test. |curl(q_div)}| > 0")
       if not(bool_sol_is_div_free): print("Failed test. |div{q_curl)}| > 0")
-      list_failed_vfields.append(vfield_name)
+      failed_vfields.append(vfield_name)
     else: print("Test passed successfully!")
     print(" ")
   plot_manager.save_figure(fig, "helmholtz_decomposition.png")
-  assert len(list_failed_vfields) == 0, f"Test failed for the following vector field(s): {list_failed_vfields}"
+  assert len(failed_vfields) == 0, f"Test failed for the following vector field(s): {list_utils.cast_to_string(failed_vfields)}"
   print("All tests passed successfully!")
 
 
 ## ###############################################################
-## SCRIPT ENTRY POINT
+## TEST ENTRY POINT
 ## ###############################################################
 if __name__ == "__main__":
   main()

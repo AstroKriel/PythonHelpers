@@ -2,6 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
+from loki.utils import list_utils
 from loki.ww_data import compute_stats
 from loki.ww_plots import plot_manager
 
@@ -40,12 +41,12 @@ def main():
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
   plot_manager.save_figure(fig, "estimated_1d_pdfs.png")
-  assert len(pdfs_that_failed) == 0, f"Test failed for the following methods: {pdfs_that_failed}"
+  assert len(pdfs_that_failed) == 0, f"Test failed for the following methods: {list_utils.cast_to_string(pdfs_that_failed)}"
   print("All tests passed successfully!")
 
 
 ## ###############################################################
-## SCRIPT ENTRY POINT
+## TEST ENTRY POINT
 ## ###############################################################
 if __name__ == "__main__":
   main()

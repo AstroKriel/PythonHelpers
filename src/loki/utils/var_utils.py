@@ -7,7 +7,7 @@
 def assert_type(
     obj,
     required_types: type | tuple[type, ...],
-    obj_name: str = None,
+    obj_name: str | None = None,
   ) -> None:
   """Assert that an object is of a specific type."""
   if not required_types: raise ValueError("Error: no required types were passed.")
