@@ -11,6 +11,24 @@ from loki.utils import var_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+def cast_to_string(
+    elems            : list,
+    conjunction      : str = "or",
+    wrap_in_quotes   : bool = True,
+    use_oxford_comma : bool = True,
+  ):
+  elems = flatten_list(list(elems))
+  if len(elems) == 0: return ""
+  elems = [
+    f"`{elem}`" if wrap_in_quotes else str(elem)
+    for elem in elems
+  ]
+  if (conjunction != "") and (len(elems) > 1):
+    if len(elems) == 2: return f"{elems[0]} {conjunction} {elems[1]}"
+    separator = "," if use_oxford_comma else ""
+    return ", ".join(elems[:-1]) + f"{separator} {conjunction} {elems[-1]}"
+  return ", ".join(elems)
+
 def get_intersect_of_lists(
     list_a: list,
     list_b: list,
