@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import copy
-from loki.utils import var_utils
+from jormungandr.utils import var_utils
 
 
 ## ###############################################################

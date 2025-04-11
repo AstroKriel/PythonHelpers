@@ -6,7 +6,7 @@
 ## ###############################################################
 import h5py
 import numpy
-from loki.ww_io import file_manager
+from jormungandr.ww_io import file_manager
 
 
 ## ###############################################################

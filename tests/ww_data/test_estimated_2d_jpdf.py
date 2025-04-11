@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.ww_data import compute_stats
-from loki.ww_plots import plot_manager
+from jormungandr.ww_data import compute_stats
+from jormungandr.ww_plots import plot_manager
 
 
 ## ###############################################################

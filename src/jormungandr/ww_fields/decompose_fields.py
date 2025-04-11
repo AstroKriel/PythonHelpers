@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.utils import func_utils
-from loki.ww_fields import field_operators
+from jormungandr.utils import func_utils
+from jormungandr.ww_fields import field_operators
 
 
 ## ###############################################################

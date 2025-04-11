@@ -3,7 +3,7 @@
 ## ###############################################################
 import unittest
 import numpy
-from loki.ww_data import compute_stats
+from jormungandr.ww_data import compute_stats
 
 
 ## ###############################################################

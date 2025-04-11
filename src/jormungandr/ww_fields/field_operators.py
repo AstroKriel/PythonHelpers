@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.ww_data import finite_difference
+from jormungandr.ww_data import finite_difference
 
 
 ## ###############################################################

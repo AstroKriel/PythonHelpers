@@ -5,8 +5,8 @@ import sys
 import time
 import h5py
 import numpy
-from loki.ww_io import flash_data, file_manager
-from loki.ww_plots import plot_manager, add_annotations
+from jormungandr.ww_io import flash_data, file_manager
+from jormungandr.ww_plots import plot_manager, add_annotations
 
 
 ## ###############################################################

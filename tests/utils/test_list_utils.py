@@ -3,7 +3,7 @@
 ## ###############################################################
 import unittest
 import numpy
-from loki.utils import list_utils
+from jormungandr.utils import list_utils
 
 
 ## ###############################################################

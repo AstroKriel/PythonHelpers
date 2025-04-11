@@ -2,9 +2,9 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.utils import list_utils
-from loki.ww_plots import plot_manager
-from loki.ww_fields import field_operators, decompose_fields
+from jormungandr.utils import list_utils
+from jormungandr.ww_plots import plot_manager
+from jormungandr.ww_fields import field_operators, decompose_fields
 
 
 ## ###############################################################

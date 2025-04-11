@@ -4,7 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from loki.ww_io import file_manager, shell_manager
+from jormungandr.ww_io import file_manager, shell_manager
 
 
 ## ###############################################################

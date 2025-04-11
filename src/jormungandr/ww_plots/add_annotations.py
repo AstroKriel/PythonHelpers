@@ -6,7 +6,7 @@
 ## ###############################################################
 from matplotlib.axes import Axes as mpl_axes
 from matplotlib.lines import Line2D as mpl_line2d
-from loki.utils import list_utils
+from jormungandr.utils import list_utils
 
 
 ## ###############################################################

@@ -2,9 +2,9 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.utils import list_utils
-from loki.ww_data import compute_stats
-from loki.ww_plots import plot_manager
+from jormungandr.utils import list_utils
+from jormungandr.ww_data import compute_stats
+from jormungandr.ww_plots import plot_manager
 
 
 ## ###############################################################

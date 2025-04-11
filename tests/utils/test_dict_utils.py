@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import unittest
-from loki.utils import dict_utils
+from jormungandr.utils import dict_utils
 
 
 ## ###############################################################

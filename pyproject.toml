@@ -1,7 +1,7 @@
 [project]
-name = "loki"
+name = "jormungandr"
 version = "0.1.0"
-description = "loki (python tools) library"
+description = "jormungandr (python tools) library"
 readme = "README.md"
 authors = [
     { name = "Neco Kriel", email = "necokriel@gmail.com" }

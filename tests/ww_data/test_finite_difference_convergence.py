@@ -3,9 +3,9 @@
 ## ###############################################################
 import sys
 import numpy
-from loki.utils import list_utils
-from loki.ww_data import compute_stats, finite_difference
-from loki.ww_plots import plot_manager
+from jormungandr.utils import list_utils
+from jormungandr.ww_data import compute_stats, finite_difference
+from jormungandr.ww_plots import plot_manager
 
 
 ## ###############################################################

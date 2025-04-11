@@ -5,14 +5,14 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from loki.utils import list_utils
-from loki.ww_io import file_manager
+from jormungandr.utils import list_utils
+from jormungandr.ww_io import file_manager
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def load_vi_data(
+def read_vi_data(
   directory     : str,
   file_name     : str = "Turb.dat",
   dataset_name  : str | None = None,
@@ -81,7 +81,9 @@ def load_vi_data(
   start_index = list_utils.get_index_of_closest_value(times, time_start)
   end_index   = list_utils.get_index_of_closest_value(times, time_end)
   if start_index == end_index: end_index = min(end_index+1, len(times)) # avoid empty ranges
-  return times[start_index:end_index], values[start_index:end_index]
+  subsetted_times  = numpy.array(times[start_index:end_index])
+  subsetted_values = numpy.array(values[start_index:end_index])
+  return subsetted_times, subsetted_values
 
 
 ## END OF MODULE
