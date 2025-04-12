@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.ww_data import finite_difference
+from jormi.ww_data import finite_difference
 
 
 ## ###############################################################
@@ -94,10 +94,6 @@ def compute_vfield_divergence(
     grad_order : int = 2,
   ):
   r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_width, grad_order)
-  # return numpy.sum(numpy.array([
-  #   r2tensor_grad_q[index_i,index_i,:,:,:]
-  #   for index_i in range(3)
-  # ]), axis=0)
   return numpy.einsum("iixyz->xyz", r2tensor_grad_q)
 
 

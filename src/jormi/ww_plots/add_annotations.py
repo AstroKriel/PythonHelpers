@@ -6,7 +6,7 @@
 ## ###############################################################
 from matplotlib.axes import Axes as mpl_axes
 from matplotlib.lines import Line2D as mpl_line2d
-from jormungandr.utils import list_utils
+from jormi.utils import list_utils
 
 
 ## ###############################################################
@@ -49,8 +49,8 @@ def add_inset_axis(
   ):
   valid_x_sides = [ "top", "bottom" ]
   valid_y_sides = [ "left", "right" ]
-  if x_label_side not in valid_x_sides: raise ValueError(f"Error: `x_label_side` = '{x_label_side}' is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
-  if y_label_side not in valid_y_sides: raise ValueError(f"Error: `y_label_side` = '{y_label_side}' is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}")
+  if x_label_side not in valid_x_sides: raise ValueError(f"Error: `x_label_side` = `{x_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
+  if y_label_side not in valid_y_sides: raise ValueError(f"Error: `y_label_side` = `{y_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}")
   ax_inset = ax.inset_axes(bounds)
   ax_inset.set_xlabel(x_label, fontsize=fontsize)
   ax_inset.set_ylabel(y_label, fontsize=fontsize)

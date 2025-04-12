@@ -6,7 +6,7 @@
 ## ###############################################################
 import h5py
 import numpy
-from jormungandr.ww_io import file_manager
+from jormi.ww_io import file_manager
 
 
 ## ###############################################################
@@ -69,7 +69,7 @@ def read_grid_properties(file_path):
     print(f"Error: Missing key `{missing_key}` in the extracted properties from: {file_path}")
     return {}
 
-def reformat_flash_sfield(
+def _reformat_flash_sfield(
     sfield              : numpy.ndarray,
     num_blocks          : tuple[int, int, int],
     num_cells_per_block : tuple[int, int, int],
@@ -93,6 +93,46 @@ def reformat_flash_sfield(
   )
   ## convert from Fortran-style [z, y, x] to C-style [x, y, z] cell ordering
   return sfield_sorted.transpose((2, 1, 0))
+
+def read_flash_field(
+    file_path       : str,
+    dataset_name    : str,
+    grid_properties : dict | None = None,
+  ) -> numpy.ndarray:
+  if grid_properties is None:
+    grid_properties = read_grid_properties(file_path)
+    if not grid_properties: raise ValueError(f"Error: FLASH grid properties could not be read from: {file_path}")
+  num_blocks = (
+    grid_properties["num_blocks_x"],
+    grid_properties["num_blocks_y"],
+    grid_properties["num_blocks_z"],
+  )
+  num_cells_per_block = (
+    grid_properties["num_cells_per_block_x"],
+    grid_properties["num_cells_per_block_y"],
+    grid_properties["num_cells_per_block_z"],
+  )
+  matched_dataset_names = [
+    _dataset_name
+    for _dataset_name in grid_properties["dataset_names"]
+    if _dataset_name.startswith(dataset_name)
+  ]
+  if len(matched_dataset_names) == 0: raise KeyError(f"No datasets found starting with `{dataset_name}` in file {file_path}")
+  with h5py.File(file_path, "r") as h5file:
+    raw_fields = [
+      numpy.array(h5file[_dataset_name])
+      for _dataset_name in sorted(matched_dataset_names)
+    ]
+  reformatted_fields = [
+    _reformat_flash_sfield(sfield, num_blocks, num_cells_per_block)
+    for sfield in raw_fields
+  ]
+  if len(matched_dataset_names) == 1:
+    sfield = reformatted_fields[0]
+    return sfield
+  else:
+    vfield = numpy.stack(reformatted_fields, axis=0)
+    return vfield
 
 
 ## END OF MODULE

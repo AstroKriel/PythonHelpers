@@ -2,9 +2,9 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.utils import list_utils
-from jormungandr.ww_data import compute_stats
-from jormungandr.ww_plots import plot_manager
+from jormi.utils import list_utils
+from jormi.ww_data import compute_stats
+from jormi.ww_plots import plot_manager
 
 
 ## ###############################################################

@@ -5,7 +5,7 @@
 ## DEPENDANCIES
 ## ###############################################################
 import numpy
-from jormungandr.ww_data import smooth_data
+from jormi.ww_data import smooth_data
 
 
 ## ###############################################################

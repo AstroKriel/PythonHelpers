@@ -4,7 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from jormungandr.ww_io import file_manager, shell_manager
+from jormi.ww_io import file_manager, shell_manager
 
 
 ## ###############################################################

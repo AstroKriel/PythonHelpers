@@ -5,8 +5,8 @@ import sys
 import time
 import h5py
 import numpy
-from jormungandr.ww_io import flash_data, file_manager
-from jormungandr.ww_plots import plot_manager, add_annotations
+from jormi.ww_io import flash_data, file_manager
+from jormi.ww_plots import plot_manager, add_annotations
 
 
 ## ###############################################################
@@ -50,44 +50,44 @@ class TestFlashReformat:
       file_manager.does_file_exist(file_path=file_path, raise_error=True)
       self.file_path   = file_path
       self.num_repeats = num_repeats
-      self.grid_properties = flash_data.read_grid_properties(file_path)
-      self.num_blocks = (
-          self.grid_properties["num_blocks_x"],
-          self.grid_properties["num_blocks_y"],
-          self.grid_properties["num_blocks_z"],
-      )
-      self.num_cells_per_block = (
-          self.grid_properties["num_cells_per_block_x"],
-          self.grid_properties["num_cells_per_block_y"],
-          self.grid_properties["num_cells_per_block_z"],
-      )
-      self.sfield_raw = self._load_field_data()
-      self.fig, self.axs = plot_manager.create_figure(num_rows=3, num_cols=2, axis_shape=(5, 5))
+
+  def run(self):
+    fig, axs = plot_manager.create_figure(num_rows=3, num_cols=2, axis_shape=(5, 5))
+    self.grid_properties = flash_data.read_grid_properties(file_path)
+    self.num_blocks = (
+        self.grid_properties["num_blocks_x"],
+        self.grid_properties["num_blocks_y"],
+        self.grid_properties["num_blocks_z"],
+    )
+    self.num_cells_per_block = (
+        self.grid_properties["num_cells_per_block_x"],
+        self.grid_properties["num_cells_per_block_y"],
+        self.grid_properties["num_cells_per_block_z"],
+    )
+    self.sfield_raw = self._load_field_data()
+    print(f"Input has shape: {self.sfield_raw.shape}")
+    print(self.num_blocks)
+    print(self.num_cells_per_block)
+    print(f"Comparing execution times (after {self.num_repeats} repetitions)...")
+    self.sfield_reformated_v1, avg_time_v1 = self._benchmark_and_plot("reference", axs[:,0], reformat_flash_sfield)
+    self.sfield_reformated_v2, avg_time_v2 = self._benchmark_and_plot("production", axs[:,1], flash_data._read_grid_data._reformat_flash_sfield)
+    speedup_percent = avg_time_v1 / avg_time_v2
+    improvement_factor = 100 * (avg_time_v1 - avg_time_v2) / avg_time_v1
+    print(f"Production version is {improvement_factor:.2f}% faster ({speedup_percent:.2f}x speedup).")
+    print(f"Output has shape: {self.sfield_reformated_v2.shape}")
+    self._compare_outputs()
+    self._adjust_figure(axs)
+    plot_manager.save_figure(fig, "reformatted_flash_sfield_slices.png")
 
   def _load_field_data(self):
     with h5py.File(self.file_path, "r") as h5file:
       sfield_raw = numpy.array(h5file["dens"])
     return numpy.log10(sfield_raw)
 
-  def run(self):
-    print(f"Input has shape: {self.sfield_raw.shape}")
-    print(self.num_blocks)
-    print(self.num_cells_per_block)
-    print(f"Comparing execution times (after {self.num_repeats} repetitions)...")
-    self.sfield_reformated_v1, avg_time_v1 = self._benchmark_and_plot("reference", reformat_flash_sfield, col_index=0)
-    self.sfield_reformated_v2, avg_time_v2 = self._benchmark_and_plot("production", flash_data.reformat_flash_sfield, col_index=1)
-    speedup_percent = avg_time_v1 / avg_time_v2
-    improvement_factor = 100 * (avg_time_v1 - avg_time_v2) / avg_time_v1
-    print(f"Production version is {improvement_factor:.2f}% faster ({speedup_percent:.2f}x speedup).")
-    print(f"Output has shape: {self.sfield_reformated_v2.shape}")
-    self._compare_outputs()
-    self._adjust_figure()
-    plot_manager.save_figure(self.fig, "reformatted_hdf5_slices.png")
-
-  def _benchmark_and_plot(self, label, func, col_index):
+  def _benchmark_and_plot(self, label, axs, func):
     avg_time, std_time = self._get_average_execution_time(func)
     sfield_formatted = func(self.sfield_raw, self.num_blocks, self.num_cells_per_block)
-    self._plot_slices(label, col_index, sfield_formatted)
+    self._plot_slices(label, axs, sfield_formatted)
     print(f"average {label}.{func.__name__}() execution time: {avg_time:.6f} +/- {std_time:.6f} seconds")
     return sfield_formatted, avg_time
 
@@ -99,22 +99,19 @@ class TestFlashReformat:
       times.append(time.time() - start)
     return numpy.median(times), numpy.std(times)
 
-  def _plot_slices(self, label, col_index, sfield_formatted):
-    ax0 = self.axs[0, col_index]
-    ax1 = self.axs[1, col_index]
-    ax2 = self.axs[2, col_index]
+  def _plot_slices(self, label, axs, sfield_formatted):
     slice_index_x = sfield_formatted.shape[0]//2
     slice_index_y = sfield_formatted.shape[1]//2
     slice_index_z = sfield_formatted.shape[2]//2
-    ax0.imshow(sfield_formatted[slice_index_x, :, :], cmap="viridis")
-    ax1.imshow(sfield_formatted[:, slice_index_y, :], cmap="viridis")
-    ax2.imshow(sfield_formatted[:, :, slice_index_z], cmap="viridis")
-    add_annotations.add_text(ax=ax0, x_pos=0.05, y_pos=0.95, label="(x=L/2, y, z) slice")
-    add_annotations.add_text(ax=ax1, x_pos=0.05, y_pos=0.95, label="(x, y=L/2, z) slice")
-    add_annotations.add_text(ax=ax2, x_pos=0.05, y_pos=0.95, label="(x, y, z=L/2) slice")
-    add_annotations.add_text(ax=ax0, x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
-    add_annotations.add_text(ax=ax1, x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
-    add_annotations.add_text(ax=ax2, x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
+    axs[0].imshow(sfield_formatted[slice_index_x, :, :], cmap="viridis")
+    axs[1].imshow(sfield_formatted[:, slice_index_y, :], cmap="viridis")
+    axs[2].imshow(sfield_formatted[:, :, slice_index_z], cmap="viridis")
+    add_annotations.add_text(ax=axs[0], x_pos=0.05, y_pos=0.95, label="(x=L/2, y, z) slice")
+    add_annotations.add_text(ax=axs[1], x_pos=0.05, y_pos=0.95, label="(x, y=L/2, z) slice")
+    add_annotations.add_text(ax=axs[2], x_pos=0.05, y_pos=0.95, label="(x, y, z=L/2) slice")
+    add_annotations.add_text(ax=axs[0], x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
+    add_annotations.add_text(ax=axs[1], x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
+    add_annotations.add_text(ax=axs[2], x_pos=0.05, y_pos=0.05, label=label, y_alignment="bottom")
 
   def _compare_outputs(self):
     print("\nComparing outputs...")
@@ -122,8 +119,8 @@ class TestFlashReformat:
       print("Test passed: Both reformated fields are identical.")
     else: print("Error: Something went wrong. The two reformated fields look different!")
 
-  def _adjust_figure(self):
-    for row in self.axs:
+  def _adjust_figure(self, axs):
+    for row in axs:
       for ax in row:
         ax.set_xticklabels([])
         ax.set_yticklabels([])

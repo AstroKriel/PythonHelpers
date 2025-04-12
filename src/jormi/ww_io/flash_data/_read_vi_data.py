@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.utils import list_utils
-from jormungandr.ww_io import file_manager
+from jormi.utils import list_utils
+from jormi.ww_io import file_manager
 
 
 ## ###############################################################

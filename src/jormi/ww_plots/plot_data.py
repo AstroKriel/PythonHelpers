@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.ww_plots import add_color
+from jormi.ww_plots import add_color
 
 
 ## ###############################################################

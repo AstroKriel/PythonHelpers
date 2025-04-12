@@ -5,7 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import copy
-from jormungandr.utils import var_utils
+from jormi.utils import var_utils
 
 
 ## ###############################################################

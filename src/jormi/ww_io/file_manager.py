@@ -7,7 +7,7 @@
 import os
 import shutil
 import numpy
-from jormungandr.utils import list_utils
+from jormi.utils import list_utils
 
 
 ## ###############################################################

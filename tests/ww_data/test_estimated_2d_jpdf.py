@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.ww_data import compute_stats
-from jormungandr.ww_plots import plot_manager
+from jormi.ww_data import compute_stats
+from jormi.ww_plots import plot_manager
 
 
 ## ###############################################################

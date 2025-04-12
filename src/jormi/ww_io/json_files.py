@@ -8,8 +8,8 @@ import os
 import json
 import copy
 import numpy
-from jormungandr.ww_io import file_manager
-from jormungandr.utils import dict_utils
+from jormi.ww_io import file_manager
+from jormi.utils import dict_utils
 
 
 ## ###############################################################

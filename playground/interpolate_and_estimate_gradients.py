@@ -2,8 +2,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.ww_plots import plot_manager
-from jormungandr.ww_data import interpolate_data
+from jormi.ww_plots import plot_manager
+from jormi.ww_data import interpolate_data
 
 
 ## ###############################################################
@@ -58,4 +58,4 @@ if __name__ == "__main__":
   main()
 
 
-## END OF TEST
+## END OF SCRIPT

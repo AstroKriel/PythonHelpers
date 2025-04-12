@@ -5,8 +5,8 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
-from jormungandr.utils import func_utils
-from jormungandr.ww_fields import field_operators, decompose_fields
+from jormi.utils import func_utils
+from jormi.ww_fields import field_operators, decompose_fields
 
 
 ## ###############################################################

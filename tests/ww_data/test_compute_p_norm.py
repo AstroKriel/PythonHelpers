@@ -3,7 +3,7 @@
 ## ###############################################################
 import unittest
 import numpy
-from jormungandr.ww_data import compute_stats
+from jormi.ww_data import compute_stats
 
 
 ## ###############################################################
