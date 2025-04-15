@@ -3,6 +3,7 @@
 ## ###############################################################
 import unittest
 import numpy
+from pathlib import Path
 from jormi.utils import list_utils
 
 
@@ -37,39 +38,39 @@ class TestListUtils(unittest.TestCase):
 
   def test_get_intersect_of_lists(self):
     ## intersection of two lists
-    list_output = list_utils.get_intersect_of_lists([1, 2, 3], [2, 3, 4])
-    list_expected = [2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_intersect_of_lists([1, 2, 3], [2, 3, 4])
+    expected = [2, 3]
+    self.assertEqual(output, expected)
     ## no intersection
-    list_output = list_utils.get_intersect_of_lists([1, 2, 3], [4, 5, 6])
-    list_expected = []
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_intersect_of_lists([1, 2, 3], [4, 5, 6])
+    expected = []
+    self.assertEqual(output, expected)
     ## identical lists
-    list_output = list_utils.get_intersect_of_lists([1, 2, 3], [1, 2, 3])
-    list_expected = [1, 2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_intersect_of_lists([1, 2, 3], [1, 2, 3])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
     ## one list is empty
-    list_output = list_utils.get_intersect_of_lists([], [1, 2, 3])
-    list_expected = []
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_intersect_of_lists([], [1, 2, 3])
+    expected = []
+    self.assertEqual(output, expected)
 
   def test_get_union_of_lists(self):
     ## union of two lists
-    list_output = list_utils.get_union_of_lists([1, 2, 3], [2, 3, 4])
-    list_expected = [1, 2, 3, 4]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_union_of_lists([1, 2, 3], [2, 3, 4])
+    expected = [1, 2, 3, 4]
+    self.assertEqual(output, expected)
     ## no common elements, just merge both lists
-    list_output = list_utils.get_union_of_lists([1, 2, 3], [4, 5, 6])
-    list_expected = [1, 2, 3, 4, 5, 6]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_union_of_lists([1, 2, 3], [4, 5, 6])
+    expected = [1, 2, 3, 4, 5, 6]
+    self.assertEqual(output, expected)
     ## identical lists, should return one set of values
-    list_output = list_utils.get_union_of_lists([1, 2, 3], [1, 2, 3])
-    list_expected = [1, 2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_union_of_lists([1, 2, 3], [1, 2, 3])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
     ## one list is empty
-    list_output = list_utils.get_union_of_lists([], [1, 2, 3])
-    list_expected = [1, 2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.get_union_of_lists([], [1, 2, 3])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
 
   def test_get_index_of_closest_value(self):
     ## typical case 1: target value exists in the list
@@ -94,21 +95,41 @@ class TestListUtils(unittest.TestCase):
 
   def test_flatten_list(self):
     ## flatten a list of lists
-    list_output = list_utils.flatten_list([[1, 2], [3, 4], [5, 6]])
-    list_expected = [1, 2, 3, 4, 5, 6]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.flatten_list([
+      [1, 2], [3, 4, 5], [6]
+    ])
+    expected = [1, 2, 3, 4, 5, 6]
+    self.assertEqual(output, expected)
+    ## flatten a list of lists with mixed types
+    output = list_utils.flatten_list([
+      [1, "two"], [3, "four", 5], [[6, 7, 8]]
+    ])
+    expected = [1, "two", 3, "four", 5, 6, 7, 8]
+    self.assertEqual(output, expected)
     ## flatten an empty list of lists
-    list_output = list_utils.flatten_list([[], []])
-    list_expected = []
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.flatten_list([
+      [1, 2, [3]], []
+    ])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
     ## single list inside list, should return that list
-    list_output = list_utils.flatten_list([[1, 2, 3]])
-    list_expected = [1, 2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.flatten_list([
+      [1, 2, 3]
+    ])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
     ## already a flat list, should return the same list
-    list_output = list_utils.flatten_list([1, 2, 3])
-    list_expected = [1, 2, 3]
-    self.assertEqual(list_output, list_expected)
+    output = list_utils.flatten_list([
+      1, 2, 3
+    ])
+    expected = [1, 2, 3]
+    self.assertEqual(output, expected)
+    ## list of numpy-arrays
+    output = list_utils.flatten_list([
+      numpy.array([1, 2, 3]), numpy.array([4, 5, 6, 7]), numpy.array([8, 9])
+    ])
+    expected = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    self.assertEqual(output, expected)
 
 
 ## ###############################################################

@@ -67,14 +67,15 @@ def get_index_of_closest_value(
   if target == -numpy.inf: return int(numpy.nanargmin(array_vals))
   return int(numpy.nanargmin(numpy.abs(array_vals - target)))
 
-def flatten_list(elems: list) -> list:
+def flatten_list(elems : list) -> list:
   """Flatten a nested list into a single list."""
-  var_utils.assert_type(elems, list)
-  if all(
-    not isinstance(elem, list)
-    for elem in elems
-  ): return elems
-  return list(numpy.concatenate(elems).flat)
+  var_utils.assert_type(elems, (list, numpy.ndarray))
+  flat_elems = []
+  for elem in elems:
+    if isinstance(elem, (list, numpy.ndarray)):
+      flat_elems.extend(list(flatten_list(elem)))
+    else: flat_elems.append(elem)
+  return flat_elems
 
 
 ## END OF MODULE

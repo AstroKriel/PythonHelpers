@@ -4,39 +4,23 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import os
-import shutil
 import numpy
-from jormi.utils import list_utils
+import shutil
+from pathlib import Path
+from jormi.utils import list_utils, var_utils
+from jormi.ww_io import directory_manager
 
 
 ## ###############################################################
-## INTERACTING WITH FILES AND FOLDERS
+## UTILITY FUNCTIONS
 ## ###############################################################
-def create_file_path(file_path_elems : list[str]) -> str:
-  return os.path.normpath(
-    os.path.join(
-      *list_utils.flatten_list(file_path_elems)
-    )
-  )
+def create_file_path(file_path_parts : list[str] | list[Path]) -> Path:
+  return Path(*list_utils.flatten_list(file_path_parts)).absolute()
 
-def does_directory_exist(directory : str) -> bool:
-  return os.path.isdir(directory)
-
-def init_directory(
-    directory : str,
-    verbose   : bool = True
-  ) -> None:
-  if not does_directory_exist(directory):
-    os.makedirs(directory)
-    if verbose: print("Successfully initialised directory:", directory)
-  elif verbose: print("No need to initialise diectory (already exists):", directory)
-
-def does_file_exist(
-    file_path   : str | None = None,
-    directory   : str | None = None,
-    file_name   : str | None = None,
-    raise_error : bool = False,
+def resolve_file_path(
+    file_path : str | Path | None = None,
+    directory : str | Path | None = None,
+    file_name : str | None = None,
   ):
   if file_path is None:
     missing = []
@@ -48,77 +32,85 @@ def does_file_exist(
         f"You are missing: {list_utils.cast_to_string(missing)}."
         "Alternatively, provide `file_path` directly."
       )
-    file_path = create_file_path([directory, file_name])
-  file_path_exists = os.path.isfile(file_path)
+    file_path = create_file_path([ directory, file_name ])
+  else: file_path = Path(file_path).absolute()
+  return file_path
+
+def does_file_exist(
+    file_path   : str | Path | None = None,
+    directory   : str | Path | None = None,
+    file_name   : str | None = None,
+    raise_error : bool = False,
+  ) -> bool:
+  file_path = resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
+  file_path_exists = file_path.is_file()
   if not(file_path_exists) and raise_error:
-    raise Exception(f"Error: File does not exist: {file_path}")
-  else: return file_path_exists
+    raise FileNotFoundError(f"Error: File does not exist: {file_path}")
+  return file_path_exists
 
 def copy_file(
-    directory_from : str,
-    directory_to   : str,
+    directory_from : str | Path,
+    directory_to   : str | Path,
     file_name      : str,
     overwrite      : bool = False,
     verbose        : bool = True,
   ) -> None:
+  directory_manager.does_directory_exist(directory=directory_from, raise_error=True)
+  if not directory_manager.does_directory_exist(directory=directory_to):
+    directory_manager.init_directory(directory=directory_to, verbose=verbose)
   file_path_from = create_file_path([ directory_from, file_name ])
   file_path_to   = create_file_path([ directory_to, file_name ])
-  if not does_directory_exist(directory_from):
-    raise NotADirectoryError(f"Error: Source directory does not exist: {directory_from}")
-  if not does_directory_exist(directory_to):
-    init_directory(directory_to, verbose)
   does_file_exist(file_path=file_path_from, raise_error=True)
   if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
     raise FileExistsError(f"Error: File already exists: {file_path_to}")
-  ## copy the file and it`s permissions
   shutil.copy(file_path_from, file_path_to)
   shutil.copymode(file_path_from, file_path_to)
   if verbose:
-    print(f"Coppied:")
+    print(f"Copied:")
     print(f"\t> File: {file_name}")
     print(f"\t> From: {directory_from}")
     print(f"\t> To:   {directory_to}")
 
 
 ## ###############################################################
-## FILTERING FILES IN DIRECTORY
+## FILTER FILES IN A DIRECTORY
 ## ###############################################################
-def _create_filter_for_files(
+def _create_filter(
     include_string, exclude_string,
     prefix, suffix,
     delimiter, num_parts,
     index_of_value, min_value, max_value,
   ):
   def _does_file_meet_criteria(file_name):
-    list_filename_parts = file_name.split(delimiter)
+    file_name_parts = file_name.split(delimiter)
     ## make sure that basic conditions are met first
-    if not all([
-        (include_string is None) or (include_string in file_name),
-        (exclude_string is None) or not(exclude_string in file_name),
-        (prefix         is None) or file_name.startswith(prefix),
-        (suffix         is None) or file_name.endswith(suffix),
-        (num_parts      is None) or (len(list_filename_parts) == num_parts),
-      ]): return False
+    if include_string and (include_string not in file_name): return False
+    if exclude_string and (exclude_string in file_name): return False
+    if prefix and not file_name.startswith(prefix): return False
+    if suffix and not file_name.endswith(suffix): return False
+    if (num_parts is not None) and (len(file_name_parts) != num_parts): return False
+    ## if a part of the file name should be a value, then check that the value falls within the specified value range
     if index_of_value is not None:
-      ## check that the value falls within the specified range
-      if len(list_filename_parts) > abs(index_of_value):
-        value = int(list_filename_parts[index_of_value])
-        return (min_value <= value) and (value <= max_value)
+      if len(file_name_parts) < abs(index_of_value): return False
+      try:
+        value = int(file_name_parts[index_of_value])
+      except ValueError: return False
+      if not (min_value <= value <= max_value): return False
     return True
   return _does_file_meet_criteria
 
-def filter_files_in_directory(
-    directory      : str,
-    include_string : str = None,
-    exclude_string : str = None,
-    prefix         : str = None,
-    suffix         : str = None,
+def filter_files(
+    directory      : str | Path,
+    include_string : str | None = None,
+    exclude_string : str | None = None,
+    prefix         : str | None = None,
+    suffix         : str | None = None,
     delimiter      : str = "_",
-    num_parts      : int = None,
-    index_of_value : int = None,
+    num_parts      : int | None = None,
+    index_of_value : int | None = None,
     min_value      : int = 0,
     max_value      : int = numpy.inf,
-  ):
+  ) -> list[str]:
   """
     Filter file names in a `directory` based on various conditions:
     - `include_string` : File names must contain this string.
@@ -126,12 +118,17 @@ def filter_files_in_directory(
     - `prefix`         : File names should start with this string.
     - `suffix`         : File names should end with this string.
     - `delimiter`      : The delimiter used to split the file name (default: "_").
-    - `num_parts`      : Only include files that, when split by `delimiter`, have this number of parts.
+    - `num_parts`      : Only include files that, when split by `delimiter`, have exactly this number of parts.
     - `index_of_value` : The part-index to check for value range conditions.
     - `min_value`      : The minimum valid value (inclusive) stored at `index_of_value`.
     - `max_value`      : The maximum valid value (inclusive) stored at `index_of_value`.
   """
-  file_filter = _create_filter_for_files(
+  directory = Path(directory).absolute()
+  directory_manager.does_directory_exist(directory, raise_error=True)
+  var_utils.assert_type(min_value, (int, float), "min_value")
+  var_utils.assert_type(max_value, (int, float), "max_value")
+  if min_value > max_value: raise ValueError(f"Error: `min_value` = {min_value} must be less than `max_value` = {max_value}.")
+  file_filter = _create_filter(
     include_string = include_string,
     exclude_string = exclude_string,
     prefix         = prefix,
@@ -142,7 +139,11 @@ def filter_files_in_directory(
     min_value      = min_value,
     max_value      = max_value,
   )
-  file_names = os.listdir(directory)
+  file_names = [
+    item.name
+    for item in directory.iterdir()
+    if item.is_file()
+  ]
   return list(filter(file_filter, file_names))
 
 

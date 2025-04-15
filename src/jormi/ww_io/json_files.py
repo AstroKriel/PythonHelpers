@@ -4,10 +4,10 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import os
 import json
 import copy
 import numpy
+from pathlib import Path
 from jormi.ww_io import file_manager
 from jormi.utils import dict_utils
 
@@ -15,17 +15,22 @@ from jormi.utils import dict_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+def ensure_json_extension(path: Path):
+  if path.suffix != ".json": raise ValueError(f"Expected .json file, got {path}")
+
 def read_json_file_into_dict(
-    directory : str,
-    file_name : str,
+    file_path : str | Path | None = None,
+    directory : str | Path | None = None,
+    file_name : str | None = None,
     verbose   : bool = True,
   ):
-  file_path = file_manager.create_file_path([directory, file_name])
-  if os.path.isfile(file_path):
+  file_path = file_manager.resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
+  ensure_json_extension(file_path)
+  if file_manager.does_file_exist(file_path=file_path):
     if verbose: print("Reading in json-file:", file_path)
-    with open(file_path, "r") as fp:
-      return copy.deepcopy(json.load(fp))
-  else: raise Exception(f"Error: No json-file found: {file_path}")
+    with open(file_path, "r") as file_pointer:
+      return copy.deepcopy(json.load(file_pointer))
+  else: raise FileNotFoundError(f"Error: No json-file found: {file_path}")
 
 class NumpyEncoder(json.JSONEncoder):
   def default(self, obj):
@@ -36,45 +41,45 @@ class NumpyEncoder(json.JSONEncoder):
     return super().default(obj)
 
 def save_dict_to_json_file(
-    file_path  : str,
+    file_path  : str | Path,
     input_dict : dict,
     verbose    : bool = True,
   ):
-  if os.path.isfile(file_path): add_dict_to_json_file(file_path, input_dict, verbose)
-  else: create_json_file_from_dict(file_path, input_dict, verbose)
+  if file_manager.does_file_exist(file_path):
+    _add_dict_to_json_file(file_path, input_dict, verbose)
+  else: _create_json_file_from_dict(file_path, input_dict, verbose)
 
-def create_json_file_from_dict(
-    file_path  : str,
+def _dump_dict_to_json(
+    file_path  : str | Path,
     input_dict : dict,
-    verbose    : bool = True,
   ):
-  file_path = file_path.replace("//", "/")
-  with open(file_path, "w") as fp:
+  file_path = Path(file_path).resolve()
+  ensure_json_extension(file_path)
+  with open(file_path, "w") as file_pointer:
     json.dump(
       obj       = input_dict,
-      fp        = fp,
-      cls       = NumpyEncoder,
-      sort_keys = True,
-      indent    = 2
-    )
-  if verbose: print("Saved json-file:", file_path)
-
-def add_dict_to_json_file(
-    file_path  : str,
-    input_dict : dict,
-    verbose    : bool = True,
-  ):
-  with open(file_path, "r") as fp_r:
-    dict_old = json.load(fp_r)
-  dict_utils.merge_dicts(dict_old, input_dict)
-  with open(file_path, "w+") as fp_w:
-    json.dump(
-      obj       = dict_old,
-      fp        = fp_w,
+      fp        = file_pointer,
       cls       = NumpyEncoder,
       sort_keys = True,
       indent    = 2,
     )
+
+def _create_json_file_from_dict(
+    file_path  : str | Path,
+    input_dict : dict,
+    verbose    : bool = True,
+  ):
+  _dump_dict_to_json(file_path, input_dict)
+  if verbose: print("Saved json-file:", file_path)
+
+def _add_dict_to_json_file(
+    file_path  : str | Path,
+    input_dict : dict,
+    verbose    : bool = True,
+  ):
+  dict_old = read_json_file_into_dict(file_path=file_path, verbose=False)
+  dict_utils.merge_dicts(dict_old, input_dict)
+  _dump_dict_to_json(file_path, dict_old)
   if verbose: print("Updated json-file:", file_path)
 
 
