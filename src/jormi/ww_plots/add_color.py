@@ -12,13 +12,13 @@ import matplotlib.colors as mpl_colors
 ## FUNCTIONS
 ## ###############################################################
 def create_norm(
-      vmin : float = 0.0,
-      vmid : float = None,
-      vmax : float = 1.0,
-    ):
-    if vmid is not None:
-      return mpl_colors.TwoSlopeNorm(vmin=vmin, vcenter=vmid, vmax=vmax)
-    else: return mpl_colors.Normalize(vmin=vmin, vmax=vmax)
+    vmin : float = 0.0,
+    vmid : float = None,
+    vmax : float = 1.0,
+  ):
+  if vmid is not None:
+    return mpl_colors.TwoSlopeNorm(vmin=vmin, vcenter=vmid, vmax=vmax)
+  else: return mpl_colors.Normalize(vmin=vmin, vmax=vmax)
 
 def create_cmap(
     cmap_name: str,

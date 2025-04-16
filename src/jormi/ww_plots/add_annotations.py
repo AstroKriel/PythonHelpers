@@ -28,8 +28,8 @@ def add_text(
   ):
   valid_x_alignments = [ "left", "center", "right" ]
   valid_y_alignments = [ "top", "center", "bottom" ]
-  if x_alignment not in valid_x_alignments: raise ValueError(f"Error: `x_alignment` = `{x_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_x_alignments)}")
-  if y_alignment not in valid_y_alignments: raise ValueError(f"Error: `y_alignment` = `{y_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_y_alignments)}")
+  if x_alignment not in valid_x_alignments: raise ValueError(f"`x_alignment` = `{x_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_x_alignments)}")
+  if y_alignment not in valid_y_alignments: raise ValueError(f"`y_alignment` = `{y_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_y_alignments)}")
   box_params = None
   if add_box: box_params = dict(facecolor=face_color, edgecolor=edge_color, boxstyle="round,pad=0.3", alpha=box_alpha)
   ax.text(
@@ -49,8 +49,8 @@ def add_inset_axis(
   ):
   valid_x_sides = [ "top", "bottom" ]
   valid_y_sides = [ "left", "right" ]
-  if x_label_side not in valid_x_sides: raise ValueError(f"Error: `x_label_side` = `{x_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
-  if y_label_side not in valid_y_sides: raise ValueError(f"Error: `y_label_side` = `{y_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}")
+  if x_label_side not in valid_x_sides: raise ValueError(f"`x_label_side` = `{x_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
+  if y_label_side not in valid_y_sides: raise ValueError(f"`y_label_side` = `{y_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}")
   ax_inset = ax.inset_axes(bounds)
   ax_inset.set_xlabel(x_label, fontsize=fontsize)
   ax_inset.set_ylabel(y_label, fontsize=fontsize)
@@ -97,7 +97,7 @@ def add_custom_legend(
     if artist in valid_markers: artist_to_draw = mpl_line2d([0], [0], marker=artist, color=color, linewidth=0, markeredgecolor="black", markersize=marker_size)
     elif artist in valid_lines: artist_to_draw = mpl_line2d([0], [0], linestyle=artist, color=color, linewidth=line_width)
     else: raise ValueError(
-      f"Error: artist = `{artist}` is not a recognized marker or line style.\n"
+      f"Artist = `{artist}` is not a recognized marker or line style.\n"
       f"\t> Valid markers: {list_utils.cast_to_string(valid_markers)}.\n"
       f"\t> Valid line styles: {list_utils.cast_to_string(valid_lines)}."
     )

@@ -30,9 +30,9 @@ def define_2d_gaussian_kernel(
     size  : int,
     sigma : float
   ) -> numpy.ndarray:
-  x = numpy.linspace(-(size // 2), size // 2, size)
-  y = numpy.linspace(-(size // 2), size // 2, size)
-  grid_x, grid_y = numpy.meshgrid(x, y)
+  x_values = numpy.linspace(-(size // 2), size // 2, size)
+  y_values = numpy.linspace(-(size // 2), size // 2, size)
+  grid_x, grid_y = numpy.meshgrid(x_values, y_values)
   smoothing_kernel = numpy.exp(-(grid_x**2 + grid_y**2) / (2 * sigma**2))
   smoothing_kernel /= numpy.sum(smoothing_kernel)
   return smoothing_kernel

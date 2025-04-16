@@ -20,30 +20,30 @@ def compute_helmholtz_decomposition(
   if vfield_q.shape[0] != 3: raise ValueError("Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)")
   if len(domain_size)  != 3: raise ValueError("Input domain size must have shape: (length_x, length_y, length_z)")
   num_cells_x, num_cells_y, num_cells_z = vfield_q.shape[1:]
-  array_kx = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
-  array_ky = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
-  array_kz = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_z) * num_cells_z / domain_size[2]
-  grid_kx, grid_ky, grid_kz = numpy.meshgrid(array_kx, array_ky, array_kz, indexing="ij")
+  kx_values = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_x) * num_cells_x / domain_size[0]
+  ky_values = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_y) * num_cells_y / domain_size[1]
+  kz_values = 2 * numpy.pi * numpy.fft.fftfreq(num_cells_z) * num_cells_z / domain_size[2]
+  grid_kx, grid_ky, grid_kz = numpy.meshgrid(kx_values, ky_values, kz_values, indexing="ij")
   grid_k_magn = grid_kx**2 + grid_ky**2 + grid_kz**2
   ## avoid division by zero
-  ## note, numpy.fft.fftn assumes the zero frequency is at index 0
+  ## note, numpy.fft.fftn will assume the zero frequency is at index 0
   grid_k_magn[0, 0, 0] = 1
-  sfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
-  ## vec{k} cdot vec{F}(vec{k})
-  sfield_k_dot_fft_q = grid_kx * sfield_fft_q[0] + grid_ky * sfield_fft_q[1] + grid_kz * sfield_fft_q[2]
-  ## divergence (curl-free) component: (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
-  sfield_fft_div = numpy.stack([
+  vfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
+  ## \vec{k} cdot \vec{F}(\vec{k})
+  sfield_k_dot_fft_q = grid_kx * vfield_fft_q[0] + grid_ky * vfield_fft_q[1] + grid_kz * vfield_fft_q[2]
+  ## divergence (curl-free) component: (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
+  vfield_fft_div = numpy.stack([
     (grid_kx / grid_k_magn) * sfield_k_dot_fft_q,
     (grid_ky / grid_k_magn) * sfield_k_dot_fft_q,
     (grid_kz / grid_k_magn) * sfield_k_dot_fft_q
   ])
-  ## solenoidal (divergence-free) component: vec{F}(vec{k}) - (vec{k} / k^2) (vec{k} cdot vec{F}(vec{k}))
-  sfield_fft_sol = sfield_fft_q - sfield_fft_div
+  ## solenoidal (divergence-free) component: \vec{F}(\vec{k}) - (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
+  vfield_fft_sol = vfield_fft_q - vfield_fft_div
   ## transform back to real space
-  vfield_div = numpy.fft.ifftn(sfield_fft_div, axes=(1,2,3), norm="forward").real
-  vfield_sol = numpy.fft.ifftn(sfield_fft_sol, axes=(1,2,3), norm="forward").real
-  del array_kx, array_ky, array_kz, grid_kx, grid_ky, grid_kz, grid_k_magn
-  del sfield_fft_q, sfield_k_dot_fft_q, sfield_fft_div, sfield_fft_sol
+  vfield_div = numpy.fft.ifftn(vfield_fft_div, axes=(1,2,3), norm="forward").real
+  vfield_sol = numpy.fft.ifftn(vfield_fft_sol, axes=(1,2,3), norm="forward").real
+  del kx_values, ky_values, kz_values, grid_kx, grid_ky, grid_kz, grid_k_magn
+  del vfield_fft_q, sfield_k_dot_fft_q, vfield_fft_div, vfield_fft_sol
   return vfield_div, vfield_sol
 
 @func_utils.time_function

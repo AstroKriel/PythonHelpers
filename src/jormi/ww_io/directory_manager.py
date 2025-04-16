@@ -16,14 +16,13 @@ def does_directory_exist(
   ) -> bool:
   directory = Path(directory).absolute()
   result = directory.is_dir()
-  if not(result) and raise_error:
-    raise NotADirectoryError(f"Error: Directory does not exist: {directory}")
+  if not(result) and raise_error: raise NotADirectoryError(f"Directory does not exist: {directory}")
   return result
 
 def init_directory(
     directory : str,
     verbose   : bool = True
-  ) -> None:
+  ):
   directory = Path(directory).absolute()
   if not does_directory_exist(directory):
     directory.mkdir(parents=True)

@@ -12,7 +12,6 @@ from jormi.ww_data import finite_difference
 ## FUNCTIONS
 ## ###############################################################
 def compute_sfield_rms(sfield_q : numpy.ndarray) -> numpy.ndarray:
-  sfield_q = numpy.array(sfield_q)
   return numpy.sqrt(numpy.mean(numpy.square(sfield_q)))
 
 def compute_vfield_cross_product(
@@ -32,8 +31,7 @@ def compute_vfield_dot_product(
   return numpy.einsum("ixyz,ixyz->xyz", vfield_q1, vfield_q2)
 
 def compute_vfield_magnitude(vfield_q : numpy.ndarray) -> numpy.ndarray:
-  vfield_q = numpy.array(vfield_q)
-  return numpy.sqrt(numpy.sum(vfield_q*vfield_q, axis=0))
+  return numpy.sqrt(numpy.sum(numpy.multiply(vfield_q, vfield_q), axis=0))
 
 def get_grad_func(grad_order: int):
   implemented_grad_funcs = {

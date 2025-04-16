@@ -31,13 +31,13 @@ def is_job_already_in_queue(
     file_name : str,
   ) -> bool:
   """Checks if a job name is already in the queue."""
-  file_path = file_manager.create_file_path([directory, file_name])
+  file_path = file_manager.combine_file_path_parts([directory, file_name])
   if not file_manager.does_file_exist(file_path=file_path):
     print(f"`{file_name}` job file does not exist in: {directory}")
     return False
   job_tagname = get_job_name_from_pbs_script(file_path)
   if not job_tagname:
-    print(f"Error: `#PBS -N` not found in job file: {file_name}")
+    print(f"`#PBS -N` not found in job file: {file_name}")
     return False
   job_tagnames = get_list_of_queued_jobs()
   if not job_tagnames: return False
@@ -45,8 +45,8 @@ def is_job_already_in_queue(
 
 def get_job_name_from_pbs_script(file_path : str) -> str | None:
   """Gets the job name from a PBS job script."""
-  with open(file_path, "r") as fp:
-    for line in fp:
+  with open(file_path, "r") as file_pointer:
+    for line in file_pointer:
       if "#PBS -N" in line:
         return line.strip().split(" ")[-1] if line.strip() else None
   return None
@@ -62,8 +62,8 @@ def get_list_of_queued_jobs() -> list[str] | None:
         if line.strip() # ignore empty or whitespace-only lines
     ]
     return job_names if job_names else []
-  except RuntimeError as e:
-    print(f"Error retrieving job names from the queue: {e}")
+  except RuntimeError as error:
+    print(f"Error retrieving job names from the queue: {error}")
     return None
 
 

@@ -9,14 +9,14 @@ import functools
 
 try:
   from mpi4py import MPI
-  IS_MPI_AVAILABLE = True
-  MPI_WORLD = MPI.COMM_WORLD
-  MPI_RANK  = MPI_WORLD.Get_rank()
+  MPI_AVAILABLE = True
+  MPI_WORLD     = MPI.COMM_WORLD
+  MPI_RANK      = MPI_WORLD.Get_rank()
   MPI_NUM_PROCS = MPI_WORLD.Get_size()
 except ImportError:
-  IS_MPI_AVAILABLE = False
-  MPI_WORLD = None
-  MPI_RANK  = 0
+  MPI_AVAILABLE = False
+  MPI_WORLD     = None
+  MPI_RANK      = 0
   MPI_NUM_PROCS = 1
 
 
@@ -47,7 +47,7 @@ def _compute_3d_power_spectrum(
     numpy.square(numpy.abs(fft_field)),
     axis = tuple(range(len(field.shape) - 3))
   )
-  if use_mpi and IS_MPI_AVAILABLE:
+  if use_mpi and MPI_AVAILABLE:
     spectrum_global = numpy.empty_like(spectrum)
     MPI_WORLD.Allreduce(spectrum, spectrum_global, op=MPI.SUM)
     ## avoid redundant operations by only having the root process return the final global result
@@ -69,7 +69,7 @@ def _compute_spherical_integration(
     weights   = spectrum_3d.ravel(),
     minlength = num_k_modes + 1
   )[1:-1]
-  if use_mpi and IS_MPI_AVAILABLE:
+  if use_mpi and MPI_AVAILABLE:
     spectrum_global = numpy.empty_like(spectrum)
     MPI_WORLD.Allreduce(spectrum, spectrum_global, op=MPI.SUM)
     ## avoid redundant operations by only having the root process return the final global result

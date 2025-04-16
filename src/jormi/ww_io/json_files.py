@@ -30,7 +30,7 @@ def read_json_file_into_dict(
     if verbose: print("Reading in json-file:", file_path)
     with open(file_path, "r") as file_pointer:
       return copy.deepcopy(json.load(file_pointer))
-  else: raise FileNotFoundError(f"Error: No json-file found: {file_path}")
+  else: raise FileNotFoundError(f"No json-file found: {file_path}")
 
 class NumpyEncoder(json.JSONEncoder):
   def default(self, obj):

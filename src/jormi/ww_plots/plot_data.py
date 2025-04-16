@@ -21,7 +21,7 @@ def plot_sfield_slice(
     cbar_label   : str = None,
     cbar_side    : str = "right",
   ):
-  if field_slice.ndim != 2: raise ValueError("Error: `field_slice` must be a 2D array.")
+  if field_slice.ndim != 2: raise ValueError("`field_slice` must be a 2D array.")
   vmin = 0.9 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
   vmax = 1.1 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
   cmap, norm = add_color.create_cmap(
@@ -49,7 +49,7 @@ def plot_sfield_slice(
 
 def _generate_grid(field_shape, axis_bounds):
   if not (isinstance(axis_bounds, tuple) and len(axis_bounds) == 4 and all(isinstance(value, (int, float)) for value in axis_bounds)):
-    raise ValueError("Error: `axis_bounds` must be a tuple of four floats.")
+    raise ValueError("`axis_bounds` must be a tuple of four floats.")
   coords_row = numpy.linspace(axis_bounds[0], axis_bounds[1], field_shape[0])
   coords_col = numpy.linspace(axis_bounds[2], axis_bounds[3], field_shape[1])
   grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
@@ -65,7 +65,7 @@ def plot_vfield_slice_quiver(
     field_color      : str = "white",
   ):
   if field_slice_rows.shape != field_slice_cols.shape:
-    raise ValueError("Error: `field_slice_rows` and `field_slice_cols` must have the same shape.")
+    raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
   grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
   quiver_step_rows = max(1, field_slice_rows.shape[0] // num_quivers)
   quiver_step_cols = max(1, field_slice_cols.shape[1] // num_quivers)
@@ -94,12 +94,12 @@ def plot_vfield_slice_streamplot(
     field_color          : str = "white",
   ):
   if field_slice_rows.shape != field_slice_cols.shape:
-    raise ValueError("Error: `field_slice_rows` and `field_slice_cols` must have the same shape.")
+    raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
   grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
   if streamline_width is None:
     if streamline_weights is None: streamline_width = 1
     elif streamline_weights.shape != field_slice_cols.shape:
-      raise ValueError("Error: `streamline_weights` must have the same shape as field slices.")
+      raise ValueError("`streamline_weights` must have the same shape as field slices.")
     else: streamline_width = streamline_scale * (1 + streamline_weights / numpy.max(streamline_weights))
   ax.streamplot(
     grid_x,

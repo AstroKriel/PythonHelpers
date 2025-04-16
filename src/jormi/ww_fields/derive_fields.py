@@ -36,9 +36,8 @@ def compute_lorentz_force_terms(
     box_width  : float = 1.0,
     grad_order : int = 2,
   ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
-  vfield_b = numpy.array(vfield_b)
   vbasis_tangent, vbasis_normal, _, sfield_kappa = decompose_fields.compute_tnb_terms(vfield_b, box_width, grad_order)
-  sfield_sq_magn_b           = field_operators.compute_vfield_magnitude(vfield_b)**2
+  sfield_sq_magn_b           = numpy.square(field_operators.compute_vfield_magnitude(vfield_b))
   vfield_tot_grad_pressure   = 0.5 * field_operators.compute_sfield_gradient(sfield_sq_magn_b, box_width, grad_order)
   vfield_align_grad_pressure = numpy.einsum("ixyz,jxyz,jxyz->ixyz", vbasis_tangent, vbasis_tangent, vfield_tot_grad_pressure)
   vfield_tension_force       = sfield_sq_magn_b * sfield_kappa * vbasis_normal

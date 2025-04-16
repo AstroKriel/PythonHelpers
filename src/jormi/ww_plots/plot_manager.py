@@ -17,8 +17,8 @@ def create_figure(
     num_cols   : int   = 1,
     fig_scale  : float = 1.0,
     axis_shape : tuple = (4, 6),
-    wspace     : float = 0.05,
-    hspace     : float = 0.05,
+    x_spacing  : float = 0.05,
+    y_spacing  : float = 0.05,
     share_x    : bool = False,
     share_y    : bool = False,
   ) -> tuple[mpl_plot.Figure, numpy.ndarray]:
@@ -32,7 +32,7 @@ def create_figure(
     sharex  = share_x,
     sharey  = share_y,
   )
-  fig.subplots_adjust(wspace=wspace, hspace=hspace)
+  fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
   if (num_rows > 1) or (num_cols > 1): axs = numpy.squeeze(axs)
   return fig, axs
 

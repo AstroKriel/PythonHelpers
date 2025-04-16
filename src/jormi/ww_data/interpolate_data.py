@@ -22,18 +22,18 @@ def interpolate_1d(
   x_values = numpy.asarray(x_values, dtype=numpy.float64)
   y_values = numpy.asarray(y_values, dtype=numpy.float64)
   x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
-  if x_values.ndim != 1: raise ValueError("Error: `x_values` must be a 1D array.")
-  if x_interp.ndim != 1: raise ValueError("Error: `x_interp` must be a 1D array.")
-  if len(x_values) < 2: raise ValueError("Error: Provided data should contain at least two points.")
-  if len(x_values) != len(y_values): raise ValueError("Error: `x_values` and `y_values` must have the same length.")
-  if not numpy.all(numpy.diff(x_values) > 0): raise ValueError("Error: `x_values` must be monotonically increasing.")
+  if x_values.ndim != 1: raise ValueError("`x_values` should be a 1D array.")
+  if x_interp.ndim != 1: raise ValueError("`x_interp` should be a 1D array.")
+  if len(x_values) < 2: raise ValueError("Provided data should contain at least two points.")
+  if len(x_values) != len(y_values): raise ValueError("`x_values` and `y_values` should have the same length.")
+  if not numpy.all(numpy.diff(x_values) > 0): raise ValueError("`x_values` should be monotonically increasing.")
   valid_kinds = [ "linear", "quadratic", "cubic" ]
   if kind not in valid_kinds: raise ValueError(f"Invalid interpolation `kind`: {kind}. Valid options include: {list_utils.cast_to_string(valid_kinds)}")
   x_min_data = x_values[0]
   x_max_data = x_values[-1]
-  in_bounds_mask = (x_interp >= x_min_data) & (x_interp <= x_max_data)
+  in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_data)
   num_out_of_bounds = numpy.sum(~in_bounds_mask)
-  if num_out_of_bounds > 0: warnings.warn(f"Warning: Removing {num_out_of_bounds} points (from `x_interp` that are) outside the interpolated domain.")
+  if num_out_of_bounds > 0: warnings.warn(f"Removing {num_out_of_bounds} `x_interp` points that are outside the interpolated domain.")
   interpolator = scipy_interp1d(
     x_values,
     y_values,

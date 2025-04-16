@@ -16,13 +16,12 @@ def read_grid_properties(file_path):
   file_manager.does_file_exist(file_path=file_path, raise_error=True)
   def _extract_properties(_h5file, dataset_name):
     return {
-      str(key).split("'")[1].strip(): value
+      str(key).split("'")[1].strip() : value
       for key, value in _h5file[dataset_name]
     }
   ## check that the file is the right type and has the right structure before proceeding
   properties = {}
   try:
-    ## read datasets
     with h5py.File(file_path, "r") as h5file:
       properties["plasma_datasets"] = [
         dataset_name
@@ -35,12 +34,12 @@ def read_grid_properties(file_path):
       properties["int_scalars"]    = _extract_properties(h5file, "integer scalars")
       properties["int_properties"] = _extract_properties(h5file, "integer runtime parameters")
   except KeyError as exception:
-    print(f"Error: The group {exception} was not found in: {file_path}.")
+    print(f"The group {exception} was not found in: {file_path}.")
     return {}
   except Exception as exception:
     print(f"An unexpected error occurred: {exception}")
     return {}
-  if len(properties["plasma_datasets"]) == 0: print(f"Warning: No plasma datasets found in: {file_path}")
+  if len(properties["plasma_datasets"]) == 0: print(f"No plasma datasets found in: {file_path}")
   try:
     output_num    = properties["int_scalars"]["plotfilenumber"]
     dataset_names = properties["plasma_datasets"]
@@ -66,7 +65,7 @@ def read_grid_properties(file_path):
       "num_cells"             : num_cells,
     }
   except KeyError as missing_key:
-    print(f"Error: Missing key `{missing_key}` in the extracted properties from: {file_path}")
+    print(f"Missing key `{missing_key}` in the extracted properties from: {file_path}")
     return {}
 
 def _reformat_flash_sfield(
@@ -101,7 +100,7 @@ def read_flash_field(
   ) -> numpy.ndarray:
   if grid_properties is None:
     grid_properties = read_grid_properties(file_path)
-    if not grid_properties: raise ValueError(f"Error: FLASH grid properties could not be read from: {file_path}")
+    if not grid_properties: raise ValueError(f"FLASH grid properties could not be read from: {file_path}")
   num_blocks = (
     grid_properties["num_blocks_x"],
     grid_properties["num_blocks_y"],

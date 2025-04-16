@@ -14,7 +14,7 @@ from jormi.ww_io import directory_manager
 ## ###############################################################
 ## UTILITY FUNCTIONS
 ## ###############################################################
-def create_file_path(file_path_parts : list[str] | list[Path]) -> Path:
+def combine_file_path_parts(file_path_parts : list[str] | list[Path]) -> Path:
   return Path(*list_utils.flatten_list(file_path_parts)).absolute()
 
 def resolve_file_path(
@@ -28,11 +28,11 @@ def resolve_file_path(
     if (file_name is None): missing.append("file_name")
     if missing:
       raise ValueError(
-        "Error: You have not provided enough information about the file and where it is."
-        f"You are missing: {list_utils.cast_to_string(missing)}."
+        "You have not provided enough information about the file and where it is. "
+        f"You are missing: {list_utils.cast_to_string(missing)}. "
         "Alternatively, provide `file_path` directly."
       )
-    file_path = create_file_path([ directory, file_name ])
+    file_path = combine_file_path_parts([ directory, file_name ])
   else: file_path = Path(file_path).absolute()
   return file_path
 
@@ -45,7 +45,7 @@ def does_file_exist(
   file_path = resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
   file_path_exists = file_path.is_file()
   if not(file_path_exists) and raise_error:
-    raise FileNotFoundError(f"Error: File does not exist: {file_path}")
+    raise FileNotFoundError(f"File does not exist: {file_path}")
   return file_path_exists
 
 def copy_file(
@@ -54,15 +54,15 @@ def copy_file(
     file_name      : str,
     overwrite      : bool = False,
     verbose        : bool = True,
-  ) -> None:
+  ):
   directory_manager.does_directory_exist(directory=directory_from, raise_error=True)
   if not directory_manager.does_directory_exist(directory=directory_to):
     directory_manager.init_directory(directory=directory_to, verbose=verbose)
-  file_path_from = create_file_path([ directory_from, file_name ])
-  file_path_to   = create_file_path([ directory_to, file_name ])
+  file_path_from = combine_file_path_parts([ directory_from, file_name ])
+  file_path_to   = combine_file_path_parts([ directory_to, file_name ])
   does_file_exist(file_path=file_path_from, raise_error=True)
   if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
-    raise FileExistsError(f"Error: File already exists: {file_path_to}")
+    raise FileExistsError(f"File already exists: {file_path_to}")
   shutil.copy(file_path_from, file_path_to)
   shutil.copymode(file_path_from, file_path_to)
   if verbose:
@@ -127,7 +127,7 @@ def filter_files(
   directory_manager.does_directory_exist(directory, raise_error=True)
   var_utils.assert_type(min_value, (int, float), "min_value")
   var_utils.assert_type(max_value, (int, float), "max_value")
-  if min_value > max_value: raise ValueError(f"Error: `min_value` = {min_value} must be less than `max_value` = {max_value}.")
+  if min_value > max_value: raise ValueError(f"`min_value` = {min_value} must be less than `max_value` = {max_value}.")
   file_filter = _create_filter(
     include_string = include_string,
     exclude_string = exclude_string,
