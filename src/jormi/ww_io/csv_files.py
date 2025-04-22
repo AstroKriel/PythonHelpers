@@ -1,5 +1,6 @@
 ## START OF MODULE
 
+
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
@@ -11,84 +12,100 @@ from jormi.ww_io import file_manager
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def ensure_csv_extension(path: Path):
-  if path.suffix != ".csv": raise ValueError(f"Expected .csv file, got {path}")
+def ensure_path_is_valid(file_path: Path):
+  file_path = Path(file_path).absolute()
+  if file_path.suffix != ".csv": raise ValueError(f"File should end with a .csv extension: {file_path}")
+  return file_path
 
 def read_csv_file_into_dict(
-    file_path: str | Path,
-    verbose: bool = True,
+    file_path : str | Path,
+    verbose   : bool = True,
   ) -> dict:
-  file_path = Path(file_path).resolve()
-  ensure_csv_extension(file_path)
+  file_path = ensure_path_is_valid(file_path)
   if not file_manager.does_file_exist(file_path):
     raise FileNotFoundError(f"No csv-file found: {file_path}")
-  if verbose: print(f"Reading in csv-file: {file_path}")
-  data = {}
-  with open(file_path, 'r', newline='') as f:
-    reader = csv.DictReader(f)
+  if verbose: print(f"Reading csv-file: {file_path}")
+  dataset = {}
+  with open(file_path, "r", newline="") as file_pointer:
+    reader = csv.DictReader(file_pointer)
     for key in reader.fieldnames:
-      data[key] = []
+      dataset[key] = []
     for row in reader:
       for key, value in row.items():
-        data[key].append(float(value))
-  return data
-
+        dataset[key].append(float(value))
+  return dataset
 
 def save_dict_to_csv_file(
-    file_path: str | Path,
-    input_dict: dict,
-    overwrite: bool = False,
-    verbose: bool = True,
+    file_path  : str | Path,
+    input_dict : dict,
+    overwrite  : bool = False,
+    verbose    : bool = True,
   ):
-  file_path = Path(file_path).resolve()
-  ensure_csv_extension(file_path)
-  lengths = [len(v) for v in input_dict.values()]
-  if len(set(lengths)) != 1:
-    raise ValueError("All columns in input_dict must be of equal length.")
+  file_path = ensure_path_is_valid(file_path)
   if file_manager.does_file_exist(file_path):
     if overwrite:
       _write_csv(file_path, input_dict)
-      if verbose: print(f"Overwritten csv-file: {file_path}")
+      if verbose: print(f"Overwrote csv-file: {file_path}")
     else:
-      _merge_columns_into_csv(file_path, input_dict)
-      if verbose: print(f"Merged columns into existing csv-file: {file_path}")
+      _update_csv(file_path, input_dict)
+      if verbose: print(f"Extended csv-file: {file_path}")
   else:
     _write_csv(file_path, input_dict)
-    if verbose: print(f"Saved new csv-file: {file_path}")
+    if verbose: print(f"Saved csv-file: {file_path}")
 
 def _write_csv(
-    file_path: Path,
-    input_dict: dict
+    file_path  : Path,
+    input_dict : dict
   ):
-  with open(file_path, 'w', newline='') as f:
-    writer = csv.writer(f)
+  dataset_shape = [
+    len(column)
+    for column in input_dict.values()
+  ]
+  if len(set(dataset_shape)) != 1:
+    raise ValueError(f"All dataset columns should be the same length. Provided `input_dict` shape: {dataset_shape}")
+  with open(file_path, "w", newline="") as file_pointer:
+    writer = csv.writer(file_pointer)
     writer.writerow(input_dict.keys())
     writer.writerows(zip(*input_dict.values()))
 
-def _merge_columns_into_csv(
-    file_path: Path,
-    input_dict: dict,
+def _update_csv(
+    file_path  : Path,
+    input_dict : dict,
   ):
-  # Read existing data
-  existing_data = read_csv_file_into_dict(file_path, verbose=False)
-  # Validate shared keys match
-  for key in existing_data:
-    if key in input_dict:
-      if existing_data[key] != input_dict[key]:
-        raise ValueError(f"Mismatch in values for shared key: '{key}'")
-  ## Check new keys are same length
-  existing_len = len(next(iter(existing_data.values())))
+  existing_dataset = read_csv_file_into_dict(file_path, verbose=False)
+  existing_column_length = len(next(iter(existing_dataset.values()))) # assumes each column has the same length
+  ## for columns that already exist, check that the amount they grow by are the same
+  growth_of_existing_columns = None
   for key in input_dict:
-    if key not in existing_data:
-      if len(input_dict[key]) != existing_len:
+    if key in existing_dataset:
+      input_column_length = len(input_dict[key])
+      if growth_of_existing_columns is None:
+        growth_of_existing_columns = input_column_length
+      elif input_column_length != growth_of_existing_columns:
+        raise ValueError(f"Inconsistent append lengths for existing keys: expected {growth_of_existing_columns}, got {input_column_length} for '{key}'")
+  if growth_of_existing_columns is None: growth_of_existing_columns = 0 # no existing columns are being extended
+  expected_final_column_length = existing_column_length + growth_of_existing_columns
+  ## check that new columns have the right length
+  for key in input_dict:
+    if key not in existing_dataset:
+      input_column_length = len(input_dict[key])
+      if input_column_length != expected_final_column_length:
         raise ValueError(
-          f"Length mismatch in new column '{key}': expected {existing_len}, got {len(input_dict[key])}"
+          f"New column '{key}' must have length {expected_final_column_length} (existing rows + growth), but got {input_column_length}"
         )
-  ## merge new keys
+  ## apply updates
   for key in input_dict:
-    if key not in existing_data:
-      existing_data[key] = input_dict[key]
-  _write_csv(file_path, existing_data)
+    if key in existing_dataset:
+      existing_dataset[key].extend(input_dict[key])
+    else: existing_dataset[key] = input_dict[key]
+  ## final sanity check before saving
+  final_dataset_shape = [
+    len(column)
+    for column in existing_dataset.values()
+  ]
+  if len(set(final_dataset_shape)) != 1: raise ValueError(f"Final dataset has inconsistent column lengths: {final_dataset_shape}")
+  _write_csv(file_path, existing_dataset)
+
 
 
 ## END OF MODULE
