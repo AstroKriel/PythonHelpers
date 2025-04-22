@@ -12,16 +12,23 @@ from jormi.ww_io import file_manager
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def ensure_path_is_valid(file_path: Path):
+def _ensure_path_is_valid(file_path: Path):
   file_path = Path(file_path).absolute()
   if file_path.suffix != ".csv": raise ValueError(f"File should end with a .csv extension: {file_path}")
   return file_path
+
+def _validate_input_dict(input_dict: dict):
+  if not isinstance(input_dict, dict):
+    raise TypeError("Expected a dictionary for `input_dict`.")
+  for key in input_dict:
+    if not isinstance(key, str):
+      raise TypeError(f"All keys in `input_dict` must be strings. Found key of type {type(key).__name__}: {key}")
 
 def read_csv_file_into_dict(
     file_path : str | Path,
     verbose   : bool = True,
   ) -> dict:
-  file_path = ensure_path_is_valid(file_path)
+  file_path = _ensure_path_is_valid(file_path)
   if not file_manager.does_file_exist(file_path):
     raise FileNotFoundError(f"No csv-file found: {file_path}")
   if verbose: print(f"Reading csv-file: {file_path}")
@@ -41,7 +48,8 @@ def save_dict_to_csv_file(
     overwrite  : bool = False,
     verbose    : bool = True,
   ):
-  file_path = ensure_path_is_valid(file_path)
+  file_path = _ensure_path_is_valid(file_path)
+  _validate_input_dict(input_dict)
   if file_manager.does_file_exist(file_path):
     if overwrite:
       _write_csv(file_path, input_dict)
@@ -105,7 +113,6 @@ def _update_csv(
   ]
   if len(set(final_dataset_shape)) != 1: raise ValueError(f"Final dataset has inconsistent column lengths: {final_dataset_shape}")
   _write_csv(file_path, existing_dataset)
-
 
 
 ## END OF MODULE
