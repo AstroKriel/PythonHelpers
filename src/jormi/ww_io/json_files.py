@@ -15,17 +15,16 @@ from jormi.utils import dict_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-def ensure_json_extension(path: Path):
-  if path.suffix != ".json": raise ValueError(f"Expected .json file, got {path}")
+def _ensure_path_is_valid(file_path: Path):
+  file_path = Path(file_path).absolute()
+  if file_path.suffix != ".json": raise ValueError(f"File should end with a .json extension: {file_path}")
+  return file_path
 
 def read_json_file_into_dict(
-    file_path : str | Path | None = None,
-    directory : str | Path | None = None,
-    file_name : str | None = None,
+    file_path : str | Path,
     verbose   : bool = True,
   ):
-  file_path = file_manager.resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
-  ensure_json_extension(file_path)
+  file_path = _ensure_path_is_valid(file_path)
   if file_manager.does_file_exist(file_path=file_path):
     if verbose: print("Reading in json-file:", file_path)
     with open(file_path, "r") as file_pointer:
@@ -43,9 +42,10 @@ class NumpyEncoder(json.JSONEncoder):
 def save_dict_to_json_file(
     file_path  : str | Path,
     input_dict : dict,
+    overwrite  : bool = False,
     verbose    : bool = True,
   ):
-  if file_manager.does_file_exist(file_path):
+  if file_manager.does_file_exist(file_path) and not overwrite:
     _add_dict_to_json_file(file_path, input_dict, verbose)
   else: _create_json_file_from_dict(file_path, input_dict, verbose)
 
@@ -53,8 +53,7 @@ def _dump_dict_to_json(
     file_path  : str | Path,
     input_dict : dict,
   ):
-  file_path = Path(file_path).resolve()
-  ensure_json_extension(file_path)
+  file_path = _ensure_path_is_valid(file_path)
   with open(file_path, "w") as file_pointer:
     json.dump(
       obj       = input_dict,
@@ -77,9 +76,9 @@ def _add_dict_to_json_file(
     input_dict : dict,
     verbose    : bool = True,
   ):
-  dict_old = read_json_file_into_dict(file_path=file_path, verbose=False)
-  dict_utils.merge_dicts(dict_old, input_dict)
-  _dump_dict_to_json(file_path, dict_old)
+  old_dict = read_json_file_into_dict(file_path=file_path, verbose=False)
+  merged_dict = dict_utils.merge_dicts(old_dict, input_dict)
+  _dump_dict_to_json(file_path, merged_dict)
   if verbose: print("Updated json-file:", file_path)
 
 
