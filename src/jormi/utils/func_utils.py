@@ -31,7 +31,7 @@ def warn_if_result_is_unused(func):
     calling_frame = inspect.currentframe().f_back # type: ignore
     call_line = inspect.getsource(calling_frame).split("\n")[calling_frame.f_lineno - calling_frame.f_code.co_firstlineno] # type: ignore
     if ("=" not in call_line) and ("return" not in call_line) and (result is not None):
-      warnings.warn(f"Return value of {func.__name__} is not being used", UserWarning, stacklevel=2)
+      warnings.warn(f"Return value of {func.__name__}() is not being used", UserWarning, stacklevel=2)
     return result
   return wrapper
 
