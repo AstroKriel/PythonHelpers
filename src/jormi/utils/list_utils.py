@@ -12,7 +12,7 @@ from jormi.utils import var_utils
 ## FUNCTIONS
 ## ###############################################################
 def cast_to_string(
-    elems            : list,
+    elems            : list | numpy.ndarray,
     conjunction      : str = "or",
     wrap_in_quotes   : bool = True,
     use_oxford_comma : bool = True,
@@ -30,48 +30,48 @@ def cast_to_string(
   return ", ".join(elems)
 
 def get_intersect_of_lists(
-    list_a: list,
-    list_b: list,
+    list_a: list | numpy.ndarray,
+    list_b: list | numpy.ndarray,
     sort_values: bool = False,
   ) -> list:
   """Find the intersection of two lists (optionally sorted)."""
-  var_utils.assert_type(list_a, list)
-  var_utils.assert_type(list_b, list)
+  var_utils.assert_type(list_a, (list, numpy.ndarray))
+  var_utils.assert_type(list_b, (list, numpy.ndarray))
   if (len(list_a) == 0) or (len(list_b) == 0): return []
   set_intersect = set(list_a) & set(list_b)
   return sorted(set_intersect) if sort_values else list(set_intersect)
 
 def get_union_of_lists(
-    list_a: list,
-    list_b: list,
+    list_a: list | numpy.ndarray,
+    list_b: list | numpy.ndarray,
     sort_values: bool = False,
   ) -> list:
   """Find the union of two lists (optionally sorted)."""
-  var_utils.assert_type(list_a, list)
-  var_utils.assert_type(list_b, list)
-  if (len(list_a) == 0) or (len(list_b) == 0): return list_a + list_b
+  var_utils.assert_type(list_a, (list, numpy.ndarray))
+  var_utils.assert_type(list_b, (list, numpy.ndarray))
+  if (len(list_a) == 0) or (len(list_b) == 0): return list(list_a) + list(list_b)
   set_union = set(list_a) | set(list_b)
   return sorted(set_union) if sort_values else list(set_union)
 
 def get_index_of_closest_value(
-    values: list,
+    values: list | numpy.ndarray,
     target: float,
   ) -> int:
   """Find the index of the closest value to a `target` value."""
-  var_utils.assert_type(values, list)
+  var_utils.assert_type(values, (list, numpy.ndarray))
   var_utils.assert_type(target, (int, float))
   if len(values) == 0: raise ValueError("Input list cannot be empty")
-  array_vals = numpy.asarray(values)
+  array = numpy.asarray(values)
   if target is None: return None
-  if target ==  numpy.inf: return int(numpy.nanargmax(array_vals))
-  if target == -numpy.inf: return int(numpy.nanargmin(array_vals))
-  return int(numpy.nanargmin(numpy.abs(array_vals - target)))
+  if target ==  numpy.inf: return int(numpy.nanargmax(array))
+  if target == -numpy.inf: return int(numpy.nanargmin(array))
+  return int(numpy.nanargmin(numpy.abs(array - target)))
 
-def flatten_list(elems : list) -> list:
+def flatten_list(elems : list | numpy.ndarray) -> list:
   """Flatten a nested list into a single list."""
   var_utils.assert_type(elems, (list, numpy.ndarray))
   flat_elems = []
-  for elem in elems:
+  for elem in list(elems):
     if isinstance(elem, (list, numpy.ndarray)):
       flat_elems.extend(list(flatten_list(elem)))
     else: flat_elems.append(elem)
