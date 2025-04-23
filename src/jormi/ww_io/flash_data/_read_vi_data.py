@@ -19,8 +19,8 @@ def read_vi_data(
   dataset_name  : str | None = None,
   dataset_index : int | None = None,
   time_norm     : float = 1.0,
-  time_start    : float = 0.0,
-  time_end      : float | None = None,
+  start_time    : float = 0.0,
+  end_time      : float | None = None,
   raise_error   : bool = False,
   print_header  : bool = False,
 ) -> tuple[list[float], list[float]]:
@@ -46,9 +46,9 @@ def read_vi_data(
     raise_error   = raise_error
   )
   if len(times) == 0: return [], []
-  time_end  = time_end if (time_end is not None) else times[-1]
-  start_idx = list_utils.get_index_of_closest_value(times, time_start)
-  end_idx   = list_utils.get_index_of_closest_value(times, time_end)
+  end_time  = end_time if (end_time is not None) else times[-1]
+  start_idx = list_utils.get_index_of_closest_value(times, start_time)
+  end_idx   = list_utils.get_index_of_closest_value(times, end_time)
   if start_idx == end_idx: end_idx = numpy.min(end_idx+1, len(times))
   return numpy.array(times[start_idx:end_idx]), numpy.array(values[start_idx:end_idx])
 
@@ -106,9 +106,9 @@ def _extract_data(
     except ValueError: continue
     if time_val < prev_time:
       if data_val == 0.0 and time_val > 0:
-        msg = f"field[{dataset_index}] = 0.0 at time = {time_val:.3f}"
-        if raise_error: raise ValueError(f"Error: {msg}")
-        print(f"Warning: {msg}")
+        message = f"field[{dataset_index}] = 0.0 at time = {time_val:.3f}"
+        if raise_error: raise ValueError(f"Error: {message}")
+        print(f"Warning: {message}")
         continue
       times.append(time_val)
       values.append(data_val)

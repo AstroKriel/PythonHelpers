@@ -14,12 +14,12 @@ import warnings
 ## ###############################################################
 def time_function(func):
   def wrapper(*args, **kwargs):
-    time_start = time.time()
+    start_time = time.time()
     try:
       result = func(*args, **kwargs)
     except Exception as error:
       raise RuntimeError(f"Error occurred in {func.__name__}() while measuring the elapsed time.") from error
-    elapsed_time = time.time() - time_start
+    elapsed_time = time.time() - start_time
     print(f"{func.__name__}() took {elapsed_time:.3f} seconds to execute.")
     return result
   return wrapper
