@@ -5,12 +5,42 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
+import matplotlib.axes as mpl_axes
+from matplotlib.collections import LineCollection
 from jormi.ww_plots import add_color
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+def plot_wo_scaling_axis(
+    ax      : mpl_axes.Axes,
+    x_data  : list[float] | numpy.ndarray,
+    y_data  : list[float] | numpy.ndarray,
+    color   : str = "black",
+    ls      : str = ":",
+    lw      : float = 1,
+    label   : str | None = None,
+    alpha   : float = 1.0,
+    zorder  : float = 1
+  ):
+  x_data = numpy.asarray(x_data)
+  y_data = numpy.asarray(y_data)
+  if x_data.ndim != 1: raise ValueError(f"`x_data` must be 1D. Got shape {x_data.shape}.")
+  if y_data.ndim != 1: raise ValueError(f"`y_data` must be 1D. Got shape {y_data.shape}.")
+  if x_data.shape != y_data.shape:
+    raise ValueError(f"`x_data` and `y_data` must have the same shape. {x_data.shape} != {y_data.shape}.")
+  collection = LineCollection(
+    [ numpy.column_stack((x_data, y_data)) ],
+    colors     = color,
+    linestyles = ls,
+    linewidths = lw,
+    alpha      = alpha,
+    zorder     = zorder,
+    label      = label
+  )
+  ax.add_collection(collection, autolim=False)
+
 def plot_sfield_slice(
     ax,
     field_slice  : numpy.ndarray,
