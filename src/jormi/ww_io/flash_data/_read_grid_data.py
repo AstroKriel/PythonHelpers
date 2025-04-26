@@ -6,14 +6,14 @@
 ## ###############################################################
 import h5py
 import numpy
-from jormi.ww_io import file_manager
+from jormi.ww_io import io_manager
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
 def read_grid_properties(file_path):
-  file_manager.does_file_exist(file_path=file_path, raise_error=True)
+  io_manager.does_file_exist(file_path=file_path, raise_error=True)
   def _extract_properties(_h5file, dataset_name):
     return {
       str(key).split("'")[1].strip() : value

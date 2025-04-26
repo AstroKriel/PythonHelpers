@@ -6,6 +6,7 @@
 ## ###############################################################
 import numpy
 import matplotlib.pyplot as mpl_plot
+from pathlib import Path
 from jormi.ww_plots.plot_styler import *
 
 
@@ -36,7 +37,14 @@ def create_figure(
   if (num_rows > 1) or (num_cols > 1): axs = numpy.squeeze(axs)
   return fig, axs
 
-def save_figure(fig, file_path, draft=False, verbose=True):
+def save_figure(
+    fig,
+    file_path : str | Path,
+    draft     : bool = False,
+    verbose   : bool = True
+  ):
+  if not (str(file_path).endswith(".png") or str(file_path).endswith(".pdf")):
+    raise ValueError("figures should either use a `.png` or `.pdf` file extension.")
   try:
     dpi = 100 if draft else 200
     fig.savefig(file_path, dpi=dpi)

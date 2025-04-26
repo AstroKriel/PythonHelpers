@@ -6,7 +6,7 @@
 ## ###############################################################
 import csv
 from pathlib import Path
-from jormi.ww_io import file_manager
+from jormi.ww_io import io_manager
 
 
 ## ###############################################################
@@ -29,7 +29,7 @@ def read_csv_file_into_dict(
     verbose   : bool = True,
   ) -> dict:
   file_path = _ensure_path_is_valid(file_path)
-  if not file_manager.does_file_exist(file_path):
+  if not io_manager.does_file_exist(file_path):
     raise FileNotFoundError(f"No csv-file found: {file_path}")
   if verbose: print(f"Reading csv-file: {file_path}")
   dataset = {}
@@ -50,7 +50,7 @@ def save_dict_to_csv_file(
   ):
   file_path = _ensure_path_is_valid(file_path)
   _validate_input_dict(input_dict)
-  if file_manager.does_file_exist(file_path):
+  if io_manager.does_file_exist(file_path):
     if overwrite:
       _write_csv(file_path, input_dict)
       if verbose: print(f"Overwrote csv-file: {file_path}")

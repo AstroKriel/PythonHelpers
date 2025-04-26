@@ -7,7 +7,7 @@
 import numpy
 from pathlib import Path
 from jormi.utils import list_utils
-from jormi.ww_io import file_manager
+from jormi.ww_io import io_manager
 
 
 ## ###############################################################
@@ -24,8 +24,8 @@ def read_vi_data(
   raise_error   : bool = False,
   print_header  : bool = False,
 ) -> tuple[list[float], list[float]]:
-  file_path = file_manager.combine_file_path_parts([ directory, file_name ])
-  file_manager.does_file_exist(file_path=file_path, raise_error=True)
+  file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+  io_manager.does_file_exist(file_path=file_path, raise_error=True)
   file_lines   = _read_file_lines(file_path)
   header_names = file_lines[0].split()
   num_datasets = len(header_names)

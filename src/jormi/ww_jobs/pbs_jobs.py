@@ -4,7 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-from jormi.ww_io import file_manager, shell_manager
+from jormi.ww_io import io_manager, shell_manager
 
 
 ## ###############################################################
@@ -31,8 +31,8 @@ def is_job_already_in_queue(
     file_name : str,
   ) -> bool:
   """Checks if a job name is already in the queue."""
-  file_path = file_manager.combine_file_path_parts([directory, file_name])
-  if not file_manager.does_file_exist(file_path=file_path):
+  file_path = io_manager.combine_file_path_parts([directory, file_name])
+  if not io_manager.does_file_exist(file_path=file_path):
     print(f"`{file_name}` job file does not exist in: {directory}")
     return False
   job_tagname = get_job_name_from_pbs_script(file_path)

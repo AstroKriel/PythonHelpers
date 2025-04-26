@@ -8,7 +8,7 @@ import json
 import copy
 import numpy
 from pathlib import Path
-from jormi.ww_io import file_manager
+from jormi.ww_io import io_manager
 from jormi.utils import dict_utils
 
 
@@ -25,7 +25,7 @@ def read_json_file_into_dict(
     verbose   : bool = True,
   ):
   file_path = _ensure_path_is_valid(file_path)
-  if file_manager.does_file_exist(file_path=file_path):
+  if io_manager.does_file_exist(file_path=file_path):
     if verbose: print("Reading in json-file:", file_path)
     with open(file_path, "r") as file_pointer:
       return copy.deepcopy(json.load(file_pointer))
@@ -45,7 +45,7 @@ def save_dict_to_json_file(
     overwrite  : bool = False,
     verbose    : bool = True,
   ):
-  if file_manager.does_file_exist(file_path) and not overwrite:
+  if io_manager.does_file_exist(file_path) and not overwrite:
     _add_dict_to_json_file(file_path, input_dict, verbose)
   else: _create_json_file_from_dict(file_path, input_dict, verbose)
 

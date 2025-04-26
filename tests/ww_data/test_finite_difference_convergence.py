@@ -4,6 +4,7 @@
 import sys
 import numpy
 from jormi.utils import list_utils
+from jormi.ww_io import io_manager
 from jormi.ww_data import compute_stats, finite_difference
 from jormi.ww_plots import plot_manager
 
@@ -46,11 +47,14 @@ class TestFiniteDifferenceConvergence:
     ]
 
   def run(self):
-    fig, self.axs = plot_manager.create_figure(num_rows=2, num_cols=2, fig_scale=1.35)
+    fig, self.axs = plot_manager.create_figure(num_rows=2, num_cols=2, fig_scale=1.35, x_spacing=0.35)
     self._plot_exact_soln()
     failed_methods = self._test_method_scaling()
     self._annotate_figure()
-    plot_manager.save_figure(fig, "finite_difference_convergence.png", bool_draft=False)
+    directory = io_manager.get_caller_directory()
+    file_name = "finite_difference_convergence.png"
+    file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+    plot_manager.save_figure(fig, file_path)
     assert len(failed_methods) == 0, f"Convergence test failed for the following method(s): {list_utils.cast_to_string(failed_methods)}"
     print("Test passed successfully!")
 

@@ -5,7 +5,7 @@ import sys
 import time
 import h5py
 import numpy
-from jormi.ww_io import flash_data, file_manager
+from jormi.ww_io import flash_data, io_manager
 from jormi.ww_plots import plot_manager, add_annotations
 
 
@@ -47,7 +47,7 @@ def reformat_flash_sfield(
 ## ###############################################################
 class TestFlashReformat:
   def __init__(self, file_path, num_repeats=10):
-      file_manager.does_file_exist(file_path=file_path, raise_error=True)
+      io_manager.does_file_exist(file_path=file_path, raise_error=True)
       self.file_path   = file_path
       self.num_repeats = num_repeats
 
@@ -77,7 +77,10 @@ class TestFlashReformat:
     print(f"Output has shape: {self.sfield_reformated_v2.shape}")
     self._compare_outputs()
     self._adjust_figure(axs)
-    plot_manager.save_figure(fig, "reformatted_flash_sfield_slices.png")
+    script_directory = io_manager.get_caller_directory()
+    fig_file_name = "reformatted_flash_sfield_slices.png"
+    fig_file_path = io_manager.combine_file_path_parts([ script_directory, fig_file_name ])
+    plot_manager.save_figure(fig, fig_file_path)
 
   def _load_field_data(self):
     with h5py.File(self.file_path, "r") as h5file:

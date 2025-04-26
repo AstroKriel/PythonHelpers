@@ -2,6 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import numpy
+from jormi.ww_io import io_manager
 from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
 
@@ -65,7 +66,10 @@ def main():
   ax.axvline(x=0, color="black", ls="--", zorder=1)
   ax.set_xlim([ numpy.min(bin_centers_cols), numpy.max(bin_centers_cols) ])
   ax.set_ylim([ numpy.min(bin_centers_rows), numpy.max(bin_centers_rows) ])
-  plot_manager.save_figure(fig, "estimated_2d_jpdf.png")
+  directory = io_manager.get_caller_directory()
+  file_name = "estimated_2d_jpdf.png"
+  file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+  plot_manager.save_figure(fig, file_path)
   assert abs(pdf_integral - 1.0) < integral_tolerance, f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
   print("Test passed successfully!")
 

@@ -3,6 +3,7 @@
 ## ###############################################################
 import numpy
 from jormi.utils import list_utils
+from jormi.ww_io import io_manager
 from jormi.ww_plots import plot_manager
 from jormi.ww_fields import field_operators, decompose_fields
 
@@ -152,7 +153,10 @@ def main():
       failed_vfields.append(vfield_name)
     else: print("Test passed successfully!")
     print(" ")
-  plot_manager.save_figure(fig, "helmholtz_decomposition.png")
+  directory = io_manager.get_caller_directory()
+  file_name = "helmholtz_decomposition.png"
+  file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+  plot_manager.save_figure(fig, file_path)
   assert len(failed_vfields) == 0, f"Test failed for the following vector field(s): {list_utils.cast_to_string(failed_vfields)}"
   print("All tests passed successfully!")
 

@@ -3,6 +3,7 @@
 ## ###############################################################
 import numpy
 from jormi.utils import list_utils
+from jormi.ww_io import io_manager
 from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
 
@@ -40,7 +41,10 @@ def main():
     ax.set_ylabel(r"PDF$(x)$")
   axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
   axs[-1].set_xlabel(r"$x$")
-  plot_manager.save_figure(fig, "estimated_1d_pdfs.png")
+  directory = io_manager.get_caller_directory()
+  file_name = "estimated_1d_pdfs.png"
+  file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+  plot_manager.save_figure(fig, file_path)
   assert len(pdfs_that_failed) == 0, f"Test failed for the following methods: {list_utils.cast_to_string(pdfs_that_failed)}"
   print("All tests passed successfully!")
 

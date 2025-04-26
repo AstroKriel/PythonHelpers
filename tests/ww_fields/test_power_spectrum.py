@@ -1,7 +1,7 @@
 import sys
 import time
 import numpy
-from jormi.ww_io import flash_data, file_manager
+from jormi.ww_io import flash_data, io_manager
 from jormi.ww_plots import plot_manager
 from jormi.ww_fields import compute_spectra
 
@@ -21,7 +21,7 @@ def time_function(func, *args, repeats=3, label="Function"):
 def main():
   directory = "/scratch/ek9/nk7952/Re1500/Mach0.8/Pm1/288/plt/"
   file_name = "Turb_hdf5_plt_cnt_0069"
-  file_path = file_manager.create_file_path([ directory, file_name ])
+  file_path = io_manager.create_file_path([ directory, file_name ])
   field = flash_data.read_flash_field(file_path=file_path, dataset_name="mag")
   if len(field.shape) > 3: _field = field
   else: _field = numpy.array([field])
@@ -52,7 +52,10 @@ def main():
   )
   ax.set_xscale("log")
   ax.set_yscale("log")
-  plot_manager.save_figure(fig, "demo_power_spectrum.png")
+  directory = io_manager.get_caller_directory()
+  file_name = "demo_power_spectrum.png"
+  file_path = io_manager.combine_file_path_parts([ directory, file_name ])
+  plot_manager.save_figure(fig, file_path)
 
 if __name__ == "__main__":
   main()
