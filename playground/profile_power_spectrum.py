@@ -1,7 +1,6 @@
 import sys
 import numpy
 
-from jormi.ww_io import flash_data
 from jormi.ww_fields import compute_spectra
 
 import time
@@ -75,9 +74,7 @@ def profile(func, field, repeats=3):
   profile_function(func, field)
 
 def main():
-  file_path = "/scratch/jh2/nk7952/Re1500/Mach0.1/Pm1/144/plt/Turb_hdf5_plt_cnt_0069"
-  # file_path = "/scratch/ek9/nk7952/Re1500/Mach0.8/Pm1/288/plt/Turb_hdf5_plt_cnt_0069"
-  field = flash_data.read_flash_field(file_path=file_path, dataset_name="mag")
+  ## todo: generate field
   profile(compute_spectra.compute_1d_power_spectrum, field, repeats=3)
 
 if __name__ == "__main__":
