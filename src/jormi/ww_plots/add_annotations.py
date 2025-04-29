@@ -98,8 +98,8 @@ def add_custom_legend(
     elif artist in valid_lines: artist_to_draw = mpl_line2d([0], [0], linestyle=artist, color=color, linewidth=line_width)
     else: raise ValueError(
       f"Artist = `{artist}` is not a recognized marker or line style.\n"
-      f"\t> Valid markers: {list_utils.cast_to_string(valid_markers)}.\n"
-      f"\t> Valid line styles: {list_utils.cast_to_string(valid_lines)}."
+      f"\t- Valid markers: {list_utils.cast_to_string(valid_markers)}.\n"
+      f"\t- Valid line styles: {list_utils.cast_to_string(valid_lines)}."
     )
     artists_to_draw.append(artist_to_draw)
   legend = ax.legend(
