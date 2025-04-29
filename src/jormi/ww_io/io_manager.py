@@ -73,6 +73,40 @@ def does_file_exist(
     raise FileNotFoundError(f"File does not exist: {file_path}")
   return file_path_exists
 
+
+## ###############################################################
+## WORKING WITH FILES
+## ###############################################################
+def _resolve_and_validate_file_operation(
+    directory_from : str | Path,
+    directory_to   : str | Path | None,
+    file_name      : str,
+    overwrite      : bool = False,
+  ) -> tuple[Path, Path | None]:
+  does_directory_exist(directory=directory_from, raise_error=True)
+  file_path_from = combine_file_path_parts([ directory_from, file_name ])
+  does_file_exist(file_path=file_path_from, raise_error=True)
+  file_path_to = None
+  if directory_to is not None:
+    if not does_directory_exist(directory=directory_to):
+      init_directory(directory=directory_to, verbose=False)
+    file_path_to = combine_file_path_parts([ directory_to, file_name ])
+    if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
+      raise FileExistsError(f"File already exists: {file_path_to}")
+  return file_path_from, file_path_to
+
+def _print_file_action(
+    action     : str,
+    file_name  : str,
+    directory_from : str | Path,
+    directory_to   : str | Path | None = None,
+  ):
+  print(f"{action}:")
+  print(f"\t> File: {file_name}")
+  print(f"\t> From: {directory_from}")
+  if directory_to is not None:
+    print(f"\t> To:   {directory_to}")
+
 def copy_file(
     directory_from : str | Path,
     directory_to   : str | Path,
@@ -80,21 +114,45 @@ def copy_file(
     overwrite      : bool = False,
     verbose        : bool = True,
   ):
-  does_directory_exist(directory=directory_from, raise_error=True)
-  if not does_directory_exist(directory=directory_to):
-    init_directory(directory=directory_to, verbose=verbose)
-  file_path_from = combine_file_path_parts([ directory_from, file_name ])
-  file_path_to   = combine_file_path_parts([ directory_to, file_name ])
-  does_file_exist(file_path=file_path_from, raise_error=True)
-  if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
-    raise FileExistsError(f"File already exists: {file_path_to}")
+  file_path_from, file_path_to = _resolve_and_validate_file_operation(
+    directory_from = directory_from,
+    directory_to   = directory_to,
+    file_name      = file_name,
+    overwrite      = overwrite
+  )
   shutil.copy(file_path_from, file_path_to)
   shutil.copymode(file_path_from, file_path_to)
-  if verbose:
-    print(f"Copied:")
-    print(f"\t> File: {file_name}")
-    print(f"\t> From: {directory_from}")
-    print(f"\t> To:   {directory_to}")
+  if verbose: _print_file_action("Copied", file_name, directory_from, directory_to)
+
+def move_file(
+    directory_from : str | Path,
+    directory_to   : str | Path,
+    file_name      : str,
+    overwrite      : bool = False,
+    verbose        : bool = True,
+  ):
+  file_path_from, file_path_to = _resolve_and_validate_file_operation(
+    directory_from = directory_from,
+    directory_to   = directory_to,
+    file_name      = file_name,
+    overwrite      = overwrite
+  )
+  shutil.move(file_path_from, file_path_to)
+  if verbose: _print_file_action("Moved", file_name, directory_from, directory_to)
+
+def delete_file(
+    directory     : str | Path,
+    file_name     : str,
+    verbose       : bool = True,
+  ):
+  file_path_from, _ = _resolve_and_validate_file_operation(
+    directory_from = directory,
+    directory_to   = None,
+    file_name      = file_name,
+    overwrite      = True
+  )
+  file_path_from.unlink()
+  if verbose: _print_file_action("Deleted", file_name, directory_from=directory)
 
 
 ## ###############################################################
