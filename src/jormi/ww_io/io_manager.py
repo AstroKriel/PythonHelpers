@@ -44,7 +44,7 @@ def resolve_file_path(
 
 def does_directory_exist(
     directory   : str | Path,
-    raise_error : bool = False
+    raise_error : bool = False,
   ) -> bool:
   directory = Path(directory).absolute()
   result = directory.is_dir()
@@ -53,7 +53,7 @@ def does_directory_exist(
 
 def init_directory(
     directory : str,
-    verbose   : bool = True
+    verbose   : bool = True,
   ):
   directory = Path(directory).absolute()
   if not does_directory_exist(directory):
@@ -79,25 +79,26 @@ def does_file_exist(
 ## ###############################################################
 def _resolve_and_validate_file_operation(
     directory_from : str | Path,
-    directory_to   : str | Path | None,
+    directory_to   : str | Path,
     file_name      : str,
     overwrite      : bool = False,
+    dry_run        : bool = False,
   ) -> tuple[Path, Path | None]:
   does_directory_exist(directory=directory_from, raise_error=True)
   file_path_from = combine_file_path_parts([ directory_from, file_name ])
   does_file_exist(file_path=file_path_from, raise_error=True)
-  file_path_to = None
-  if directory_to is not None:
-    if not does_directory_exist(directory=directory_to):
+  if not does_directory_exist(directory=directory_to):
+    if not dry_run:
       init_directory(directory=directory_to, verbose=False)
-    file_path_to = combine_file_path_parts([ directory_to, file_name ])
-    if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
-      raise FileExistsError(f"File already exists: {file_path_to}")
+    else: print(f"Would create directory: {directory_to}")
+  file_path_to = combine_file_path_parts([ directory_to, file_name ])
+  if not(overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
+    raise FileExistsError(f"File already exists: {file_path_to}")
   return file_path_from, file_path_to
 
 def _print_file_action(
-    action     : str,
-    file_name  : str,
+    action         : str,
+    file_name      : str,
     directory_from : str | Path,
     directory_to   : str | Path | None = None,
   ):
@@ -112,47 +113,66 @@ def copy_file(
     directory_to   : str | Path,
     file_name      : str,
     overwrite      : bool = False,
+    dry_run        : bool = False,
     verbose        : bool = True,
   ):
   file_path_from, file_path_to = _resolve_and_validate_file_operation(
     directory_from = directory_from,
     directory_to   = directory_to,
     file_name      = file_name,
-    overwrite      = overwrite
+    overwrite      = overwrite,
+    dry_run        = dry_run
   )
-  shutil.copy(file_path_from, file_path_to)
-  shutil.copymode(file_path_from, file_path_to)
-  if verbose: _print_file_action("Copied", file_name, directory_from, directory_to)
+  if not dry_run:
+    shutil.copy(file_path_from, file_path_to)
+    shutil.copymode(file_path_from, file_path_to)
+  if verbose or dry_run:
+    _print_file_action(
+      action         = "Copied" if not dry_run else "Would copy",
+      file_name      = file_name,
+      directory_from = directory_from,
+      directory_to   = directory_to
+    )
 
 def move_file(
     directory_from : str | Path,
     directory_to   : str | Path,
     file_name      : str,
     overwrite      : bool = False,
+    dry_run        : bool = False,
     verbose        : bool = True,
   ):
   file_path_from, file_path_to = _resolve_and_validate_file_operation(
     directory_from = directory_from,
     directory_to   = directory_to,
     file_name      = file_name,
-    overwrite      = overwrite
+    overwrite      = overwrite,
+    dry_run        = dry_run
   )
-  shutil.move(file_path_from, file_path_to)
-  if verbose: _print_file_action("Moved", file_name, directory_from, directory_to)
+  if not dry_run: shutil.move(file_path_from, file_path_to)
+  if verbose or dry_run:
+    _print_file_action(
+      action         = "Moved" if not dry_run else "Would move",
+      file_name      = file_name,
+      directory_from = directory_from,
+      directory_to   = directory_to
+    )
 
 def delete_file(
-    directory     : str | Path,
-    file_name     : str,
-    verbose       : bool = True,
+    directory : str | Path,
+    file_name : str,
+    dry_run   : bool = False,
+    verbose   : bool = True,
   ):
-  file_path_from, _ = _resolve_and_validate_file_operation(
-    directory_from = directory,
-    directory_to   = None,
-    file_name      = file_name,
-    overwrite      = True
-  )
-  file_path_from.unlink()
-  if verbose: _print_file_action("Deleted", file_name, directory_from=directory)
+  does_directory_exist(directory=directory, raise_error=True)
+  file_path = combine_file_path_parts([ directory, file_name ])
+  if not dry_run: file_path.unlink()
+  if verbose or dry_run:
+    _print_file_action(
+      action         = "Deleted" if not dry_run else "Would delete",
+      file_name      = file_name,
+      directory_from = directory
+    )
 
 
 ## ###############################################################
@@ -227,7 +247,7 @@ def filter_files(
     for item in directory.iterdir()
     if item.is_file()
   ]
-  return list(filter(file_filter, file_names))
+  return sorted(filter(file_filter, file_names))
 
 
 ## END OF MODULE
