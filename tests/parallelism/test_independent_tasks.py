@@ -44,8 +44,7 @@ class TestParallelExecution(unittest.TestCase):
         args_list       = args_list,
         timeout_seconds = 1.5,
         num_procs       = 2,
-        show_progress   = False,
-        show_failures   = True
+        show_progress   = False
       )
       self.fail("Expected a RuntimeError due to timeout, but none was raised.")
     except RuntimeError as e:
