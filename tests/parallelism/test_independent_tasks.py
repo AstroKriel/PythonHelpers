@@ -1,11 +1,11 @@
+import os
 import time
 import numpy
 import unittest
 from jormi.parallelism import independent_tasks
 
-def dummy_task(values):
-  return sum(values)
-
+def dummy_task(arg):
+  return arg
 
 def cpu_heavy_task(block_of_values):
   total = 0.0
@@ -32,6 +32,19 @@ def time_function(func, args_list, num_repeats, num_procs, verbose=True):
 
 def sleepy_task(duration):
   time.sleep(duration)
+
+def error_task():
+  raise ValueError("Simulated error")
+
+def mixed_task(x):
+  return x / (x - 5)
+
+def crashing_task():
+  os._exit(1)
+
+def delayed_return(duration, value):
+  time.sleep(duration)
+  return value
 
 
 class TestParallelExecution(unittest.TestCase):
@@ -117,6 +130,72 @@ class TestParallelExecution(unittest.TestCase):
         show_progress = False
     )
     self.assertEqual(result, [])
+
+  def test_exception_propagation(self):
+    args_list = [()] * 3
+    with self.assertRaises(RuntimeError) as cm:
+      independent_tasks.run_in_parallel(
+        func          = error_task,
+        args_list     = args_list,
+        num_procs     = 2,
+        show_progress = False
+      )
+    error_lines = str(cm.exception).split('\n')[1:]
+    self.assertEqual(len(error_lines), 3)
+    self.assertTrue(all("ValueError" in line for line in error_lines))
+
+  def test_mixed_success_failure(self):
+    args_list = [(i,) for i in range(10)]
+    with self.assertRaises(RuntimeError) as cm:
+      independent_tasks.run_in_parallel(
+        func          = mixed_task,
+        args_list     = args_list,
+        num_procs     = 2,
+        show_progress = False
+      )
+    error = cm.exception
+    self.assertIn("Task 5 failed", str(error))
+    self.assertIn("Task 5 failed: ZeroDivisionError", str(error))
+
+  def test_process_expiry_handling(self):
+    args_list = [()] * 3
+    with self.assertRaises(RuntimeError) as cm:
+      independent_tasks.run_in_parallel(
+          func          = crashing_task,
+          args_list     = args_list,
+          num_procs     = 2,
+          show_progress = False
+      )
+    self.assertIn("ProcessExpired", str(cm.exception))
+
+  def test_result_ordering(self):
+    args_list = [(0.2, 3), (0.1, 1), (0.3, 4), (0.0, 2)]
+    results = independent_tasks.run_in_parallel(
+      func          = delayed_return,
+      args_list     = args_list,
+      num_procs     = 4,
+      show_progress = False
+    )
+    self.assertEqual(results, [3, 1, 4, 2])
+
+  def test_various_data_types(self):
+    args_list = [
+      ("hello",),
+      ({"key": "value"},),
+      (123,),
+      (b"bytes",),
+    ]
+    results = independent_tasks.run_in_parallel(
+      func          = dummy_task,
+      args_list     = args_list,
+      num_procs     = 2,
+      show_progress = False
+    )
+    expected_reults = [
+      arg[0]
+      for arg in args_list
+    ]
+    self.assertEqual(results, expected_reults)
 
 
 if __name__ == "__main__":

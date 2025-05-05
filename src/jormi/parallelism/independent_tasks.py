@@ -32,7 +32,7 @@ def run_in_parallel(
       pending_tasks = tqdm(pending_tasks, total=len(pending_tasks), desc="Processing", unit="task")
     for task_index, task in pending_tasks:
       try:
-        task_results[task_index] = task.result()  # Will raise TimeoutError if timed out
+        task_results[task_index] = task.result()
       except TimeoutError:
         error_message = f"TimeoutError: Task {task_index} timed out after {timeout_seconds}s"
         task_results[task_index] = None
