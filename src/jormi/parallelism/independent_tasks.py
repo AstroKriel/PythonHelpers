@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+import os
 from tqdm import tqdm
 from typing import Callable, Tuple, Any, Optional
 from pebble import ProcessPool, ProcessExpired
@@ -14,15 +15,16 @@ from concurrent.futures import TimeoutError
 ## OPERATOR FUNCTION
 ## ###############################################################
 def run_in_parallel(
-  func      : Callable,
-  args_list : Tuple[Any, ...],
-  *,
-  num_procs       : Optional[int] = None,
-  timeout_seconds : Optional[float] = None,
-  show_progress   : bool = True,
-):
+    func            : Callable,
+    args_list       : Tuple[Any, ...],
+    *,
+    num_procs       : Optional[int] = None,
+    timeout_seconds : Optional[float] = None,
+    show_progress   : bool = True,
+  ):
   task_results = [None] * len(args_list)
   failed_tasks = []
+  if num_procs is None: num_procs = os.cpu_count()
   with ProcessPool(max_workers=num_procs) as pool:
     pending_tasks = [
       (task_index, pool.schedule(func, args=task_args, timeout=timeout_seconds))
