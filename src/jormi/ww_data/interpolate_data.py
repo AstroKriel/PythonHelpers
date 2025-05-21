@@ -4,8 +4,9 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
-import warnings
+
 import numpy
+import warnings
 from scipy.interpolate import interp1d as scipy_interp1d
 from jormi.utils import list_utils
 
@@ -13,6 +14,7 @@ from jormi.utils import list_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def interpolate_1d(
     x_values : numpy.ndarray,
     y_values : numpy.ndarray,
@@ -30,8 +32,8 @@ def interpolate_1d(
   valid_kinds = [ "linear", "quadratic", "cubic" ]
   if kind not in valid_kinds: raise ValueError(f"Invalid interpolation `kind`: {kind}. Valid options include: {list_utils.cast_to_string(valid_kinds)}")
   x_min_data = x_values[0]
-  x_max_data = x_values[-1]
-  in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_data)
+  x_max_values = x_values[-1]
+  in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_values)
   num_out_of_bounds = numpy.sum(~in_bounds_mask)
   if num_out_of_bounds > 0: warnings.warn(f"Removing {num_out_of_bounds} `x_interp` points that are outside the interpolated domain.")
   interpolator = scipy_interp1d(

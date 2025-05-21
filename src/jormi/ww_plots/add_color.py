@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import cmasher
 import matplotlib.colors as mpl_colors
 
@@ -11,6 +12,7 @@ import matplotlib.colors as mpl_colors
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def create_norm(
     vmin : float = 0.0,
     vmid : float = None,

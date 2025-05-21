@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import copy
 from jormi.utils import var_utils, func_utils
 
@@ -11,6 +12,7 @@ from jormi.utils import var_utils, func_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 @func_utils.warn_if_result_is_unused
 def merge_dicts(
     dict_a: dict,

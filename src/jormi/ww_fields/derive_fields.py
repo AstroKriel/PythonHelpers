@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
 from jormi.utils import func_utils
 from jormi.ww_fields import field_operators, decompose_fields
@@ -12,6 +13,7 @@ from jormi.ww_fields import field_operators, decompose_fields
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 @func_utils.time_function
 def compute_magnetic_curvature_terms(
     vbasis_normal  : numpy.ndarray,

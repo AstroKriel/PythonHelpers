@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
 from jormi.ww_data import finite_difference
 
@@ -11,6 +12,7 @@ from jormi.ww_data import finite_difference
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def compute_sfield_rms(sfield_q : numpy.ndarray) -> numpy.ndarray:
   return numpy.sqrt(numpy.mean(numpy.square(sfield_q)))
 

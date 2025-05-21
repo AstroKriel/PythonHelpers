@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import shlex
 import subprocess
 
@@ -11,6 +12,7 @@ import subprocess
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def does_shell_command_require_privileges(command):
   special_shell_tokens = {
     "|",        # pipe: `ls | grep .py`

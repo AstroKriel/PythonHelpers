@@ -4,9 +4,10 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
-import matplotlib.pyplot as mpl_plot
 from pathlib import Path
+from matplotlib import pyplot as mpl_plot
 from jormi.ww_plots.plot_styler import *
 
 
@@ -19,6 +20,7 @@ mpl_plot.switch_backend("agg")
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def create_figure(
     num_rows   : int   = 1,
     num_cols   : int   = 1,

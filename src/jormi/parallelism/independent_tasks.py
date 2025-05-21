@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import os
 from tqdm import tqdm
 from typing import Callable, Tuple, Any, Optional
@@ -14,6 +15,7 @@ from concurrent.futures import TimeoutError
 ## ###############################################################
 ## OPERATOR FUNCTION
 ## ###############################################################
+
 def run_in_parallel(
     func            : Callable,
     args_list       : Tuple[Any, ...],

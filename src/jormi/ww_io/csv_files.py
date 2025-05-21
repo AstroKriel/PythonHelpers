@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import csv
 from pathlib import Path
 from jormi.ww_io import io_manager
@@ -12,6 +13,7 @@ from jormi.ww_io import io_manager
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def _ensure_path_is_valid(file_path: Path):
   file_path = Path(file_path).absolute()
   if file_path.suffix != ".csv": raise ValueError(f"File should end with a .csv extension: {file_path}")
@@ -45,7 +47,7 @@ def read_csv_file_into_dict(
 def save_dict_to_csv_file(
     file_path  : str | Path,
     input_dict : dict,
-    overwrite  : bool = False,
+    overwrite  : bool = True,
     verbose    : bool = True,
   ):
   file_path = _ensure_path_is_valid(file_path)

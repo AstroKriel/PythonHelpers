@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
 from jormi.utils import var_utils
 
@@ -11,6 +12,7 @@ from jormi.utils import var_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def get_index_of_closest_value(
     values: list | numpy.ndarray,
     target: float,

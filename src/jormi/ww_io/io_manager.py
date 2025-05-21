@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
 import shutil
 import inspect
@@ -14,6 +15,7 @@ from jormi.utils import list_utils, var_utils
 ## ###############################################################
 ## UTILITY FUNCTIONS
 ## ###############################################################
+
 def get_caller_directory() -> Path:
   """Get the directory of the script that invoked this function."""
   caller_frame = inspect.stack()[1]
@@ -73,10 +75,6 @@ def does_file_exist(
     raise FileNotFoundError(f"File does not exist: {file_path}")
   return file_path_exists
 
-
-## ###############################################################
-## WORKING WITH FILES
-## ###############################################################
 def _resolve_and_validate_file_operation(
     directory_from : str | Path,
     directory_to   : str | Path,
@@ -174,10 +172,6 @@ def delete_file(
       directory_from = directory
     )
 
-
-## ###############################################################
-## FILTER FILES IN A DIRECTORY
-## ###############################################################
 def _create_filter(
     include_string, exclude_string,
     prefix, suffix,

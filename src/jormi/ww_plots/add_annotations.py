@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 from matplotlib.axes import Axes as mpl_axes
 from matplotlib.lines import Line2D as mpl_line2d
 from jormi.utils import list_utils
@@ -12,6 +13,7 @@ from jormi.utils import list_utils
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def add_text(
     ax          : mpl_axes,
     x_pos       : float,

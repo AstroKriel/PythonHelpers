@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import numpy
 import functools
 
@@ -23,6 +24,7 @@ except ImportError:
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 @functools.lru_cache(maxsize=10)
 def _compute_radial_grid(shape):
   k_center = numpy.array([ (n-1)/2 for n in shape ], dtype=float)

@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
+
 import time
 import inspect
 import warnings
@@ -12,6 +13,7 @@ import warnings
 ## ###############################################################
 ## FUNCTION DECORATORS
 ## ###############################################################
+
 def time_function(func):
   def wrapper(*args, **kwargs):
     start_time = time.time()

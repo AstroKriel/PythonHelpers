@@ -4,6 +4,7 @@
 ## ###############################################################
 ## DEPENDANCIES
 ## ###############################################################
+
 import numpy
 from jormi.ww_data import smooth_data
 
@@ -11,6 +12,7 @@ from jormi.ww_data import smooth_data
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
 def compute_p_norm(
     array_a             : numpy.ndarray,
     array_b             : numpy.ndarray,
@@ -98,9 +100,10 @@ def estimate_jpdf(
   bin_widths_cols = numpy.diff(bin_edges_cols)
   bin_widths_rows = numpy.diff(bin_edges_rows)
   bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
-  jpdf = bin_counts / (numpy.sum(bin_counts) * bin_areas)
-  if smoothing_length is not None: jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(jpdf, smoothing_length)
-  return bin_centers_rows, bin_centers_cols, jpdf
+  estimated_jpdf = bin_counts / (numpy.sum(bin_counts) * bin_areas)
+  if smoothing_length is not None:
+    estimated_jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(estimated_jpdf, smoothing_length)
+  return bin_centers_rows, bin_centers_cols, estimated_jpdf
 
 def estimate_pdf(
     values            : numpy.ndarray,
@@ -122,8 +125,8 @@ def estimate_pdf(
       mean_value,
       mean_value + epsilon_width
     ])
-    pdf = numpy.array([ 0.0, 1/epsilon_width, 0.0 ])
-    return bin_centers, pdf
+    estimated_pdf = numpy.array([ 0.0, 1/epsilon_width, 0.0 ])
+    return bin_centers, estimated_pdf
   if bin_centers is None:
     if num_bins is None: raise ValueError("You did not provide a binning option.")
     bin_centers = create_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
@@ -142,8 +145,8 @@ def estimate_pdf(
   else: numpy.add.at(bin_counts, bin_indices, 1)
   total_counts = numpy.sum(bin_counts)
   if total_counts <= 0: raise ValueError("None of the `values` fell into any bins. Check binning options or `values`:", values)
-  pdf = bin_counts / (total_counts * bin_widths)
-  return bin_centers, pdf
+  estimated_pdf = bin_counts / (total_counts * bin_widths)
+  return bin_centers, estimated_pdf
 
 def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
   """Convert bin centers to edges."""
