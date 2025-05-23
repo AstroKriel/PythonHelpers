@@ -103,7 +103,7 @@ def _validate_walltime(
         for rule in sorted_rules
         if num_procs <= rule["threshold_cpus"]
       ),
-      default = None
+      None # default value
     )
     if matching_rule is None:
       raise QueueValidationError(f"CPU request ({num_procs}) exceeds all walltime rules in `{queue_name}`.")
