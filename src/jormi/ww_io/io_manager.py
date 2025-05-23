@@ -9,7 +9,9 @@ import numpy
 import shutil
 import inspect
 from pathlib import Path
-from jormi.utils import list_utils, var_utils
+from typing import Callable, Union, List
+from dataclasses import dataclass
+from jormi.utils import list_utils
 
 
 ## ###############################################################
@@ -57,11 +59,11 @@ def init_directory(
     directory : str,
     verbose   : bool = True,
   ):
-  directory = Path(directory).absolute()
+  directory = Path(directory).resolve(strict=False)
   if not does_directory_exist(directory):
     directory.mkdir(parents=True)
-    if verbose: print("Successfully initialised directory:", directory)
-  elif verbose: print("No need to initialise diectory (already exists):", directory)
+    if verbose: print("Initialised directory:", directory)
+  elif verbose: print("Directory already exists:", directory)
 
 def does_file_exist(
     file_path   : str | Path | None = None,
@@ -172,76 +174,84 @@ def delete_file(
       directory_from = directory
     )
 
-def _create_filter(
-    include_string, exclude_string,
-    prefix, suffix,
-    delimiter, num_parts,
-    index_of_value, min_value, max_value,
-  ):
-  def _does_file_meet_criteria(file_name):
-    file_name_parts = file_name.split(delimiter)
-    ## make sure that basic conditions are met first
-    if include_string and (include_string not in file_name): return False
-    if exclude_string and (exclude_string in file_name): return False
-    if prefix and not file_name.startswith(prefix): return False
-    if suffix and not file_name.endswith(suffix): return False
-    if (num_parts is not None) and (len(file_name_parts) != num_parts): return False
-    ## if a part of the file name should be a value, then check that the value falls within the specified value range
-    if index_of_value is not None:
-      if len(file_name_parts) < abs(index_of_value): return False
-      try:
-        value = int(file_name_parts[index_of_value])
-      except ValueError: return False
-      if not (min_value <= value <= max_value): return False
-    return True
-  return _does_file_meet_criteria
+from pathlib import Path
+from typing import Union, List
+import numpy
 
-def filter_files(
-    directory      : str | Path,
-    include_string : str | None = None,
-    exclude_string : str | None = None,
-    prefix         : str | None = None,
-    suffix         : str | None = None,
-    delimiter      : str = "_",
-    num_parts      : int | None = None,
-    index_of_value : int | None = None,
-    min_value      : int = 0,
-    max_value      : int = numpy.inf,
-  ) -> list[str]:
-  """
-    Filter file names in a `directory` based on various conditions:
-    - `include_string` : File names must contain this string.
-    - `exclude_string` : File names should not contain this string.
-    - `prefix`         : File names should start with this string.
-    - `suffix`         : File names should end with this string.
-    - `delimiter`      : The delimiter used to split the file name (default: "_").
-    - `num_parts`      : Only include files that, when split by `delimiter`, have exactly this number of parts.
-    - `index_of_value` : The part-index to check for value range conditions.
-    - `min_value`      : The minimum valid value (inclusive) stored at `index_of_value`.
-    - `max_value`      : The maximum valid value (inclusive) stored at `index_of_value`.
-  """
-  directory = Path(directory).absolute()
-  does_directory_exist(directory, raise_error=True)
-  var_utils.assert_type(min_value, (int, float), "min_value")
-  var_utils.assert_type(max_value, (int, float), "max_value")
-  if min_value > max_value: raise ValueError(f"`min_value` = {min_value} must be less than `max_value` = {max_value}.")
-  file_filter = _create_filter(
-    include_string = include_string,
-    exclude_string = exclude_string,
-    prefix         = prefix,
-    suffix         = suffix,
-    delimiter      = delimiter,
-    num_parts      = num_parts,
-    index_of_value = index_of_value,
-    min_value      = min_value,
-    max_value      = max_value,
-  )
-  file_names = [
-    item.name
-    for item in directory.iterdir()
-    if item.is_file()
-  ]
-  return sorted(filter(file_filter, file_names))
+
+class ItemFilter:
+  def __init__(
+    self,
+    *,
+    include_string  : Union[str, List[str], None] = None,
+    exclude_string  : Union[str, List[str], None] = None,
+    prefix          : str | None = None,
+    suffix          : str | None = None,
+    delimiter       : str = "_",
+    num_parts       : int | None = None,
+    index_of_value  : int | None = None,
+    min_value       : int = 0,
+    max_value       : int = numpy.inf,
+    include_files   : bool = True,
+    include_folders : bool = True
+  ):
+    self.include_string  = self._to_list(include_string)
+    self.exclude_string  = self._to_list(exclude_string)
+    self.prefix          = prefix
+    self.suffix          = suffix
+    self.delimiter       = delimiter
+    self.num_parts       = num_parts
+    self.index_of_value  = index_of_value
+    self.min_value       = min_value
+    self.max_value       = max_value
+    self.include_files   = include_files
+    self.include_folders = include_folders
+    self._validate_inputs()
+
+  def _to_list(self, value):
+    if value is None: return []
+    return [value] if isinstance(value, str) else list(map(str, value))
+
+  def _validate_inputs(self):
+    if not (self.include_files or self.include_folders):
+      raise ValueError("At least one of `include_files` or `include_folders` must be enabled.")
+    if not isinstance(self.min_value, (int, float)) or not isinstance(self.max_value, (int, float)):
+      raise TypeError("`min_value` and `max_value` must be numbers.")
+    if self.min_value > self.max_value:
+      raise ValueError("`min_value` cannot be greater than `max_value`.")
+
+  def _meets_criteria(self, item_path: Path) -> bool:
+    if item_path.is_file() and not self.include_files: return False
+    if item_path.is_dir() and not self.include_folders: return False
+    item_name = item_path.name
+    if self.include_string and not all(
+      include_string in item_name
+      for include_string in self.include_string
+    ): return False
+    if self.exclude_string and any(
+      exclude_string in item_name
+      for exclude_string in self.exclude_string
+    ): return False
+    if self.prefix and not item_name.startswith(self.prefix): return False
+    if self.suffix and not item_name.endswith(self.suffix): return False
+    name_parts = item_name.split(self.delimiter)
+    if (self.num_parts is not None) and (len(name_parts) != self.num_parts): return False
+    if self.index_of_value is not None:
+      if len(name_parts) < abs(self.index_of_value): return False
+      try: value = int(name_parts[self.index_of_value])
+      except ValueError: return False
+      if not (self.min_value <= value <= self.max_value): return False
+    return True
+
+  def filter(self, directory: Union[str, Path]) -> List[Path]:
+    """Filter item names in the given directory based on current criteria."""
+    directory = Path(directory).absolute()
+    does_directory_exist(directory, raise_error=True)
+    return sorted(
+      item for item in directory.iterdir()
+      if self._meets_criteria(item)
+    )
+
 
 
 ## END OF MODULE
