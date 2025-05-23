@@ -47,14 +47,14 @@ def get_grad_func(grad_order: int):
 
 def compute_vfield_curl(
     vfield_q   : numpy.ndarray,
-    box_width  : float = 1.0,
+    box_length : float = 1.0,
     grad_order : int = 2,
   ) -> numpy.ndarray:
   grad_func = get_grad_func(grad_order)
   ## input format: (vector-component, x, y, z), assuming cubic domain with uniform grid
   ## output format: (curl-component, x, y, z)
   vfield_q   = numpy.array(vfield_q)
-  cell_width = box_width / vfield_q.shape[1]
+  cell_width = box_length / vfield_q.shape[1]
   ## curl components
   return numpy.array([
     grad_func(vfield_q[2], cell_width, grad_axis=1) - grad_func(vfield_q[1], cell_width, grad_axis=2),
@@ -64,14 +64,14 @@ def compute_vfield_curl(
 
 def compute_sfield_gradient(
     sfield_q   : numpy.ndarray,
-    box_width  : float = 1.0,
+    box_length : float = 1.0,
     grad_order : int = 2,
   ):
   grad_func = get_grad_func(grad_order)
   ## input format: (x, y, z), assuming cubic domain with uniform grid
   ## output format: (gradient-direction, x, y, z)
   sfield_q = numpy.array(sfield_q)
-  cell_width = box_width / sfield_q.shape[0]
+  cell_width = box_length / sfield_q.shape[0]
   return numpy.array([
     grad_func(sfield_q, cell_width, grad_axis)
     for grad_axis in [0, 1, 2]
@@ -79,21 +79,21 @@ def compute_sfield_gradient(
 
 def compute_vfield_gradient(
     vfield_q   : numpy.ndarray,
-    box_width  : float = 1.0,
+    box_length : float = 1.0,
     grad_order : int = 2,
   ):
   ## df_i/dx_j: (component-i, gradient-direction-j, x, y, z)
   return numpy.array([
-    compute_sfield_gradient(sfield_qi, box_width, grad_order)
+    compute_sfield_gradient(sfield_qi, box_length, grad_order)
     for sfield_qi in vfield_q
   ])
 
 def compute_vfield_divergence(
     vfield_q   : numpy.ndarray,
-    box_width  : float = 1.0,
+    box_length : float = 1.0,
     grad_order : int = 2,
   ):
-  r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_width, grad_order)
+  r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_length, grad_order)
   return numpy.einsum("iixyz->xyz", r2tensor_grad_q)
 
 
