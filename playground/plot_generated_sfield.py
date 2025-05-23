@@ -11,7 +11,6 @@ from jormi.ww_plots import plot_manager, plot_data, add_annotations
 from jormi.ww_fields import generate_fields, compute_spectra
 
 
-
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
@@ -74,7 +73,7 @@ def main():
   axs[1].imshow(sfield[:,:,num_cells//2], cmap="cmr.rainforest")
   axs[1].set_xticks([])
   axs[1].set_yticks([])
-  plot_manager.save_figure(fig, "plot_generated_pl_sfield.png")
+  plot_manager.save_figure(fig, "plot_generated_powerlaw_sfield.png")
 
 
 ## ###############################################################
