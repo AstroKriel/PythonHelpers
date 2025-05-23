@@ -18,7 +18,6 @@ def create_pbs_job_script(
     f"#PBS -q {queue_name}",
     f"#PBS -l walltime={walltime}",
     f"#PBS -l ncpus={num_procs}",
-    # f"#PBS -l mem={4 * num_procs}GB",
     "#PBS -j oe",
     f"#PBS -N rule_test_{num_procs}cpu",
     "#PBS -o output.log"
