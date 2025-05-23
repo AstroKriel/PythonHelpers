@@ -37,15 +37,19 @@ def is_job_already_in_queue(
   if not io_manager.does_file_exist(file_path=file_path):
     print(f"`{file_name}` job file does not exist in: {directory}")
     return False
-  job_tagname = get_job_name_from_pbs_script(file_path)
-  if not job_tagname:
+  job_tag = get_job_tag_from_pbs_script(file_path)
+  if not job_tag:
     print(f"`#PBS -N` not found in job file: {file_name}")
     return False
-  job_tagnames = get_list_of_queued_jobs()
-  if not job_tagnames: return False
-  return job_tagname in job_tagnames
+  queued_jobs = get_list_of_queued_jobs()
+  if not queued_jobs: return False
+  queued_job_tags = [
+    job_tag
+    for _, job_tag in queued_jobs
+  ]
+  return job_tag in queued_job_tags
 
-def get_job_name_from_pbs_script(file_path : str) -> str | None:
+def get_job_tag_from_pbs_script(file_path : str) -> str | None:
   """Gets the job name from a PBS job script."""
   with open(file_path, "r") as file_pointer:
     for line in file_pointer:
@@ -53,19 +57,29 @@ def get_job_name_from_pbs_script(file_path : str) -> str | None:
         return line.strip().split(" ")[-1] if line.strip() else None
   return None
 
-def get_list_of_queued_jobs() -> list[str] | None:
-  """Collects all job names currently in the queue."""
+def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
+  """Collects all job (id, name) pairs currently in the queue."""
   try:
-    raw_output = shell_manager.execute_shell_command("qstat -f | grep Job_Name", capture_output=True)
-    ## extract job names
-    job_names = [
-        line.strip().split()[-1] # assumes that the last word on each line is the job name
-        for line in raw_output.split("\n")
-        if line.strip() # ignore empty or whitespace-only lines
-    ]
-    return job_names if job_names else []
+    raw_output = shell_manager.execute_shell_command(
+      command="qstat -f",
+      timeout_seconds=60,
+    )
+    jobs = []
+    job_id = None
+    job_tag = None
+    for line in raw_output.splitlines():
+      stripped = line.strip()
+      if stripped.startswith("Job Id:"):
+        if job_id and job_tag: jobs.append((job_id, job_tag))
+        job_id = stripped.split("Job Id:")[-1].strip().split(".")[0]
+        job_tag = None # reset
+      elif "Job_Name =" in stripped:
+        job_tag = stripped.split("Job_Name =")[-1].strip()
+    if job_id and job_tag:
+      jobs.append((job_id, job_tag))
+    return jobs if jobs else []
   except RuntimeError as error:
-    print(f"Error retrieving job names from the queue: {error}")
+    print(f"Error retrieving job info from the queue: {error}")
     return None
 
 
