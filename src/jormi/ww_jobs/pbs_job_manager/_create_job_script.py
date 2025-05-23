@@ -76,12 +76,13 @@ def create_pbs_job_script(
     job_file.write("\n")
     job_file.write(f"{command} 1>{tag_name}.out 2>&1\n")
   if verbose:
-    print(f"[Created PBS Job]")
-    print(f"\t> Filepath : {file_path}")
+    print("[Created PBS Job]")
+    print(file_path)
     print(f"\t> Tagname  : {tag_name}")
     print(f"\t> CPUs     : {num_procs}")
     print(f"\t> Memory   : {memory_limit} GB")
     print(f"\t> Walltime : {wall_time_str}")
+  return file_path
 
 
 ## END OF MODULE
