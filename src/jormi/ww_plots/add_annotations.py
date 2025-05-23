@@ -27,6 +27,7 @@ def add_text(
     box_alpha   : float = 0.8,
     face_color  : str = "white",
     edge_color  : str = "black",
+    rotate_deg  : float | None = None
   ):
   valid_x_alignments = [ "left", "center", "right" ]
   valid_y_alignments = [ "top", "center", "bottom" ]
@@ -36,8 +37,13 @@ def add_text(
   if add_box: box_params = dict(facecolor=face_color, edgecolor=edge_color, boxstyle="round,pad=0.3", alpha=box_alpha)
   ax.text(
     x_pos, y_pos, label,
-    ha=x_alignment, va=y_alignment,
-    color=font_color, fontsize=fontsize, transform=ax.transAxes, bbox=box_params
+    ha        = x_alignment,
+    va        = y_alignment,
+    color     = font_color,
+    fontsize  = fontsize,
+    rotation  = rotate_deg,
+    transform = ax.transAxes,
+    bbox      = box_params,
   )
 
 def add_inset_axis(
