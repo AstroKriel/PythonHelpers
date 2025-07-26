@@ -19,8 +19,8 @@ def add_text(
     x_pos       : float,
     y_pos       : float,
     label       : str,
-    x_alignment : str = "left",
-    y_alignment : str = "top",
+    x_alignment : str = "center",
+    y_alignment : str = "center",
     fontsize    : float = 20,
     font_color  : str = "black",
     add_box     : bool = False,
@@ -52,8 +52,8 @@ def add_inset_axis(
     x_label      : str | None = None,
     y_label      : str | None = None,
     fontsize     : float = 20,
-    x_label_side : str = "left",
-    y_label_side : str = "top",
+    x_label_side : str = "top",
+    y_label_side : str = "right",
   ):
   valid_x_sides = [ "top", "bottom" ]
   valid_y_sides = [ "left", "right" ]

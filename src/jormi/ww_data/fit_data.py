@@ -19,6 +19,9 @@ def linear_function(intercept, slope, x_values):
 def get_linear_intercept(slope, x_ref, y_ref):
   return y_ref - slope * x_ref
 
+def get_powerlaw_coefficient(exponent, x_ref, y_ref):
+  return y_ref / x_ref**exponent
+
 def get_line_angle_in_box(slope, domain_bounds, domain_aspect_ratio=1.0):
   x_min, x_max, y_min, y_max = domain_bounds
   data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
