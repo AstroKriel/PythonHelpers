@@ -16,7 +16,9 @@ from jormi.ww_fields import generate_fields, compute_spectra
 ## ###############################################################
 def main():
   num_cells = 100
+  k_bin_centers = None
   power_spectra = []
+  sfield = None
   for _ in range(5):
     sfield = generate_fields.generate_powerlaw_sfield(
       num_cells  = num_cells,
@@ -70,10 +72,11 @@ def main():
   axs[0].set_ylabel("power spectrum")
   axs[0].set_xlim([1, num_cells])
   axs[0].set_ylim([1e-14, 1e-11])
-  axs[1].imshow(sfield[:,:,num_cells//2], cmap="cmr.rainforest")
+  if sfield is not None:
+    axs[1].imshow(sfield[:,:,num_cells//2], cmap="cmr.rainforest")
   axs[1].set_xticks([])
   axs[1].set_yticks([])
-  plot_manager.save_figure(fig, "plot_generated_powerlaw_sfield.png")
+  plot_manager.save_figure(fig, "generated_powerlaw_sfield.png")
 
 
 ## ###############################################################
