@@ -23,8 +23,8 @@ rcParams.update({
   "figure.titlesize" : FONT_SIZES["small"],
 
   ## line styles
-  "lines.linewidth": 1.2,
-  "axes.linewidth": 0.8,
+  "lines.linewidth": 1.5,
+  "axes.linewidth": 1.0,
 
   ## axis-tick settings
   "xtick.top": True, "ytick.right": True,
@@ -44,7 +44,7 @@ rcParams.update({
   "legend.frameon": False,
 
   ## figure and saving settings
-  "figure.figsize": (8.0, 5.0),
+  "figure.figsize": (8.0, 6.0),
   "savefig.dpi": 200, # resolution
   "savefig.bbox": "tight",
   "savefig.transparent": False,
