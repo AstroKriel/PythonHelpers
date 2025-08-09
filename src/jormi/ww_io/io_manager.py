@@ -9,8 +9,7 @@ import numpy
 import shutil
 import inspect
 from pathlib import Path
-from typing import Callable, Union, List
-from dataclasses import dataclass
+from typing import Union, List
 from jormi.utils import list_utils
 
 
@@ -24,8 +23,8 @@ def get_caller_directory() -> Path:
   caller_file_path = caller_frame.filename
   return Path(caller_file_path).resolve().parent
 
-def combine_file_path_parts(file_path_parts : list[str] | list[Path]) -> Path:
-  return Path(*list_utils.flatten_list(file_path_parts)).absolute()
+def combine_file_path_parts(file_path_parts : list[str | Path]) -> Path:
+  return Path(*list_utils.flatten_list(list_utils.filter_out_nones(file_path_parts))).absolute()
 
 def resolve_file_path(
     file_path : str | Path | None = None,
@@ -42,7 +41,7 @@ def resolve_file_path(
         f"You are missing: {list_utils.cast_to_string(missing)}. "
         "Alternatively, provide `file_path` directly."
       )
-    file_path = combine_file_path_parts([ directory, file_name ])
+    file_path = combine_file_path_parts(list_utils.filter_out_nones([ directory, file_name ]))
   else: file_path = Path(file_path).absolute()
   return file_path
 
@@ -56,7 +55,7 @@ def does_directory_exist(
   return result
 
 def init_directory(
-    directory : str,
+    directory : str | Path,
     verbose   : bool = True,
   ):
   directory = Path(directory).resolve(strict=False)
@@ -83,7 +82,7 @@ def _resolve_and_validate_file_operation(
     file_name      : str,
     overwrite      : bool = False,
     dry_run        : bool = False,
-  ) -> tuple[Path, Path | None]:
+  ) -> tuple[Path, Path]:
   does_directory_exist(directory=directory_from, raise_error=True)
   file_path_from = combine_file_path_parts([ directory_from, file_name ])
   does_file_exist(file_path=file_path_from, raise_error=True)
@@ -174,27 +173,22 @@ def delete_file(
       directory_from = directory
     )
 
-from pathlib import Path
-from typing import Union, List
-import numpy
-
-
 class ItemFilter:
   def __init__(
-    self,
-    *,
-    include_string  : Union[str, List[str], None] = None,
-    exclude_string  : Union[str, List[str], None] = None,
-    prefix          : str | None = None,
-    suffix          : str | None = None,
-    delimiter       : str = "_",
-    num_parts       : int | None = None,
-    index_of_value  : int | None = None,
-    min_value       : int = 0,
-    max_value       : int = numpy.inf,
-    include_files   : bool = True,
-    include_folders : bool = True
-  ):
+      self,
+      *,
+      include_string  : Union[str, List[str], None] = None,
+      exclude_string  : Union[str, List[str], None] = None,
+      prefix          : str | None = None,
+      suffix          : str | None = None,
+      delimiter       : str = "_",
+      num_parts       : int | None = None,
+      index_of_value  : int | None = None,
+      min_value       : int | float = 0,
+      max_value       : int | float = numpy.inf,
+      include_files   : bool = True,
+      include_folders : bool = True
+    ):
     self.include_string  = self._to_list(include_string)
     self.exclude_string  = self._to_list(exclude_string)
     self.prefix          = prefix
@@ -210,7 +204,9 @@ class ItemFilter:
 
   def _to_list(self, value):
     if value is None: return []
-    return [value] if isinstance(value, str) else list(map(str, value))
+    if isinstance(value, str): return [value]
+    if isinstance(value, list): return value
+    raise ValueError("Expected a string or list of strings.")
 
   def _validate_inputs(self):
     if not (self.include_files or self.include_folders):
@@ -251,7 +247,6 @@ class ItemFilter:
       item for item in directory.iterdir()
       if self._meets_criteria(item)
     )
-
 
 
 ## END OF MODULE

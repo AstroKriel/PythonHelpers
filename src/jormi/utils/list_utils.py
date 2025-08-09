@@ -13,6 +13,13 @@ from jormi.utils import var_utils
 ## FUNCTIONS
 ## ###############################################################
 
+def filter_out_nones(elems: list):
+  return [
+    elem
+    for elem in elems
+    if elem is not None
+  ]
+
 def get_index_of_closest_value(
     values: list | numpy.ndarray,
     target: float,
