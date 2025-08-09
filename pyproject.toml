@@ -28,4 +28,6 @@ build-backend = "hatchling.build"
 sources = ["src"]
 
 [tool.pyright]
-include = ["src"]
+include = ["src", "tests", "playground"]
+reportMissingImports = true
+reportMissingTypeStubs = false
