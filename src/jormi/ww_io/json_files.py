@@ -17,7 +17,7 @@ from jormi.utils import dict_utils
 ## FUNCTIONS
 ## ###############################################################
 
-def _ensure_path_is_valid(file_path: Path):
+def _ensure_path_is_valid(file_path: str | Path):
   file_path = Path(file_path).absolute()
   if file_path.suffix != ".json": raise ValueError(f"File should end with a .json extension: {file_path}")
   return file_path
@@ -34,12 +34,12 @@ def read_json_file_into_dict(
   else: raise FileNotFoundError(f"No json-file found: {file_path}")
 
 class NumpyEncoder(json.JSONEncoder):
-  def default(self, obj):
-    if   isinstance(obj, numpy.integer):  return int(obj)
-    elif isinstance(obj, numpy.floating): return float(obj)
-    elif isinstance(obj, numpy.bool_):    return bool(obj)
-    elif isinstance(obj, numpy.ndarray):  return obj.tolist()
-    return super().default(obj)
+  def default(self, o):
+    if   isinstance(o, numpy.integer):  return int(o)
+    elif isinstance(o, numpy.floating): return float(o)
+    elif isinstance(o, numpy.bool_):    return bool(o)
+    elif isinstance(o, numpy.ndarray):  return o.tolist()
+    return super().default(o)
 
 def save_dict_to_json_file(
     file_path  : str | Path,
