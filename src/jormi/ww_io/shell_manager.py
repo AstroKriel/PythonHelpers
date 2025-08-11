@@ -7,6 +7,7 @@
 
 import shlex
 import subprocess
+from pathlib import Path
 
 
 ## ###############################################################
@@ -36,7 +37,7 @@ def does_shell_command_require_privileges(command):
 
 def execute_shell_command(
     command           : str,
-    working_directory : str | None = None,
+    working_directory : str | Path | None = None,
     timeout_seconds   : float = 15,
     enforce_shell     : bool  = False,
   ) -> str:
