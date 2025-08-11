@@ -5,6 +5,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 
+from pathlib import Path
 from jormi.ww_io import io_manager, shell_manager
 
 
@@ -13,23 +14,28 @@ from jormi.ww_io import io_manager, shell_manager
 ## ###############################################################
 
 def submit_job(
-    directory    : str,
+    directory    : str | Path,
     file_name    : str,
     check_status : bool = False,
   ) -> bool:
+  directory = Path(directory).resolve()
   if check_status and is_job_already_in_queue(directory, file_name):
     print("Job is already currently running:", file_name)
     return False
   print("Submitting job:", file_name)
   try:
-    shell_manager.execute_shell_command(f"qsub {file_name}", working_directory=directory, enforce_shell=True)
+    shell_manager.execute_shell_command(
+      command           = f"qsub {file_name}",
+      working_directory = directory,
+      enforce_shell     = True
+    )
     return True
   except RuntimeError as error:
     print(f"Failed to submit job `{file_name}`: {error}")
     return False
 
 def is_job_already_in_queue(
-    directory : str,
+    directory : str | Path,
     file_name : str,
   ) -> bool:
   """Checks if a job name is already in the queue."""
@@ -49,12 +55,14 @@ def is_job_already_in_queue(
   ]
   return job_tag in queued_job_tags
 
-def get_job_tag_from_pbs_script(file_path : str) -> str | None:
+def get_job_tag_from_pbs_script(file_path : str | Path) -> str | None:
   """Gets the job name from a PBS job script."""
-  with open(file_path, "r") as file_pointer:
+  file_path = Path(file_path)
+  with file_path.open("r", encoding="utf-8") as file_pointer:
     for line in file_pointer:
       if "#PBS -N" in line:
-        return line.strip().split(" ")[-1] if line.strip() else None
+        segments = line.strip().split()
+        return segments[-1] if line.strip() else None
   return None
 
 def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
