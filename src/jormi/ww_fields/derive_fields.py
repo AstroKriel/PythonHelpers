@@ -60,7 +60,7 @@ def compute_dissipation_function(vfield_u : numpy.ndarray) -> numpy.ndarray:
     numpy.sum(field_operators.compute_vfield_gradient(r2tensor_srt[:,1,:,:,:])[1], axis=0),
     numpy.sum(field_operators.compute_vfield_gradient(r2tensor_srt[:,2,:,:,:])[2], axis=0),
   ])
-  del vfield_u, r2tensor_gradj_ui, sfield_div_u, r2tensor_bulk, r2tensor_srt, vfield_df
+  del vfield_u, r2tensor_gradj_ui, sfield_div_u, r2tensor_bulk, r2tensor_srt
   return vfield_df
 
 
