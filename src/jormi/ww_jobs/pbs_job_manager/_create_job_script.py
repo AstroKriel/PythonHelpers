@@ -34,7 +34,7 @@ def create_pbs_job_script(
     email_on_start     : bool = False,
     email_on_finish    : bool = False,
     verbose            : bool = True,
-  ) -> None:
+  ) -> Path:
   valid_systems = {
     "gadi": {
       "jh2": {"normal", "rsaa"},
