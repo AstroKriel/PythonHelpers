@@ -74,7 +74,9 @@ def create_pbs_job_script(
       job_file.write(f"#PBS -m {mail_options}\n")
       job_file.write(f"#PBS -M {email_address}\n")
     job_file.write("\n")
-    job_file.write(f"{command} 1>{tag_name}.out 2>&1\n")
+    job_file.write(f'LOG_FILE="{tag_name}.out"\n')
+    job_file.write('exec >"$LOG_FILE" 2>&1\n\n')
+    job_file.write(f"{command.rstrip()}\n")
   if verbose:
     print("[Created PBS Job]")
     print(file_path)
