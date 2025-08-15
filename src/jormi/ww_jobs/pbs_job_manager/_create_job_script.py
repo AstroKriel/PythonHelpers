@@ -26,9 +26,9 @@ def create_pbs_job_script(
     directory                : Union[str, Path],
     file_name                : str,
     main_command             : str,
-    pre_command              : Optional[str] = None,
+    prep_command             : Optional[str] = None,
     post_command             : Optional[str] = None,
-    ignore_main_return_code  : bool = True,
+    run_post_when_main_fails : bool = True,
     tag_name                 : str = "job",
     queue_name               : str = "normal",
     compute_group_name       : str = "jh2",
@@ -38,17 +38,15 @@ def create_pbs_job_script(
     email_address            : Optional[str] = None,
     email_on_start           : bool = False,
     email_on_finish          : bool = False,
-    propagate_main_exit_code : bool = True,
     verbose                  : bool = True,
   ) -> Path:
   """
   Create a PBS job script with optional pre/post steps.
 
-  - pre_command: runs before the main workload.
-  - main_command: primary workload (exit code is captured).
-  - post_command: runs either always or only if main succeeded.
-  - ignore_main_return_code: if True, post runs even if main fails.
-  - propagate_main_exit_code: if True, job exits with main's exit code.
+  - main_command (required): primary workload (exit code is captured).
+  - prep_command (optional): runs before the main workload.
+  - post_command (optional): runs either always or only if main succeeded.
+  - run_post_when_main_fails: if True, post runs even if main fails.
   """
   valid_systems = {
     "gadi": {
@@ -96,27 +94,28 @@ def create_pbs_job_script(
     job_file.write(f'LOG_FILE="{tag_name}.out"\n')
     job_file.write('exec >"$LOG_FILE" 2>&1\n\n')
     ## pre-command (if provided)
-    if pre_command:
-      job_file.write("## pre-command(s)\n")
-      job_file.write(f"{pre_command}\n\n")
+    if prep_command:
+      job_file.write("## preparation step(s)\n")
+      job_file.write(f"{prep_command.rstrip()}\n\n")
     ## main command
-    job_file.write("## main-command(s)\n")
+    job_file.write("## main workload (capture exit code)\n")
     job_file.write("main_command_exit_code=0\n")
-    job_file.write(f"{main_command} || main_command_exit_code=$?\n\n")
+    job_file.write(f"{main_command.rstrip()} || main_command_exit_code=$?\n")
+    job_file.write('echo "Main command exit code: $main_command_exit_code"\n\n')
     ## post-command (if provided)
     if post_command:
-      job_file.write("## post-command(s)\n")
-      if ignore_main_return_code:
-        job_file.write(f"{post_command}\n\n")
+      job_file.write("## post-processing step(s)\n")
+      job_file.write("post_command_exit_code=not_run\n")
+      if run_post_when_main_fails:
+        job_file.write(f"{post_command.rstrip()} || post_command_exit_code=$?\n")
       else:
         job_file.write('if [ "$main_command_exit_code" -eq 0 ]; then\n')
-        job_file.write(f"\t{post_command}\n")
+        job_file.write(f"\t{post_command.rstrip()} || post_command_exit_code=$?\n")
         job_file.write("fi\n\n")
-    ## exit policy
-    job_file.write("## exit policy\n")
-    if propagate_main_exit_code:
-      job_file.write('exit "$main_command_exit_code"\n')
-    else: job_file.write("exit 0\n")
+      job_file.write('echo "Post command exit code: $post_command_exit_code"\n\n')
+    ## exit policy: always reflect main command return code
+    job_file.write("## exit with the main command's exit code\n")
+    job_file.write('exit "$main_command_exit_code"\n')
   ## summary output
   if verbose:
     print("[Created PBS Job]")
