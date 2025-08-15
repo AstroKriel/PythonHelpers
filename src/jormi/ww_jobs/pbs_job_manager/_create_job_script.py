@@ -22,23 +22,23 @@ def _ensure_path_is_valid(file_path: Path):
   return file_path
 
 def create_pbs_job_script(
-    system_name              : str,
-    directory                : Union[str, Path],
-    file_name                : str,
-    main_command             : str,
-    prep_command             : Optional[str] = None,
-    post_command             : Optional[str] = None,
-    run_post_when_main_fails : bool = True,
-    tag_name                 : str = "job",
-    queue_name               : str = "normal",
-    compute_group_name       : str = "jh2",
-    num_procs                : int = 1,
-    wall_time_hours          : int = 1,
-    storage_group_name       : Optional[str] = None,
-    email_address            : Optional[str] = None,
-    email_on_start           : bool = False,
-    email_on_finish          : bool = False,
-    verbose                  : bool = True,
+    system_name        : str,
+    directory          : Union[str, Path],
+    file_name          : str,
+    main_command       : str,
+    prep_command       : Optional[str] = None,
+    post_command       : Optional[str] = None,
+    always_run_post    : bool = True,
+    tag_name           : str = "job",
+    queue_name         : str = "normal",
+    compute_group_name : str = "jh2",
+    num_procs          : int = 1,
+    wall_time_hours    : int = 1,
+    storage_group_name : Optional[str] = None,
+    email_address      : Optional[str] = None,
+    email_on_start     : bool = False,
+    email_on_finish    : bool = False,
+    verbose            : bool = True,
   ) -> Path:
   """
   Create a PBS job script with optional pre/post steps.
@@ -46,7 +46,7 @@ def create_pbs_job_script(
   - main_command (required): primary workload (exit code is captured).
   - prep_command (optional): runs before the main workload.
   - post_command (optional): runs either always or only if main succeeded.
-  - run_post_when_main_fails: if True, post runs even if main fails.
+  - always_run_post: if True, post runs even if the main command fails.
   """
   valid_systems = {
     "gadi": {
@@ -106,7 +106,7 @@ def create_pbs_job_script(
     if post_command:
       job_file.write("## post-processing step(s)\n")
       job_file.write("post_command_exit_code=not_run\n")
-      if run_post_when_main_fails:
+      if always_run_post:
         job_file.write(f"{post_command.rstrip()} || post_command_exit_code=$?\n")
       else:
         job_file.write('if [ "$main_command_exit_code" -eq 0 ]; then\n')
