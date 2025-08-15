@@ -47,10 +47,10 @@ def plot_sfield_slice(
     ax,
     field_slice  : numpy.ndarray,
     axis_bounds  : tuple[float, float, float, float] = (-1, 1, -1, 1),
-    cbar_bounds  : tuple[float, float] = None,
+    cbar_bounds  : tuple[float, float] | None = None,
     cmap_name    : str = "cmr.arctic",
     add_colorbar : bool = True,
-    cbar_label   : str = None,
+    cbar_label   : str | None = None,
     cbar_side    : str = "right",
   ):
   if field_slice.ndim != 2: raise ValueError("`field_slice` must be a 2D array.")
@@ -119,8 +119,8 @@ def plot_vfield_slice_streamplot(
     field_slice_rows     : numpy.ndarray,
     field_slice_cols     : numpy.ndarray,
     axis_bounds          : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
-    streamline_weights   : numpy.ndarray = None,
-    streamline_width     : float = None,
+    streamline_weights   : numpy.ndarray | None = None,
+    streamline_width     : float | None = None,
     streamline_scale     : float = 1.5,
     streamline_linestyle : str = "-",
     field_color          : str = "white",

@@ -15,7 +15,7 @@ import matplotlib.colors as mpl_colors
 
 def create_norm(
     vmin : float = 0.0,
-    vmid : float = None,
+    vmid : float | None = None,
     vmax : float = 1.0,
   ):
   if vmid is not None:
@@ -27,7 +27,7 @@ def create_cmap(
     cmin: float = 0.0,
     cmax: float = 1.0,
     vmin: float = 0.0,
-    vmid: float = None,
+    vmid: float | None = None,
     vmax: float = 1.0,
   ):
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
@@ -36,7 +36,7 @@ def create_cmap(
 
 def add_cbar_from_cmap(
     ax, cmap, norm,
-    label         : str = "",
+    label         : str | None = "",
     side          : str = "right",
     percentage    : float = 0.1,
     cbar_padding  : float = 0.02,
