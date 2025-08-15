@@ -7,6 +7,10 @@
 
 import numpy
 from pathlib import Path
+from typing import cast, Union
+from numpy.typing import NDArray
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from matplotlib import pyplot as mpl_plot
 from jormi.ww_plots.plot_styler import *
 
@@ -18,8 +22,24 @@ mpl_plot.switch_backend("agg")
 
 
 ## ###############################################################
+## TYPES
+## ###############################################################
+
+AxesGrid = NDArray[numpy.object_]
+AxesLike = Union[Axes, AxesGrid]
+
+
+## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
+
+def cast_to_axis(ax: AxesLike) -> Axes:
+  if isinstance(ax, Axes):
+    return ax
+  elif isinstance(ax, numpy.ndarray):
+    if ax.size == 1: return ax.item()
+    raise TypeError(f"Expected a single Axes, but got an array with shape {ax.shape}")
+  else: raise TypeError(f"Unsupported type for AxesLike: {type(ax)!r}")
 
 def create_figure(
     num_rows   : int   = 1,
@@ -30,7 +50,7 @@ def create_figure(
     y_spacing  : float = 0.05,
     share_x    : bool = False,
     share_y    : bool = False,
-  ) -> tuple[mpl_plot.Figure, numpy.ndarray]:
+  ) -> tuple[Figure, Union[Axes, numpy.ndarray]]:
   """Initialize a figure with a flexible grid layout."""
   fig_width  = fig_scale * axis_shape[1] * num_cols
   fig_height = fig_scale * axis_shape[0] * num_rows
@@ -40,9 +60,9 @@ def create_figure(
     figsize = (fig_width, fig_height),
     sharex  = share_x,
     sharey  = share_y,
+    squeeze = (num_rows == 1 and num_cols == 1),
   )
   fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
-  if (num_rows > 1) or (num_cols > 1): axs = numpy.squeeze(axs)
   return fig, axs
 
 def save_figure(
@@ -50,11 +70,11 @@ def save_figure(
     file_path : str | Path,
     draft     : bool = False,
     verbose   : bool = True
-  ):
-  if not (str(file_path).endswith(".png") or str(file_path).endswith(".pdf")):
-    raise ValueError("figures should either use a `.png` or `.pdf` file extension.")
+  ) -> None:
+  if not str(file_path).endswith(".png") and not str(file_path).endswith(".pdf"):
+    raise ValueError("Figures should end with .png or .pdf")
+  dpi = 100 if draft else 200
   try:
-    dpi = 100 if draft else 200
     fig.savefig(file_path, dpi=dpi)
     mpl_plot.close(fig)
     if verbose: print("Saved figure:", file_path)
