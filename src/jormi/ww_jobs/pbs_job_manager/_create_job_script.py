@@ -74,7 +74,7 @@ def create_pbs_job_script(
       job_file.write(f"#PBS -m {mail_options}\n")
       job_file.write(f"#PBS -M {email_address}\n")
     job_file.write("\n")
-    job_file.write("set -euo pipefail")
+    job_file.write("set -euo pipefail\n")
     job_file.write(f'LOG_FILE="{tag_name}.out"\n')
     job_file.write('exec >"$LOG_FILE" 2>&1\n\n')
     job_file.write(f"{command.rstrip()}\n")
