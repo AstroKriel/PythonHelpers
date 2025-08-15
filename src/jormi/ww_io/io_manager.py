@@ -101,7 +101,7 @@ def _print_file_action(
     directory_from : str | Path,
     directory_to   : str | Path | None = None,
   ):
-  print(f"{action}:")
+  print(f"[{action}]")
   print(f"\t> File: {file_name}")
   print(f"\t> From: {directory_from}")
   if directory_to is not None:
@@ -127,7 +127,7 @@ def copy_file(
     shutil.copymode(file_path_from, file_path_to)
   if verbose or dry_run:
     _print_file_action(
-      action         = "Copied" if not dry_run else "Would copy",
+      action         = "Copied File" if not dry_run else "Would Copy File",
       file_name      = file_name,
       directory_from = directory_from,
       directory_to   = directory_to
