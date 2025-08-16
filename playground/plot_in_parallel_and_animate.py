@@ -35,14 +35,14 @@ def main():
   independent_tasks.run_in_parallel(
     func             = render_sine_frame,
     grouped_args     = grouped_args,
-    timeout_seconds  = 60.0,
+    timeout_seconds  = 60,
     show_progress    = True,
     enable_plotting  = True,
   )
   plot_manager.animate_png_to_mp4(
     frames_dir = output_dir,
-    mp4_path   = output_dir / "animation_v3.mp4",
-    fps        = 120,
+    mp4_path   = output_dir / "animation.mp4",
+    fps        = 30,
   )
 
 if __name__ == "__main__":
