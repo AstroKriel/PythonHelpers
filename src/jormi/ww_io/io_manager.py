@@ -8,8 +8,8 @@
 import numpy
 import shutil
 import inspect
+from typing import List
 from pathlib import Path
-from typing import Union, List
 from jormi.utils import list_utils
 
 
@@ -177,8 +177,8 @@ class ItemFilter:
   def __init__(
       self,
       *,
-      include_string  : Union[str, List[str], None] = None,
-      exclude_string  : Union[str, List[str], None] = None,
+      include_string  : str | List[str] | None = None,
+      exclude_string  : str | List[str] | None = None,
       prefix          : str | None = None,
       suffix          : str | None = None,
       delimiter       : str = "_",
@@ -239,7 +239,7 @@ class ItemFilter:
       if not (self.min_value <= value <= self.max_value): return False
     return True
 
-  def filter(self, directory: Union[str, Path]) -> List[Path]:
+  def filter(self, directory: str | Path) -> List[Path]:
     """Filter item names in the given directory based on current criteria."""
     directory = Path(directory).absolute()
     does_directory_exist(directory, raise_error=True)
