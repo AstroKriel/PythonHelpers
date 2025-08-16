@@ -2,6 +2,13 @@
 
 
 ## ###############################################################
+## WORKSPACE SETUP
+## ###############################################################
+import matplotlib
+matplotlib.use("Agg", force=True)
+
+
+## ###############################################################
 ## DEPENDENCIES
 ## ###############################################################
 
@@ -13,12 +20,6 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib import pyplot as mpl_plot
 from jormi.ww_plots.plot_styler import *
-
-
-## ###############################################################
-## WORKSPACE SETUP
-## ###############################################################
-mpl_plot.switch_backend("agg")
 
 
 ## ###############################################################

@@ -58,11 +58,7 @@ def run_in_parallel(
       for task_index, error_message in failed_tasks
     ])
     raise RuntimeError(f"{len(failed_tasks)} tasks failed:\n{error_summary}")
-  return [
-    result
-    for result in task_results
-    if result is not None
-  ]
+  return task_results
 
 
 ## END OF MODULE
