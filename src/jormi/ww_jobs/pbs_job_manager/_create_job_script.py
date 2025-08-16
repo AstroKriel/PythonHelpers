@@ -5,7 +5,6 @@
 ## DEPENDENCIES
 ## ###############################################################
 
-from typing import Optional, Union
 from pathlib import Path
 from jormi.ww_io import io_manager
 from . import _job_validation
@@ -23,19 +22,19 @@ def _ensure_path_is_valid(file_path: Path):
 
 def create_pbs_job_script(
     system_name        : str,
-    directory          : Union[str, Path],
+    directory          : str | Path,
     file_name          : str,
     main_command       : str,
-    prep_command       : Optional[str] = None,
-    post_command       : Optional[str] = None,
+    prep_command       : str | None = None,
+    post_command       : str | None = None,
     always_run_post    : bool = True,
     tag_name           : str = "job",
     queue_name         : str = "normal",
     compute_group_name : str = "jh2",
     num_procs          : int = 1,
     wall_time_hours    : int = 1,
-    storage_group_name : Optional[str] = None,
-    email_address      : Optional[str] = None,
+    storage_group_name : str | None = None,
+    email_address      : str | None = None,
     email_on_start     : bool = False,
     email_on_finish    : bool = False,
     verbose            : bool = True,
