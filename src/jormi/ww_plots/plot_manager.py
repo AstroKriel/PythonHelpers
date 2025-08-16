@@ -13,13 +13,15 @@ matplotlib.use("Agg", force=True)
 ## ###############################################################
 
 import numpy
+import imageio.v3 as iio_v3
+from typing import cast
 from pathlib import Path
-from typing import cast, Union
 from numpy.typing import NDArray
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 from matplotlib import pyplot as mpl_plot
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from jormi.ww_plots.plot_styler import *
+from jormi.ww_io import io_manager
 
 
 ## ###############################################################
@@ -27,7 +29,7 @@ from jormi.ww_plots.plot_styler import *
 ## ###############################################################
 
 AxesGrid = NDArray[numpy.object_]
-AxesLike = Union[Axes, AxesGrid]
+AxesLike = Axes | AxesGrid
 
 
 ## ###############################################################
@@ -51,7 +53,7 @@ def create_figure(
     y_spacing  : float = 0.05,
     share_x    : bool = False,
     share_y    : bool = False,
-  ) -> tuple[Figure, Union[Axes, numpy.ndarray]]:
+  ) -> tuple[Figure, Axes | numpy.ndarray]:
   """Initialize a figure with a flexible grid layout."""
   fig_width  = fig_scale * axis_shape[1] * num_cols
   fig_height = fig_scale * axis_shape[0] * num_rows
@@ -89,6 +91,18 @@ def save_figure(
     print(f"Details: {exception}")
   except Exception as exception:
     print(f"Unexpected error while saving the figure to {file_path}: {exception}")
+
+def animate_pngs_to_gif(
+    png_paths : list[Path],
+    gif_path  : Path,
+    fps       : int = 30,
+) -> None:
+  io_manager.init_directory(gif_path.parent)
+  png_frames = [
+    iio_v3.imread(png_path)
+    for png_path in png_paths
+  ]
+  iio_v3.imwrite(gif_path, png_frames, duration=1/fps, loop=0)
 
 
 ## END OF MODULE
