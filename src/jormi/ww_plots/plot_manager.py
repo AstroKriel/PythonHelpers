@@ -70,14 +70,13 @@ def save_figure(
     fig,
     file_path : str | Path,
     draft     : bool = False,
-    verbose   : bool = True
+    verbose   : bool = True,
   ) -> None:
   if not str(file_path).endswith(".png") and not str(file_path).endswith(".pdf"):
     raise ValueError("Figures should end with .png or .pdf")
   dpi = 100 if draft else 200
   try:
     fig.savefig(file_path, dpi=dpi)
-    mpl_plot.close(fig)
     if verbose: print("Saved figure:", file_path)
   except FileNotFoundError as exception:
     print(f"FileNotFoundError: {exception}")
@@ -89,6 +88,8 @@ def save_figure(
     print(f"Details: {exception}")
   except Exception as exception:
     print(f"Unexpected error while saving the figure to {file_path}: {exception}")
+  finally:
+    mpl_plot.close(fig)
 
 def animate_png_to_mp4(
     frames_dir       : str | Path,
