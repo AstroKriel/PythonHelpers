@@ -13,15 +13,13 @@ matplotlib.use("Agg", force=True)
 ## ###############################################################
 
 import numpy
-import imageio.v3 as iio_v3
-from typing import cast
 from pathlib import Path
 from numpy.typing import NDArray
 from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots.plot_styler import *
-from jormi.ww_io import io_manager
 
 
 ## ###############################################################
@@ -92,17 +90,33 @@ def save_figure(
   except Exception as exception:
     print(f"Unexpected error while saving the figure to {file_path}: {exception}")
 
-def animate_pngs_to_gif(
-    png_paths : list[Path],
-    gif_path  : Path,
-    fps       : int = 30,
-) -> None:
-  io_manager.init_directory(gif_path.parent)
-  png_frames = [
-    iio_v3.imread(png_path)
-    for png_path in png_paths
-  ]
-  iio_v3.imwrite(gif_path, png_frames, duration=1/fps, loop=0)
+def animate_png_to_mp4(
+    frames_dir       : str | Path,
+    mp4_path         : str | Path,
+    pattern          : str = "frame_%05d.png",
+    fps              : int = 30,
+    timeout_seconds  : int = 60,
+  ) -> None:
+  frames_dir = Path(frames_dir)
+  mp4_path   = Path(mp4_path)
+  io_manager.init_directory(mp4_path.parent)
+  vf = 'pad=ceil(iw/2)*2:ceil(ih/2)*2'  # ensure even dimensions for yuv420p
+  cmd = (
+    f'ffmpeg -hide_banner -loglevel error -y '
+    f'-framerate {fps} '
+    f'-i {pattern} '
+    f'-vf "{vf}" '
+    f'-c:v libx264 -crf 18 -preset medium '
+    f'-pix_fmt yuv420p -movflags +faststart '
+    f'-r {fps} '
+    f'"{mp4_path}"'
+  )
+  shell_manager.execute_shell_command(
+    command           = cmd,
+    working_directory = frames_dir,
+    timeout_seconds   = timeout_seconds,
+  )
+  print("Saved:", mp4_path)
 
 
 ## END OF MODULE
