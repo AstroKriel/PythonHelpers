@@ -10,17 +10,21 @@ FONT_SIZES = {
 rcParams.update({
   ## LaTeX support
   "text.usetex" : True,
-  "text.latex.preamble" : r"\usepackage{bm, amsmath, mathrsfs, amssymb, url, xfrac}",
+  "text.latex.preamble": r"""
+    \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
+    \providecommand{\mathdefault}[1]{#1}
+  """,
 
   ## font settings
-  "font.family"      : "serif",
-  "font.size"        : FONT_SIZES["large"],
-  "axes.titlesize"   : FONT_SIZES["large"],
-  "axes.labelsize"   : FONT_SIZES["large"],
-  "xtick.labelsize"  : FONT_SIZES["medium"],
-  "ytick.labelsize"  : FONT_SIZES["medium"],
-  "legend.fontsize"  : FONT_SIZES["medium"],
-  "figure.titlesize" : FONT_SIZES["small"],
+  "font.family": "serif",
+  "font.size": FONT_SIZES["large"],
+  "axes.titlesize": FONT_SIZES["large"],
+  "axes.labelsize": FONT_SIZES["large"],
+  "xtick.labelsize": FONT_SIZES["medium"],
+  "ytick.labelsize": FONT_SIZES["medium"],
+  "legend.fontsize": FONT_SIZES["medium"],
+  "figure.titlesize": FONT_SIZES["small"],
+  "legend.fontsize": FONT_SIZES["medium"],
 
   ## line styles
   "lines.linewidth": 1.5,
@@ -38,17 +42,16 @@ rcParams.update({
   "xtick.minor.pad": 5, "ytick.minor.pad": 5,
 
   ## legend
-  "legend.fontsize": FONT_SIZES["medium"],
   "legend.labelspacing": 0.2,
   "legend.loc": "upper right",
   "legend.frameon": False,
 
   ## figure and saving settings
   "figure.figsize": (8.0, 6.0),
-  "savefig.dpi": 200, # resolution
+  "savefig.dpi": 200,
   "savefig.bbox": "tight",
   "savefig.transparent": False,
-  "savefig.pad_inches": 0.1, # padding around figure when saving
+  "savefig.pad_inches": 0.1,
 })
 
 ## END OF PARAMETERS
