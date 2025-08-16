@@ -35,7 +35,7 @@ def _enable_plotting_in_this_process() -> None:
   import matplotlib
   matplotlib.use("Agg", force=True)
   import os, tempfile
-  os.environ["TEXMFOUTPUT"] = tempfile.mkdtemp(prefix="mpltex_")
+  os.environ["TEXMFOUTPUT"] = tempfile.mkdtemp(prefix="mpl_tex_")
   matplotlib.rcParams["text.usetex"] = True
 
 def _invoke_with_plotting(
