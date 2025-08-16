@@ -51,7 +51,7 @@ def run_in_parallel(
     grouped_args    : Iterable[Any],
     timeout_seconds : float | None = None,
     show_progress   : bool = True,
-    enable_plotting : bool = False
+    enable_plotting : bool = False,
   ) -> List[Any]:
   _spawn_fresh_processes()
   grouped_args = _normalise_grouped_args(grouped_args)
@@ -76,7 +76,7 @@ def run_in_parallel(
         )
       pending_tasks.append((task_index, task))
     if show_progress:
-      pending_tasks = tqdm(pending_tasks, total=len(pending_tasks), desc="Processing", unit="task")
+      pending_tasks = tqdm(pending_tasks, total=len(pending_tasks), desc="Processing", unit="tasks")
     for task_index, task in pending_tasks:
       try:
         task_results[task_index] = task.result()
