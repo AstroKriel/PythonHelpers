@@ -61,7 +61,7 @@ def create_figure(
     figsize = (fig_width, fig_height),
     sharex  = share_x,
     sharey  = share_y,
-    squeeze = (num_rows == 1 and num_cols == 1),
+    squeeze = (num_rows == 1 or num_cols == 1),
   )
   fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
   return fig, axs
