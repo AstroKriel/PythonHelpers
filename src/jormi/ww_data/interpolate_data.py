@@ -6,7 +6,6 @@
 ## ###############################################################
 
 import numpy
-import warnings
 from scipy.interpolate import interp1d as scipy_interp1d
 from jormi.utils import list_utils
 
@@ -20,7 +19,7 @@ def interpolate_1d(
     y_values : numpy.ndarray,
     x_interp : numpy.ndarray,
     kind     : str = "cubic",
-  ) -> numpy.ndarray:
+  ) -> tuple[numpy.ndarray, numpy.ndarray]:
   x_values = numpy.asarray(x_values, dtype=numpy.float64)
   y_values = numpy.asarray(y_values, dtype=numpy.float64)
   x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
@@ -35,7 +34,7 @@ def interpolate_1d(
   x_max_values = x_values[-1]
   in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_values)
   num_out_of_bounds = numpy.sum(~in_bounds_mask)
-  if num_out_of_bounds > 0: warnings.warn(f"Removing {num_out_of_bounds} `x_interp` points that are outside the interpolated domain.")
+  if num_out_of_bounds > 0: print(f"Removing {num_out_of_bounds} `x_interp` points that are outside the interpolated domain.")
   interpolator = scipy_interp1d(
     x_values,
     y_values,
@@ -45,7 +44,7 @@ def interpolate_1d(
   )
   x_interp_in_bounds = x_interp[in_bounds_mask]
   y_interp_in_bounds = interpolator(x_interp_in_bounds)
-  return x_interp_in_bounds, y_interp_in_bounds
+  return (x_interp_in_bounds, y_interp_in_bounds)
 
 
 ## END OF MODULE
