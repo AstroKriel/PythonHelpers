@@ -13,16 +13,13 @@ from scipy.optimize import curve_fit
 ## FUNCTIONS
 ## ###############################################################
 
-def linear_function(intercept, slope, x_values):
-  return intercept + slope * numpy.array(x_values)
-
 def get_linear_intercept(slope, x_ref, y_ref):
   return y_ref - slope * x_ref
 
 def get_powerlaw_coefficient(exponent, x_ref, y_ref):
   return y_ref / x_ref**exponent
 
-def get_line_angle_in_box(slope, domain_bounds, domain_aspect_ratio=1.0):
+def get_line_angle(slope, domain_bounds, domain_aspect_ratio=1.0):
   x_min, x_max, y_min, y_max = domain_bounds
   data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
   scale_x = 1
@@ -33,16 +30,21 @@ def get_line_angle_in_box(slope, domain_bounds, domain_aspect_ratio=1.0):
   angle_deg = angle_rad * 180 / numpy.pi
   return angle_deg
 
+def linear_function(x_values, intercept, slope):
+  return intercept + slope * numpy.array(x_values)
+
 def fit_1d_linear_model(
     x_values    : list | numpy.ndarray,
     y_values    : list | numpy.ndarray,
     index_start : int = 0,
-    index_end   : int | None = None
+    index_end   : int | None = None,
   ) -> dict:
   """Fits a linear function to data using least squares optimization."""
+  x_values = numpy.asarray(x_values, dtype=float)
+  y_values = numpy.asarray(y_values, dtype=float)
   if index_end is None: index_end = len(x_values)
   if len(x_values) != len(y_values): raise ValueError("`x_values` and `y_values` must have the same length.")
-  ## note: truncates values locally: if input arguments are lists, then they will not be mutated
+  ## note: truncates values locally. even if the input args are lists, they will not be mutated globally
   x_values = x_values[index_start:index_end]
   y_values = y_values[index_start:index_end]
   fitted_params, fit_covariance = curve_fit(linear_function, x_values, y_values)
@@ -50,7 +52,8 @@ def fit_1d_linear_model(
   if fit_covariance is not None:
     intercept_std, slope_std = numpy.sqrt(numpy.diag(fit_covariance))
   else: intercept_std, slope_std = (None, None)
-  residual = numpy.sum(numpy.square(y_values - linear_function(x_values, *fitted_params)))
+  residual = y_values - linear_function(x_values, *fitted_params)
+  ssr = numpy.sum(numpy.square(residual))
   return {
     "intercept": {
       "best": intercept,
@@ -60,8 +63,33 @@ def fit_1d_linear_model(
       "best": slope,
       "std": slope_std
     },
-    "residual": residual
+    "residual": residual,
+    "ssr": ssr,
   }
 
+def fit_line_with_fixed_slope(
+    x_values : list | numpy.ndarray,
+    y_values : list | numpy.ndarray,
+    slope    : float,
+  ) -> dict:
+  x_values = numpy.asarray(x_values, dtype=float)
+  y_values = numpy.asarray(y_values, dtype=float)
+  if len(x_values) != len(y_values): raise ValueError("`x_values` and `y_values` must have the same length.")
+  num_values = len(x_values)
+  if num_values < 2: raise ValueError("Need at least 2 points to estimate std.")
+  intercept_best = numpy.mean(y_values - slope * x_values)
+  residual_values = y_values - (intercept_best + slope * x_values)
+  ssr = numpy.sum(numpy.square(residual_values))
+  sigma_squared = ssr / (num_values - 1)
+  intercept_std = numpy.sqrt(sigma_squared / num_values)
+  return {
+    "intercept": {
+      "best": intercept_best,
+      "std": intercept_std
+    },
+    "slope": {"best": slope, "std": None},
+    "residual": residual_values,
+    "ssr": ssr,
+  }
 
 ## END OF MODULE
