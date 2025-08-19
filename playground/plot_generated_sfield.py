@@ -6,6 +6,7 @@
 ## ###############################################################
 
 import numpy
+from pathlib import Path
 from jormi.ww_data import fit_data
 from jormi.ww_plots import plot_manager, plot_data, add_annotations
 from jormi.ww_fields import generate_fields, compute_spectra
@@ -44,7 +45,7 @@ def main():
     x_ref = 1,
     y_ref = -12,
   )
-  rotate_deg = fit_data.get_line_angle_in_box(
+  rotate_deg = fit_data.get_line_angle(
     slope               = -5/3,
     domain_bounds       = [0, 2, -14, -11],
     domain_aspect_ratio = 6/4,
@@ -76,7 +77,9 @@ def main():
     axs[1].imshow(sfield[:,:,num_cells//2], cmap="cmr.rainforest")
   axs[1].set_xticks([])
   axs[1].set_yticks([])
-  plot_manager.save_figure(fig, "generated_powerlaw_sfield.png")
+  script_path = Path(__file__).parent
+  plot_path = script_path / "generated_powerlaw_sfield.png"
+  plot_manager.save_figure(fig, plot_path)
 
 
 ## ###############################################################

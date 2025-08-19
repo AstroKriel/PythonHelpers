@@ -13,7 +13,6 @@ def render_sine_frame(
   phase = frame_index / max(1, num_frames - 1)
   y = numpy.sin(2 * numpy.pi * (x - phase))
   fig, ax = plot_manager.create_figure()
-  ax = plot_manager.cast_to_axis(ax)
   ax.plot(x, y, linewidth=2.0)
   ax.set_xlim(0, 1)
   ax.set_ylim(-1.1, 1.1)

@@ -12,35 +12,17 @@ matplotlib.use("Agg", force=True)
 ## DEPENDENCIES
 ## ###############################################################
 
-import numpy
+from typing import Any
 from pathlib import Path
-from numpy.typing import NDArray
 from matplotlib import pyplot as mpl_plot
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots.plot_styler import *
 
 
 ## ###############################################################
-## TYPES
-## ###############################################################
-
-AxesGrid = NDArray[numpy.object_]
-AxesLike = Axes | AxesGrid
-
-
-## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-
-def cast_to_axis(ax: AxesLike) -> Axes:
-  if isinstance(ax, Axes):
-    return ax
-  elif isinstance(ax, numpy.ndarray):
-    if ax.size == 1: return ax.item()
-    raise TypeError(f"Expected a single Axes, but got an array with shape {ax.shape}")
-  else: raise TypeError(f"Unsupported type for AxesLike: {type(ax)!r}")
 
 def create_figure(
     num_rows   : int   = 1,
@@ -51,7 +33,7 @@ def create_figure(
     y_spacing  : float = 0.05,
     share_x    : bool = False,
     share_y    : bool = False,
-  ) -> tuple[Figure, Axes | numpy.ndarray]:
+  ) -> tuple[Figure, Any]:
   """Initialize a figure with a flexible grid layout."""
   fig_width  = fig_scale * axis_shape[1] * num_cols
   fig_height = fig_scale * axis_shape[0] * num_rows
