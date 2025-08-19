@@ -16,15 +16,15 @@ from jormi.ww_plots import add_color
 ## ###############################################################
 
 def plot_wo_scaling_axis(
-    ax      : mpl_axes.Axes,
-    x_values  : list[float] | numpy.ndarray,
-    y_values  : list[float] | numpy.ndarray,
-    color   : str = "black",
-    ls      : str = ":",
-    lw      : float = 1,
-    label   : str | None = None,
-    alpha   : float = 1.0,
-    zorder  : float = 1
+    ax       : mpl_axes.Axes,
+    x_values : list[float] | numpy.ndarray,
+    y_values : list[float] | numpy.ndarray,
+    color    : str = "black",
+    ls       : str = ":",
+    lw       : float = 1.0,
+    label    : str | None = None,
+    alpha    : float = 1.0,
+    zorder   : float = 1.0
   ):
   x_values = numpy.asarray(x_values)
   y_values = numpy.asarray(y_values)
@@ -46,7 +46,7 @@ def plot_wo_scaling_axis(
 def plot_sfield_slice(
     ax,
     field_slice  : numpy.ndarray,
-    axis_bounds  : tuple[float, float, float, float] = (-1, 1, -1, 1),
+    axis_bounds  : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
     cbar_bounds  : tuple[float, float] | None = None,
     cmap_name    : str = "cmr.arctic",
     add_colorbar : bool = True,
