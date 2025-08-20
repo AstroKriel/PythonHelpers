@@ -73,26 +73,22 @@ def save_figure(
   finally:
     mpl_plot.close(fig)
 
-def animate_png_to_mp4(
-    frames_dir       : str | Path,
-    mp4_path         : str | Path,
-    pattern          : str = "frame_%05d.png",
-    fps              : int = 30,
-    timeout_seconds  : int = 60,
+def animate_pngs_to_mp4(
+    frames_dir      : str | Path,
+    mp4_path        : str | Path,
+    pattern         : str = "frame_%05d.png",
+    fps             : int = 30,
+    timeout_seconds : int = 60,
   ) -> None:
   frames_dir = Path(frames_dir)
   mp4_path   = Path(mp4_path)
   io_manager.init_directory(mp4_path.parent)
-  vf = 'pad=ceil(iw/2)*2:ceil(ih/2)*2'  # ensure even dimensions for yuv420p
   cmd = (
     f'ffmpeg -hide_banner -loglevel error -y '
-    f'-framerate {fps} '
-    f'-i {pattern} '
-    f'-vf "{vf}" '
-    f'-c:v libx264 -crf 18 -preset medium '
-    f'-pix_fmt yuv420p -movflags +faststart '
-    f'-r {fps} '
-    f'"{mp4_path}"'
+    f'-framerate {fps} -i {pattern} '
+    f'-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" '
+    f'-c:v mpeg4 -q:v 3 -pix_fmt yuv420p '
+    f'-r {fps} "{mp4_path}"'
   )
   shell_manager.execute_shell_command(
     command           = cmd,
