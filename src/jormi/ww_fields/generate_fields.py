@@ -22,7 +22,7 @@ def generate_gaussian_random_sfield(
   white_noise = numpy.random.normal(0, 1, (num_cells,) * num_dims)
   ki_values   = numpy.fft.fftfreq(num_cells)
   grid_k_vec  = numpy.meshgrid(*(ki_values for _ in range(num_dims)), indexing="ij")
-  grid_k_magn = numpy.sqrt(numpy.sum(numpy.square(grid_k_comp) for grid_k_comp in grid_k_vec))
+  grid_k_magn = numpy.sqrt(numpy.sum([numpy.square(grid_k_comp) for grid_k_comp in grid_k_vec]))
   fft_filter  = numpy.exp(-0.5 * numpy.square(numpy.multiply(grid_k_magn, correlation_length)))
   sfield_fft  = fft_filter * numpy.fft.fftn(white_noise)
   sfield      = numpy.real(numpy.fft.ifftn(sfield_fft))
@@ -31,7 +31,7 @@ def generate_gaussian_random_sfield(
 def generate_powerlaw_sfield(
     num_cells  : int,
     alpha_perp : float,
-    alpha_para : float = None,
+    alpha_para : float | None = None,
   ) -> numpy.ndarray:
   """
   Generates a 3-dimensional random scalar field with a power-law power spectrum.
