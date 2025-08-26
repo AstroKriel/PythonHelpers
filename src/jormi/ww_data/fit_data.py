@@ -71,13 +71,20 @@ def fit_line_with_fixed_slope(
     x_values : list | numpy.ndarray,
     y_values : list | numpy.ndarray,
     slope    : float,
+    y_sigmas : list | numpy.ndarray | None = None,
   ) -> dict:
   x_values = numpy.asarray(x_values, dtype=float)
   y_values = numpy.asarray(y_values, dtype=float)
   if len(x_values) != len(y_values): raise ValueError("`x_values` and `y_values` must have the same length.")
   num_values = len(x_values)
   if num_values < 2: raise ValueError("Need at least 2 points to estimate std.")
-  intercept_best = numpy.mean(y_values - slope * x_values)
+  if y_sigmas is None:
+    y_sigmas = numpy.ones_like(y_values)
+  elif len(y_sigmas) != len(y_values): raise ValueError("`y_sigmas` and `y_values` must have the same length.")
+  weights = 1.0 / numpy.square(y_sigmas)
+  intercept_best = (
+      numpy.sum(weights * y_values) - slope * numpy.sum(weights * x_values)
+    ) / numpy.sum(weights)
   residual_values = y_values - (intercept_best + slope * x_values)
   ssr = numpy.sum(numpy.square(residual_values))
   sigma_squared = ssr / (num_values - 1)
