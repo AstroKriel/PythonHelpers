@@ -49,13 +49,14 @@ def run_in_parallel(
     *,
     func            : Callable[..., Any],
     grouped_args    : Iterable[Any],
+    num_workers     : int | None = None,
     timeout_seconds : float | None = None,
     show_progress   : bool = True,
     enable_plotting : bool = False,
   ) -> List[Any]:
   _spawn_fresh_processes()
   grouped_args = _normalise_grouped_args(grouped_args)
-  num_workers  = os.cpu_count() or 1
+  if num_workers is None: num_workers = os.cpu_count() or 1
   task_results : list[Any] = [None] * len(grouped_args)
   failed_tasks : list[tuple[int, str]] = []
   with ProcessPool(max_workers=num_workers) as pool:
