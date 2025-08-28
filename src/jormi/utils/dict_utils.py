@@ -6,7 +6,8 @@
 ## ###############################################################
 
 import copy
-from jormi.utils import var_utils, func_utils
+from jormi.utils import func_utils
+from jormi.ww_types import validate_types
 
 
 ## ###############################################################
@@ -18,9 +19,9 @@ def merge_dicts(
     dict_a : dict,
     dict_b : dict,
   ) -> dict:
-  """Recursively merge two dictionaries (without modifying the inputs; where relevant, `dict_b` will be prefered)."""
-  var_utils.assert_type(dict_a, dict)
-  var_utils.assert_type(dict_b, dict)
+  """Recursively merge two dictionaries (`dict_b` will be prefered)."""
+  validate_types.assert_type(dict_a, dict)
+  validate_types.assert_type(dict_b, dict)
   merged_dict = dict_a.copy()
   for key, value in dict_b.items():
     if key in merged_dict:
