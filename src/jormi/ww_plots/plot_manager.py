@@ -4,6 +4,7 @@
 ## ###############################################################
 ## WORKSPACE SETUP
 ## ###############################################################
+
 import matplotlib
 matplotlib.use("Agg", force=True)
 
@@ -17,7 +18,6 @@ from pathlib import Path
 from matplotlib import pyplot as mpl_plot
 from matplotlib.figure import Figure
 from jormi.ww_io import io_manager, shell_manager
-from jormi.ww_plots.plot_styler import *
 
 
 ## ###############################################################
