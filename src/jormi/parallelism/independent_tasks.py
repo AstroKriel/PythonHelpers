@@ -31,18 +31,25 @@ def _normalise_grouped_args(grouped_args: Iterable[Any]) -> List[List[Any]]:
     else: _grouped_args.append([args])
   return _grouped_args
 
-def _enable_plotting_in_this_process() -> None:
+def _enable_plotting(
+    theme   : str = "light",
+    use_tex : bool = True,
+  ) -> None:
+  import os, tempfile
+  os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mpl_cfg_"))
+  os.environ.setdefault("TEXMFOUTPUT",  tempfile.mkdtemp(prefix="mpl_tex_"))
   import matplotlib
   matplotlib.use("Agg", force=True)
-  import os, tempfile
-  os.environ["TEXMFOUTPUT"] = tempfile.mkdtemp(prefix="mpl_tex_")
-  matplotlib.rcParams["text.usetex"] = True
+  from jormi.ww_plots.plot_styler import apply_theme_globally
+  apply_theme_globally(theme=theme, use_tex=use_tex)
 
 def _invoke_with_plotting(
     func      : Callable[..., Any],
     task_args : List[Any],
+    theme     : str = "light",
+    use_tex   : bool = True,
   ) -> Any:
-  _enable_plotting_in_this_process()
+  _enable_plotting(theme=theme, use_tex=use_tex)
   return func(*task_args)
 
 def run_in_parallel(
@@ -53,6 +60,8 @@ def run_in_parallel(
     timeout_seconds : float | None = None,
     show_progress   : bool = True,
     enable_plotting : bool = False,
+    theme           : str = "light",
+    use_tex         : bool = True,
   ) -> List[Any]:
   _spawn_fresh_processes()
   grouped_args = _normalise_grouped_args(grouped_args)
@@ -65,9 +74,24 @@ def run_in_parallel(
       if enable_plotting:
         task_pair = [func, task_args]
         task = (
-          pool.schedule(_invoke_with_plotting, args=task_pair, timeout=timeout_seconds)
+          pool.schedule(
+            _invoke_with_plotting,
+            args    = task_pair,
+            timeout = timeout_seconds,
+            kwargs  = {
+              "theme": theme,
+              "use_tex": use_tex,
+            },
+          )
           if timeout_seconds is not None else
-          pool.schedule(_invoke_with_plotting, args=task_pair)
+          pool.schedule(
+            _invoke_with_plotting,
+            args   = task_pair,
+            kwargs = {
+              "theme": theme,
+              "use_tex": use_tex,
+            },
+          )
         )
       else:
         task = (
