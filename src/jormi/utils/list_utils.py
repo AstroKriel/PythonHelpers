@@ -6,7 +6,7 @@
 ## ###############################################################
 
 import numpy
-from jormi.utils import var_utils
+from jormi.ww_types import validate_types
 
 
 ## ###############################################################
@@ -25,8 +25,8 @@ def get_index_of_closest_value(
     target: float,
   ) -> int:
   """Find the index of the closest value to a `target` value."""
-  var_utils.assert_type(values, (list, numpy.ndarray))
-  var_utils.assert_type(target, (int, float))
+  validate_types.assert_type(values, (list, numpy.ndarray))
+  validate_types.assert_type(target, (int, float))
   if len(values) == 0: raise ValueError("Input list cannot be empty")
   array = numpy.asarray(values)
   if target is None: return None
@@ -87,8 +87,8 @@ def get_intersect_of_lists(
     sort_values: bool = False,
   ) -> list:
   """Find the intersection of two lists (optionally sorted)."""
-  var_utils.assert_type(list_a, (list, numpy.ndarray))
-  var_utils.assert_type(list_b, (list, numpy.ndarray))
+  validate_types.assert_type(list_a, (list, numpy.ndarray))
+  validate_types.assert_type(list_b, (list, numpy.ndarray))
   if (len(list_a) == 0) or (len(list_b) == 0): return []
   set_intersect = set(list_a) & set(list_b)
   return sorted(set_intersect) if sort_values else list(set_intersect)
@@ -99,15 +99,15 @@ def get_union_of_lists(
     sort_values: bool = False,
   ) -> list:
   """Find the union of two lists (optionally sorted)."""
-  var_utils.assert_type(list_a, (list, numpy.ndarray))
-  var_utils.assert_type(list_b, (list, numpy.ndarray))
+  validate_types.assert_type(list_a, (list, numpy.ndarray))
+  validate_types.assert_type(list_b, (list, numpy.ndarray))
   if (len(list_a) == 0) or (len(list_b) == 0): return list(list_a) + list(list_b)
   set_union = set(list_a) | set(list_b)
   return sorted(set_union) if sort_values else list(set_union)
 
 def flatten_list(elems : list | numpy.ndarray) -> list:
   """Flatten a nested list into a single list."""
-  var_utils.assert_type(elems, (list, numpy.ndarray))
+  validate_types.assert_type(elems, (list, numpy.ndarray))
   flat_elems = []
   for elem in list(elems):
     if isinstance(elem, (list, numpy.ndarray)):
