@@ -32,16 +32,18 @@ def main():
     for frame_index in range(num_frames)
   ]
   independent_tasks.run_in_parallel(
-    func             = render_sine_frame,
-    grouped_args     = grouped_args,
-    timeout_seconds  = 60,
-    show_progress    = True,
-    enable_plotting  = True,
+    func            = render_sine_frame,
+    grouped_args    = grouped_args,
+    timeout_seconds = 60,
+    show_progress   = True,
+    enable_plotting = True,
+    theme           = "dark",
+    use_tex         = True,
   )
-  plot_manager.animate_png_to_mp4(
+  plot_manager.animate_pngs_to_mp4(
     frames_dir = output_dir,
     mp4_path   = output_dir / "animation.mp4",
-    fps        = 30,
+    fps        = 60,
   )
 
 if __name__ == "__main__":
