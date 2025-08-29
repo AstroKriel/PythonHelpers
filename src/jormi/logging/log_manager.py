@@ -6,7 +6,7 @@
 ## ###############################################################
 
 from enum import Enum
-from typing import Mapping, Sequence, Tuple, Optional, Any
+from typing import Tuple, Any
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -77,10 +77,10 @@ STATUS_LABEL: dict[Status, Tuple[str, str]] = {
 @dataclass
 class RecordAction:
   action : str
-  fields : dict[str, Any]
   status : Status = Status.SUCCESS
-  status_message : Optional[str] = None
-  timestamp : Optional[str] = None
+  status_message : str | None = None
+  timestamp : str | None = None
+  notes : dict[str, Any] | None = None
 
 
 ## ###############################################################
@@ -91,37 +91,37 @@ def get_timestamp() -> str:
   return datetime.now().isoformat(sep=" ", timespec="seconds")
 
 def print_line(
-  message: str,
-  *,
-  level: Level = Level.INFO,
-  timestamp: str | None = None,
-  show_time: bool = False,
-  show_symbol: bool = True,
+  message     : str,
+  level       : Level = Level.INFO,
+  timestamp   : str | None = None,
+  show_time   : bool = False,
+  show_symbol : bool = True,
 ) -> None:
-  """Timestamp first, then colored icon (optional), then message."""
+  ## generate timestamp if not provided
   if timestamp is None: timestamp = get_timestamp()
+  ## collect parts of the line: "[icon] [timestamp] message"
   parts: list[str] = []
+  ## prepend coloured symbol if enabled
   if show_symbol:
     symbol, color_style = LEVEL_ICON[level]
     parts.append(f"[{color_style}]{symbol}[/]")
+  ## prepend timestamp if enabled
   if show_time: parts.append(f"[{timestamp}]")
+  ## always append main message
   parts.append(message)
+  ## join parts with spaces and render via Rich
   _CONSOLE.print(" ".join(parts))
 
 def print_block(
-  record: RecordAction,
-  *,
+  record    : RecordAction,
   show_time : bool = True,
   min_width : int = 50,
   max_width : int = 100,
 ) -> None:
-  """
-  Rounded panel. Title = "[time] <action> : <STATUS>" with color only on STATUS.
-  Inside rows are plain; final row prints status_message (if present) in status color.
-  The panel width grows to fit content (within min/max clamps).
-  """
   status_text, status_color = STATUS_LABEL[record.status]
+  ## include timestamp prefix if enabled
   timestamp_prefix = f"[{record.timestamp or get_timestamp()}]" if show_time else ""
+  ## build panel title: "[time] Action : STATUS"
   title_text = Text()
   if timestamp_prefix:
     title_text.append(timestamp_prefix, style=Colours.GREY.value)
@@ -129,23 +129,31 @@ def print_block(
   title_text.append(record.action)
   title_text.append(" : ")
   title_text.append(status_text, style=status_color)
+  ## build panel body lines from notes (if provided)
+  row_prefix = Symbols.DASH.value
   body_lines: list[Text] = []
-  line_symbol = Symbols.DASH.value
-  for key_label, value in record.fields.items():
-    line = Text(f"{line_symbol} ", style=Colours.GREY.value)
-    line.append(str(key_label), style=Colours.GREY.value)
-    line.append(" : ")
-    line.append(str(value), style="bold")
-    body_lines.append(line)
+  if record.notes:
+    if not isinstance(record.notes, dict):
+      raise TypeError("RecordAction.notes must be a dict[str, Any] if provided.")
+    for key_label, value in record.notes.items():
+      line = Text(f"{row_prefix} ", style=Colours.GREY.value)
+      line.append(str(key_label), style=Colours.GREY.value)
+      line.append(" : ")
+      line.append(str(value), style="bold")
+      body_lines.append(line)
+  ## add trailing status_message
   if record.status_message:
-    body_lines.append(Text(f"{line_symbol} {record.status_message}", style=status_color))
-  content_width = 0
-  if body_lines: content_width = max(t.cell_len for t in body_lines)
-  content_width = max(content_width, title_text.cell_len)
+    body_lines.append(Text(f"{row_prefix} {record.status_message}", style=status_color))
+  ## compute width needed to fit content
+  content_width = title_text.cell_len
+  if body_lines:
+    content_width = max(content_width, max(t.cell_len for t in body_lines))
+  ## add padding + clamp width to [min_width, max_width]
   horizontal_padding = 2
   borders = 2
   panel_width_needed = content_width + horizontal_padding + borders
   panel_width = max(min_width, min(panel_width_needed, max_width))
+  ## render text block
   panel = Panel(
     Text("\n").join(body_lines),
     title       = title_text,
