@@ -13,10 +13,13 @@ matplotlib.use("Agg", force=True)
 ## DEPENDENCIES
 ## ###############################################################
 
-from typing import Any
+from typing import Literal, Any
 from pathlib import Path
+from matplotlib import rcParams
 from matplotlib import pyplot as mpl_plot
+from matplotlib.axes import Axes as mpl_axes
 from matplotlib.figure import Figure
+from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
 
 
@@ -48,15 +51,49 @@ def create_figure(
   fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
   return fig, axs
 
+def add_inset_axis(
+    ax           : mpl_axes,
+    bounds       : tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
+    x_label      : str | None = None,
+    y_label      : str | None = None,
+    fontsize     : float | None = None,
+    x_label_side : Literal["bottom", "top"] = "top",
+    y_label_side : Literal["left", "right"] = "right",
+  ):
+  valid_x_sides = [ "top", "bottom" ]
+  valid_y_sides = [ "left", "right" ]
+  if x_label_side not in valid_x_sides: raise ValueError(f"`x_label_side` = `{x_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
+  if y_label_side not in valid_y_sides: raise ValueError(f"`y_label_side` = `{y_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}")
+  ax_inset = ax.inset_axes(bounds)
+  if fontsize is None: fontsize = rcParams["axes.labelsize"]
+  if x_label is not None: ax_inset.set_xlabel(x_label, fontsize=fontsize)
+  if y_label is not None: ax_inset.set_ylabel(y_label, fontsize=fontsize)
+  ax_inset.xaxis.set_label_position(x_label_side)
+  ax_inset.yaxis.set_label_position(y_label_side)
+  ax_inset.tick_params(
+    axis        = "x",
+    labeltop    = (x_label_side == "top"),
+    labelbottom = (x_label_side == "bottom"),
+    top         = True,
+    bottom      = True,
+  )
+  ax_inset.tick_params(
+    axis        = "y",
+    labelleft   = (y_label_side == "left"),
+    labelright  = (y_label_side == "right"),
+    left        = True,
+    right       = True,
+  )
+  return ax_inset
+
 def save_figure(
     fig,
     file_path : str | Path,
-    draft     : bool = False,
+    dpi       : int = 200,
     verbose   : bool = True,
   ) -> None:
   if not str(file_path).endswith(".png") and not str(file_path).endswith(".pdf"):
     raise ValueError("Figures should end with .png or .pdf")
-  dpi = 100 if draft else 200
   try:
     fig.savefig(file_path, dpi=dpi)
     if verbose: print("Saved figure:", file_path)
