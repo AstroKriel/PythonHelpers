@@ -14,35 +14,35 @@ import matplotlib.colors as mpl_colors
 ## ###############################################################
 
 def create_norm(
-    vmin : float = 0.0,
-    vmid : float | None = None,
-    vmax : float = 1.0,
-  ):
+  vmin : float = 0.0,
+  vmid : float | None = None,
+  vmax : float = 1.0,
+):
   if vmid is not None:
     return mpl_colors.TwoSlopeNorm(vmin=vmin, vcenter=vmid, vmax=vmax)
   else: return mpl_colors.Normalize(vmin=vmin, vmax=vmax)
 
 def create_cmap(
-    cmap_name: str,
-    cmin: float = 0.0,
-    cmax: float = 1.0,
-    vmin: float = 0.0,
-    vmid: float | None = None,
-    vmax: float = 1.0,
-  ):
+  cmap_name: str,
+  cmin: float = 0.0,
+  cmax: float = 1.0,
+  vmin: float = 0.0,
+  vmid: float | None = None,
+  vmax: float = 1.0,
+):
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
   norm = create_norm(vmin=vmin, vmid=vmid, vmax=vmax)
   return cmap, norm
 
 def add_cbar_from_cmap(
-    ax, cmap, norm,
-    label         : str | None = "",
-    side          : str = "right",
-    percentage    : float = 0.1,
-    cbar_padding  : float = 0.02,
-    label_padding : float = 10,
-    fontsize      : float = 20,
-  ):
+  ax, cmap, norm,
+  label         : str | None = "",
+  side          : str = "right",
+  percentage    : float = 0.1,
+  cbar_padding  : float = 0.02,
+  label_padding : float = 10,
+  fontsize      : float = 20,
+):
   fig = ax.figure
   box = ax.get_position()
   if side in [ "left", "right" ]:

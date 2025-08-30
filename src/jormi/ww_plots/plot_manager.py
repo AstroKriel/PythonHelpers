@@ -28,15 +28,15 @@ from jormi.ww_io import io_manager, shell_manager
 ## ###############################################################
 
 def create_figure(
-    num_rows   : int   = 1,
-    num_cols   : int   = 1,
-    fig_scale  : float = 1.0,
-    axis_shape : tuple = (4, 6),
-    x_spacing  : float = 0.05,
-    y_spacing  : float = 0.05,
-    share_x    : bool = False,
-    share_y    : bool = False,
-  ) -> tuple[Figure, Any]:
+  num_rows   : int   = 1,
+  num_cols   : int   = 1,
+  fig_scale  : float = 1.0,
+  axis_shape : tuple = (4, 6),
+  x_spacing  : float = 0.05,
+  y_spacing  : float = 0.05,
+  share_x    : bool = False,
+  share_y    : bool = False,
+) -> tuple[Figure, Any]:
   """Initialize a figure with a flexible grid layout."""
   fig_width  = fig_scale * axis_shape[1] * num_cols
   fig_height = fig_scale * axis_shape[0] * num_rows
@@ -52,14 +52,14 @@ def create_figure(
   return fig, axs
 
 def add_inset_axis(
-    ax           : mpl_axes,
-    bounds       : tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
-    x_label      : str | None = None,
-    y_label      : str | None = None,
-    fontsize     : float | None = None,
-    x_label_side : Literal["bottom", "top"] = "top",
-    y_label_side : Literal["left", "right"] = "right",
-  ):
+  ax           : mpl_axes,
+  bounds       : tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
+  x_label      : str | None = None,
+  y_label      : str | None = None,
+  fontsize     : float | None = None,
+  x_label_side : Literal["bottom", "top"] = "top",
+  y_label_side : Literal["left", "right"] = "right",
+):
   valid_x_sides = [ "top", "bottom" ]
   valid_y_sides = [ "left", "right" ]
   if x_label_side not in valid_x_sides: raise ValueError(f"`x_label_side` = `{x_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_x_sides)}")
@@ -87,11 +87,11 @@ def add_inset_axis(
   return ax_inset
 
 def save_figure(
-    fig,
-    file_path : str | Path,
-    dpi       : int = 200,
-    verbose   : bool = True,
-  ) -> None:
+  fig,
+  file_path : str | Path,
+  dpi       : int = 200,
+  verbose   : bool = True,
+) -> None:
   if not str(file_path).endswith(".png") and not str(file_path).endswith(".pdf"):
     raise ValueError("Figures should end with .png or .pdf")
   try:
@@ -111,12 +111,12 @@ def save_figure(
     mpl_plot.close(fig)
 
 def animate_pngs_to_mp4(
-    frames_dir      : str | Path,
-    mp4_path        : str | Path,
-    pattern         : str = "frame_%05d.png",
-    fps             : int = 30,
-    timeout_seconds : int = 60,
-  ) -> None:
+  frames_dir      : str | Path,
+  mp4_path        : str | Path,
+  pattern         : str = "frame_%05d.png",
+  fps             : int = 30,
+  timeout_seconds : int = 60,
+) -> None:
   frames_dir = Path(frames_dir)
   mp4_path   = Path(mp4_path)
   io_manager.init_directory(mp4_path.parent)

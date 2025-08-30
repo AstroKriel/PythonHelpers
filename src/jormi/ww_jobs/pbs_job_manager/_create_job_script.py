@@ -14,31 +14,33 @@ from . import _job_validation
 ## FUNCTIONS
 ## ###############################################################
 
-def _ensure_path_is_valid(file_path: Path):
+def _ensure_path_is_valid(
+  file_path : Path
+):
   file_path = Path(file_path).absolute()
   if file_path.suffix != ".sh":
     raise ValueError(f"File should end with a .sh extension: {file_path}")
   return file_path
 
 def create_pbs_job_script(
-    system_name        : str,
-    directory          : str | Path,
-    file_name          : str,
-    main_command       : str,
-    prep_command       : str | None = None,
-    post_command       : str | None = None,
-    always_run_post    : bool = True,
-    tag_name           : str = "job",
-    queue_name         : str = "normal",
-    compute_group_name : str = "jh2",
-    num_procs          : int = 1,
-    wall_time_hours    : int = 1,
-    storage_group_name : str | None = None,
-    email_address      : str | None = None,
-    email_on_start     : bool = False,
-    email_on_finish    : bool = False,
-    verbose            : bool = True,
-  ) -> Path:
+  system_name        : str,
+  directory          : str | Path,
+  file_name          : str,
+  main_command       : str,
+  prep_command       : str | None = None,
+  post_command       : str | None = None,
+  always_run_post    : bool = True,
+  tag_name           : str = "job",
+  queue_name         : str = "normal",
+  compute_group_name : str = "jh2",
+  num_procs          : int = 1,
+  wall_time_hours    : int = 1,
+  storage_group_name : str | None = None,
+  email_address      : str | None = None,
+  email_on_start     : bool = False,
+  email_on_finish    : bool = False,
+  verbose            : bool = True,
+) -> Path:
   """
   Create a PBS job script with optional pre/post steps.
 

@@ -26,7 +26,9 @@ except ImportError:
 ## ###############################################################
 
 @functools.lru_cache(maxsize=10)
-def _compute_radial_grid(shape):
+def _compute_radial_grid(
+  shape : tuple[int, ...]
+):
   k_center = numpy.array([ (n-1)/2 for n in shape ], dtype=float)
   grid_kz, grid_ky, grid_kx = numpy.indices(shape)
   return numpy.sqrt(
@@ -36,9 +38,9 @@ def _compute_radial_grid(shape):
   )
 
 def _compute_3d_power_spectrum(
-    field   : numpy.ndarray,
-    use_mpi : bool = False,
-  ) -> numpy.ndarray:
+  field   : numpy.ndarray,
+  use_mpi : bool = False,
+) -> numpy.ndarray:
   """Computes the power spectrum of an arbitrary-dimensional field."""
   assert len(field.shape) >= 3, "Field should have at least 3 spatial dimensions."
   fft_field = numpy.fft.fftshift(
@@ -57,9 +59,9 @@ def _compute_3d_power_spectrum(
   else: return spectrum
 
 def _compute_spherical_integration(
-    spectrum_3d : numpy.ndarray,
-    use_mpi     : bool = False,
-  ) -> tuple[numpy.ndarray, numpy.ndarray]:
+  spectrum_3d : numpy.ndarray,
+  use_mpi     : bool = False,
+) -> tuple[numpy.ndarray, numpy.ndarray]:
   """Integrates a 3D power spectrum over spherical shells of constant k."""
   num_k_modes   = numpy.min(spectrum_3d.shape) // 2
   k_bin_edges   = numpy.linspace(0.5, num_k_modes, num_k_modes+1)
@@ -79,9 +81,9 @@ def _compute_spherical_integration(
   return k_bin_centers, spectrum
 
 def compute_1d_power_spectrum(
-    field   : numpy.ndarray,
-    use_mpi : bool = False,
-  ) -> tuple[numpy.ndarray, numpy.ndarray]:
+  field   : numpy.ndarray,
+  use_mpi : bool = False,
+) -> tuple[numpy.ndarray, numpy.ndarray] | tuple[None, None]:
   """Computes the full power spectrum including radial integration."""
   spectrum_3d = _compute_3d_power_spectrum(field, use_mpi)
   if spectrum_3d is None: return None, None

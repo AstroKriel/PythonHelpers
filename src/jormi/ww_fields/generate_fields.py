@@ -13,10 +13,10 @@ import numpy
 ## ###############################################################
 
 def generate_gaussian_random_sfield(
-    num_cells          : int,
-    correlation_length : float,
-    num_dims           : int = 3,
-  ) -> numpy.ndarray:
+  num_cells          : int,
+  correlation_length : float,
+  num_dims           : int = 3,
+) -> numpy.ndarray:
   """Generates a N-dimensional random scalar field with a power-law power spectrum."""
   if num_dims not in [2, 3]: raise ValueError("`num_dims` must be either `2` or `3`.")
   white_noise = numpy.random.normal(0, 1, (num_cells,) * num_dims)
@@ -29,10 +29,10 @@ def generate_gaussian_random_sfield(
   return sfield
 
 def generate_powerlaw_sfield(
-    num_cells  : int,
-    alpha_perp : float,
-    alpha_para : float | None = None,
-  ) -> numpy.ndarray:
+  num_cells  : int,
+  alpha_perp : float,
+  alpha_para : float | None = None,
+) -> numpy.ndarray:
   """
   Generates a 3-dimensional random scalar field with a power-law power spectrum.
   

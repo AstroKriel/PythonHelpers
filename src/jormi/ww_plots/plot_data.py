@@ -6,42 +6,12 @@
 ## ###############################################################
 
 import numpy
-import matplotlib.axes as mpl_axes
-from matplotlib.collections import LineCollection
 from jormi.ww_plots import add_color
 
 
 ## ###############################################################
 ## FUNCTIONS
 ## ###############################################################
-
-def plot_wo_scaling_axis(
-    ax       : mpl_axes.Axes,
-    x_values : list[float] | numpy.ndarray,
-    y_values : list[float] | numpy.ndarray,
-    color    : str = "black",
-    ls       : str = ":",
-    lw       : float = 1.0,
-    label    : str | None = None,
-    alpha    : float = 1.0,
-    zorder   : float = 1.0
-  ):
-  x_values = numpy.asarray(x_values)
-  y_values = numpy.asarray(y_values)
-  if x_values.ndim != 1: raise ValueError(f"`x_values` must be 1D. Got shape {x_values.shape}.")
-  if y_values.ndim != 1: raise ValueError(f"`y_values` must be 1D. Got shape {y_values.shape}.")
-  if x_values.shape != y_values.shape:
-    raise ValueError(f"`x_values` and `y_values` must have the same shape. {x_values.shape} != {y_values.shape}.")
-  collection = LineCollection(
-    [ numpy.column_stack((x_values, y_values)) ],
-    colors     = color,
-    linestyles = ls,
-    linewidths = lw,
-    alpha      = alpha,
-    zorder     = zorder,
-    label      = label
-  )
-  ax.add_collection(collection, autolim=False)
 
 def plot_sfield_slice(
     ax,
@@ -79,7 +49,10 @@ def plot_sfield_slice(
     )
   return im_obj
 
-def _generate_grid(field_shape, axis_bounds):
+def _generate_grid(
+  field_shape : tuple[int, int],
+  axis_bounds : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+):
   if not (isinstance(axis_bounds, tuple) and len(axis_bounds) == 4 and all(isinstance(value, (int, float)) for value in axis_bounds)):
     raise ValueError("`axis_bounds` must be a tuple of four floats.")
   coords_row = numpy.linspace(axis_bounds[0], axis_bounds[1], field_shape[0])
@@ -88,14 +61,14 @@ def _generate_grid(field_shape, axis_bounds):
   return grid_x, grid_y
 
 def plot_vfield_slice_quiver(
-    ax,
-    field_slice_rows : numpy.ndarray,
-    field_slice_cols : numpy.ndarray,
-    axis_bounds      : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
-    num_quivers      : int = 25,
-    quiver_width     : float = 5e-3,
-    field_color      : str = "white",
-  ):
+  ax,
+  field_slice_rows : numpy.ndarray,
+  field_slice_cols : numpy.ndarray,
+  axis_bounds      : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+  num_quivers      : int = 25,
+  quiver_width     : float = 5e-3,
+  field_color      : str = "white",
+):
   if field_slice_rows.shape != field_slice_cols.shape:
     raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
   grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
@@ -115,16 +88,16 @@ def plot_vfield_slice_quiver(
   ax.set_ylim([ axis_bounds[2], axis_bounds[3] ])
 
 def plot_vfield_slice_streamplot(
-    ax,
-    field_slice_rows     : numpy.ndarray,
-    field_slice_cols     : numpy.ndarray,
-    axis_bounds          : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
-    streamline_weights   : numpy.ndarray | None = None,
-    streamline_width     : float | None = None,
-    streamline_scale     : float = 1.5,
-    streamline_linestyle : str = "-",
-    field_color          : str = "white",
-  ):
+  ax,
+  field_slice_rows     : numpy.ndarray,
+  field_slice_cols     : numpy.ndarray,
+  axis_bounds          : tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+  streamline_weights   : numpy.ndarray | None = None,
+  streamline_width     : float | None = None,
+  streamline_scale     : float = 1.5,
+  streamline_linestyle : str = "-",
+  field_color          : str = "white",
+):
   if field_slice_rows.shape != field_slice_cols.shape:
     raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
   grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)

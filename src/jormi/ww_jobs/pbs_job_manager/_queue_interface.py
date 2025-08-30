@@ -14,10 +14,10 @@ from jormi.ww_io import io_manager, shell_manager
 ## ###############################################################
 
 def submit_job(
-    directory    : str | Path,
-    file_name    : str,
-    check_status : bool = False,
-  ) -> bool:
+  directory    : str | Path,
+  file_name    : str,
+  check_status : bool = False,
+) -> bool:
   directory = Path(directory).resolve()
   if check_status and is_job_already_in_queue(directory, file_name):
     print("Job is already currently running:", file_name)
@@ -35,9 +35,9 @@ def submit_job(
     return False
 
 def is_job_already_in_queue(
-    directory : str | Path,
-    file_name : str,
-  ) -> bool:
+  directory : str | Path,
+  file_name : str,
+) -> bool:
   """Checks if a job name is already in the queue."""
   file_path = io_manager.combine_file_path_parts([directory, file_name])
   if not io_manager.does_file_exist(file_path=file_path):
@@ -55,7 +55,9 @@ def is_job_already_in_queue(
   ]
   return job_tag in queued_job_tags
 
-def get_job_tag_from_pbs_script(file_path : str | Path) -> str | None:
+def get_job_tag_from_pbs_script(
+  file_path : str | Path
+) -> str | None:
   """Gets the job name from a PBS job script."""
   file_path = Path(file_path)
   with file_path.open("r", encoding="utf-8") as file_pointer:

@@ -23,14 +23,16 @@ def get_caller_directory() -> Path:
   caller_file_path = caller_frame.filename
   return Path(caller_file_path).resolve().parent
 
-def combine_file_path_parts(file_path_parts : list[str | Path]) -> Path:
+def combine_file_path_parts(
+  file_path_parts : list[str | Path]
+) -> Path:
   return Path(*list_utils.flatten_list(list_utils.filter_out_nones(file_path_parts))).absolute()
 
 def resolve_file_path(
-    file_path : str | Path | None = None,
-    directory : str | Path | None = None,
-    file_name : str | None = None,
-  ):
+  file_path : str | Path | None = None,
+  directory : str | Path | None = None,
+  file_name : str | None = None,
+):
   if file_path is None:
     missing = []
     if (directory is None): missing.append("directory")
@@ -46,18 +48,18 @@ def resolve_file_path(
   return file_path
 
 def does_directory_exist(
-    directory   : str | Path,
-    raise_error : bool = False,
-  ) -> bool:
+  directory   : str | Path,
+  raise_error : bool = False,
+) -> bool:
   directory = Path(directory).absolute()
   result = directory.is_dir()
   if not(result) and raise_error: raise NotADirectoryError(f"Directory does not exist: {directory}")
   return result
 
 def init_directory(
-    directory : str | Path,
-    verbose   : bool = True,
-  ):
+  directory : str | Path,
+  verbose   : bool = True,
+):
   directory = Path(directory).resolve(strict=False)
   if not does_directory_exist(directory):
     directory.mkdir(parents=True)
@@ -65,11 +67,11 @@ def init_directory(
   elif verbose: print("Directory already exists:", directory)
 
 def does_file_exist(
-    file_path   : str | Path | None = None,
-    directory   : str | Path | None = None,
-    file_name   : str | None = None,
-    raise_error : bool = False,
-  ) -> bool:
+  file_path   : str | Path | None = None,
+  directory   : str | Path | None = None,
+  file_name   : str | None = None,
+  raise_error : bool = False,
+) -> bool:
   file_path = resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
   file_path_exists = file_path.is_file()
   if not(file_path_exists) and raise_error:
@@ -77,12 +79,12 @@ def does_file_exist(
   return file_path_exists
 
 def _resolve_and_validate_file_operation(
-    directory_from : str | Path,
-    directory_to   : str | Path,
-    file_name      : str,
-    overwrite      : bool = False,
-    dry_run        : bool = False,
-  ) -> tuple[Path, Path]:
+  directory_from : str | Path,
+  directory_to   : str | Path,
+  file_name      : str,
+  overwrite      : bool = False,
+  dry_run        : bool = False,
+) -> tuple[Path, Path]:
   does_directory_exist(directory=directory_from, raise_error=True)
   file_path_from = combine_file_path_parts([ directory_from, file_name ])
   does_file_exist(file_path=file_path_from, raise_error=True)
@@ -96,11 +98,11 @@ def _resolve_and_validate_file_operation(
   return file_path_from, file_path_to
 
 def _print_file_action(
-    action         : str,
-    file_name      : str,
-    directory_from : str | Path,
-    directory_to   : str | Path | None = None,
-  ):
+  action         : str,
+  file_name      : str,
+  directory_from : str | Path,
+  directory_to   : str | Path | None = None,
+):
   print(f"[{action}]")
   print(f"\t> File: {file_name}")
   print(f"\t> From: {directory_from}")
@@ -108,13 +110,13 @@ def _print_file_action(
     print(f"\t> To:   {directory_to}")
 
 def copy_file(
-    directory_from : str | Path,
-    directory_to   : str | Path,
-    file_name      : str,
-    overwrite      : bool = False,
-    dry_run        : bool = False,
-    verbose        : bool = True,
-  ):
+  directory_from : str | Path,
+  directory_to   : str | Path,
+  file_name      : str,
+  overwrite      : bool = False,
+  dry_run        : bool = False,
+  verbose        : bool = True,
+):
   file_path_from, file_path_to = _resolve_and_validate_file_operation(
     directory_from = directory_from,
     directory_to   = directory_to,
@@ -134,13 +136,13 @@ def copy_file(
     )
 
 def move_file(
-    directory_from : str | Path,
-    directory_to   : str | Path,
-    file_name      : str,
-    overwrite      : bool = False,
-    dry_run        : bool = False,
-    verbose        : bool = True,
-  ):
+  directory_from : str | Path,
+  directory_to   : str | Path,
+  file_name      : str,
+  overwrite      : bool = False,
+  dry_run        : bool = False,
+  verbose        : bool = True,
+):
   file_path_from, file_path_to = _resolve_and_validate_file_operation(
     directory_from = directory_from,
     directory_to   = directory_to,
@@ -158,11 +160,11 @@ def move_file(
     )
 
 def delete_file(
-    directory : str | Path,
-    file_name : str,
-    dry_run   : bool = False,
-    verbose   : bool = True,
-  ):
+  directory : str | Path,
+  file_name : str,
+  dry_run   : bool = False,
+  verbose   : bool = True,
+):
   does_directory_exist(directory=directory, raise_error=True)
   file_path = combine_file_path_parts([ directory, file_name ])
   if not dry_run: file_path.unlink()
@@ -175,20 +177,20 @@ def delete_file(
 
 class ItemFilter:
   def __init__(
-      self,
-      *,
-      include_string  : str | List[str] | None = None,
-      exclude_string  : str | List[str] | None = None,
-      prefix          : str | None = None,
-      suffix          : str | None = None,
-      delimiter       : str = "_",
-      num_parts       : int | None = None,
-      index_of_value  : int | None = None,
-      min_value       : int | float = 0,
-      max_value       : int | float = numpy.inf,
-      include_files   : bool = True,
-      include_folders : bool = True
-    ):
+    self,
+    *,
+    include_string  : str | List[str] | None = None,
+    exclude_string  : str | List[str] | None = None,
+    prefix          : str | None = None,
+    suffix          : str | None = None,
+    delimiter       : str = "_",
+    num_parts       : int | None = None,
+    index_of_value  : int | None = None,
+    min_value       : int | float = 0,
+    max_value       : int | float = numpy.inf,
+    include_files   : bool = True,
+    include_folders : bool = True
+  ):
     self.include_string  = self._to_list(include_string)
     self.exclude_string  = self._to_list(exclude_string)
     self.prefix          = prefix
@@ -202,13 +204,18 @@ class ItemFilter:
     self.include_folders = include_folders
     self._validate_inputs()
 
-  def _to_list(self, value):
+  def _to_list(
+    self,
+    value
+  ):
     if value is None: return []
     if isinstance(value, str): return [value]
     if isinstance(value, list): return value
     raise ValueError("Expected a string or list of strings.")
 
-  def _validate_inputs(self):
+  def _validate_inputs(
+    self
+  ):
     if not (self.include_files or self.include_folders):
       raise ValueError("At least one of `include_files` or `include_folders` must be enabled.")
     if not isinstance(self.min_value, (int, float)) or not isinstance(self.max_value, (int, float)):
@@ -216,7 +223,10 @@ class ItemFilter:
     if self.min_value > self.max_value:
       raise ValueError("`min_value` cannot be greater than `max_value`.")
 
-  def _meets_criteria(self, item_path: Path) -> bool:
+  def _meets_criteria(
+    self,
+    item_path : Path
+  ) -> bool:
     if item_path.is_file() and not self.include_files: return False
     if item_path.is_dir() and not self.include_folders: return False
     item_name = item_path.name
@@ -239,7 +249,10 @@ class ItemFilter:
       if not (self.min_value <= value <= self.max_value): return False
     return True
 
-  def filter(self, directory: str | Path) -> List[Path]:
+  def filter(
+    self,
+    directory : str | Path
+  ) -> List[Path]:
     """Filter item names in the given directory based on current criteria."""
     directory = Path(directory).absolute()
     does_directory_exist(directory, raise_error=True)

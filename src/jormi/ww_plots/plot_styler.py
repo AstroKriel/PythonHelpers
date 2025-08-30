@@ -8,7 +8,9 @@ FONT_SIZES: dict[str, int] = {
   "large":  25,
 }
 
-def _get_base_rc_params(use_tex: bool = True) -> dict[str, object]:
+def _get_base_rc_params(
+  use_tex : bool = True
+) -> dict[str, object]:
   rc_params: dict[str, object] = {
     ## font
     "font.family": "serif",
@@ -113,17 +115,17 @@ THEMES: dict[str, dict[str, object]] = {
 }
 
 def _compose_rc_params(
-    theme   : str = "light",
-    use_tex : bool = True,
-  ) -> dict[str, object]:
+  theme   : str = "light",
+  use_tex : bool = True,
+) -> dict[str, object]:
   rc_params = _get_base_rc_params(use_tex=use_tex).copy()
   rc_params.update(THEMES[theme])
   return rc_params
 
 def apply_theme_globally(
-    theme   : str = "light",
-    use_tex : bool = True,
-  ) -> None:
+  theme   : str = "light",
+  use_tex : bool = True,
+) -> None:
   """Apply theme for the whole process (global)."""
   if theme == "dark":
     try:

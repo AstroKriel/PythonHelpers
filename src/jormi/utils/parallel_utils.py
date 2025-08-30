@@ -23,7 +23,9 @@ def _spawn_fresh_processes() -> None:
   except RuntimeError:
     pass
 
-def _normalise_grouped_args(grouped_args: Iterable[Any]) -> List[List[Any]]:
+def _normalise_grouped_args(
+  grouped_args : Iterable[Any]
+) -> List[List[Any]]:
   _grouped_args: List[List[Any]] = []
   for args in grouped_args:
     if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
@@ -32,9 +34,9 @@ def _normalise_grouped_args(grouped_args: Iterable[Any]) -> List[List[Any]]:
   return _grouped_args
 
 def _enable_plotting(
-    theme   : str = "light",
-    use_tex : bool = True,
-  ) -> None:
+  theme   : str = "light",
+  use_tex : bool = True,
+) -> None:
   import os, tempfile
   os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mpl_cfg_"))
   os.environ.setdefault("TEXMFOUTPUT",  tempfile.mkdtemp(prefix="mpl_tex_"))
@@ -44,25 +46,25 @@ def _enable_plotting(
   apply_theme_globally(theme=theme, use_tex=use_tex)
 
 def _invoke_with_plotting(
-    func      : Callable[..., Any],
-    task_args : List[Any],
-    theme     : str = "light",
-    use_tex   : bool = True,
-  ) -> Any:
+  func      : Callable[..., Any],
+  task_args : List[Any],
+  theme     : str = "light",
+  use_tex   : bool = True,
+) -> Any:
   _enable_plotting(theme=theme, use_tex=use_tex)
   return func(*task_args)
 
 def run_in_parallel(
-    *,
-    func            : Callable[..., Any],
-    grouped_args    : Iterable[Any],
-    num_workers     : int | None = None,
-    timeout_seconds : float | None = None,
-    show_progress   : bool = True,
-    enable_plotting : bool = False,
-    theme           : str = "light",
-    use_tex         : bool = True,
-  ) -> List[Any]:
+  *,
+  func            : Callable[..., Any],
+  grouped_args    : Iterable[Any],
+  num_workers     : int | None = None,
+  timeout_seconds : float | None = None,
+  show_progress   : bool = True,
+  enable_plotting : bool = False,
+  theme           : str = "light",
+  use_tex         : bool = True,
+) -> List[Any]:
   _spawn_fresh_processes()
   grouped_args = _normalise_grouped_args(grouped_args)
   if num_workers is None: num_workers = os.cpu_count() or 1

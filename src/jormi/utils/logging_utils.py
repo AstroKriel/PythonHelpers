@@ -135,13 +135,13 @@ def render_line(
     _CONSOLE.print()
 
 def render_block(
-    message     : Message,
-    *,
-    show_time   : bool = True,
-    min_width   : int = 60,
-    max_width   : int = 100,
-    add_spacing : bool = True,
-  ) -> None:
+  message     : Message,
+  *,
+  show_time   : bool = True,
+  min_width   : int = 60,
+  max_width   : int = 100,
+  add_spacing : bool = True,
+) -> None:
   ## collect style and timestamp for this block
   message_style    = message.style()
   timestamp_prefix = f"[{message.timestamp or get_timestamp()}]" if show_time else ""

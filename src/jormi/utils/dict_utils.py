@@ -6,7 +6,7 @@
 ## ###############################################################
 
 import copy
-from jormi.utils import validate_types, func_utils
+from jormi.utils import type_utils, func_utils
 
 
 ## ###############################################################
@@ -15,12 +15,12 @@ from jormi.utils import validate_types, func_utils
 
 @func_utils.warn_if_result_is_unused
 def merge_dicts(
-    dict_a : dict,
-    dict_b : dict,
-  ) -> dict:
+  dict_a : dict,
+  dict_b : dict,
+) -> dict:
   """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-  validate_types.assert_type(dict_a, dict)
-  validate_types.assert_type(dict_b, dict)
+  type_utils.assert_type(dict_a, dict)
+  type_utils.assert_type(dict_b, dict)
   merged_dict = dict_a.copy()
   for key, value in dict_b.items():
     if key in merged_dict:
@@ -42,9 +42,9 @@ def merge_dicts(
   return merged_dict
 
 def are_dicts_different(
-    dict_a : dict,
-    dict_b : dict,
-  ) -> bool:
+  dict_a : dict,
+  dict_b : dict,
+) -> bool:
   ## check that the dictionaries have the same number of keys
   if len(dict_a) != len(dict_b): return True
   ## check if any key in dict_b is not in dict_a or if their values are different

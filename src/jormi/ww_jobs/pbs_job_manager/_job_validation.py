@@ -43,11 +43,11 @@ class QueueValidationError(ValueError):
 ## ###############################################################
 
 def validate_job_params(
-    system_name     : str,
-    queue_name      : str,
-    num_procs       : int,
-    wall_time_hours : int,
-  ) -> None:
+  system_name     : str,
+  queue_name      : str,
+  num_procs       : int,
+  wall_time_hours : int,
+) -> None:
   """Confirm that the requested job parameters meet the system-queue constraints."""
   queue_config = _get_queue_config(system_name, queue_name)
   _validate_cpu_rules(queue_name, num_procs, queue_config)
@@ -55,9 +55,9 @@ def validate_job_params(
   _validate_wall_time_rules(queue_name, num_procs, wall_time_hours, queue_config)
 
 def _get_queue_config(
-    system_name : str,
-    queue_name  : str
-  ) -> dict:
+  system_name : str,
+  queue_name  : str,
+) -> dict:
   """Extract relevant system-queue constraints."""
   queue_config = _QUEUE_CONFIGS.get(system_name).get(queue_name)
   if not queue_config:
@@ -65,10 +65,10 @@ def _get_queue_config(
   return queue_config
 
 def _validate_cpu_rules(
-    queue_name   : str,
-    num_procs    : int,
-    queue_config : dict
-  ) -> None:
+  queue_name   : str,
+  num_procs    : int,
+  queue_config : dict,
+) -> None:
   cpus_per_node = queue_config.get("cpus_per_node")
   if cpus_per_node is None:
     raise QueueValidationError(f"No `cpus_per_node` specified for queue `{queue_name}`.")
@@ -80,20 +80,20 @@ def _validate_cpu_rules(
     )
 
 def _validate_cpu_limit(
-    queue_name   : str,
-    num_procs    : int,
-    queue_config : dict
-  ) -> None:
+  queue_name   : str,
+  num_procs    : int,
+  queue_config : dict,
+) -> None:
   max_cpus = queue_config.get("max_cpus")
   if (max_cpus is not None) and (num_procs > max_cpus):
     raise QueueValidationError(f"Queue `{queue_name}` allows a maximum of {max_cpus} CPUs. Requested: {num_procs}.")
 
 def _validate_wall_time_rules(
-    queue_name      : str,
-    num_procs       : int,
-    wall_time_hours : int,
-    queue_config    : dict
-  ) -> None:
+  queue_name      : str,
+  num_procs       : int,
+  wall_time_hours : int,
+  queue_config    : dict,
+) -> None:
   wall_time_limits = queue_config.get("wall_time_limits")
   if wall_time_limits:
     ## sort wall time rules by threshold cpu-count (ascending)

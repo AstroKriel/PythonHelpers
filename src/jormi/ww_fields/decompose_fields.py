@@ -16,9 +16,9 @@ from jormi.ww_fields import field_operators
 
 @func_utils.time_function
 def compute_helmholtz_decomposition(
-    vfield_q    : numpy.ndarray,
-    domain_size : tuple[float, float, float],
-  ) -> tuple[numpy.ndarray, numpy.ndarray]:
+  vfield_q    : numpy.ndarray,
+  domain_size : tuple[float, float, float],
+) -> tuple[numpy.ndarray, numpy.ndarray]:
   if vfield_q.shape[0] != 3: raise ValueError("Input vector field must have shape: (3, num_cells_x, num_cells_y, num_cells_z)")
   if len(domain_size)  != 3: raise ValueError("Input domain size must have shape: (length_x, length_y, length_z)")
   num_cells_x, num_cells_y, num_cells_z = vfield_q.shape[1:]
@@ -50,10 +50,10 @@ def compute_helmholtz_decomposition(
 
 @func_utils.time_function
 def compute_tnb_terms(
-    vfield_b   : numpy.ndarray,
-    box_width  : float = 1.0,
-    grad_order : int = 2,
-  ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+  vfield_b   : numpy.ndarray,
+  box_width  : float = 1.0,
+  grad_order : int = 2,
+) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)
   ## ---- COMPUTE TANGENT BASIS

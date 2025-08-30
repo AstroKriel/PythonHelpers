@@ -14,7 +14,9 @@ from pathlib import Path
 ## FUNCTIONS
 ## ###############################################################
 
-def does_shell_command_require_privileges(command):
+def does_shell_command_require_privileges(
+  command : str
+) -> bool:
   special_shell_tokens = {
     "|",        # pipe: `ls | grep .py`
     # "&",      # background execution: `sleep 5 &`
@@ -36,11 +38,11 @@ def does_shell_command_require_privileges(command):
   )
 
 def execute_shell_command(
-    command           : str,
-    working_directory : str | Path | None = None,
-    timeout_seconds   : float = 15,
-    enforce_shell     : bool  = False,
-  ) -> str:
+  command           : str,
+  working_directory : str | Path | None = None,
+  timeout_seconds   : float = 15,
+  enforce_shell     : bool  = False,
+) -> str:
   is_shell_required = enforce_shell or does_shell_command_require_privileges(command)
   try:
     result = subprocess.run(

@@ -16,12 +16,12 @@ from jormi.ww_fields import field_operators, decompose_fields
 
 @func_utils.time_function
 def compute_magnetic_curvature_terms(
-    vbasis_normal  : numpy.ndarray,
-    vbasis_tangent : numpy.ndarray,
-    vfield_u       : numpy.ndarray,
-    box_length     : float = 1.0,
-    grad_order     : int = 2,
-  ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+  vbasis_normal  : numpy.ndarray,
+  vbasis_tangent : numpy.ndarray,
+  vfield_u       : numpy.ndarray,
+  box_length     : float = 1.0,
+  grad_order     : int = 2,
+) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   ## du_j/dx_i: (component-j, gradient-direction-i, x, y, z)
   r2tensor_grad_u = field_operators.compute_vfield_gradient(vfield_u, box_length, grad_order)
   ## n_i n_j du_j/dx_i
@@ -34,10 +34,10 @@ def compute_magnetic_curvature_terms(
 
 @func_utils.time_function
 def compute_lorentz_force_terms(
-    vfield_b   : numpy.ndarray,
-    box_length : float = 1.0,
-    grad_order : int = 2,
-  ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+  vfield_b   : numpy.ndarray,
+  box_length : float = 1.0,
+  grad_order : int = 2,
+) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   vbasis_tangent, vbasis_normal, _, sfield_kappa = decompose_fields.compute_tnb_terms(vfield_b, box_length, grad_order)
   sfield_sq_magn_b           = numpy.square(field_operators.compute_vfield_magnitude(vfield_b))
   vfield_tot_grad_pressure   = 0.5 * field_operators.compute_sfield_gradient(sfield_sq_magn_b, box_length, grad_order)
@@ -48,7 +48,9 @@ def compute_lorentz_force_terms(
   del vbasis_tangent, vbasis_normal, sfield_kappa, sfield_sq_magn_b, vfield_tot_grad_pressure, vfield_align_grad_pressure
   return vfield_lorentz_force, vfield_tension_force, vfield_ortho_grad_pressure
 
-def compute_dissipation_function(vfield_u : numpy.ndarray) -> numpy.ndarray:
+def compute_dissipation_function(
+  vfield_u : numpy.ndarray
+) -> numpy.ndarray:
   r2tensor_gradj_ui = field_operators.compute_vfield_gradient(vfield_u)
   sfield_div_u = numpy.einsum("iixyz->xyz", r2tensor_gradj_ui)
   r2tensor_bulk = 1/3 * numpy.einsum("xyz,ij->ijxyz", sfield_div_u, numpy.identity(3))

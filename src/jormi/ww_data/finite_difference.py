@@ -13,10 +13,10 @@ import numpy
 ## ###############################################################
 
 def second_order_centered_difference(
-    sfield_q   : numpy.ndarray,
-    cell_width : float,
-    grad_axis  : int,
-  ) -> numpy.ndarray:
+  sfield_q   : numpy.ndarray,
+  cell_width : float,
+  grad_axis  : int,
+) -> numpy.ndarray:
   forward  = -1
   backward = +1
   q_p = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)
@@ -24,10 +24,10 @@ def second_order_centered_difference(
   return (q_p - q_m) / (2 * cell_width)
 
 def fourth_order_centered_difference(
-    sfield_q   : numpy.ndarray,
-    cell_width : float,
-    grad_axis  : int,
-  ) -> numpy.ndarray:
+  sfield_q   : numpy.ndarray,
+  cell_width : float,
+  grad_axis  : int,
+) -> numpy.ndarray:
   forward  = -1
   backward = +1
   q_p1 = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)
@@ -37,10 +37,10 @@ def fourth_order_centered_difference(
   return (-q_p2 + 8*q_p1 - 8*q_m1 + q_m2) / (12 * cell_width)
 
 def sixth_order_centered_difference(
-    sfield_q   : numpy.ndarray,
-    cell_width : float,
-    grad_axis  : int,
-  ) -> numpy.ndarray:
+  sfield_q   : numpy.ndarray,
+  cell_width : float,
+  grad_axis  : int,
+) -> numpy.ndarray:
   forward  = -1
   backward = +1
   q_p1 = numpy.roll(sfield_q, int(1 * forward),  axis=grad_axis)

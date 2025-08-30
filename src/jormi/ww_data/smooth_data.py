@@ -13,9 +13,9 @@ import numpy
 ## ###############################################################
 
 def apply_2d_convolution(
-    data             : numpy.ndarray,
-    smoothing_kernel : numpy.ndarray
-  ) -> numpy.ndarray:
+  data             : numpy.ndarray,
+  smoothing_kernel : numpy.ndarray,
+) -> numpy.ndarray:
   kernel_nrows, kernel_ncols = smoothing_kernel.shape
   pad_nrows   = kernel_nrows // 2
   pad_ncols   = kernel_ncols // 2
@@ -29,9 +29,9 @@ def apply_2d_convolution(
   return output
 
 def define_2d_gaussian_kernel(
-    size  : int,
-    sigma : float
-  ) -> numpy.ndarray:
+  size  : int,
+  sigma : float,
+) -> numpy.ndarray:
   x_values = numpy.linspace(-(size // 2), size // 2, size)
   y_values = numpy.linspace(-(size // 2), size // 2, size)
   grid_x, grid_y = numpy.meshgrid(x_values, y_values)
@@ -40,9 +40,9 @@ def define_2d_gaussian_kernel(
   return smoothing_kernel
 
 def smooth_2d_data_with_gaussian_filter(
-    data  : numpy.ndarray,
-    sigma : float
-  ) -> numpy.ndarray:
+  data  : numpy.ndarray,
+  sigma : float,
+) -> numpy.ndarray:
   kernel_size      = int(6 * sigma) + 1
   smoothing_kernel = define_2d_gaussian_kernel(kernel_size, sigma)
   smoothed_data    = apply_2d_convolution(data, smoothing_kernel)

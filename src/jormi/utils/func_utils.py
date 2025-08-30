@@ -15,7 +15,10 @@ import warnings
 ## ###############################################################
 
 def time_function(func):
-  def wrapper(*args, **kwargs):
+  def wrapper(
+    *args,
+    **kwargs
+  ):
     start_time = time.time()
     try:
       result = func(*args, **kwargs)
@@ -27,7 +30,10 @@ def time_function(func):
   return wrapper
 
 def warn_if_result_is_unused(func):
-  def wrapper(*args, **kwargs):
+  def wrapper(
+    *args,
+    **kwargs
+  ):
     result = func(*args, **kwargs)
     ## check that the result is being assigned
     calling_frame = inspect.currentframe().f_back

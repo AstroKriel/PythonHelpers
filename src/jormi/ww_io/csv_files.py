@@ -14,12 +14,16 @@ from jormi.ww_io import io_manager
 ## FUNCTIONS
 ## ###############################################################
 
-def _ensure_path_is_valid(file_path: Path):
+def _ensure_path_is_valid(
+  file_path : Path
+):
   file_path = Path(file_path).absolute()
   if file_path.suffix != ".csv": raise ValueError(f"File should end with a .csv extension: {file_path}")
   return file_path
 
-def _validate_input_dict(input_dict: dict):
+def _validate_input_dict(
+  input_dict : dict
+):
   if not isinstance(input_dict, dict):
     raise TypeError("Expected a dictionary for `input_dict`.")
   for key in input_dict:
@@ -27,9 +31,9 @@ def _validate_input_dict(input_dict: dict):
       raise TypeError(f"All keys in `input_dict` must be strings. Found key of type {type(key).__name__}: {key}")
 
 def read_csv_file_into_dict(
-    file_path : str | Path,
-    verbose   : bool = True,
-  ) -> dict:
+  file_path : str | Path,
+  verbose   : bool = True,
+) -> dict:
   file_path = _ensure_path_is_valid(file_path)
   if not io_manager.does_file_exist(file_path):
     raise FileNotFoundError(f"No csv-file found: {file_path}")
@@ -45,11 +49,11 @@ def read_csv_file_into_dict(
   return dataset
 
 def save_dict_to_csv_file(
-    file_path  : str | Path,
-    input_dict : dict,
-    overwrite  : bool = True,
-    verbose    : bool = True,
-  ):
+  file_path  : str | Path,
+  input_dict : dict,
+  overwrite  : bool = True,
+  verbose    : bool = True,
+):
   file_path = _ensure_path_is_valid(file_path)
   _validate_input_dict(input_dict)
   if io_manager.does_file_exist(file_path):
@@ -64,9 +68,9 @@ def save_dict_to_csv_file(
     if verbose: print(f"Saved csv-file: {file_path}")
 
 def _write_csv(
-    file_path  : Path,
-    input_dict : dict
-  ):
+  file_path  : Path,
+  input_dict : dict
+):
   dataset_shape = [
     len(column)
     for column in input_dict.values()
@@ -79,9 +83,9 @@ def _write_csv(
     writer.writerows(zip(*input_dict.values()))
 
 def _update_csv(
-    file_path  : Path,
-    input_dict : dict,
-  ):
+  file_path  : Path,
+  input_dict : dict,
+):
   existing_dataset = read_csv_file_into_dict(file_path, verbose=False)
   existing_column_length = len(next(iter(existing_dataset.values()))) # assumes each column has the same length
   ## for columns that already exist, check that the amount they grow by are the same

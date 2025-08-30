@@ -14,11 +14,11 @@ from jormi.ww_data import smooth_data
 ## ###############################################################
 
 def compute_p_norm(
-    array_a             : numpy.ndarray,
-    array_b             : numpy.ndarray,
-    p_norm_order        : float = 2,
-    normalise_by_length : bool = False,
-  ) -> float:
+  array_a             : numpy.ndarray,
+  array_b             : numpy.ndarray,
+  p_norm_order        : float = 2,
+  normalise_by_length : bool = False,
+) -> float:
   """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm_order)."""
   array_a = numpy.asarray(array_a)
   array_b = numpy.asarray(array_b)
@@ -66,15 +66,15 @@ def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**
   return samples
 
 def estimate_jpdf(
-    data_x            : numpy.ndarray,
-    data_y            : numpy.ndarray,
-    data_weights      : numpy.ndarray | None = None,
-    bin_centers_cols  : numpy.ndarray | None = None,
-    bin_centers_rows  : numpy.ndarray | None = None,
-    num_bins          : int | None = None,
-    bin_range_percent : float = 1.0,
-    smoothing_length  : float | None = None,
-  ):
+  data_x            : numpy.ndarray,
+  data_y            : numpy.ndarray,
+  data_weights      : numpy.ndarray | None = None,
+  bin_centers_cols  : numpy.ndarray | None = None,
+  bin_centers_rows  : numpy.ndarray | None = None,
+  num_bins          : int | None = None,
+  bin_range_percent : float = 1.0,
+  smoothing_length  : float | None = None,
+):
   """Compute the 2D joint probability density function (JPDF)."""
   if (len(data_x) == 0) or (len(data_y) == 0):
     raise ValueError("Data arrays must not be empty.")
@@ -106,13 +106,13 @@ def estimate_jpdf(
   return bin_centers_rows, bin_centers_cols, estimated_jpdf
 
 def estimate_pdf(
-    values            : numpy.ndarray,
-    weights           : numpy.ndarray | None = None,
-    num_bins          : int | None = None,
-    bin_centers       : numpy.ndarray | None = None,
-    bin_range_percent : float = 1.0,
-    delta_threshold   : float = 1e-5,
-  ):
+  values            : numpy.ndarray,
+  weights           : numpy.ndarray | None = None,
+  num_bins          : int | None = None,
+  bin_centers       : numpy.ndarray | None = None,
+  bin_range_percent : float = 1.0,
+  delta_threshold   : float = 1e-5,
+):
   """Compute the 1D probability density function (PDF) for the provided `values`."""
   if len(values) == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
   if numpy.std(values) < delta_threshold:
@@ -160,10 +160,10 @@ def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
   ])
 
 def create_uniformly_spaced_bin_centers(
-    values            : numpy.ndarray,
-    num_bins          : int,
-    bin_range_percent : float = 1.0,
-  ):
+  values            : numpy.ndarray,
+  num_bins          : int,
+  bin_range_percent : float = 1.0,
+):
   p16_value = numpy.percentile(values, 16)
   p50_value = numpy.percentile(values, 50)
   p84_value = numpy.percentile(values, 84)

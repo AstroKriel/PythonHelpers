@@ -15,11 +15,11 @@ from jormi.utils import list_utils
 ## ###############################################################
 
 def interpolate_1d(
-    x_values : numpy.ndarray,
-    y_values : numpy.ndarray,
-    x_interp : numpy.ndarray,
-    kind     : str = "cubic",
-  ) -> tuple[numpy.ndarray, numpy.ndarray]:
+  x_values : numpy.ndarray,
+  y_values : numpy.ndarray,
+  x_interp : numpy.ndarray,
+  kind     : str = "cubic",
+) -> tuple[numpy.ndarray, numpy.ndarray]:
   x_values = numpy.asarray(x_values, dtype=numpy.float64)
   y_values = numpy.asarray(y_values, dtype=numpy.float64)
   x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
