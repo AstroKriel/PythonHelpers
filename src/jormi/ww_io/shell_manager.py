@@ -47,8 +47,8 @@ def execute_shell_command(
       command if is_shell_required else shlex.split(command),
       cwd            = working_directory,
       timeout        = timeout_seconds,
-      capture_output = True,
       shell          = is_shell_required,
+      capture_output = True,
       check          = False,
       text           = True,
     )
