@@ -6,8 +6,7 @@
 ## ###############################################################
 
 import copy
-from jormi.utils import func_utils
-from jormi.ww_types import validate_types
+from jormi.utils import validate_types, func_utils
 
 
 ## ###############################################################

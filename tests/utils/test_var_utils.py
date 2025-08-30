@@ -2,7 +2,7 @@
 ## DEPENDENCIES
 ## ###############################################################
 import unittest
-from jormi.ww_types import validate_types
+from jormi.utils import validate_types
 
 
 ## ###############################################################
