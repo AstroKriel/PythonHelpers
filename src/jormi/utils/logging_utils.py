@@ -49,23 +49,23 @@ class _MessageStyle:
 
 
 class MessageType(Enum):
-    GENERAL = _MessageStyle("GENERAL", _Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
-    ACTION = _MessageStyle("ACTION", _Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
-    HINT = _MessageStyle("HINT", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    ALERT = _MessageStyle("ALERT", _Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
-    LIST = _MessageStyle("LIST", _Symbols.GREATER_THAN.value, _Colours.BLUE.value)
-    DEBUG = _MessageStyle("DEBUG", _Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
+    GENERAL = _MessageStyle("General", _Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
+    ACTION = _MessageStyle("Action", _Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
+    HINT = _MessageStyle("Hint", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
+    ALERT = _MessageStyle("Alert", _Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
+    LIST = _MessageStyle("List", _Symbols.GREATER_THAN.value, _Colours.BLUE.value)
+    DEBUG = _MessageStyle("Debug", _Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
 
     def requires_outcome(self) -> bool:
         return self is MessageType.ACTION
 
 
 class ActionOutcome(Enum):
-    SUCCESS = _MessageStyle("SUCCESS", _Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
-    FAILURE = _MessageStyle("FAILURE", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    ERROR = _MessageStyle("ERROR", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    WARNING = _MessageStyle("WARNING", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    SKIPPED = _MessageStyle("SKIPPED", _Symbols.OPEN_CIRCLE.value, _Colours.GREY.value)
+    SUCCESS = _MessageStyle("Success", _Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
+    FAILURE = _MessageStyle("Failure", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
+    ERROR = _MessageStyle("Error", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
+    WARNING = _MessageStyle("Warning", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
+    SKIPPED = _MessageStyle("Skipped", _Symbols.OPEN_CIRCLE.value, _Colours.GREY.value)
 
 
 ##
