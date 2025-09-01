@@ -3,18 +3,6 @@ revision = 2
 requires-python = ">=3.11"
 
 [[package]]
-name = "add-trailing-comma"
-version = "3.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tokenize-rt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0d/4f/e9b3c7bcb177f9ab9f24090667bd96fb69aabf8d24ffa5ec833a6c001fdc/add_trailing_comma-3.2.0.tar.gz", hash = "sha256:b3bb8b7184983a15199ce282b849f9db0612d067936f2c2610f2af1e1a53b97d", size = 11135, upload-time = "2025-05-23T23:52:26.751Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/2b/cbabfb3d34e5b43b5f54d75fa0dfec6f6c8eab1bdd8ae04788c0626b941c/add_trailing_comma-3.2.0-py2.py3-none-any.whl", hash = "sha256:e88c66d0172754cc31998440a040d8c67a47d9ec488a0b83681b28a257fa88ab", size = 15361, upload-time = "2025-05-23T23:52:25.356Z" },
-]
-
-[[package]]
 name = "cmasher"
 version = "1.9.2"
 source = { registry = "https://pypi.org/simple" }
@@ -173,7 +161,6 @@ name = "jormi"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "add-trailing-comma" },
     { name = "cmasher" },
     { name = "h5py" },
     { name = "matplotlib" },
@@ -185,12 +172,10 @@ dependencies = [
     { name = "rich" },
     { name = "scipy" },
     { name = "tqdm" },
-    { name = "yapf" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "add-trailing-comma", specifier = ">=3.2.0" },
     { name = "cmasher", specifier = ">=1.9.2" },
     { name = "h5py", specifier = ">=3.13.0" },
     { name = "matplotlib", specifier = ">=3.10.1" },
@@ -202,7 +187,6 @@ requires-dist = [
     { name = "rich", specifier = ">=14.1.0" },
     { name = "scipy", specifier = ">=1.15.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
-    { name = "yapf", specifier = ">=0.43.0" },
 ]
 
 [[package]]
@@ -474,15 +458,6 @@ wheels = [
 ]
 
 [[package]]
-name = "platformdirs"
-version = "4.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/23/e8/21db9c9987b0e728855bd57bff6984f67952bea55d6f75e055c46b5383e8/platformdirs-4.4.0.tar.gz", hash = "sha256:ca753cf4d81dc309bc67b0ea38fd15dc97bc30ce419a7f58d13eb3bf14c4febf", size = 21634, upload-time = "2025-08-26T14:32:04.268Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/4b/2028861e724d3bd36227adfa20d3fd24c3fc6d52032f4a93c133be5d17ce/platformdirs-4.4.0-py3-none-any.whl", hash = "sha256:abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85", size = 18654, upload-time = "2025-08-26T14:32:02.735Z" },
-]
-
-[[package]]
 name = "psutil"
 version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -597,15 +572,6 @@ wheels = [
 ]
 
 [[package]]
-name = "tokenize-rt"
-version = "6.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/69/ed/8f07e893132d5051d86a553e749d5c89b2a4776eb3a579b72ed61f8559ca/tokenize_rt-6.2.0.tar.gz", hash = "sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6", size = 5476, upload-time = "2025-05-23T23:48:00.035Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/f0/3fe8c6e69135a845f4106f2ff8b6805638d4e85c264e70114e8126689587/tokenize_rt-6.2.0-py2.py3-none-any.whl", hash = "sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44", size = 6004, upload-time = "2025-05-23T23:47:58.812Z" },
-]
-
-[[package]]
 name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
@@ -615,16 +581,4 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2", size = 78540, upload-time = "2024-11-24T20:12:19.698Z" },
-]
-
-[[package]]
-name = "yapf"
-version = "0.43.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "platformdirs" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/23/97/b6f296d1e9cc1ec25c7604178b48532fa5901f721bcf1b8d8148b13e5588/yapf-0.43.0.tar.gz", hash = "sha256:00d3aa24bfedff9420b2e0d5d9f5ab6d9d4268e72afbf59bb3fa542781d5218e", size = 254907, upload-time = "2024-11-14T00:11:41.584Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/37/81/6acd6601f61e31cfb8729d3da6d5df966f80f374b78eff83760714487338/yapf-0.43.0-py3-none-any.whl", hash = "sha256:224faffbc39c428cb095818cf6ef5511fdab6f7430a10783fdfb292ccf2852ca", size = 256158, upload-time = "2024-11-14T00:11:39.37Z" },
 ]
