@@ -38,6 +38,7 @@ def execute_shell_command(
     working_directory: str | Path | None = None,
     timeout_seconds: float = 15,
     enforce_shell: bool = False,
+    show_output: bool = False,
 ) -> str:
     is_shell_required = enforce_shell or does_shell_command_require_privileges(command)
     try:
@@ -46,7 +47,7 @@ def execute_shell_command(
             cwd=working_directory,
             timeout=timeout_seconds,
             shell=is_shell_required,
-            capture_output=True,
+            capture_output=not (show_output),
             check=False,
             text=True,
         )
@@ -61,7 +62,7 @@ def execute_shell_command(
         if result.stdout: error_message += f"\nstdout: {result.stdout.strip()}"
         if result.stderr: error_message += f"\nstderr: {result.stderr.strip()}"
         raise RuntimeError(error_message)
-    return result.stdout.strip()
+    return (result.stdout or "").strip()
 
 
 ## } MODULE
