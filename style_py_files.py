@@ -22,7 +22,7 @@ STYLE_FILE_NAME = ".style.yapf"
 STYLE_FILE_PATH = PROJECT_DIR / STYLE_FILE_NAME
 PY_DEPENDENCIES = ("add-trailing-comma", "yapf")
 EXTENSIONS = {".py"}
-FILES_TO_IGNORE = {"style_py_files.py"}
+FILES_TO_IGNORE = {}
 DIRS_TO_IGNORE = (
     "__pycache__",
     ".venv",
@@ -47,7 +47,9 @@ def log_info(text: str) -> None:
 def log_action(text: str, *, outcome: logging_utils.ActionOutcome) -> None:
     logging_utils.render_line(
         logging_utils.Message(
-            text, message_type=logging_utils.MessageType.ACTION, action_outcome=outcome
+            text,
+            message_type=logging_utils.MessageType.ACTION,
+            action_outcome=outcome,
         ),
         show_time=True,
     )
@@ -72,7 +74,7 @@ def ensure_uv_available() -> None:
     if shutil.which("uv") is None:
         log_action(
             "`uv` not found in PATH. Install uv first.",
-            outcome=logging_utils.ActionOutcome.FAILURE
+            outcome=logging_utils.ActionOutcome.FAILURE,
         )
         sys.exit(1)
     log_action("Found `uv`", outcome=logging_utils.ActionOutcome.SUCCESS)
@@ -88,7 +90,7 @@ def ensure_tools_installed() -> None:
     )
     log_action(
         "Tool installation / up-to-date check completed",
-        outcome=logging_utils.ActionOutcome.SUCCESS
+        outcome=logging_utils.ActionOutcome.SUCCESS,
     )
 
 
