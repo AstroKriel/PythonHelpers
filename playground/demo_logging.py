@@ -1,68 +1,62 @@
-from jormi.utils import logging_utils
-
-Message = logging_utils.Message
-MessageType = logging_utils.MessageType
-ActionOutcome = logging_utils.ActionOutcome
-render_line = logging_utils.render_line
-render_block = logging_utils.render_block
+from jormi.ww_io import log_manager
 
 
 def demo_header() -> None:
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "Something is happening",
-            message_type=MessageType.GENERAL,
+            message_type=log_manager.MessageType.GENERAL,
         ),
         show_time=True,
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "Operation succeeded",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.SUCCESS,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.SUCCESS,
         ),
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "This may take a while",
-            message_type=MessageType.HINT,
+            message_type=log_manager.MessageType.HINT,
         ),
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "List item example",
-            message_type=MessageType.LIST,
+            message_type=log_manager.MessageType.LIST,
         ),
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "Step was skipped",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.SKIPPED,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.SKIPPED,
         ),
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "Debug info: x=42",
-            message_type=MessageType.DEBUG,
+            message_type=log_manager.MessageType.DEBUG,
         ),
     )
-    render_line(
-        Message(
+    log_manager.render_line(
+        log_manager.Message(
             "An error occurred",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.ERROR,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.ERROR,
         ),
         add_spacing=True,
     )
 
 
 def demo_blocks() -> None:
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Copy File",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.SUCCESS,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.SUCCESS,
             message="File copied successfully.",
             message_notes={
                 "File": "orszag_tang.in",
@@ -72,11 +66,11 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Create PBS Job",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.SUCCESS,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.SUCCESS,
             message="Submit with: qsub /path/to/job.sh",
             message_notes={
                 "Script": "this/is/a/really/long/path/to/the/simulation/job.sh",
@@ -88,21 +82,21 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Create Directory",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.SKIPPED,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.SKIPPED,
             message="Directory already exists; nothing to do.",
             message_notes={"Path": "/tmp/sim/OT_N32"},
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Save File",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.WARNING,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.WARNING,
             message="Existing file was overwritten.",
             message_notes={
                 "Path": "/tmp/sim/OT_N64/sim_params.json",
@@ -111,21 +105,21 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Probe PBS Queue",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.ERROR,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.ERROR,
             message="Command not found on PATH.",
             message_notes={"Command": "qstat -f"},
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Run Simulation",
-            message_type=MessageType.ACTION,
-            action_outcome=ActionOutcome.FAILURE,
+            message_type=log_manager.MessageType.ACTION,
+            action_outcome=log_manager.ActionOutcome.FAILURE,
             message="One or more checks failed (dry-run validation).",
             message_notes={
                 "Executable": "/path/to/test_orszag_tang",
@@ -134,10 +128,10 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="System Info",
-            message_type=MessageType.GENERAL,
+            message_type=log_manager.MessageType.GENERAL,
             message="Environment detected.",
             message_notes={
                 "OS": "macOS 14.5",
@@ -147,26 +141,26 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Usage Hint",
-            message_type=MessageType.HINT,
+            message_type=log_manager.MessageType.HINT,
             message="Run with --help to list all CLI options.",
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Configuration Notice",
-            message_type=MessageType.ALERT,
+            message_type=log_manager.MessageType.ALERT,
             message="Using default settings; performance may be suboptimal.",
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Available Datasets",
-            message_type=MessageType.LIST,
+            message_type=log_manager.MessageType.LIST,
             message="A few datasets are available.",
             message_notes={
                 "Dataset A": "orszag_tang_N64",
@@ -176,10 +170,10 @@ def demo_blocks() -> None:
         ),
     )
 
-    render_block(
-        Message(
+    log_manager.render_block(
+        log_manager.Message(
             message_title="Debug State",
-            message_type=MessageType.DEBUG,
+            message_type=log_manager.MessageType.DEBUG,
             message="Internal diagnostics for development.",
             message_notes={
                 "Seed": 12345,
@@ -196,7 +190,7 @@ def demo_blocks() -> None:
 def main() -> None:
     demo_header()
     demo_blocks()
-    render_line(Message("finished!", message_type=MessageType.GENERAL))
+    log_manager.render_line(log_manager.Message("finished!", message_type=log_manager.MessageType.GENERAL))
 
 
 if __name__ == "__main__":
