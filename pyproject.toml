@@ -3,12 +3,9 @@ name = "jormi"
 version = "0.1.0"
 description = "jormi (jormungandr): a utility python library"
 readme = "README.md"
-authors = [
-  { name = "Neco Kriel", email = "necokriel@gmail.com" }
-]
+authors = [{ name = "Neco Kriel", email = "necokriel@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = [
-  "add-trailing-comma>=3.2.0",
   "cmasher>=1.9.2",
   "h5py>=3.13.0",
   "matplotlib>=3.10.1",
@@ -20,8 +17,10 @@ dependencies = [
   "rich>=14.1.0",
   "scipy>=1.15.2",
   "tqdm>=4.67.1",
-  "yapf>=0.43.0",
 ]
+
+[project.scripts]
+format-py-files = "jormi._tools.format_py_files:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -30,7 +29,16 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 sources = ["src"]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/jormi"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/jormi/_tools/.style.yapf" = "jormi/_tools/.style.yapf"
+
+[tool.hatch.build.targets.sdist.force-include]
+"src/jormi/_tools/.style.yapf" = "jormi/_tools/.style.yapf"
+
 [tool.pyright]
-include = [".", "src", "tests", "playground"]
+include = ["src", "tests", "playground"]
 reportMissingImports = true
 reportMissingTypeStubs = false
