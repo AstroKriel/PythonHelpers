@@ -1,3 +1,5 @@
+## { SCRIPT
+
 import numpy
 from pathlib import Path
 from jormi.ww_io import io_manager
@@ -49,4 +51,4 @@ def main():
 if __name__ == "__main__":
   main()
 
-## .
+## } SCRIPT

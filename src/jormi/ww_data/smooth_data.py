@@ -1,16 +1,16 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def apply_2d_convolution(
   data             : numpy.ndarray,
@@ -49,4 +49,4 @@ def smooth_2d_data_with_gaussian_filter(
   return smoothed_data
 
 
-## END OF MODULE
+## } MODULE

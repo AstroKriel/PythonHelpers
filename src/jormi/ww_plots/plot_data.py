@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.ww_plots import add_color
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def plot_sfield_slice(
     ax,
@@ -121,4 +121,4 @@ def plot_vfield_slice_streamplot(
   ax.set_ylim([ axis_bounds[2], axis_bounds[3] ])
 
 
-## END OF MODULE
+## } MODULE

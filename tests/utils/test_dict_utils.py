@@ -1,13 +1,18 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import unittest
 from jormi.utils import dict_utils
 
 
-## ###############################################################
-## TESTS
-## ###############################################################
+##
+## === TEST SUITE ===
+##
+
 class TestDictUtils(unittest.TestCase):
 
   def test_merge_dicts_basic(self):
@@ -135,11 +140,12 @@ class TestDictUtils(unittest.TestCase):
     self.assertFalse(dict_utils.are_dicts_different(dict_with_nested1, dict_with_nested_same))
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   unittest.main()
 
 
-## END OF TEST
+## } TEST

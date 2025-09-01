@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from matplotlib.lines import Line2D as mpl_line2d
@@ -11,9 +11,9 @@ from matplotlib.collections import LineCollection
 from jormi.utils import list_utils
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def add_text(
   ax,
@@ -152,4 +152,4 @@ def overlay_curve(
   ax.add_collection(collection, autolim=False)
 
 
-## END OF MODULE
+## } MODULE

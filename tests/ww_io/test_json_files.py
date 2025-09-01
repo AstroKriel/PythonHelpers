@@ -1,18 +1,22 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import unittest
 import os
-import json
 import numpy as np
 from pathlib import Path
 from jormi.ww_io import json_files
 from jormi.utils import dict_utils
 
 
-## ###############################################################
-## FUNCTION WRAPPERS
-## ###############################################################
+##
+## === FUNCTIONS WRAPPERS ===
+##
+
 def save_dict_to_json_file(*args, **kwargs):
   kwargs["verbose"] = False
   json_files.save_dict_to_json_file(*args, **kwargs)
@@ -22,9 +26,10 @@ def read_json_file_into_dict(*args, **kwargs):
   return json_files.read_json_file_into_dict(*args, **kwargs)
 
 
-## ###############################################################
-## TEST SUITE
-## ###############################################################
+##
+## === TEST SUITE ===
+##
+
 class TestJsonUtils(unittest.TestCase):
 
   def setUp(self):
@@ -132,11 +137,12 @@ class TestJsonUtils(unittest.TestCase):
     self.assertEqual(result, {"key": None})
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   unittest.main()
 
 
-## END OF TEST
+## } TEST

@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import time
 import inspect
 import warnings
 
 
-## ###############################################################
-## FUNCTION DECORATORS
-## ###############################################################
+##
+## === FUNCTIONS DECORATORS ===
+##
 
 def time_function(func):
   def wrapper(
@@ -44,4 +44,4 @@ def warn_if_result_is_unused(func):
   return wrapper
 
 
-## END OF MODULE
+## } MODULE

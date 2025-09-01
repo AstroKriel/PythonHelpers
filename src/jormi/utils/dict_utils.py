@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import copy
 from jormi.utils import type_utils, func_utils
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 @func_utils.warn_if_result_is_unused
 def merge_dicts(
@@ -55,4 +55,4 @@ def are_dicts_different(
   return False
 
 
-## END OF MODULE
+## } MODULE

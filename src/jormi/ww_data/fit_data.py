@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from scipy.optimize import curve_fit
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def get_linear_intercept(
   slope : float,
@@ -121,4 +121,4 @@ def fit_line_with_fixed_slope(
   }
 
 
-## END OF MODULE
+## } MODULE

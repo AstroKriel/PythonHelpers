@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import json
 import copy
@@ -13,9 +13,9 @@ from jormi.ww_io import io_manager
 from jormi.utils import dict_utils
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def _ensure_path_is_valid(
   file_path : str | Path
@@ -86,4 +86,4 @@ def _add_dict_to_json_file(
   if verbose: print("Updated json-file:", file_path)
 
 
-## END OF MODULE
+## } MODULE

@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.utils import type_utils
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def filter_out_nones(
   elems : list
@@ -118,4 +118,4 @@ def flatten_list(elems : list | numpy.ndarray) -> list:
   return flat_elems
 
 
-## END OF MODULE
+## } MODULE

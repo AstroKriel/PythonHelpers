@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 from pathlib import Path
 from jormi.ww_io import io_manager, shell_manager
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def submit_job(
   directory    : str | Path,
@@ -93,4 +93,4 @@ def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
     return None
 
 
-## END OF MODULE
+## } MODULE

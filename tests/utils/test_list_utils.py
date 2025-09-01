@@ -1,15 +1,19 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
-import unittest
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import numpy
-from pathlib import Path
+import unittest
 from jormi.utils import list_utils
 
 
-## ###############################################################
-## TESTS
-## ###############################################################
+##
+## === TEST SUITE ===
+##
+
 class TestListUtils(unittest.TestCase):
 
   def test_cast_to_string(self):
@@ -170,12 +174,12 @@ class TestListUtils(unittest.TestCase):
     self.assertIsNone(result)
 
 
+##
+## === ENTRY POINT ===
+##
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
 if __name__ == "__main__":
   unittest.main()
 
 
-## END OF TEST
+## } TEST

@@ -1,15 +1,18 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { SCRIPT
+
+
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.ww_plots import plot_manager
 from jormi.ww_data import interpolate_data
 
 
-## ###############################################################
-## HELPER FUNCTION
-## ###############################################################
+##
+## === HELPER FUNCTIONS ===
+##
 
 def generate_data(num_points):
     x_values     = numpy.linspace(-5, 15, num=num_points, endpoint=True)
@@ -20,9 +23,9 @@ def generate_data(num_points):
     return x_values, y_exact, dydx_exact, d2ydx2_exact
 
 
-## ###############################################################
-## DEMO INTERPOLATING DATA
-## ###############################################################
+##
+## === DEMO INTERPOLATING DATA ===
+##
 
 def main():
   x_values, y_values, dydx_exact, d2ydx2_exact = generate_data(25)
@@ -54,12 +57,12 @@ def main():
   plot_manager.save_figure(fig, "interpolate_and_estimate_gradients.png")
 
 
-## ###############################################################
-## SCRIPT ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
 
 if __name__ == "__main__":
   main()
 
 
-## END OF SCRIPT
+## } SCRIPT

@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import cmasher
 import matplotlib.colors as mpl_colors
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def create_norm(
   vmin : float = 0.0,
@@ -23,12 +23,12 @@ def create_norm(
   else: return mpl_colors.Normalize(vmin=vmin, vmax=vmax)
 
 def create_cmap(
-  cmap_name: str,
-  cmin: float = 0.0,
-  cmax: float = 1.0,
-  vmin: float = 0.0,
-  vmid: float | None = None,
-  vmax: float = 1.0,
+  cmap_name : str,
+  cmin      : float = 0.0,
+  cmax      : float = 1.0,
+  vmin      : float = 0.0,
+  vmid      : float | None = None,
+  vmax      : float = 1.0,
 ):
   cmap = cmasher.get_sub_cmap(cmap_name, cmin, cmax)
   norm = create_norm(vmin=vmin, vmid=vmid, vmax=vmax)
@@ -69,4 +69,4 @@ def add_cbar_from_cmap(
   return cbar
 
 
-## END OF MODULE
+## } MODULE

@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDANCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.ww_data import smooth_data
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def compute_p_norm(
   array_a             : numpy.ndarray,
@@ -174,4 +174,4 @@ def create_uniformly_spaced_bin_centers(
   )
 
 
-## END OF MODULE
+## } MODULE

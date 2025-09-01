@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 import shutil
@@ -13,9 +13,9 @@ from pathlib import Path
 from jormi.utils import list_utils
 
 
-## ###############################################################
-## UTILITY FUNCTIONS
-## ###############################################################
+##
+## === UTILITY FUNCTIONS ===
+##
 
 def get_caller_directory() -> Path:
   """Get the directory of the script that invoked this function."""
@@ -262,4 +262,4 @@ class ItemFilter:
     )
 
 
-## END OF MODULE
+## } MODULE

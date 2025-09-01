@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## WORKSPACE SETUP
-## ###############################################################
+##
+## === WORKSPACE SETUP ===
+##
 
 import matplotlib
 matplotlib.use("Agg", force=True)
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 from typing import Literal, Any
 from pathlib import Path
@@ -23,9 +23,9 @@ from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def create_figure(
   num_rows   : int   = 1,
@@ -135,4 +135,4 @@ def animate_pngs_to_mp4(
   print("Saved:", mp4_path)
 
 
-## END OF MODULE
+## } MODULE

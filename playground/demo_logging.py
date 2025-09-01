@@ -1,11 +1,10 @@
-from jormi.logging import log_manager
+from jormi.utils import logging_utils
 
-# Aliases for brevity
-Message       = log_manager.Message
-MessageType   = log_manager.MessageType
-ActionOutcome = log_manager.ActionOutcome
-render_line   = log_manager.render_line
-render_block  = log_manager.render_block
+Message       = logging_utils.Message
+MessageType   = logging_utils.MessageType
+ActionOutcome = logging_utils.ActionOutcome
+render_line   = logging_utils.render_line
+render_block  = logging_utils.render_block
 
 
 def demo_header() -> None:

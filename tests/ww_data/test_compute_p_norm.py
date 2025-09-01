@@ -1,14 +1,19 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import unittest
 import numpy
 from jormi.ww_data import compute_stats
 
 
-## ###############################################################
-## TESTS
-## ###############################################################
+##
+## === TEST SUITE ===
+##
+
 class Test_Compute_P_Norm(unittest.TestCase):
   def test_l2_norm(self):
     ## Euclidean distance
@@ -76,11 +81,12 @@ class Test_Compute_P_Norm(unittest.TestCase):
       compute_stats.compute_p_norm([1, 2, 3], [1, 2], 2)
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   unittest.main()
 
 
-## END OF TEST
+## } TEST

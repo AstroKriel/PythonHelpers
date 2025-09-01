@@ -1,6 +1,10 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import sys
 import numpy
 from jormi.utils import list_utils
@@ -9,9 +13,10 @@ from jormi.ww_data import compute_stats, finite_difference
 from jormi.ww_plots import plot_manager
 
 
-## ###############################################################
-## HELPER FUNCTIONS
-## ###############################################################
+##
+## === HELPER FUNCTIONS ===
+##
+
 def sample_domain(domain_bounds, num_points):
   return numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_points), endpoint=False) # to ensure periodicity
 
@@ -31,9 +36,10 @@ def calculate_powerlaw_amplitude(x_0, y_0, b):
   return y_0 / numpy.power(x_0, b)
 
 
-## ###############################################################
-## NUMERICAL CONVERGENCE TEST
-## ###############################################################
+##
+## === NUMERICAL CONVERGENCE TEST ===
+##
+
 class TestFiniteDifferenceConvergence:
   def __init__(self):
     self.domain_bounds = [ 0, 2*numpy.pi ]
@@ -149,13 +155,14 @@ class TestFiniteDifferenceConvergence:
     self.axs[1, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   test = TestFiniteDifferenceConvergence()
   test.run()
   sys.exit(0)
 
 
-## END OF TEST
+## } TEST

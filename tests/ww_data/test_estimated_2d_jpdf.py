@@ -1,15 +1,20 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import numpy
 from jormi.ww_io import io_manager
 from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
 
 
-## ###############################################################
-## HELPER FUNCTIONS
-## ###############################################################
+##
+## === HELPER FUNCTIONS ===
+##
+
 def sample_from_ellipse(num_samples, ax=None):
   center_x = 30
   center_y = 100
@@ -29,9 +34,10 @@ def sample_from_ellipse(num_samples, ax=None):
   return x_rotated, y_rotated
 
 
-## ###############################################################
-## BINNING CONVERGENCE TEST
-## ###############################################################
+##
+## === BINNING CONVERGENCE TEST ===
+##
+
 def main():
   num_points         = 3e5
   num_bins           = 1e2
@@ -74,11 +80,12 @@ def main():
   print("Test passed successfully!")
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   main()
 
 
-## END OF TEST
+## } TEST

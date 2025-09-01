@@ -1,17 +1,17 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.ww_data import finite_difference
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def compute_sfield_rms(
   sfield_q : numpy.ndarray
@@ -101,4 +101,4 @@ def compute_vfield_divergence(
   return numpy.einsum("iixyz->xyz", r2tensor_grad_q)
 
 
-## END OF MODULE
+## } MODULE

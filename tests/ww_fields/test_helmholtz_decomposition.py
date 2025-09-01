@@ -1,6 +1,10 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import numpy
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager
@@ -8,9 +12,10 @@ from jormi.ww_plots import plot_manager
 from jormi.ww_fields import field_operators, decompose_fields
 
 
-## ###############################################################
-## EXAMPLE VECTOR FIELDS
-## ###############################################################
+##
+## === EXAMPLE VECTOR FIELDS ===
+##
+
 def genDivergenceVField(domain_bounds, num_cells):
   """Generate a divergence (curl-free) vector field."""
   domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
@@ -37,9 +42,10 @@ def genMixedVField(domain_bounds, num_cells):
   return sfield_div + sfield_sol
 
 
-## ###############################################################
-## HELPER FUNCTIONS
-## ###############################################################
+##
+## === HELPER FUNCTIONS ===
+##
+
 def computeFieldFraction(bin_edges, pdf):
   nonzero_indices = numpy.where(pdf > 0)[0]
   if len(nonzero_indices) > 0:
@@ -90,9 +96,10 @@ def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
   ax.set_yticks([])
 
 
-## ###############################################################
-## TESTING HELMHOLTZ DECOMPOSITION
-## ###############################################################
+##
+## === ORTHOGONAL DECOMPOSITION TEST ===
+##
+
 def main():
   num_cells = 50
   domain_bounds = [ -1, 1 ]
@@ -161,11 +168,12 @@ def main():
   print("All tests passed successfully!")
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   main()
 
 
-## END OF TEST
+## } TEST

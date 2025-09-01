@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import csv
 from pathlib import Path
 from jormi.ww_io import io_manager
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def _ensure_path_is_valid(
   file_path : Path
@@ -121,4 +121,4 @@ def _update_csv(
   _write_csv(file_path, existing_dataset)
 
 
-## END OF MODULE
+## } MODULE

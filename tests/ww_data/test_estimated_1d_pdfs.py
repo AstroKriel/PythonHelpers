@@ -1,6 +1,10 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import numpy
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager
@@ -8,9 +12,10 @@ from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
 
 
-## ###############################################################
-## BINNING CONVERGENCE TEST
-## ###############################################################
+##
+## === BINNING CONVERGENCE TEST ===
+##
+
 def main():
   num_samples = int(1e5)
   num_bins_to_test = [ 5, 10, 50, 100 ]
@@ -49,11 +54,12 @@ def main():
   print("All tests passed successfully!")
 
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
+##
+## === ENTRY POINT ===
+##
+
 if __name__ == "__main__":
   main()
 
 
-## END OF TEST
+## } TEST

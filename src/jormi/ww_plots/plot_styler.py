@@ -1,3 +1,5 @@
+## { PARAMS
+
 import shutil
 import matplotlib
 from cycler import cycler
@@ -135,4 +137,4 @@ def apply_theme_globally(
       pass
   matplotlib.rcParams.update(_compose_rc_params(theme=theme, use_tex=use_tex))
 
-## END OF PARAMETERS
+## } PARAMS

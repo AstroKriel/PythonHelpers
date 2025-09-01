@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def assert_type(
   obj,
@@ -24,4 +24,4 @@ def assert_type(
     raise TypeError(f"Variable `{obj_name}` is of type `{type(obj).__name__}` instead of `{type_names}`.")
 
 
-## END OF MODULE
+## } MODULE

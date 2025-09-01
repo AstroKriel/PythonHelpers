@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import shlex
 import subprocess
 from pathlib import Path
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def does_shell_command_require_privileges(
   command : str
@@ -66,4 +66,4 @@ def execute_shell_command(
   return result.stdout.strip()
 
 
-## END OF MODULE
+## } MODULE

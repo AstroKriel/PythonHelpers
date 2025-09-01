@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.utils import func_utils
 from jormi.ww_fields import field_operators
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 @func_utils.time_function
 def compute_helmholtz_decomposition(
@@ -56,12 +56,12 @@ def compute_tnb_terms(
 ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]:
   ## format: (vector-component, x, y, z)
   vfield_b = numpy.array(vfield_b)
-  ## ---- COMPUTE TANGENT BASIS
+  ## -- COMPUTE TANGENT BASIS --
   ## (f_k f_k)^(1/2)
   sfield_magn_b = field_operators.compute_vfield_magnitude(vfield_b)
   ## f_i / (f_k f_k)^(1/2)
   vbasis_tangent = vfield_b * sfield_magn_b**(-1)
-  ## ---- COMPUTE NORMAL BASIS
+  ## -- COMPUTE NORMAL BASIS --
   ## df_j/dx_i: (component-j, gradient-direction-i, x, y, z)
   r2tensor_grad_b = field_operators.compute_vfield_gradient(vfield_b, box_width, grad_order)
   ## f_i df_j/dx_i
@@ -76,10 +76,10 @@ def compute_tnb_terms(
   sfield_curvature = field_operators.compute_vfield_magnitude(vfield_kappa)
   ## normal basis
   vbasis_normal = vfield_kappa / sfield_curvature
-  ## ---- COMPUTE BINORMAL BASIS
+  ## -- COMPUTE BINORMAL BASIS --
   ## by definition b-basis is orthogonal to both t- and n-basis
   vbasis_binormal = field_operators.compute_vfield_cross_product(vbasis_tangent, vbasis_normal)
   return vbasis_tangent, vbasis_normal, vbasis_binormal, sfield_curvature
 
 
-## END OF MODULE
+## } MODULE

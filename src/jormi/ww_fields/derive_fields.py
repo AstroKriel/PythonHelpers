@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from jormi.utils import func_utils
 from jormi.ww_fields import field_operators, decompose_fields
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 @func_utils.time_function
 def compute_magnetic_curvature_terms(
@@ -66,4 +66,4 @@ def compute_dissipation_function(
   return vfield_df
 
 
-## END OF MODULE
+## } MODULE

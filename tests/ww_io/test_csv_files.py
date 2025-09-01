@@ -1,15 +1,20 @@
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+## { TEST
+
+
+##
+## === DEPENDENCIES ===
+##
+
 import unittest
 import os
 from pathlib import Path
 from jormi.ww_io import csv_files
 
 
-## ###############################################################
-## FUNCTION WRAPPERS
-## ###############################################################
+##
+## === FUNCTIONS WRAPPERS ===
+##
+
 def save_dict_to_csv_file_wrapper(*args, **kwargs):
   kwargs["verbose"] = False
   csv_files.save_dict_to_csv_file(*args, **kwargs)
@@ -19,9 +24,10 @@ def read_csv_file_into_dict_wrapper(*args, **kwargs):
   return csv_files.read_csv_file_into_dict(*args, **kwargs)
 
 
-## ###############################################################
-## TEST SUITE
-## ###############################################################
+##
+## === TEST SUITE ===
+##
+
 class TestCsvUtils(unittest.TestCase):
 
   def setUp(self):
@@ -123,12 +129,12 @@ class TestCsvUtils(unittest.TestCase):
       read_csv_file_into_dict_wrapper(Path("nonexistent.csv"))
 
 
+##
+## === ENTRY POINT ===
+##
 
-## ###############################################################
-## TEST ENTRY POINT
-## ###############################################################
 if __name__ == "__main__":
   unittest.main()
 
 
-## END OF TEST
+## } TEST

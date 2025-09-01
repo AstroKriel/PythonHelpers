@@ -1,18 +1,18 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 from scipy.interpolate import interp1d as scipy_interp1d
 from jormi.utils import list_utils
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def interpolate_1d(
   x_values : numpy.ndarray,
@@ -47,4 +47,4 @@ def interpolate_1d(
   return (x_interp_in_bounds, y_interp_in_bounds)
 
 
-## END OF MODULE
+## } MODULE

@@ -1,16 +1,16 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def generate_gaussian_random_sfield(
   num_cells          : int,
@@ -58,4 +58,4 @@ def generate_powerlaw_sfield(
   return numpy.fft.ifftn(spectrum_3d).real
 
 
-## END OF MODULE
+## } MODULE

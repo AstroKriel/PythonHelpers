@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## GLOBAL PARAMETERS
-## ###############################################################
+##
+## === GLOBAL PARAMS ===
+##
 
 _QUEUE_CONFIGS = {
   "gadi" : {
@@ -29,18 +29,18 @@ _QUEUE_CONFIGS = {
 }
 
 
-## ###############################################################
-## CUSTOM ERROR MESSAGE
-## ###############################################################
+##
+## === CUSTOM ERROR MESSAGE ===
+##
 
 class QueueValidationError(ValueError):
   """Exception raised when job parameters do not meet queue constraints."""
   pass
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def validate_job_params(
   system_name     : str,
@@ -124,4 +124,4 @@ def _validate_wall_time_rules(
     )
 
 
-## END OF MODULE
+## } MODULE

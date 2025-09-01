@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 from enum import Enum
 from typing import Any
@@ -16,9 +16,9 @@ from rich.text import Text
 from rich import box
 
 
-## ###############################################################
-## SETUP
-## ###############################################################
+##
+## === SETUP ===
+##
 
 _CONSOLE = Console(highlight=False, soft_wrap=False)
 
@@ -65,16 +65,16 @@ class ActionOutcome(Enum):
   SKIPPED = _MessageStyle("SKIPPED", _Symbols.OPEN_CIRCLE.value,   _Colours.GREY.value)
 
 
-## ###############################################################
-## MESSAGE CONTAINER
-## ###############################################################
+##
+## === MESSAGE CONTAINER ===
+##
 
 @dataclass
 class Message:
   message        : str
   message_type   : MessageType
-  message_title  : str | None = None           # used as panel heading for blocks only
-  action_outcome : ActionOutcome | None = None # required iff message_type == ACTION
+  message_title  : str | None = None
+  action_outcome : ActionOutcome | None = None
   message_notes  : dict[str, Any] | None = None
   timestamp      : str | None = None
 
@@ -91,17 +91,17 @@ class Message:
       return self.message_type.value
 
 
-## ###############################################################
-## HELPERS
-## ###############################################################
+##
+## === HELPERS ===
+##
 
 def get_timestamp() -> str:
   return datetime.now().isoformat(sep=" ", timespec="seconds")
 
 
-## ###############################################################
-## RENDERING MESSAGES
-## ###############################################################
+##
+## === RENDERING MESSAGES ===
+##
 
 def render_line(
   message     : Message,
@@ -192,4 +192,4 @@ def render_block(
     _CONSOLE.print()
 
 
-## END OF MODULE
+## } MODULE

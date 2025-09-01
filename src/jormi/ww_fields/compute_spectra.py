@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 import functools
@@ -21,9 +21,9 @@ except ImportError:
   MPI_NUM_PROCS = 1
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 @functools.lru_cache(maxsize=10)
 def _compute_radial_grid(
@@ -92,4 +92,4 @@ def compute_1d_power_spectrum(
   return k_bin_centers, spectrum_1d
 
 
-## END OF MODULE
+## } MODULE

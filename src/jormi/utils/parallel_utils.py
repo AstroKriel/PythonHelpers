@@ -1,9 +1,9 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import os
 import multiprocessing
@@ -13,9 +13,9 @@ from pebble import ProcessPool, ProcessExpired
 from concurrent.futures import TimeoutError
 
 
-## ###############################################################
-## OPERATOR FUNCTION
-## ###############################################################
+##
+## === OPERATOR FUNCTIONS ===
+##
 
 def _spawn_fresh_processes() -> None:
   try:
@@ -128,4 +128,4 @@ def run_in_parallel(
   return task_results
 
 
-## END OF MODULE
+## } MODULE

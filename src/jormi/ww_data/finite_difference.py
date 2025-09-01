@@ -1,16 +1,16 @@
-## START OF MODULE
+## { MODULE
 
 
-## ###############################################################
-## DEPENDENCIES
-## ###############################################################
+##
+## === DEPENDENCIES ===
+##
 
 import numpy
 
 
-## ###############################################################
-## FUNCTIONS
-## ###############################################################
+##
+## === FUNCTIONS ===
+##
 
 def second_order_centered_difference(
   sfield_q   : numpy.ndarray,
@@ -52,4 +52,4 @@ def sixth_order_centered_difference(
   return (q_p3 - 9*q_p2 + 45*q_p1 - 45*q_m1 + 9*q_m2 - q_m3) / (60 * cell_width)
 
 
-## END OF MODULE
+## } MODULE
