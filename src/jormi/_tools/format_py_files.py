@@ -20,9 +20,9 @@ from jormi.utils import logging_utils
 SCRIPT_DIR = Path(__file__).resolve().parent
 STYLE_FILE_NAME = ".style.yapf"
 STYLE_FILE_PATH = SCRIPT_DIR / STYLE_FILE_NAME
-EXTENSIONS = {".py"}
 FILES_TO_IGNORE = set()
 DIRS_TO_IGNORE = (
+    ".DS_Store",
     "__pycache__",
     ".venv",
     ".git",
@@ -85,7 +85,7 @@ def _should_ignore_dirname(dir_name: str) -> bool:
 def _should_ignore_file(path: Path) -> bool:
     if path.name in FILES_TO_IGNORE:
         return True
-    if path.suffix not in EXTENSIONS:
+    if path.suffix.lower() != ".py":
         return True
     if any(path_part in DIRS_TO_IGNORE for path_part in path.parts):
         return True
@@ -123,7 +123,6 @@ def apply_trailing_commas(file_paths: list[Path]) -> None:
     for file_path in file_paths:
         shell_manager.execute_shell_command(
             f'uvx --from add-trailing-comma add-trailing-comma --exit-zero-even-if-changed "{file_path}"',
-            working_directory=SCRIPT_DIR,
             timeout_seconds=120,
             show_output=True,
         )
@@ -144,7 +143,6 @@ def apply_yapf_style(file_paths: list[Path]) -> None:
     for file_path in file_paths:
         shell_manager.execute_shell_command(
             f'uvx --from yapf yapf -i --verbose --style "{STYLE_FILE_PATH}" "{file_path}"',
-            working_directory=SCRIPT_DIR,
             timeout_seconds=300,
             show_output=True,
         )
@@ -157,7 +155,7 @@ def apply_yapf_style(file_paths: list[Path]) -> None:
 
 
 def format_project(targets: list[str] | None = None) -> int:
-    log_info("Formatting under: ...")
+    log_info("Formatting with jormi's YAPF profile")
     ensure_styling_rules_exist()
     ensure_uv_is_available()
     log_info(f"Using style rules from: {STYLE_FILE_PATH}")
@@ -183,7 +181,7 @@ def format_project(targets: list[str] | None = None) -> int:
 ##
 
 
-def main(argv: list[str]) -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Apply trailing-commas rule and YAPF styling to selected targets.",
     )
@@ -197,7 +195,7 @@ def main(argv: list[str]) -> int:
             "absolute paths are also accepted."
         ),
     )
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv if (argv is not None) else sys.argv[1:])
     return format_project(args.targets)
 
 
@@ -206,6 +204,6 @@ def main(argv: list[str]) -> int:
 ##
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(main())
 
 ## } SCRIPT

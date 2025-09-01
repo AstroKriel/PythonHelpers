@@ -19,6 +19,7 @@ dependencies = [
   "tqdm>=4.67.1",
 ]
 
+## install via: `uv tool install --editable .`
 [project.scripts]
 format-py-files = "jormi._tools.format_py_files:main"
 
