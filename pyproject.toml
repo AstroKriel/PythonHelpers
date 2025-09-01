@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+  "add-trailing-comma>=3.2.0",
   "cmasher>=1.9.2",
   "h5py>=3.13.0",
   "matplotlib>=3.10.1",
