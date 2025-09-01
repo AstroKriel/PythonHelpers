@@ -87,7 +87,9 @@ class Message:
         ## note, it only makes sense to have an outcome associated with actions
         if self.message_type.requires_outcome():
             if self.action_outcome is None:
-                raise ValueError("MessageType.ACTION requires 'action_outcome' to be set.")
+                raise ValueError(
+                    "MessageType.ACTION requires 'action_outcome' to be set.",
+                )
             return self.action_outcome.value
         else:
             if self.action_outcome is not None:

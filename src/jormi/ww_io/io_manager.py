@@ -239,11 +239,9 @@ class ItemFilter:
         if item_path.is_file() and not self.include_files: return False
         if item_path.is_dir() and not self.include_folders: return False
         item_name = item_path.name
-        if self.include_string and not all(include_string in item_name
-                                           for include_string in self.include_string):
+        if self.include_string and not all(include_string in item_name for include_string in self.include_string):
             return False
-        if self.exclude_string and any(exclude_string in item_name
-                                       for exclude_string in self.exclude_string):
+        if self.exclude_string and any(exclude_string in item_name for exclude_string in self.exclude_string):
             return False
         if self.prefix and not item_name.startswith(self.prefix): return False
         if self.suffix and not item_name.endswith(self.suffix): return False

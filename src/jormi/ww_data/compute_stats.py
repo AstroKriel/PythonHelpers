@@ -143,9 +143,7 @@ def estimate_pdf(
         mean_value = numpy.mean(values)
         epsilon_width = 1e-4 * (1.0 if mean_value == 0 else numpy.abs(mean_value))
         ## create three bins around the delta value
-        bin_centers = numpy.array(
-            [mean_value - epsilon_width, mean_value, mean_value + epsilon_width],
-        )
+        bin_centers = numpy.array([mean_value - epsilon_width, mean_value, mean_value + epsilon_width])
         estimated_pdf = numpy.array([0.0, 1 / epsilon_width, 0.0])
         return bin_centers, estimated_pdf
     if bin_centers is None:
@@ -183,9 +181,7 @@ def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
     bin_widths = numpy.diff(bin_centers)
     left_bin_edge = bin_centers[0] - 0.5 * bin_widths[0]
     right_bin_edge = bin_centers[-1] + 0.5 * bin_widths[-1]
-    return numpy.concatenate(
-        [[left_bin_edge], bin_centers[:-1] + 0.5 * bin_widths, [right_bin_edge]],
-    )
+    return numpy.concatenate([[left_bin_edge], bin_centers[:-1] + 0.5 * bin_widths, [right_bin_edge]])
 
 
 def create_uniformly_spaced_bin_centers(

@@ -35,8 +35,7 @@ def compute_helmholtz_decomposition(
     grid_k_magn[0, 0, 0] = 1
     vfield_fft_q = numpy.fft.fftn(vfield_q, axes=(1, 2, 3), norm="forward")
     ## \vec{k} cdot \vec{F}(\vec{k})
-    sfield_k_dot_fft_q = grid_kx * vfield_fft_q[0] + grid_ky * vfield_fft_q[
-        1] + grid_kz * vfield_fft_q[2]
+    sfield_k_dot_fft_q = grid_kx * vfield_fft_q[0] + grid_ky * vfield_fft_q[1] + grid_kz * vfield_fft_q[2]
     ## divergence (curl-free) component: (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
     vfield_fft_div = numpy.stack(
         [
@@ -82,9 +81,7 @@ def compute_tnb_terms(
         r2tensor_grad_b,
     )
     ## (f_i df_j/dx_i) / (f_k f_k) - (f_i f_j f_m df_m/dx_i) / (f_k f_k)^2
-    vfield_kappa = vbasis_normal_term1 * sfield_magn_b**(
-        -2
-    ) - vbasis_normal_term2 * sfield_magn_b**(-4)
+    vfield_kappa = vbasis_normal_term1 * sfield_magn_b**(-2) - vbasis_normal_term2 * sfield_magn_b**(-4)
     ## clean up temporary quantities
     del vbasis_normal_term1, vbasis_normal_term2
     ## field curvature

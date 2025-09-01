@@ -48,8 +48,10 @@ def _generate_grid(
     field_shape: tuple[int, int],
     axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
 ):
-    if not (isinstance(axis_bounds, tuple) and len(axis_bounds) == 4
-            and all(isinstance(value, (int, float)) for value in axis_bounds)):
+    is_tuple = isinstance(axis_bounds, tuple)
+    all_elems_defn = len(axis_bounds) == 4
+    valid_elem_type = all(isinstance(value, (int, float)) for value in axis_bounds)
+    if not all((is_tuple, all_elems_defn, valid_elem_type)):
         raise ValueError("`axis_bounds` must be a tuple of four floats.")
     coords_row = numpy.linspace(axis_bounds[0], axis_bounds[1], field_shape[0])
     coords_col = numpy.linspace(axis_bounds[2], axis_bounds[3], field_shape[1])
@@ -104,9 +106,7 @@ def plot_vfield_slice_streamplot(
         elif streamline_weights.shape != field_slice_cols.shape:
             raise ValueError("`streamline_weights` must have the same shape as field slices.")
         else:
-            streamline_width = streamline_scale * (
-                1 + streamline_weights / numpy.max(streamline_weights)
-            )
+            streamline_width = streamline_scale * (1 + streamline_weights / numpy.max(streamline_weights))
     ax.streamplot(
         grid_x,
         grid_y,

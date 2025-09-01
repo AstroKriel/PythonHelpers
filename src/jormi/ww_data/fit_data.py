@@ -108,8 +108,7 @@ def fit_line_with_fixed_slope(
     elif len(y_sigmas) != len(y_values):
         raise ValueError("`y_sigmas` and `y_values` must have the same length.")
     weights = 1.0 / numpy.square(y_sigmas)
-    intercept_best = (numpy.sum(weights * y_values) -
-                      slope * numpy.sum(weights * x_values)) / numpy.sum(weights)
+    intercept_best = (numpy.sum(weights * y_values) - slope * numpy.sum(weights * x_values)) / numpy.sum(weights)
     residual_values = y_values - (intercept_best + slope * x_values)
     ssr = numpy.sum(numpy.square(residual_values))
     sigma_squared = ssr / (num_values - 1)

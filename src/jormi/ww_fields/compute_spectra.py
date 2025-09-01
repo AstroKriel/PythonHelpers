@@ -29,8 +29,7 @@ def _compute_radial_grid(shape: tuple[int, ...]):
     k_center = numpy.array([(n - 1) / 2 for n in shape], dtype=float)
     grid_kz, grid_ky, grid_kx = numpy.indices(shape)
     return numpy.sqrt(
-        numpy.square(grid_kx - k_center[0]) + numpy.square(grid_ky - k_center[1]) +
-        numpy.square(grid_kz - k_center[2]),
+        numpy.square(grid_kx - k_center[0]) + numpy.square(grid_ky - k_center[1]) + numpy.square(grid_kz - k_center[2]),
     )
 
 

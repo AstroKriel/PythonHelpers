@@ -65,12 +65,9 @@ def compute_vfield_curl(
     ## curl components
     return numpy.array(
         [
-            grad_func(vfield_q[2], cell_width, grad_axis=1) -
-            grad_func(vfield_q[1], cell_width, grad_axis=2),
-            grad_func(vfield_q[0], cell_width, grad_axis=2) -
-            grad_func(vfield_q[2], cell_width, grad_axis=0),
-            grad_func(vfield_q[1], cell_width, grad_axis=0) -
-            grad_func(vfield_q[0], cell_width, grad_axis=1),
+            grad_func(vfield_q[2], cell_width, grad_axis=1) - grad_func(vfield_q[1], cell_width, grad_axis=2),
+            grad_func(vfield_q[0], cell_width, grad_axis=2) - grad_func(vfield_q[2], cell_width, grad_axis=0),
+            grad_func(vfield_q[1], cell_width, grad_axis=0) - grad_func(vfield_q[0], cell_width, grad_axis=1),
         ],
     )
 
@@ -94,9 +91,7 @@ def compute_vfield_gradient(
     grad_order: int = 2,
 ):
     ## df_i/dx_j: (component-i, gradient-direction-j, x, y, z)
-    return numpy.array(
-        [compute_sfield_gradient(sfield_qi, box_length, grad_order) for sfield_qi in vfield_q],
-    )
+    return numpy.array([compute_sfield_gradient(sfield_qi, box_length, grad_order) for sfield_qi in vfield_q])
 
 
 def compute_vfield_divergence(

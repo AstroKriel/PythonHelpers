@@ -77,9 +77,7 @@ def compute_dissipation_function(vfield_u: numpy.ndarray) -> numpy.ndarray:
     sfield_div_u = numpy.einsum("iixyz->xyz", r2tensor_gradj_ui)
     r2tensor_bulk = 1 / 3 * numpy.einsum("xyz,ij->ijxyz", sfield_div_u, numpy.identity(3))
     ## S_ij = 0.5 ( \partial_i f_j + \partial_j f_i ) - 1/3 \delta_{ij} \partial_k f_k
-    r2tensor_srt = 0.5 * (
-        r2tensor_gradj_ui.transpose(1, 0, 2, 3, 4) + r2tensor_gradj_ui
-    ) - r2tensor_bulk
+    r2tensor_srt = 0.5 * (r2tensor_gradj_ui.transpose(1, 0, 2, 3, 4) + r2tensor_gradj_ui) - r2tensor_bulk
     ## \partial_j S_ij
     vfield_df = numpy.array(
         [
