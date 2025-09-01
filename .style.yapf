@@ -1,0 +1,16 @@
+[style]
+based_on_style = pep8
+
+# --- Indentation ---
+use_tabs = true        # indent with hard tabs instead of spaces
+indent_width = 1       # one tab = one indent level (editor controls display width)
+
+# --- Line wrapping ---
+column_limit = 100     # wrap lines longer than 100 characters
+
+# --- Brackets / function args ---
+coalesce_brackets = false             # always break items into their own lines
+dedent_closing_brackets = true        # align closing bracket with the start of the line
+split_before_first_argument = true    # put the first arg on a new line
+split_before_named_assigns = true     # keyword args each get their own line
+split_arguments_when_comma_terminated = true  # trailing comma enforces vertical args
