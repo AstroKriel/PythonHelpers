@@ -17,12 +17,11 @@ from jormi.utils import logging_utils
 ## === GLOBAL PARAMS ===
 ##
 
-PROJECT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parent
 STYLE_FILE_NAME = ".style.yapf"
-STYLE_FILE_PATH = PROJECT_DIR / STYLE_FILE_NAME
-PY_DEPENDENCIES = ("add-trailing-comma", "yapf")
+STYLE_FILE_PATH = SCRIPT_DIR / STYLE_FILE_NAME
 EXTENSIONS = {".py"}
-FILES_TO_IGNORE = {}
+FILES_TO_IGNORE = set()
 DIRS_TO_IGNORE = (
     "__pycache__",
     ".venv",
@@ -60,17 +59,16 @@ def log_action(text: str, *, outcome: logging_utils.ActionOutcome) -> None:
 ##
 
 
-def ensure_script_is_in_project_root() -> None:
-    # Verifies the script is PLACED in the project root (does not force running from it)
-    if not (PROJECT_DIR / "pyproject.toml").exists() and not (PROJECT_DIR / ".git").exists():
+def ensure_styling_rules_exist() -> None:
+    if not STYLE_FILE_PATH.exists():
         log_action(
-            f"This script is not placed in the project root (expected `pyproject.toml` or `.git` next to `{PROJECT_DIR}`)",
+            f"Styling file `{STYLE_FILE_NAME}` was not found next to the script: {STYLE_FILE_PATH}",
             outcome=logging_utils.ActionOutcome.FAILURE,
         )
         sys.exit(1)
 
 
-def ensure_uv_available() -> None:
+def ensure_uv_is_available() -> None:
     if shutil.which("uv") is None:
         log_action(
             "`uv` not found in PATH. Install uv first.",
@@ -78,20 +76,6 @@ def ensure_uv_available() -> None:
         )
         sys.exit(1)
     log_action("Found `uv`", outcome=logging_utils.ActionOutcome.SUCCESS)
-
-
-def ensure_tools_installed() -> None:
-    py_dependencies = " ".join(PY_DEPENDENCIES)
-    log_info(f"Ensuring tools are available: {py_dependencies}")
-    shell_manager.execute_shell_command(
-        f"uv add {py_dependencies}",
-        working_directory=PROJECT_DIR,
-        timeout_seconds=120,
-    )
-    log_action(
-        "Tool installation / up-to-date check completed",
-        outcome=logging_utils.ActionOutcome.SUCCESS,
-    )
 
 
 def _should_ignore_dirname(dir_name: str) -> bool:
@@ -138,12 +122,12 @@ def apply_trailing_commas(file_paths: list[Path]) -> None:
     log_info(f"Adding trailing commas where safe ({len(file_paths)} files)")
     for file_path in file_paths:
         shell_manager.execute_shell_command(
-            f'uv run add-trailing-comma --exit-zero-even-if-changed "{file_path}"',
-            working_directory=PROJECT_DIR,
+            f'uvx --from add-trailing-comma add-trailing-comma --exit-zero-even-if-changed "{file_path}"',
+            working_directory=SCRIPT_DIR,
             timeout_seconds=120,
             show_output=True,
         )
-    log_action("Trailing-commas pass completed", outcome=logging_utils.ActionOutcome.SUCCESS)
+    log_action("Completed trailing-commas pass", outcome=logging_utils.ActionOutcome.SUCCESS)
 
 
 def apply_yapf_style(file_paths: list[Path]) -> None:
@@ -152,19 +136,19 @@ def apply_yapf_style(file_paths: list[Path]) -> None:
         return
     if not STYLE_FILE_PATH.exists():
         log_action(
-            f"`{STYLE_FILE_NAME}` was not found in the project root: {PROJECT_DIR}",
+            f"Style file `{STYLE_FILE_NAME}` was not found next to the script: {STYLE_FILE_PATH}",
             outcome=logging_utils.ActionOutcome.FAILURE,
         )
         sys.exit(1)
     log_info(f"Running YAPF-styling on {len(file_paths)} file(s)")
     for file_path in file_paths:
         shell_manager.execute_shell_command(
-            f'uv run yapf -i --verbose --style "{STYLE_FILE_PATH}" "{file_path}"',
-            working_directory=PROJECT_DIR,
+            f'uvx --from yapf yapf -i --verbose --style "{STYLE_FILE_PATH}" "{file_path}"',
+            working_directory=SCRIPT_DIR,
             timeout_seconds=300,
             show_output=True,
         )
-    log_action("YAPF formatting completed", outcome=logging_utils.ActionOutcome.SUCCESS)
+    log_action("Completed YAPF formatting", outcome=logging_utils.ActionOutcome.SUCCESS)
 
 
 ##
@@ -173,16 +157,15 @@ def apply_yapf_style(file_paths: list[Path]) -> None:
 
 
 def format_project(targets: list[str] | None = None) -> int:
-    log_info("Formatting project")
-    ensure_script_is_in_project_root()
-    ensure_uv_available()
-    ensure_tools_installed()
+    log_info("Formatting under: ...")
+    ensure_styling_rules_exist()
+    ensure_uv_is_available()
+    log_info(f"Using style rules from: {STYLE_FILE_PATH}")
     if not targets:
-        ## work from the project root
-        resolved_targets = [PROJECT_DIR]
+        resolved_targets = [Path.cwd()]
     else:
-        ## work relative to the cwd
         resolved_targets = [Path(target).resolve() for target in targets]
+    log_info("Scanning target roots: " + ", ".join(map(str, resolved_targets)))
     file_paths = collect_py_files(resolved_targets)
     log_info(f"Discovered {len(file_paths)} Python files across {len(resolved_targets)} target(s)")
     if not file_paths:
@@ -196,7 +179,7 @@ def format_project(targets: list[str] | None = None) -> int:
 
 
 ##
-## === MAIN PROGRAM ===
+## === USER INTERFACE ===
 ##
 
 
@@ -209,8 +192,8 @@ def main(argv: list[str]) -> int:
         nargs="*",
         help=(
             "Folders or files to format. "
-            "If none are provided, the whole project (PROJECT_DIR) is scanned and formatted. "
-            "If provided, relevant targets are resolved relative to your current working directory; "
+            "If none are provided, the current working directory is scanned and formatted. "
+            "If provided, targets are resolved relative to your current working directory; "
             "absolute paths are also accepted."
         ),
     )
