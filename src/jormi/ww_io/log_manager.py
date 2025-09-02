@@ -34,7 +34,7 @@ class _Colours(str, Enum):
     BLACK = "#020202"
 
 
-class _Symbols(str, Enum):
+class Symbols(str, Enum):
     CLOSED_CIRCLE = "\u25CF"  # ●
     OPEN_CIRCLE = "\u25CB"  # ○
     RIGHT_ARROW = "\u2192"  # →
@@ -51,24 +51,24 @@ class _MessageStyle:
 
 
 class MessageType(Enum):
-    STEP = _MessageStyle("Step", _Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
-    DETAILS = _MessageStyle("Details", _Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
-    ACTION = _MessageStyle("Action", _Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
-    HINT = _MessageStyle("Hint", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    ALERT = _MessageStyle("Alert", _Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
-    LIST = _MessageStyle("List", _Symbols.GREATER_THAN.value, _Colours.BLUE.value)
-    DEBUG = _MessageStyle("Debug", _Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
+    STEP = _MessageStyle("Step", Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
+    DETAILS = _MessageStyle("Details", Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
+    ACTION = _MessageStyle("Action", Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
+    HINT = _MessageStyle("Hint", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
+    ALERT = _MessageStyle("Alert", Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
+    LIST = _MessageStyle("List", Symbols.GREATER_THAN.value, _Colours.BLUE.value)
+    DEBUG = _MessageStyle("Debug", Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
 
     def requires_outcome(self) -> bool:
         return self is MessageType.ACTION
 
 
 class ActionOutcome(Enum):
-    SUCCESS = _MessageStyle("Success", _Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
-    FAILURE = _MessageStyle("Failure", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    ERROR = _MessageStyle("Error", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    WARNING = _MessageStyle("Warning", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    SKIPPED = _MessageStyle("Skipped", _Symbols.OPEN_CIRCLE.value, _Colours.GREYBLUE.value)
+    SUCCESS = _MessageStyle("Success", Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
+    FAILURE = _MessageStyle("Failure", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
+    ERROR = _MessageStyle("Error", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
+    WARNING = _MessageStyle("Warning", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
+    SKIPPED = _MessageStyle("Skipped", Symbols.OPEN_CIRCLE.value, _Colours.GREYBLUE.value)
 
 
 ##
@@ -168,7 +168,7 @@ def render_block(
     panel_title.append(" : ")
     panel_title.append(message_style.message, style=message_style.colour)
     ## build body lines from notes and optional trailing message
-    row_prefix = _Symbols.EM_DASH.value
+    row_prefix = Symbols.EM_DASH.value
     body_lines: list[Text] = []
     ## include notes as "— key : value" entries
     if message.message_notes:
