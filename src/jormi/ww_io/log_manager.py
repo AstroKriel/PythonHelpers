@@ -29,6 +29,7 @@ class _Colours(str, Enum):
     PURPLE = "#C000EB"
     BLUE = "#2A71F6"
     WHITE = "#FFFFFF"
+    GREYBLUE = "#7CB8C8"
     GREY = "#818181"
     BLACK = "#020202"
 
@@ -36,6 +37,7 @@ class _Colours(str, Enum):
 class _Symbols(str, Enum):
     CLOSED_CIRCLE = "\u25CF"  # ●
     OPEN_CIRCLE = "\u25CB"  # ○
+    RIGHT_ARROW = "\u2192"  # →
     HOOKED_ARROW = "\u21AA"  # ↪
     GREATER_THAN = "\u003E"  # >
     EM_DASH = "\u2014"  # —
@@ -49,7 +51,8 @@ class _MessageStyle:
 
 
 class MessageType(Enum):
-    GENERAL = _MessageStyle("General", _Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
+    STEP = _MessageStyle("Step", _Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
+    DETAILS = _MessageStyle("Details", _Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
     ACTION = _MessageStyle("Action", _Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
     HINT = _MessageStyle("Hint", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
     ALERT = _MessageStyle("Alert", _Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
@@ -65,7 +68,7 @@ class ActionOutcome(Enum):
     FAILURE = _MessageStyle("Failure", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
     ERROR = _MessageStyle("Error", _Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
     WARNING = _MessageStyle("Warning", _Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    SKIPPED = _MessageStyle("Skipped", _Symbols.OPEN_CIRCLE.value, _Colours.GREY.value)
+    SKIPPED = _MessageStyle("Skipped", _Symbols.OPEN_CIRCLE.value, _Colours.GREYBLUE.value)
 
 
 ##

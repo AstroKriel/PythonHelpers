@@ -5,9 +5,10 @@
 ##
 
 import numpy
+import cmasher
 from pathlib import Path
 from jormi.ww_data import fit_data
-from jormi.ww_plots import plot_manager, plot_data, add_annotations, plot_styler
+from jormi.ww_plots import plot_manager, plot_styler, annotate_axis
 from jormi.ww_fields import generate_fields, compute_spectra
 
 ##
@@ -17,7 +18,7 @@ from jormi.ww_fields import generate_fields, compute_spectra
 
 def main():
     num_cells = 100
-    slope = -3
+    slope = -2
     k_bin_centers = None
     power_spectra = []
     sfield = None
@@ -43,8 +44,8 @@ def main():
         color="blue",
         marker="o",
         ms=5,
-        ls="-",
-        lw=1,
+        linestyle="-",
+        linewidth=1,
     )
     x_values = numpy.logspace(-1, 3, 10)
     line_intercept = 10**fit_data.get_linear_intercept(
@@ -54,18 +55,18 @@ def main():
     )
     rotate_deg = fit_data.get_line_angle(
         slope=slope,
-        domain_bounds=[0, 2, -14, -11],
+        domain_bounds=(0, 2, -14, -11),
         domain_aspect_ratio=6 / 4,
     )
-    plot_data.plot_wo_scaling_axis(
+    annotate_axis.overlay_curve(
         ax=axs[0],
         x_values=x_values,
         y_values=line_intercept * numpy.power(x_values, slope),
         color="black",
-        ls="--",
-        lw=1.5,
+        linestyle="--",
+        linewidth=1.5,
     )
-    add_annotations.add_text(
+    annotate_axis.add_text(
         ax=axs[0],
         x_pos=0.5,
         y_pos=0.75,

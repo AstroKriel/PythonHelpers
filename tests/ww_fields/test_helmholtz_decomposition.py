@@ -136,9 +136,7 @@ def main():
             vfield_q,
             domain_size,
         )
-        sfield_check_q_diff = field_operators.compute_vfield_magnitude(
-            (vfield_q - (vfield_q_div + vfield_q_sol)),
-        )
+        sfield_check_q_diff = field_operators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)), )
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
             field_operators.compute_vfield_curl(vfield_q_div),
         )

@@ -5,7 +5,7 @@ def demo_header() -> None:
     log_manager.render_line(
         log_manager.Message(
             "Something is happening",
-            message_type=log_manager.MessageType.GENERAL,
+            message_type=log_manager.MessageType.DETAILS,
         ),
         show_time=True,
     )
@@ -131,7 +131,7 @@ def demo_blocks() -> None:
     log_manager.render_block(
         log_manager.Message(
             message_title="System Info",
-            message_type=log_manager.MessageType.GENERAL,
+            message_type=log_manager.MessageType.DETAILS,
             message="Environment detected.",
             message_notes={
                 "OS": "macOS 14.5",
@@ -190,7 +190,7 @@ def demo_blocks() -> None:
 def main() -> None:
     demo_header()
     demo_blocks()
-    log_manager.render_line(log_manager.Message("finished!", message_type=log_manager.MessageType.GENERAL))
+    log_manager.render_line(log_manager.Message("finished!", message_type=log_manager.MessageType.DETAILS))
 
 
 if __name__ == "__main__":
