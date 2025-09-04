@@ -26,7 +26,6 @@ def submit_job(
         shell_manager.execute_shell_command(
             command=f"qsub {file_name}",
             working_directory=directory,
-            enforce_shell=True,
         )
         return True
     except RuntimeError as error:
@@ -67,14 +66,16 @@ def get_job_tag_from_pbs_script(file_path: str | Path) -> str | None:
 def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
     """Collects all job (id, name) pairs currently in the queue."""
     try:
-        raw_output = shell_manager.execute_shell_command(
+        result = shell_manager.execute_shell_command(
             command="qstat -f",
             timeout_seconds=60,
+            capture_output=True,
         )
-        jobs = []
-        job_id = None
-        job_tag = None
-        for line in raw_output.splitlines():
+        if not result.stdout: return []
+        jobs: list[tuple[str, str]] = []
+        job_id: str | None = None
+        job_tag: str | None = None
+        for line in result.stdout.splitlines():
             stripped = line.strip()
             if stripped.startswith("Job Id:"):
                 if job_id and job_tag: jobs.append((job_id, job_tag))

@@ -7,62 +7,76 @@
 import shlex
 import subprocess
 from pathlib import Path
+from dataclasses import dataclass
 
 ##
-## === FUNCTIONS ===
+## === RESULT TYPE ===
 ##
 
+@dataclass(frozen=True)
+class ShellCommandResult:
+    display_command: str
+    working_directory: str | None
+    exit_code: int
+    stdout: str | None
+    stderr: str | None
 
-def does_shell_command_require_privileges(command: str) -> bool:
-    special_shell_tokens = {
-        "|",  # pipe: `ls | grep .py`
-        # "&",      # background execution: `sleep 5 &`
-        # ";",      # command separator: `cmd1; cmd2`
-        "<",  # input redirection: `sort < file.txt`
-        ">",  # output redirection: `echo "hi" > file.txt`
-        # "(", ")", # subshell execution: `(cd /tmp && ls)`
-        "$",  # variable expansion: `echo $HOME`
-        "*",
-        "?",  # wildcards: `rm *.txt`, `ls file?.txt`
-        # "#",      # comment: `echo hello # ignored part`
-        # "{", "}", # brace expansion: `echo {a,b,c}`
-        # "=",      # variable assignment: `VAR=value`
-        # "[", "]", # test conditions: `[ -f file.txt ]`
-        # "~",      # home directory: `cd ~`
-    }
-    return any(word in special_shell_tokens for word in command)
+    @property
+    def succeeded(self) -> bool:
+        return self.exit_code == 0
 
+
+##
+## === FUNCTION ===
+##
 
 def execute_shell_command(
     command: str,
+    *,
     working_directory: str | Path | None = None,
-    timeout_seconds: float = 15,
-    enforce_shell: bool = False,
-    show_output: bool = False,
-) -> str:
-    is_shell_required = enforce_shell or does_shell_command_require_privileges(command)
+    timeout_seconds: float = 60,
+    use_shell: bool = False,
+    capture_output: bool = False,
+    raise_on_error: bool = True,
+) -> ShellCommandResult:
+    """
+    Run a `command` and either stream it to the console or capture the output.
+
+    capture_output:
+      - True: return stdout/stderr in the result (good for parsing or summarizing)
+      - False: stream output live to console (good for long-running, human-facing ops)
+    """
+    if isinstance(working_directory, Path):
+        working_directory = str(working_directory)
     try:
-        result = subprocess.run(
-            command if is_shell_required else shlex.split(command),
+        completed = subprocess.run(
+            command if use_shell else shlex.split(command),
             cwd=working_directory,
             timeout=timeout_seconds,
-            shell=is_shell_required,
-            capture_output=not (show_output),
-            check=False,
+            capture_output=capture_output,
+            shell=use_shell,
             text=True,
+            check=False,
         )
-    except FileNotFoundError as exception:
-        raise RuntimeError(f"Command `{command}` could not be executed.") from exception
-    except subprocess.TimeoutExpired as exception:
-        raise RuntimeError(
-            f"Command `{command}` timed out after `{timeout_seconds}` seconds.",
-        ) from exception
-    if result.returncode != 0:
-        error_message = f"The following command failed with return code `{result.returncode}`: {command}"
-        if result.stdout: error_message += f"\nstdout: {result.stdout.strip()}"
-        if result.stderr: error_message += f"\nstderr: {result.stderr.strip()}"
-        raise RuntimeError(error_message)
-    return (result.stdout or "").strip()
+    except FileNotFoundError as error:
+        raise RuntimeError(f"Command not found: {command}") from error
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(f"Command timed out after {timeout_seconds}s: {command}") from error
+    result = ShellCommandResult(
+        display_command=command,
+        working_directory=working_directory,
+        exit_code=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+    )
+    if raise_on_error and not result.succeeded:
+        message = f"Command failed with exit code {result.exit_code}: {result.display_command}"
+        if result.stdout:
+            message += f"\nstdout:\n{result.stdout.strip()}"
+        if result.stderr:
+            message += f"\nstderr:\n{result.stderr.strip()}"
+        raise RuntimeError(message)
+    return result
 
 
 ## } MODULE
