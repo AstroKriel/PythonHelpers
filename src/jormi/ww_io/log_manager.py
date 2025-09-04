@@ -5,7 +5,7 @@
 ##
 
 from enum import Enum
-from typing import Any
+from typing import Mapping, Any, Literal, Iterable
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -15,7 +15,8 @@ from rich.text import Text
 from rich import box
 
 ##
-## === SETUP ===
+## === TYPES + CONSTANTS ===
+## enums, dataclasses, and symbols/colours used across the api
 ##
 
 _CONSOLE = Console(highlight=False, soft_wrap=False)
@@ -28,8 +29,8 @@ class _Colours(str, Enum):
     RED = "#FF4500"
     PURPLE = "#C000EB"
     BLUE = "#2A71F6"
+    LIGHTBLUE = "#7ED1E8"
     WHITE = "#FFFFFF"
-    GREYBLUE = "#7CB8C8"
     GREY = "#818181"
     BLACK = "#020202"
 
@@ -51,13 +52,15 @@ class _MessageStyle:
 
 
 class MessageType(Enum):
-    STEP = _MessageStyle("Step", Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
-    DETAILS = _MessageStyle("Details", Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
+    TASK = _MessageStyle("Task", Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
+    NOTE = _MessageStyle("Note", Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
     ACTION = _MessageStyle("Action", Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
     HINT = _MessageStyle("Hint", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
     ALERT = _MessageStyle("Alert", Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
-    LIST = _MessageStyle("List", Symbols.GREATER_THAN.value, _Colours.BLUE.value)
     DEBUG = _MessageStyle("Debug", Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
+    LIST = _MessageStyle("List", Symbols.EM_DASH.value, _Colours.BLUE.value)
+    SUMMARY = _MessageStyle("Summary", Symbols.GREATER_THAN.value, _Colours.LIGHTBLUE.value)
+    SECTION = _MessageStyle("Section", Symbols.GREATER_THAN.value, _Colours.WHITE.value)
 
     def requires_outcome(self) -> bool:
         return self is MessageType.ACTION
@@ -68,11 +71,12 @@ class ActionOutcome(Enum):
     FAILURE = _MessageStyle("Failure", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
     ERROR = _MessageStyle("Error", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
     WARNING = _MessageStyle("Warning", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    SKIPPED = _MessageStyle("Skipped", Symbols.OPEN_CIRCLE.value, _Colours.GREYBLUE.value)
+    SKIPPED = _MessageStyle("Skipped", Symbols.OPEN_CIRCLE.value, _Colours.ORANGE.value)
 
 
 ##
-## === MESSAGE CONTAINER ===
+## === MESSAGE MODEL ===
+## data container for messages used by the renderers and log-helpers
 ##
 
 
@@ -112,8 +116,19 @@ def get_timestamp() -> str:
 
 
 ##
-## === RENDERING MESSAGES ===
+## === RENDERING API ===
+## internal api used by the log-helpers
 ##
+
+
+def render_blank(
+    *,
+    count: int = 1,
+) -> None:
+    if count < 1:
+        return
+    for _ in range(count):
+        _CONSOLE.print()
 
 
 def render_line(
@@ -135,7 +150,7 @@ def render_line(
         line_parts.append(f"[{message_style.colour}]{message_style.icon}[/]")
     ## prepend timestamp if enabled
     if show_time:
-        line_parts.append(f"[{timestamp}]")
+        line_parts.append(f"[{_Colours.GREY.value}][{timestamp}][/]")
     ## prepend outcome label for ACTION lines
     if message.message_type is MessageType.ACTION:
         line_parts.append(message_style.message + ":")
@@ -155,7 +170,11 @@ def render_block(
     min_width: int = 60,
     max_width: int = 100,
     add_spacing: bool = True,
+    message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
+    ## validate option
+    if message_position not in ("top", "bottom"):
+        raise ValueError("render_block(message_position): expected 'top' or 'bottom'.")
     ## collect style and timestamp for this block
     message_style = message.style()
     timestamp_prefix = f"[{message.timestamp or get_timestamp()}]" if show_time else ""
@@ -167,9 +186,12 @@ def render_block(
     panel_title.append(message.message_title or "Untitled")
     panel_title.append(" : ")
     panel_title.append(message_style.message, style=message_style.colour)
-    ## build body lines from notes and optional trailing message
+    ## build body lines from optional message + notes
     row_prefix = Symbols.EM_DASH.value
     body_lines: list[Text] = []
+    ## optional message at top
+    if message.message and message_position == "top":
+        body_lines.append(Text(f"{row_prefix} {message.message}", style=message_style.colour))
     ## include notes as "— key : value" entries
     if message.message_notes:
         if not isinstance(message.message_notes, dict):
@@ -180,8 +202,8 @@ def render_block(
             note_line.append(" : ")
             note_line.append(str(value), style="bold")
             body_lines.append(note_line)
-    ## append final trailing message if present
-    if message.message:
+    ## optional message at bottom (default)
+    if message.message and message_position == "bottom":
         body_lines.append(Text(f"{row_prefix} {message.message}", style=message_style.colour))
     ## compute width required to fit title and body lines
     content_width = panel_title.cell_len
@@ -201,9 +223,239 @@ def render_block(
         padding=(0, 1),
     )
     _CONSOLE.print(panel)
-    ## add spacing line if requested
     if add_spacing:
         _CONSOLE.print()
+
+
+##
+## === SINGLE LINE LOGGING ===
+##
+
+
+def log_empty_lines(*, lines: int = 1) -> None:
+    render_blank(count=lines)
+
+
+def log_task(
+    text: str,
+    *,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(text, message_type=MessageType.TASK),
+        show_time=show_time,
+    )
+
+
+def log_note(
+    text: str,
+    *,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(text, message_type=MessageType.NOTE),
+        show_time=show_time,
+    )
+
+
+def log_hint(
+    text: str,
+    *,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(text, message_type=MessageType.HINT),
+        show_time=show_time,
+    )
+
+
+def log_alert(
+    text: str,
+    *,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(text, message_type=MessageType.ALERT),
+        show_time=show_time,
+    )
+
+
+def log_debug(
+    text: str,
+    *,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(text, message_type=MessageType.DEBUG),
+        show_time=show_time,
+    )
+
+
+def log_outcome(
+    text: str,
+    *,
+    outcome: ActionOutcome,
+    show_time: bool = True,
+) -> None:
+    render_line(
+        Message(
+            text,
+            message_type=MessageType.ACTION,
+            action_outcome=outcome,
+        ),
+        show_time=show_time,
+    )
+
+
+##
+## === LOGGING W/ GROUPED INFO ===
+##
+
+
+def log_action(
+    *,
+    title: str,
+    succeeded: bool | None,
+    message: str = "",
+    notes: Mapping[str, object] | None = None,
+    show_time: bool = True,
+    message_position: Literal["top", "bottom"] = "bottom",
+) -> None:
+    if succeeded is None:
+        outcome = ActionOutcome.SKIPPED
+    elif succeeded:
+        outcome = ActionOutcome.SUCCESS
+    else:
+        outcome = ActionOutcome.FAILURE
+    message_notes: dict[str, Any] = dict(notes) if notes else {}
+    render_block(
+        Message(
+            message=message,
+            message_type=MessageType.ACTION,
+            message_title=title,
+            action_outcome=outcome,
+            message_notes=message_notes,
+        ),
+        show_time=show_time,
+        message_position=message_position,
+    )
+
+
+def log_context(
+    *,
+    title: str,
+    message: str = "",
+    notes: Mapping[str, object] | None = None,
+    show_time: bool = True,
+    message_position: Literal["top", "bottom"] = "bottom",
+) -> None:
+    message_notes: dict[str, Any] = dict(notes) if notes else {}
+    render_block(
+        Message(
+            message=message,
+            message_type=MessageType.NOTE,
+            message_title=title,
+            message_notes=message_notes,
+        ),
+        show_time=show_time,
+        message_position=message_position,
+    )
+
+
+def log_items(
+    *,
+    title: str,
+    items: Iterable[Any],
+    message: str = "",
+    show_time: bool = True,
+    message_position: Literal["top", "bottom"] = "top",
+) -> None:
+    grouped_items: dict[str, Any] = {f"{i+1}": item for i, item in enumerate(items)}
+    render_block(
+        Message(
+            message=message,
+            message_type=MessageType.LIST,
+            message_title=title,
+            message_notes=grouped_items,
+        ),
+        show_time=show_time,
+        message_position=message_position,
+    )
+
+
+def log_warning(
+    text: str,
+    notes: Mapping[str, object] | None = None,
+    *,
+    message_position: Literal["top", "bottom"] = "bottom",
+) -> None:
+    message_notes: dict[str, Any] = dict(notes) if notes else {}
+    render_block(
+        Message(
+            message=text,
+            message_type=MessageType.ACTION,
+            message_title="Warning",
+            action_outcome=ActionOutcome.WARNING,
+            message_notes=message_notes,
+        ),
+        show_time=True,
+        message_position=message_position,
+    )
+
+
+def log_error(
+    text: str,
+    notes: Mapping[str, object] | None = None,
+    *,
+    message_position: Literal["top", "bottom"] = "bottom",
+) -> None:
+    message_notes: dict[str, Any] = dict(notes) if notes else {}
+    render_block(
+        Message(
+            message=text,
+            message_type=MessageType.ACTION,
+            message_title="Error",
+            action_outcome=ActionOutcome.ERROR,
+            message_notes=message_notes,
+        ),
+        show_time=True,
+        message_position=message_position,
+    )
+
+
+def log_summary(
+    *,
+    title: str,
+    notes: Mapping[str, object],
+    message: str = "",
+    show_time: bool = True,
+    message_position: Literal["top", "bottom"] = "bottom",
+) -> None:
+    message_notes: dict[str, Any] = dict(notes)
+    render_block(
+        Message(
+            message=message,
+            message_type=MessageType.SUMMARY,
+            message_title=title,
+            message_notes=message_notes,
+        ),
+        show_time=show_time,
+        message_position=message_position,
+    )
+
+
+
+def log_section(
+    title: str,
+    *,
+    show_time: bool = False,
+    add_spacing: bool = False,
+) -> None:
+    render_line(
+        Message(title, message_type=MessageType.SECTION),
+        show_time=show_time,
+        add_spacing=add_spacing,
+    )
 
 
 ## } MODULE
