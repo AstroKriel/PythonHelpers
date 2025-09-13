@@ -2,6 +2,8 @@
 
 import shutil
 import matplotlib
+from enum import Enum
+from typing import Mapping
 from cycler import cycler
 
 FONT_SIZES: dict[str, int] = {
@@ -160,14 +162,20 @@ DARK_RC_PARAMS: dict[str, object] = {
     ),
 }
 
-THEMES: dict[str, dict[str, object]] = {
-    "light": LIGHT_RC_PARAMS,
-    "dark": DARK_RC_PARAMS,
+
+class Theme(Enum):
+    LIGHT = "light"
+    DARK = "dark"
+
+
+THEMES: Mapping[Theme, dict[str, object]] = {
+    Theme.LIGHT: LIGHT_RC_PARAMS,
+    Theme.DARK: DARK_RC_PARAMS,
 }
 
 
 def _compose_rc_params(
-    theme: str = "light",
+    theme: Theme = Theme.LIGHT,
     use_tex: bool = True,
 ) -> dict[str, object]:
     rc_params = _get_base_rc_params(use_tex=use_tex).copy()
@@ -175,18 +183,24 @@ def _compose_rc_params(
     return rc_params
 
 
-def apply_theme_globally(
-    theme: str = "light",
+def set_plot_theme(
+    theme: Theme | str = Theme.LIGHT,
     use_tex: bool = True,
 ) -> None:
-    """Apply theme for the whole process (global)."""
-    if theme == "dark":
+    if isinstance(theme, str):
+        theme = Theme(theme)
+    if theme == Theme.DARK:
         try:
             import matplotlib.pyplot as _mpl_plot
             _mpl_plot.style.use("dark_background")
         except Exception:
             pass
-    matplotlib.rcParams.update(_compose_rc_params(theme=theme, use_tex=use_tex))
+    matplotlib.rcParams.update(
+        _compose_rc_params(
+            theme=theme,
+            use_tex=use_tex,
+        ),
+    )
 
 
 ## } PARAMS

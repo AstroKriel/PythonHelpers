@@ -8,7 +8,7 @@ import numpy
 import cmasher
 from pathlib import Path
 from jormi.ww_data import fit_data
-from jormi.ww_plots import plot_manager, plot_styler, annotate_axis
+from jormi.ww_plots import plot_manager, annotate_axis
 from jormi.ww_fields import generate_fields, compute_spectra
 
 ##
@@ -29,7 +29,6 @@ def main():
         )
         k_bin_centers, spectrum_1d = compute_spectra.compute_1d_power_spectrum(field=sfield)
         power_spectra.append(spectrum_1d)
-    plot_styler.apply_theme_globally()
     fig, axs = plot_manager.create_figure(num_cols=2)
     axs[0].fill_between(
         k_bin_centers,
@@ -86,8 +85,8 @@ def main():
     axs[1].set_xticks([])
     axs[1].set_yticks([])
     script_path = Path(__file__).parent
-    plot_path = script_path / "generated_powerlaw_sfield.png"
-    plot_manager.save_figure(fig, plot_path)
+    fig_path = script_path / "generated_powerlaw_sfield.png"
+    plot_manager.save_figure(fig, fig_path)
 
 
 ##

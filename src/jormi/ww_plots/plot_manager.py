@@ -20,6 +20,7 @@ from matplotlib.axes import Axes as mpl_axes
 from matplotlib.figure import Figure
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
+from jormi.ww_plots import plot_styler
 
 ##
 ## === FUNCTIONS ===
@@ -35,8 +36,11 @@ def create_figure(
     y_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
+    auto_style: bool = True,
+    theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
 ) -> tuple[Figure, Any]:
     """Initialize a figure with a flexible grid layout."""
+    if auto_style: plot_styler.set_plot_theme(theme=theme)
     fig_width = fig_scale * axis_shape[1] * num_cols
     fig_height = fig_scale * axis_shape[0] * num_rows
     fig, axs = mpl_plot.subplots(
