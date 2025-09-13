@@ -23,8 +23,8 @@ def plot_sfield_slice(
     cbar_side: str = "right",
 ):
     if field_slice.ndim != 2: raise ValueError("`field_slice` must be a 2D array.")
-    vmin = 0.9 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
-    vmax = 1.1 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
+    vmin = 0.95 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
+    vmax = 1.05 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
     cmap, norm = add_color.create_cmap(
         cmap_name=cmap_name,
         vmin=vmin,
@@ -52,7 +52,7 @@ def _generate_grid(
     all_elems_defn = len(axis_bounds) == 4
     valid_elem_type = all(isinstance(value, (int, float)) for value in axis_bounds)
     if not all((is_tuple, all_elems_defn, valid_elem_type)):
-        raise ValueError("`axis_bounds` must be a tuple of four floats.")
+        raise ValueError("`axis_bounds` must be a tuple with four floats.")
     coords_row = numpy.linspace(axis_bounds[0], axis_bounds[1], field_shape[0])
     coords_col = numpy.linspace(axis_bounds[2], axis_bounds[3], field_shape[1])
     grid_x, grid_y = numpy.meshgrid(coords_col, coords_row, indexing="xy")
@@ -69,7 +69,7 @@ def plot_vfield_slice_quiver(
     field_color: str = "white",
 ):
     if field_slice_rows.shape != field_slice_cols.shape:
-        raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
+        raise ValueError("`field_slice_rows` and `field_slice_cols` must be the same shape.")
     grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
     quiver_step_rows = max(1, field_slice_rows.shape[0] // num_quivers)
     quiver_step_cols = max(1, field_slice_cols.shape[1] // num_quivers)

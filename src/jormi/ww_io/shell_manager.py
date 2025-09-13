@@ -13,9 +13,10 @@ from dataclasses import dataclass
 ## === RESULT TYPE ===
 ##
 
+
 @dataclass(frozen=True)
-class ShellCommandResult:
-    display_command: str
+class CommandOutcome:
+    command: str
     working_directory: str | None
     exit_code: int
     stdout: str | None
@@ -30,6 +31,7 @@ class ShellCommandResult:
 ## === FUNCTION ===
 ##
 
+
 def execute_shell_command(
     command: str,
     *,
@@ -38,13 +40,13 @@ def execute_shell_command(
     use_shell: bool = False,
     capture_output: bool = False,
     raise_on_error: bool = True,
-) -> ShellCommandResult:
+) -> CommandOutcome:
     """
     Run a `command` and either stream it to the console or capture the output.
 
-    capture_output:
-      - True: return stdout/stderr in the result (good for parsing or summarizing)
-      - False: stream output live to console (good for long-running, human-facing ops)
+    `capture_output`:
+      - True: store stdout/stderr in the outcome
+      - False: stream the output to the console buffer
     """
     if isinstance(working_directory, Path):
         working_directory = str(working_directory)
@@ -62,21 +64,21 @@ def execute_shell_command(
         raise RuntimeError(f"Command not found: {command}") from error
     except subprocess.TimeoutExpired as error:
         raise RuntimeError(f"Command timed out after {timeout_seconds}s: {command}") from error
-    result = ShellCommandResult(
-        display_command=command,
+    command_outcome = CommandOutcome(
+        command=command,
         working_directory=working_directory,
         exit_code=completed.returncode,
         stdout=completed.stdout,
         stderr=completed.stderr,
     )
-    if raise_on_error and not result.succeeded:
-        message = f"Command failed with exit code {result.exit_code}: {result.display_command}"
-        if result.stdout:
-            message += f"\nstdout:\n{result.stdout.strip()}"
-        if result.stderr:
-            message += f"\nstderr:\n{result.stderr.strip()}"
+    if raise_on_error and not command_outcome.succeeded:
+        message = f"Command failed with exit code {command_outcome.exit_code}: {command_outcome.command}"
+        if command_outcome.stdout:
+            message += f"\nstdout:\n{command_outcome.stdout.strip()}"
+        if command_outcome.stderr:
+            message += f"\nstderr:\n{command_outcome.stderr.strip()}"
         raise RuntimeError(message)
-    return result
+    return command_outcome
 
 
 ## } MODULE

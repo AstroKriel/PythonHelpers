@@ -444,7 +444,6 @@ def log_summary(
     )
 
 
-
 def log_section(
     title: str,
     *,
