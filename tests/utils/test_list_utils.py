@@ -134,42 +134,42 @@ class TestListUtils(unittest.TestCase):
         expected = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.assertEqual(output, expected)
 
-    def test_find_first_crossing(self):
+    def test_get_index_of_first_crossing(self):
         ## rising crossing
         values = [0.1, 0.2, 0.5, 0.7, 1.0]
-        index = list_utils.find_first_crossing(values, 0.6, direction="rising")
+        index = list_utils.get_index_of_first_crossing(values, 0.6, direction="rising")
         self.assertEqual(index, 2)  # crosses between 0.5 (index 2) and 0.7 (index 3)
         ## falling crossing
         values = [1.0, 0.9, 0.6, 0.4, 0.2]
-        index = list_utils.find_first_crossing(values, 0.5, direction="falling")
+        index = list_utils.get_index_of_first_crossing(values, 0.5, direction="falling")
         self.assertEqual(index, 2)  # crosses between 0.6 and 0.4
         ## non-directional (any) crossing
         values = [0.9, 0.7, 0.4, 0.6, 0.8]
-        index = list_utils.find_first_crossing(values, 0.5)
+        index = list_utils.get_index_of_first_crossing(values, 0.5)
         self.assertEqual(index, 1)  # first crossing is falling: 0.7 - 0.4
         ## exact match value (rising)
         values = [0.1, 0.5, 0.6, 0.9]
-        index = list_utils.find_first_crossing(values, 0.6, direction="rising")
+        index = list_utils.get_index_of_first_crossing(values, 0.6, direction="rising")
         self.assertEqual(index, 1)  # 0.5 - 0.6
         ## target outside range (should raise)
         values = [0.1, 0.2, 0.3]
         with self.assertRaises(ValueError):
-            list_utils.find_first_crossing(values, 1.0)
+            list_utils.get_index_of_first_crossing(values, 1.0)
         ## invalid direction value (should raise)
         values = [0.1, 0.2, 0.3]
         with self.assertRaises(ValueError):
-            list_utils.find_first_crossing(values, 0.2, direction="diagonal")
+            list_utils.get_index_of_first_crossing(values, 0.2, direction="diagonal")
         ## exact min value match
         values = [0.1, 0.2, 0.3]
-        index = list_utils.find_first_crossing(values, 0.1)
+        index = list_utils.get_index_of_first_crossing(values, 0.1)
         self.assertEqual(index, 0)
         ## exact max value match
         values = [0.1, 0.5, 0.9]
-        index = list_utils.find_first_crossing(values, 0.9)
+        index = list_utils.get_index_of_first_crossing(values, 0.9)
         self.assertEqual(index, 2)
         ## no crossing found (returns none)
         values = [0.1, 0.2, 0.3]
-        result = list_utils.find_first_crossing(values, 0.25, direction="falling")
+        result = list_utils.get_index_of_first_crossing(values, 0.25, direction="falling")
         self.assertIsNone(result)
 
 
