@@ -31,7 +31,7 @@ def get_index_of_closest_value(
     return int(numpy.nanargmin(numpy.abs(array - target)))
 
 
-def find_first_crossing(
+def get_index_of_first_crossing(
     values: list[float] | numpy.ndarray,
     target: float,
     direction: str | None = None,
