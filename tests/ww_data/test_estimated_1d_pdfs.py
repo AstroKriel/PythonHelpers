@@ -26,17 +26,19 @@ def main():
     }
     integral_tolerance = 1e-2
     num_pdfs = len(pdfs_to_test)
-    fig, axs = plot_manager.create_figure(num_rows=num_pdfs)
+    fig, axs = plot_manager.create_figure(num_rows=num_pdfs, y_spacing=0.25)
     if num_pdfs == 1: axs = list(axs)
     pdfs_that_failed = []
     for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
         ax = axs[pdf_index]
         for num_bins in num_bins_to_test:
-            bin_centers, estimated_pdf = compute_stats.estimate_pdf(
+            result = compute_stats.estimate_pdf(
                 pdf_samples,
                 num_bins=num_bins,
                 bin_range_percent=1.5,
             )
+            bin_centers = result.bin_centers
+            estimated_pdf = result.density
             assert len(
                 bin_centers,
             ) >= 3, f"Error: Bin centers for {pdf_label} with {num_bins} bins should have at least 3 bins, but got {len(bin_centers)}"
@@ -46,10 +48,10 @@ def main():
                     bin_centers,
                 ) == num_bins, f"Error: The number of `bin_centers` ({len(bin_centers)}) does not match the expected number of bins ({num_bins}) for {pdf_label}"
             ax.step(bin_centers, estimated_pdf, where="mid", lw=2, label=f"{num_bins} bins")
-            bin_widths = numpy.diff(bin_centers)
-            bin_widths = numpy.append(bin_widths, bin_widths[-1])
+            bin_widths = numpy.diff(result.bin_edges)
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > integral_tolerance: pdfs_that_failed.append(pdf_label)
+
         ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
         ax.set_ylabel(r"PDF$(x)$")
     axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)

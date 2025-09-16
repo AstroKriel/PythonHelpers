@@ -41,59 +41,60 @@ def compute_p_norm(
     normalise_by_length: bool = False,
 ) -> float:
     """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm)."""
-    array_a = numpy.asarray(array_a)
-    array_b = numpy.asarray(array_b)
+    ## cast inputs to float64 and flatten
+    array_a = numpy.asarray(array_a, dtype=numpy.float64).ravel()
+    array_b = numpy.asarray(array_b, dtype=numpy.float64).ravel()
+    ## mask non-finite values
+    mask = numpy.isfinite(array_a) & numpy.isfinite(array_b)
+    array_a, array_b = array_a[mask], array_b[mask]
+    ## validate inputs
     errors = []
     if array_a.ndim != 1:
         errors.append(f"Array-A must be 1-dimensional, but ndim = {array_a.ndim}.")
     if array_b.ndim != 1:
         errors.append(f"Array-B must be 1-dimensional, but ndim = {array_b.ndim}.")
     if len(array_a) != len(array_b):
-        errors.append(
-            f"Both arrays must have the same number of elems: {len(array_a)} != {len(array_b)}.",
-        )
+        errors.append(f"Both arrays must have the same number of elems: {len(array_a)} != {len(array_b)}.")
     if array_a.size == 0: errors.append("Array-A should not be empty.")
     if array_b.size == 0: errors.append("Array-B should not be empty.")
     if not isinstance(p_norm, (int, float)):
-        errors.append(f"Invalid norm order `p_norm = {p_norm}`. Must be a number.")
-    if len(errors) > 0:
-        raise ValueError("Input validation failed with the following issues:\n" + "\n".join(errors))
-    if numpy.all(array_a == array_b): return 0
+        errors.append(f"`p_norm = {p_norm}` is not a number.")
+    if errors: raise ValueError("Validation failed:\n" + "\n".join(errors))
+    if numpy.array_equal(array_a, array_b): return 0.0
     array_diff = numpy.abs(array_a - array_b)
-    if p_norm == numpy.inf: return numpy.max(array_diff)
+    if p_norm == numpy.inf:
+        return float(numpy.max(array_diff))
     elif p_norm == 1:
-        ## L1 norm: sum of absolute differences
-        value = numpy.sum(array_diff)
+        ## L1 norm: sum of absolute differences (use float64 accumulator)
+        value = float(numpy.sum(array_diff, dtype=numpy.float64))
         if normalise_by_length: value /= len(array_a)
+        return value
     elif p_norm == 0:
         ## L0 pseudo-norm: count of non-zero elements
-        value = numpy.count_nonzero(array_diff)
+        return float(numpy.count_nonzero(array_diff))
     elif p_norm > 0:
-        ## general case for p_norm > 0
-        ## note improved numerical stability: scale by maximum value
-        max_diff = numpy.max(array_diff)
-        if max_diff > 0:
-            scaled_diff = array_diff / max_diff
-            value = max_diff * numpy.power(
-                numpy.sum(numpy.power(scaled_diff, p_norm)),
-                1 / p_norm,
-            )
-            if normalise_by_length: value /= numpy.power(len(array_a), 1 / p_norm)
-        else: value = 0
-    else:
-        raise ValueError(
-            f"Invalid norm order `p_norm = {p_norm}`. Must be positive or infinity.",
+        ## general case for p-norm > 0
+        ## note: we rescale by the maximum value for numerical stability
+        max_diff = float(numpy.max(array_diff))
+        if max_diff == 0.0: return 0.0
+        scaled_diff = array_diff / max_diff
+        value = max_diff * numpy.power(
+            numpy.sum(numpy.power(scaled_diff, p_norm, dtype=numpy.float64), dtype=numpy.float64),
+            1.0 / p_norm,
         )
-    return value
+        if normalise_by_length: value /= numpy.power(len(array_a), 1.0 / p_norm)
+        return float(value)
+    else:
+        raise ValueError(f"`p_norm = {p_norm}` is invalid. Must be positive or infinity.")
 
 
 def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**3):
     """Sample a normal distribution with quantiles 0 < q1 < q2 < 100 and corresponding probabilities 0 < p1 < p2 < 1."""
     if not (0 < q1 < q2 < 1): raise ValueError("Invalid quantile probabilities")
-    ## calculate the inverse of the CDF
+    ## inverse CDF
     cdf_inv_p1 = numpy.sqrt(2) * numpy.erfinv(2 * q1 - 1)
     cdf_inv_p2 = numpy.sqrt(2) * numpy.erfinv(2 * q2 - 1)
-    ## calculate the mean and standard deviation of the normal distribution
+    ## solve for the mean and standard deviation of the normal distribution
     mean_value = ((p1 * cdf_inv_p2) - (p2 * cdf_inv_p1)) / (cdf_inv_p2 - cdf_inv_p1)
     std_value = (p2 - p1) / (cdf_inv_p2 - cdf_inv_p1)
     ## generate sampled points from the normal distribution
@@ -110,62 +111,71 @@ def estimate_pdf(
     delta_threshold: float = 1e-5,
 ) -> EstimatedPDF:
     """Compute the 1D probability density function (PDF) for the provided `values`."""
-    if len(values) == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
-    if numpy.std(values) < delta_threshold:
-        ## little variantion in the values implies a delta function
-        mean_value = numpy.mean(values)
-        epsilon_width = 1e-4 * (1.0 if mean_value == 0 else numpy.abs(mean_value))
-        ## create three bins around the delta value
-        bin_centers = numpy.array([
-            mean_value - epsilon_width,
-            mean_value,
-            mean_value + epsilon_width,
-        ])
+    ## cast to float64, flatten, mask non-finite
+    values = numpy.asarray(values, dtype=numpy.float64).ravel()
+    if weights is not None:
+        weights = numpy.asarray(weights, dtype=numpy.float64).ravel()
+        if weights.shape != values.shape: raise ValueError("`weights` length must match `values`.")
+        mask = numpy.isfinite(values) & numpy.isfinite(weights)
+        values, weights = values[mask], weights[mask]
+        if numpy.any(weights < 0): raise ValueError("`weights` must be non-negative.")
+    else:
+        mask = numpy.isfinite(values)
+        values, weights = values[mask], None
+    if values.size == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
+    ## degenerate case: very low variance, treat as delta spike
+    if numpy.std(values, dtype=numpy.float64) < delta_threshold:
+        mean_value = float(numpy.mean(values, dtype=numpy.float64))
+        epsilon_width = 1e-4 * (1.0 if mean_value == 0.0 else abs(mean_value))
+        bin_centers = numpy.array(
+            [mean_value - epsilon_width, mean_value, mean_value + epsilon_width],
+            dtype=numpy.float64,
+        )
         bin_edges = numpy.array(
             [
                 mean_value - 1.5 * epsilon_width,
                 mean_value - 0.5 * epsilon_width,
                 mean_value + 0.5 * epsilon_width,
                 mean_value + 1.5 * epsilon_width,
-            ]
+            ],
+            dtype=numpy.float64,
         )
-        estimated_pdf = numpy.array([0.0, 1 / epsilon_width, 0.0])
-        return EstimatedPDF(
-            bin_centers=bin_centers,
-            bin_edges=bin_edges,
-            density=estimated_pdf,
-        )
+        bin_widths = numpy.diff(bin_edges)
+        bin_counts = numpy.array([0.0, 1.0, 0.0], dtype=numpy.float64)
+        density = bin_counts / (numpy.sum(bin_counts, dtype=numpy.float64) * bin_widths)
+        return EstimatedPDF(bin_centers=bin_centers, bin_edges=bin_edges, density=density)
+    ## determine bin centers
     if bin_centers is None:
         if num_bins is None: raise ValueError("You did not provide a binning option.")
-        bin_centers = create_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
-    elif not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
-        raise ValueError("Bin centers must be sorted in ascending order.")
-    bin_edges = get_bin_edges_from_centers(bin_centers)
+        bin_centers = create_uniformly_spaced_bin_centers(
+            values,
+            num_bins,
+            bin_range_percent,
+        ).astype(numpy.float64)
+    else:
+        bin_centers = numpy.asarray(bin_centers, dtype=numpy.float64).ravel()
+        if not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
+            raise ValueError("Bin centers must be sorted in ascending order.")
+    ## edges from centers
+    bin_edges = get_bin_edges_from_centers(bin_centers).astype(numpy.float64)
     bin_widths = numpy.diff(bin_edges)
     if numpy.any(bin_widths <= 0): raise ValueError("All bin widths must be positive.")
+    ## assign values to bins
     bin_indices = numpy.searchsorted(bin_edges, values, side="right") - 1
     bin_indices = numpy.clip(bin_indices, 0, len(bin_centers) - 1)
-    bin_counts = numpy.zeros(len(bin_centers), dtype=float)
+    ## accumulate counts
+    bin_counts = numpy.zeros(len(bin_centers), dtype=numpy.float64)
     if weights is not None:
-        if len(weights) != len(values):
-            raise ValueError(
-                f"The length of `weights` ({len(weights)}) must match the length of `values` ({len(values)}).",
-            )
         numpy.add.at(bin_counts, bin_indices, weights)
+        total_counts = float(numpy.sum(weights, dtype=numpy.float64))
     else:
-        numpy.add.at(bin_counts, bin_indices, 1)
-    total_counts = numpy.sum(bin_counts)
+        numpy.add.at(bin_counts, bin_indices, 1.0)
+        total_counts = float(numpy.sum(bin_counts, dtype=numpy.float64))
     if total_counts <= 0:
-        raise ValueError(
-            "None of the `values` fell into any bins. Check binning options or `values`:",
-            values,
-        )
-    estimated_pdf = bin_counts / (total_counts * bin_widths)
-    return EstimatedPDF(
-        bin_centers=bin_centers,
-        bin_edges=bin_edges,
-        density=estimated_pdf,
-    )
+        raise ValueError("None of the `values` fell into any bins.")
+    ## normalise by bin width and total counts
+    density = bin_counts / (total_counts * bin_widths)
+    return EstimatedPDF(bin_centers=bin_centers, bin_edges=bin_edges, density=density)
 
 
 def estimate_jpdf(
@@ -179,41 +189,63 @@ def estimate_jpdf(
     smoothing_length: float | None = None,
 ) -> EstimatedJPDF:
     """Compute the 2D joint probability density function (JPDF)."""
-    if (len(data_x) == 0) or (len(data_y) == 0):
+    ## cast to float64, flatten, mask non-finite
+    data_x = numpy.asarray(data_x, dtype=numpy.float64).ravel()
+    data_y = numpy.asarray(data_y, dtype=numpy.float64).ravel()
+    mask_xy = numpy.isfinite(data_x) & numpy.isfinite(data_y)
+    data_x, data_y = data_x[mask_xy], data_y[mask_xy]
+    if data_x.size == 0 or data_y.size == 0:
         raise ValueError("Data arrays must not be empty.")
+    ## handle bin specification
     if (bin_centers_cols is None) and (bin_centers_rows is None) and (num_bins is None):
         raise ValueError("You did not provide a binning option.")
     if num_bins is None:
         if bin_centers_cols is not None: num_bins = len(bin_centers_cols)
         if bin_centers_rows is not None: num_bins = len(bin_centers_rows)
     if bin_centers_cols is None:
-        bin_centers_cols = create_uniformly_spaced_bin_centers(data_x, num_bins, bin_range_percent)
+        bin_centers_cols = create_uniformly_spaced_bin_centers(
+            data_x, num_bins, bin_range_percent
+        ).astype(numpy.float64)
+    else:
+        bin_centers_cols = numpy.asarray(bin_centers_cols, dtype=numpy.float64).ravel()
     if bin_centers_rows is None:
-        bin_centers_rows = create_uniformly_spaced_bin_centers(data_y, num_bins, bin_range_percent)
-    bin_edges_rows = get_bin_edges_from_centers(bin_centers_rows)
-    bin_edges_cols = get_bin_edges_from_centers(bin_centers_cols)
+        bin_centers_rows = create_uniformly_spaced_bin_centers(
+            data_y, num_bins, bin_range_percent
+        ).astype(numpy.float64)
+    else:
+        bin_centers_rows = numpy.asarray(bin_centers_rows, dtype=numpy.float64).ravel()
+    ## get edges and widths
+    bin_edges_rows = get_bin_edges_from_centers(bin_centers_rows).astype(numpy.float64)
+    bin_edges_cols = get_bin_edges_from_centers(bin_centers_cols).astype(numpy.float64)
+    bin_widths_rows = numpy.diff(bin_edges_rows)
+    bin_widths_cols = numpy.diff(bin_edges_cols)
+    if numpy.any(bin_widths_rows <= 0) or numpy.any(bin_widths_cols <= 0):
+        raise ValueError("All bin widths must be positive.")
+    bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
+    ## map values into bins
     bin_indices_rows = numpy.searchsorted(bin_edges_rows, data_y, side="right") - 1
     bin_indices_cols = numpy.searchsorted(bin_edges_cols, data_x, side="right") - 1
     bin_indices_rows = numpy.clip(bin_indices_rows, 0, len(bin_centers_rows) - 1)
     bin_indices_cols = numpy.clip(bin_indices_cols, 0, len(bin_centers_cols) - 1)
-    bin_counts = numpy.zeros((len(bin_centers_rows), len(bin_centers_cols)), dtype=float)
+    ## accumulate counts
+    bin_counts = numpy.zeros((len(bin_centers_rows), len(bin_centers_cols)), dtype=numpy.float64)
     if data_weights is not None:
-        if (data_weights.size != data_x.size) or (data_weights.size != data_y.size):
-            raise ValueError(
-                "The size of `data_weights` must match the size of the provided `data_{x,y}`.",
-            )
+        data_weights = numpy.asarray(data_weights, dtype=numpy.float64).ravel()
+        if data_weights.shape != data_x.shape:
+            raise ValueError("The size of `data_weights` must match the size of `data_{x,y}` after filtering.")
+        if numpy.any(~numpy.isfinite(data_weights)) or numpy.any(data_weights < 0):
+            raise ValueError("`data_weights` must be finite and non-negative.")
         numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), data_weights)
     else:
-        numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), 1)
-    bin_widths_cols = numpy.diff(bin_edges_cols)
-    bin_widths_rows = numpy.diff(bin_edges_rows)
-    bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
-    estimated_jpdf = bin_counts / (numpy.sum(bin_counts) * bin_areas)
+        numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), 1.0)
+    ## normalise by bin area and total count (float64 accumulator)
+    total_counts = float(numpy.sum(bin_counts, dtype=numpy.float64))
+    estimated_jpdf = bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts
+    ## optional smoothing (then renormalise with cell areas)
     if smoothing_length is not None:
-        estimated_jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(
-            estimated_jpdf,
-            smoothing_length,
-        )
+        estimated_jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(estimated_jpdf, smoothing_length)
+        total = float(numpy.sum(estimated_jpdf * bin_areas, dtype=numpy.float64))
+        if total > 0: estimated_jpdf /= total
     return EstimatedJPDF(
         bin_centers_rows=bin_centers_rows,
         bin_centers_cols=bin_centers_cols,

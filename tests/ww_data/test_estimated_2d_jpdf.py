@@ -40,22 +40,24 @@ def sample_from_ellipse(num_samples, ax=None):
 
 
 def main():
-    num_points = 3e5
-    num_bins = 1e2
+    num_points = int(3e5)
+    num_bins = int(1e2)
     plot_samples = False
     integral_tolerance = 1e-2
     fig, ax = plot_manager.create_figure()
     x_samples, y_samples = sample_from_ellipse(num_points, ax)
-    bin_centers_rows, bin_centers_cols, jpdf = compute_stats.estimate_jpdf(
+    result = compute_stats.estimate_jpdf(
         data_x=x_samples,
         data_y=y_samples,
         num_bins=num_bins,
         smoothing_length=2.0,
     )
-    ## assuming uniform binning
-    bin_width_x = bin_centers_cols[1] - bin_centers_cols[0]
-    bin_width_y = bin_centers_rows[1] - bin_centers_rows[0]
-    pdf_integral = numpy.sum(jpdf * bin_width_x * bin_width_y)
+    bin_centers_rows = result.bin_centers_rows
+    bin_centers_cols = result.bin_centers_cols
+    jpdf = result.density
+    bin_widths_x = numpy.diff(result.bin_edges_cols)
+    bin_widths_y = numpy.diff(result.bin_edges_rows)
+    pdf_integral = numpy.sum(jpdf * bin_widths_y[:, None] * bin_widths_x[None, :])
     ax.imshow(
         jpdf,
         extent=[
@@ -81,9 +83,9 @@ def main():
     file_name = "estimated_2d_jpdf.png"
     file_path = io_manager.combine_file_path_parts([directory, file_name])
     plot_manager.save_figure(fig, file_path)
-    assert abs(
-        pdf_integral - 1.0,
-    ) < integral_tolerance, f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
+    assert abs(pdf_integral - 1.0) < integral_tolerance, (
+        f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
+    )
     print("Test passed successfully!")
 
 
