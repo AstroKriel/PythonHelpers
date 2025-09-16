@@ -15,10 +15,10 @@ from jormi.ww_data import smooth_data
 def compute_p_norm(
     array_a: numpy.ndarray,
     array_b: numpy.ndarray,
-    p_norm_order: float = 2,
+    p_norm: float = 2,
     normalise_by_length: bool = False,
 ) -> float:
-    """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm_order)."""
+    """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm)."""
     array_a = numpy.asarray(array_a)
     array_b = numpy.asarray(array_b)
     errors = []
@@ -32,35 +32,35 @@ def compute_p_norm(
         )
     if array_a.size == 0: errors.append("Array-A should not be empty.")
     if array_b.size == 0: errors.append("Array-B should not be empty.")
-    if not isinstance(p_norm_order, (int, float)):
-        errors.append(f"Invalid norm order `p_norm_order = {p_norm_order}`. Must be a number.")
+    if not isinstance(p_norm, (int, float)):
+        errors.append(f"Invalid norm order `p_norm = {p_norm}`. Must be a number.")
     if len(errors) > 0:
         raise ValueError("Input validation failed with the following issues:\n" + "\n".join(errors))
     if numpy.all(array_a == array_b): return 0
     array_diff = numpy.abs(array_a - array_b)
-    if p_norm_order == numpy.inf: return numpy.max(array_diff)
-    elif p_norm_order == 1:
+    if p_norm == numpy.inf: return numpy.max(array_diff)
+    elif p_norm == 1:
         ## L1 norm: sum of absolute differences
         value = numpy.sum(array_diff)
         if normalise_by_length: value /= len(array_a)
-    elif p_norm_order == 0:
+    elif p_norm == 0:
         ## L0 pseudo-norm: count of non-zero elements
         value = numpy.count_nonzero(array_diff)
-    elif p_norm_order > 0:
-        ## general case for p_norm_order > 0
+    elif p_norm > 0:
+        ## general case for p_norm > 0
         ## note improved numerical stability: scale by maximum value
         max_diff = numpy.max(array_diff)
         if max_diff > 0:
             scaled_diff = array_diff / max_diff
             value = max_diff * numpy.power(
-                numpy.sum(numpy.power(scaled_diff, p_norm_order)),
-                1 / p_norm_order,
+                numpy.sum(numpy.power(scaled_diff, p_norm)),
+                1 / p_norm,
             )
-            if normalise_by_length: value /= numpy.power(len(array_a), 1 / p_norm_order)
+            if normalise_by_length: value /= numpy.power(len(array_a), 1 / p_norm)
         else: value = 0
     else:
         raise ValueError(
-            f"Invalid norm order `p_norm_order = {p_norm_order}`. Must be positive or infinity.",
+            f"Invalid norm order `p_norm = {p_norm}`. Must be positive or infinity.",
         )
     return value
 
