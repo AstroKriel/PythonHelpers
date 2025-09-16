@@ -143,7 +143,7 @@ class TestFiniteDifferenceConvergence:
                 error = compute_stats.compute_p_norm(
                     array_a=dydx_exact,
                     array_b=dydx_approx,
-                    p_norm_order=2,
+                    p_norm=2,
                     normalise_by_length=True,
                 )
                 errors.append(error)
