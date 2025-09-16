@@ -5,7 +5,29 @@
 ##
 
 import numpy
+from dataclasses import dataclass
 from jormi.ww_data import smooth_data
+
+##
+## === CONTAINERS ===
+##
+
+
+@dataclass(frozen=True)
+class EstimatedPDF:
+    bin_centers: numpy.ndarray
+    bin_edges: numpy.ndarray
+    density: numpy.ndarray
+
+
+@dataclass(frozen=True)
+class EstimatedJPDF:
+    bin_centers_rows: numpy.ndarray
+    bin_centers_cols: numpy.ndarray
+    bin_edges_rows: numpy.ndarray
+    bin_edges_cols: numpy.ndarray
+    density: numpy.ndarray
+
 
 ##
 ## === FUNCTIONS ===
@@ -79,6 +101,73 @@ def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**
     return samples
 
 
+def estimate_pdf(
+    values: numpy.ndarray,
+    weights: numpy.ndarray | None = None,
+    num_bins: int | None = None,
+    bin_centers: numpy.ndarray | None = None,
+    bin_range_percent: float = 1.0,
+    delta_threshold: float = 1e-5,
+) -> EstimatedPDF:
+    """Compute the 1D probability density function (PDF) for the provided `values`."""
+    if len(values) == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
+    if numpy.std(values) < delta_threshold:
+        ## little variantion in the values implies a delta function
+        mean_value = numpy.mean(values)
+        epsilon_width = 1e-4 * (1.0 if mean_value == 0 else numpy.abs(mean_value))
+        ## create three bins around the delta value
+        bin_centers = numpy.array([
+            mean_value - epsilon_width,
+            mean_value,
+            mean_value + epsilon_width,
+        ])
+        bin_edges = numpy.array(
+            [
+                mean_value - 1.5 * epsilon_width,
+                mean_value - 0.5 * epsilon_width,
+                mean_value + 0.5 * epsilon_width,
+                mean_value + 1.5 * epsilon_width,
+            ]
+        )
+        estimated_pdf = numpy.array([0.0, 1 / epsilon_width, 0.0])
+        return EstimatedPDF(
+            bin_centers=bin_centers,
+            bin_edges=bin_edges,
+            density=estimated_pdf,
+        )
+    if bin_centers is None:
+        if num_bins is None: raise ValueError("You did not provide a binning option.")
+        bin_centers = create_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
+    elif not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
+        raise ValueError("Bin centers must be sorted in ascending order.")
+    bin_edges = get_bin_edges_from_centers(bin_centers)
+    bin_widths = numpy.diff(bin_edges)
+    if numpy.any(bin_widths <= 0): raise ValueError("All bin widths must be positive.")
+    bin_indices = numpy.searchsorted(bin_edges, values, side="right") - 1
+    bin_indices = numpy.clip(bin_indices, 0, len(bin_centers) - 1)
+    bin_counts = numpy.zeros(len(bin_centers), dtype=float)
+    if weights is not None:
+        if len(weights) != len(values):
+            raise ValueError(
+                f"The length of `weights` ({len(weights)}) must match the length of `values` ({len(values)}).",
+            )
+        numpy.add.at(bin_counts, bin_indices, weights)
+    else:
+        numpy.add.at(bin_counts, bin_indices, 1)
+    total_counts = numpy.sum(bin_counts)
+    if total_counts <= 0:
+        raise ValueError(
+            "None of the `values` fell into any bins. Check binning options or `values`:",
+            values,
+        )
+    estimated_pdf = bin_counts / (total_counts * bin_widths)
+    return EstimatedPDF(
+        bin_centers=bin_centers,
+        bin_edges=bin_edges,
+        density=estimated_pdf,
+    )
+
+
 def estimate_jpdf(
     data_x: numpy.ndarray,
     data_y: numpy.ndarray,
@@ -88,7 +177,7 @@ def estimate_jpdf(
     num_bins: int | None = None,
     bin_range_percent: float = 1.0,
     smoothing_length: float | None = None,
-):
+) -> EstimatedJPDF:
     """Compute the 2D joint probability density function (JPDF)."""
     if (len(data_x) == 0) or (len(data_y) == 0):
         raise ValueError("Data arrays must not be empty.")
@@ -125,55 +214,13 @@ def estimate_jpdf(
             estimated_jpdf,
             smoothing_length,
         )
-    return bin_centers_rows, bin_centers_cols, estimated_jpdf
-
-
-def estimate_pdf(
-    values: numpy.ndarray,
-    weights: numpy.ndarray | None = None,
-    num_bins: int | None = None,
-    bin_centers: numpy.ndarray | None = None,
-    bin_range_percent: float = 1.0,
-    delta_threshold: float = 1e-5,
-):
-    """Compute the 1D probability density function (PDF) for the provided `values`."""
-    if len(values) == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
-    if numpy.std(values) < delta_threshold:
-        ## little variantion in the values implies a delta function
-        mean_value = numpy.mean(values)
-        epsilon_width = 1e-4 * (1.0 if mean_value == 0 else numpy.abs(mean_value))
-        ## create three bins around the delta value
-        bin_centers = numpy.array([mean_value - epsilon_width, mean_value, mean_value + epsilon_width])
-        estimated_pdf = numpy.array([0.0, 1 / epsilon_width, 0.0])
-        return bin_centers, estimated_pdf
-    if bin_centers is None:
-        if num_bins is None: raise ValueError("You did not provide a binning option.")
-        bin_centers = create_uniformly_spaced_bin_centers(values, num_bins, bin_range_percent)
-    elif not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
-        raise ValueError("Bin edges must be sorted in ascending order.")
-    bin_widths = numpy.diff(bin_centers)
-    bin_widths = numpy.append(bin_widths, bin_widths[-1])
-    if numpy.any(bin_widths <= 0): raise ValueError("All bin widths must be positive.")
-    bin_edges = get_bin_edges_from_centers(bin_centers)
-    bin_indices = numpy.searchsorted(bin_edges, values, side="right") - 1
-    bin_indices = numpy.clip(bin_indices, 0, len(bin_centers) - 1)
-    bin_counts = numpy.zeros(len(bin_centers), dtype=float)
-    if weights is not None:
-        if len(weights) != len(values):
-            raise ValueError(
-                f"The length of `weights` ({len(weights)}) must match the length of `values` ({len(values)}).",
-            )
-        numpy.add.at(bin_counts, bin_indices, weights)
-    else:
-        numpy.add.at(bin_counts, bin_indices, 1)
-    total_counts = numpy.sum(bin_counts)
-    if total_counts <= 0:
-        raise ValueError(
-            "None of the `values` fell into any bins. Check binning options or `values`:",
-            values,
-        )
-    estimated_pdf = bin_counts / (total_counts * bin_widths)
-    return bin_centers, estimated_pdf
+    return EstimatedJPDF(
+        bin_centers_rows=bin_centers_rows,
+        bin_centers_cols=bin_centers_cols,
+        bin_edges_rows=bin_edges_rows,
+        bin_edges_cols=bin_edges_cols,
+        density=estimated_jpdf,
+    )
 
 
 def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
