@@ -12,7 +12,9 @@ from jormi.ww_data import finite_difference
 ##
 
 
-def compute_sfield_rms(sfield_q: numpy.ndarray) -> numpy.ndarray:
+def compute_sfield_rms(
+    sfield_q: numpy.ndarray
+) -> numpy.ndarray:
     return numpy.sqrt(numpy.mean(numpy.square(sfield_q)))
 
 
@@ -36,11 +38,15 @@ def compute_vfield_dot_product(
     return numpy.einsum("ixyz,ixyz->xyz", vfield_q1, vfield_q2)
 
 
-def compute_vfield_magnitude(vfield_q: numpy.ndarray) -> numpy.ndarray:
+def compute_vfield_magnitude(
+    vfield_q: numpy.ndarray
+) -> numpy.ndarray:
     return numpy.sqrt(numpy.sum(numpy.multiply(vfield_q, vfield_q), axis=0))
 
 
-def get_grad_func(grad_order: int):
+def get_grad_func(
+    grad_order: int
+):
     implemented_grad_funcs = {
         2: finite_difference.second_order_centered_difference,
         4: finite_difference.fourth_order_centered_difference,
@@ -76,7 +82,7 @@ def compute_sfield_gradient(
     sfield_q: numpy.ndarray,
     box_length: float = 1.0,
     grad_order: int = 2,
-):
+) -> numpy.ndarray:
     grad_func = get_grad_func(grad_order)
     ## input format: (x, y, z), assuming cubic domain with uniform grid
     ## output format: (gradient-direction, x, y, z)
@@ -89,7 +95,7 @@ def compute_vfield_gradient(
     vfield_q: numpy.ndarray,
     box_length: float = 1.0,
     grad_order: int = 2,
-):
+) -> numpy.ndarray:
     ## df_i/dx_j: (component-i, gradient-direction-j, x, y, z)
     return numpy.array([compute_sfield_gradient(sfield_qi, box_length, grad_order) for sfield_qi in vfield_q])
 
@@ -98,7 +104,7 @@ def compute_vfield_divergence(
     vfield_q: numpy.ndarray,
     box_length: float = 1.0,
     grad_order: int = 2,
-):
+) -> numpy.ndarray:
     r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_length, grad_order)
     return numpy.einsum("iixyz->xyz", r2tensor_grad_q)
 
