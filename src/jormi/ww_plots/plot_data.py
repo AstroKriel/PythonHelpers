@@ -15,7 +15,7 @@ from jormi.ww_plots import add_color
 def plot_sfield_slice(
     ax,
     field_slice: numpy.ndarray,
-    axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    axis_bounds: tuple[float, float, float, float],
     cbar_bounds: tuple[float, float] | None = None,
     cmap_name: str = "cmr.arctic",
     add_colorbar: bool = True,
@@ -30,7 +30,14 @@ def plot_sfield_slice(
         vmin=vmin,
         vmax=vmax,
     )
-    im_obj = ax.imshow(field_slice, extent=axis_bounds, cmap=cmap, norm=norm)
+    im_obj = ax.imshow(
+        field_slice.T,
+        extent=axis_bounds,
+        origin="lower",
+        aspect="equal",
+        cmap=cmap,
+        norm=norm,
+    )
     ax.set_xlim([axis_bounds[0], axis_bounds[1]])
     ax.set_ylim([axis_bounds[2], axis_bounds[3]])
     if add_colorbar:
