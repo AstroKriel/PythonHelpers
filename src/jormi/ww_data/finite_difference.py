@@ -1,13 +1,13 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

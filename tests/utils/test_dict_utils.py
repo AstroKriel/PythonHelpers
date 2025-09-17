@@ -1,14 +1,14 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import unittest
 from jormi.utils import dict_utils
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -126,7 +126,7 @@ class TestDictUtils(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

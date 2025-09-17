@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import unittest
@@ -10,7 +10,7 @@ from pathlib import Path
 from jormi.ww_io import csv_files
 
 ##
-## === FUNCTIONS WRAPPERS ===
+## === FUNCTIONS WRAPPERS
 ##
 
 
@@ -25,7 +25,7 @@ def read_csv_file_into_dict_wrapper(*args, **kwargs):
 
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -131,7 +131,7 @@ class TestCsvUtils(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

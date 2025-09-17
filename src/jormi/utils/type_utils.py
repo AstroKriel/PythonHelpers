@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

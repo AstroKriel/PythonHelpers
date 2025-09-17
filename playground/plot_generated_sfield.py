@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -12,7 +12,7 @@ from jormi.ww_plots import plot_manager, annotate_axis
 from jormi.ww_fields import generate_fields, compute_spectra
 
 ##
-## === MAIN PROGRAM ===
+## === MAIN PROGRAM
 ##
 
 
@@ -90,7 +90,7 @@ def main():
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 ## { SCRIPT
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -9,7 +9,7 @@ from jormi.ww_plots import plot_manager
 from jormi.ww_data import interpolate_data
 
 ##
-## === HELPER FUNCTIONS ===
+## === HELPER FUNCTIONS
 ##
 
 
@@ -23,7 +23,7 @@ def generate_data(num_points):
 
 
 ##
-## === DEMO INTERPOLATING DATA ===
+## === DEMO INTERPOLATING DATA
 ##
 
 
@@ -78,7 +78,7 @@ def main():
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

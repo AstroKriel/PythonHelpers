@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import cmasher
 import matplotlib.colors as mpl_colors
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

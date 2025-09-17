@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -20,7 +20,7 @@ except ImportError:
     MPI_NUM_PROCS = 1
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

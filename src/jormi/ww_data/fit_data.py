@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
 from scipy.optimize import curve_fit
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

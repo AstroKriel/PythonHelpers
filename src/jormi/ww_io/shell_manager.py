@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import shlex
@@ -10,7 +10,7 @@ from pathlib import Path
 from dataclasses import dataclass
 
 ##
-## === RESULT TYPE ===
+## === RESULT TYPE
 ##
 
 
@@ -28,7 +28,7 @@ class CommandOutcome:
 
 
 ##
-## === FUNCTION ===
+## === FUNCTION
 ##
 
 

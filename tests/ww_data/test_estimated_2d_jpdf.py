@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -10,7 +10,7 @@ from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
 
 ##
-## === HELPER FUNCTIONS ===
+## === HELPER FUNCTIONS
 ##
 
 
@@ -35,7 +35,7 @@ def sample_from_ellipse(num_samples, ax=None):
 
 
 ##
-## === BINNING CONVERGENCE TEST ===
+## === BINNING CONVERGENCE TEST
 ##
 
 
@@ -90,7 +90,7 @@ def main():
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

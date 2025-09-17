@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 from enum import Enum
@@ -15,7 +15,7 @@ from rich.text import Text
 from rich import box
 
 ##
-## === TYPES + CONSTANTS ===
+## === TYPES + CONSTANTS
 ## enums, dataclasses, and symbols/colours used across the api
 ##
 
@@ -75,7 +75,7 @@ class ActionOutcome(Enum):
 
 
 ##
-## === MESSAGE MODEL ===
+## === MESSAGE MODEL
 ## data container for messages used by the renderers and log-helpers
 ##
 
@@ -107,7 +107,7 @@ class Message:
 
 
 ##
-## === HELPERS ===
+## === HELPERS
 ##
 
 
@@ -116,7 +116,7 @@ def get_timestamp() -> str:
 
 
 ##
-## === RENDERING API ===
+## === RENDERING API
 ## internal api used by the log-helpers
 ##
 
@@ -228,7 +228,7 @@ def render_block(
 
 
 ##
-## === SINGLE LINE LOGGING ===
+## === SINGLE LINE LOGGING
 ##
 
 
@@ -308,7 +308,7 @@ def log_outcome(
 
 
 ##
-## === LOGGING W/ GROUPED INFO ===
+## === LOGGING W/ GROUPED INFO
 ##
 
 

@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 from pathlib import Path
 from jormi.ww_io import io_manager, shell_manager
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

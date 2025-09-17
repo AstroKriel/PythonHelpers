@@ -1,14 +1,14 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import unittest
 from jormi.utils import type_utils
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -70,7 +70,7 @@ class TestVarUtils(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

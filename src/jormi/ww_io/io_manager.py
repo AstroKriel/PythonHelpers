@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -12,7 +12,7 @@ from pathlib import Path
 from jormi.utils import list_utils
 
 ##
-## === UTILITY FUNCTIONS ===
+## === UTILITY FUNCTIONS
 ##
 
 

@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -9,7 +9,7 @@ import unittest
 from jormi.utils import list_utils
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -176,7 +176,7 @@ class TestListUtils(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

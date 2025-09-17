@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import json
@@ -12,7 +12,7 @@ from jormi.ww_io import io_manager
 from jormi.utils import dict_utils
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -10,7 +10,7 @@ from matplotlib.collections import LineCollection
 from jormi.utils import list_utils
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

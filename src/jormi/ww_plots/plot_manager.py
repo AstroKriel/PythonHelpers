@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === WORKSPACE SETUP ===
+## === WORKSPACE SETUP
 ##
 
 import matplotlib
@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use("Agg", force=True)
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 from typing import Literal, Any
@@ -23,7 +23,7 @@ from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

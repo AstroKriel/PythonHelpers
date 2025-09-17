@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -11,7 +11,7 @@ from jormi.ww_plots import plot_manager
 from jormi.ww_fields import field_operators, decompose_fields
 
 ##
-## === EXAMPLE VECTOR FIELDS ===
+## === EXAMPLE VECTOR FIELDS
 ##
 
 
@@ -27,9 +27,9 @@ def genDivergenceVField(domain_bounds, num_cells):
 
 def genSolenoidalVField(domain_bounds, num_cells):
     """Generate a solenoidal (divergence-free) vector field."""
-    domain_length = domain_bounds[1] - domain_bounds[0]
+    domain_lengths = domain_bounds[1] - domain_bounds[0]
     domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
-    constant = 2 * numpy.pi / domain_length
+    constant = 2 * numpy.pi / domain_lengths
     grid_x, grid_y, grid_z = numpy.meshgrid(domain, domain, domain, indexing="ij")
     sfield_qx = -constant * grid_x * numpy.sin(constant * grid_x * grid_y)
     sfield_qy = constant * grid_y * numpy.sin(constant * grid_x * grid_y)
@@ -44,7 +44,7 @@ def genMixedVField(domain_bounds, num_cells):
 
 
 ##
-## === HELPER FUNCTIONS ===
+## === HELPER FUNCTIONS
 ##
 
 
@@ -65,7 +65,7 @@ def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
         numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_y),
         indexing="xy",
     )
-    sfield_q_magn_slice = field_operators.compute_vfield_magnitude(vfield_q[:, :, :, index_z])
+    sfield_q_magn_slice = field_operators.compute_vfield_magnitude(vfield_q)[:, :, index_z]
     sfield_q_magn_min = numpy.min(sfield_q_magn_slice)
     sfield_q_magn_max = numpy.max(sfield_q_magn_slice)
     ax.imshow(
@@ -103,15 +103,15 @@ def plot_vfield_sliceSlice(ax, vfield_q, domain_bounds):
 
 
 ##
-## === ORTHOGONAL DECOMPOSITION TEST ===
+## === ORTHOGONAL DECOMPOSITION TEST
 ##
 
 
 def main():
     num_cells = 50
-    domain_bounds = [-1, 1]
+    domain_bounds = [-1.0, 1.0]
     domain_length = domain_bounds[1] - domain_bounds[0]
-    domain_size = (domain_length, domain_length, domain_length)
+    domain_lengths = (domain_length, domain_length, domain_length)
     list_vfields = [
         {
             "label": "divergence",
@@ -133,14 +133,22 @@ def main():
         vfield_q = vfield_entry["vfield"]
         print(f"input: {vfield_name} field")
         vfield_q_div, vfield_q_sol = decompose_fields.compute_helmholtz_decomposition(
-            vfield_q,
-            domain_size,
+            vfield=vfield_q,
+            domain_lengths=domain_lengths,
         )
-        sfield_check_q_diff = field_operators.compute_vfield_magnitude((vfield_q - (vfield_q_div + vfield_q_sol)))
+        sfield_check_q_diff = field_operators.compute_vfield_magnitude(
+            (vfield_q - (vfield_q_div + vfield_q_sol)),
+        )
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
-            field_operators.compute_vfield_curl(vfield_q_div),
+            field_operators.compute_vfield_curl(
+                vfield=vfield_q_div,
+                domain_lengths=domain_lengths
+            ),
         )
-        sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(vfield_q_sol)
+        sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
+            vfield=vfield_q_sol,
+            domain_lengths=domain_lengths
+        )
         ave_q_diff = numpy.median(numpy.abs(sfield_check_q_diff))
         ave_sol_in_div = numpy.median(numpy.abs(sfield_check_div_is_sol_free))
         ave_div_in_sol = numpy.median(numpy.abs(sfield_check_sol_is_div_free))
@@ -202,7 +210,7 @@ def main():
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

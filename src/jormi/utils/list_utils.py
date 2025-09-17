@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
 from jormi.utils import type_utils
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

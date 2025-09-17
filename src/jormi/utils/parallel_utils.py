@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import os
@@ -12,7 +12,7 @@ from pebble import ProcessPool, ProcessExpired
 from concurrent.futures import TimeoutError
 
 ##
-## === OPERATOR FUNCTIONS ===
+## === OPERATOR FUNCTIONS
 ##
 
 

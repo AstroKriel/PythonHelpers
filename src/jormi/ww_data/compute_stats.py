@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from jormi.ww_data import smooth_data
 
 ##
-## === CONTAINERS ===
+## === CONTAINERS
 ##
 
 
@@ -30,7 +30,7 @@ class EstimatedJPDF:
 
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

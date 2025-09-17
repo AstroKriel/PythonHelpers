@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import unittest
@@ -9,7 +9,7 @@ import numpy
 from jormi.ww_data import compute_stats
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -92,7 +92,7 @@ class Test_Compute_P_Norm(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

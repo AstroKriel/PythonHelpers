@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import sys
@@ -12,7 +12,7 @@ from jormi.ww_data import compute_stats, finite_difference
 from jormi.ww_plots import plot_manager
 
 ##
-## === HELPER FUNCTIONS ===
+## === HELPER FUNCTIONS
 ##
 
 
@@ -45,7 +45,7 @@ def calculate_powerlaw_amplitude(x_0, y_0, b):
 
 
 ##
-## === NUMERICAL CONVERGENCE TEST ===
+## === NUMERICAL CONVERGENCE TEST
 ##
 
 
@@ -219,7 +219,7 @@ class TestFiniteDifferenceConvergence:
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":

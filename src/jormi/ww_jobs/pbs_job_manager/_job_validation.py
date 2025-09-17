@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === GLOBAL PARAMS ===
+## === GLOBAL PARAMS
 ##
 
 _QUEUE_CONFIGS = {
@@ -44,7 +44,7 @@ _QUEUE_CONFIGS = {
 }
 
 ##
-## === CUSTOM ERROR MESSAGE ===
+## === CUSTOM ERROR MESSAGE
 ##
 
 
@@ -54,7 +54,7 @@ class QueueValidationError(ValueError):
 
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

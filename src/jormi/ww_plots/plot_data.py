@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import numpy
 from jormi.ww_plots import add_color
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import time
@@ -9,7 +9,7 @@ import inspect
 import warnings
 
 ##
-## === FUNCTIONS DECORATORS ===
+## === FUNCTIONS DECORATORS
 ##
 
 

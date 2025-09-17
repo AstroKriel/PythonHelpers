@@ -1,14 +1,14 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import copy
 from jormi.utils import type_utils, func_utils
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

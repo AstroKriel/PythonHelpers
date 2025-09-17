@@ -1,7 +1,7 @@
 ## { MODULE
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 from pathlib import Path
@@ -9,7 +9,7 @@ from jormi.ww_io import io_manager
 from . import _job_validation
 
 ##
-## === FUNCTIONS ===
+## === FUNCTIONS
 ##
 
 

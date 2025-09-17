@@ -1,7 +1,7 @@
 ## { TEST
 
 ##
-## === DEPENDENCIES ===
+## === DEPENDENCIES
 ##
 
 import unittest
@@ -12,7 +12,7 @@ from jormi.ww_io import json_files
 from jormi.utils import dict_utils
 
 ##
-## === FUNCTIONS WRAPPERS ===
+## === FUNCTIONS WRAPPERS
 ##
 
 
@@ -27,7 +27,7 @@ def read_json_file_into_dict(*args, **kwargs):
 
 
 ##
-## === TEST SUITE ===
+## === TEST SUITE
 ##
 
 
@@ -134,7 +134,7 @@ class TestJsonUtils(unittest.TestCase):
 
 
 ##
-## === ENTRY POINT ===
+## === ENTRY POINT
 ##
 
 if __name__ == "__main__":
