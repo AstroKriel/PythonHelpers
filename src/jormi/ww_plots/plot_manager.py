@@ -99,25 +99,25 @@ def add_inset_axis(
 
 def save_figure(
     fig,
-    file_path: str | Path,
+    fig_path: str | Path,
     dpi: int = 200,
     verbose: bool = True,
 ) -> None:
-    if not str(file_path).endswith(".png") and not str(file_path).endswith(".pdf"):
+    if not str(fig_path).endswith(".png") and not str(fig_path).endswith(".pdf"):
         raise ValueError("Figures should end with .png or .pdf")
     try:
-        fig.savefig(file_path, dpi=dpi)
-        if verbose: print("Saved figure:", file_path)
+        fig.savefig(fig_path, dpi=dpi)
+        if verbose: print("Saved figure:", fig_path)
     except FileNotFoundError as exception:
         print(f"FileNotFoundError: {exception}")
     except PermissionError as exception:
-        print(f"PermissionError: You do not have permission to save to: {file_path}")
+        print(f"PermissionError: You do not have permission to save to: {fig_path}")
         print(f"Details: {exception}")
     except IOError as exception:
-        print(f"IOError: An error occurred while trying to save the figure to: {file_path}")
+        print(f"IOError: An error occurred while trying to save the figure to: {fig_path}")
         print(f"Details: {exception}")
     except Exception as exception:
-        print(f"Unexpected error while saving the figure to {file_path}: {exception}")
+        print(f"Unexpected error while saving the figure to {fig_path}: {exception}")
     finally:
         mpl_plot.close(fig)
 
