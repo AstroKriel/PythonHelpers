@@ -128,7 +128,11 @@ def estimate_pdf(
         mean_value = float(numpy.mean(values, dtype=numpy.float64))
         epsilon_width = 1e-4 * (1.0 if mean_value == 0.0 else abs(mean_value))
         bin_centers = numpy.array(
-            [mean_value - epsilon_width, mean_value, mean_value + epsilon_width],
+            [
+                mean_value - epsilon_width,
+                mean_value,
+                mean_value + epsilon_width,
+            ],
             dtype=numpy.float64,
         )
         bin_edges = numpy.array(
@@ -204,13 +208,17 @@ def estimate_jpdf(
         if bin_centers_rows is not None: num_bins = len(bin_centers_rows)
     if bin_centers_cols is None:
         bin_centers_cols = create_uniformly_spaced_bin_centers(
-            data_x, num_bins, bin_range_percent
+            data_x,
+            num_bins,
+            bin_range_percent,
         ).astype(numpy.float64)
     else:
         bin_centers_cols = numpy.asarray(bin_centers_cols, dtype=numpy.float64).ravel()
     if bin_centers_rows is None:
         bin_centers_rows = create_uniformly_spaced_bin_centers(
-            data_y, num_bins, bin_range_percent
+            data_y,
+            num_bins,
+            bin_range_percent,
         ).astype(numpy.float64)
     else:
         bin_centers_rows = numpy.asarray(bin_centers_rows, dtype=numpy.float64).ravel()
@@ -232,7 +240,9 @@ def estimate_jpdf(
     if data_weights is not None:
         data_weights = numpy.asarray(data_weights, dtype=numpy.float64).ravel()
         if data_weights.shape != data_x.shape:
-            raise ValueError("The size of `data_weights` must match the size of `data_{x,y}` after filtering.")
+            raise ValueError(
+                "The size of `data_weights` must match the size of `data_{x,y}` after filtering.",
+            )
         if numpy.any(~numpy.isfinite(data_weights)) or numpy.any(data_weights < 0):
             raise ValueError("`data_weights` must be finite and non-negative.")
         numpy.add.at(bin_counts, (bin_indices_rows, bin_indices_cols), data_weights)
@@ -260,7 +270,11 @@ def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
     bin_widths = numpy.diff(bin_centers)
     left_bin_edge = bin_centers[0] - 0.5 * bin_widths[0]
     right_bin_edge = bin_centers[-1] + 0.5 * bin_widths[-1]
-    return numpy.concatenate([[left_bin_edge], bin_centers[:-1] + 0.5 * bin_widths, [right_bin_edge]])
+    return numpy.concatenate([
+        [left_bin_edge],
+        bin_centers[:-1] + 0.5 * bin_widths,
+        [right_bin_edge],
+    ])
 
 
 def create_uniformly_spaced_bin_centers(
