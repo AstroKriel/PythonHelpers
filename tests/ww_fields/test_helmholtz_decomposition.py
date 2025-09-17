@@ -15,7 +15,7 @@ from jormi.ww_fields import field_operators, decompose_fields
 ##
 
 
-def genDivergenceVField(domain_bounds, num_cells):
+def generate_curl_free_vfield(domain_bounds, num_cells):
     """Generate a divergence (curl-free) vector field."""
     domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
     grid_x, grid_y, grid_z = numpy.meshgrid(domain, domain, domain, indexing="ij")
@@ -25,7 +25,7 @@ def genDivergenceVField(domain_bounds, num_cells):
     return numpy.stack([sfield_qx, sfield_qy, sfield_qz])
 
 
-def genSolenoidalVField(domain_bounds, num_cells):
+def generate_div_free_vfield(domain_bounds, num_cells):
     """Generate a solenoidal (divergence-free) vector field."""
     domain_lengths = domain_bounds[1] - domain_bounds[0]
     domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
@@ -37,9 +37,9 @@ def genSolenoidalVField(domain_bounds, num_cells):
     return numpy.stack([sfield_qx, sfield_qy, sfield_qz])
 
 
-def genMixedVField(domain_bounds, num_cells):
-    sfield_div = genDivergenceVField(domain_bounds, num_cells)
-    sfield_sol = genSolenoidalVField(domain_bounds, num_cells)
+def generate_mixed_vfield(domain_bounds, num_cells):
+    sfield_div = generate_curl_free_vfield(domain_bounds, num_cells)
+    sfield_sol = generate_div_free_vfield(domain_bounds, num_cells)
     return sfield_div + sfield_sol
 
 
@@ -48,7 +48,7 @@ def genMixedVField(domain_bounds, num_cells):
 ##
 
 
-def computeFieldFraction(bin_edges, pdf):
+def compute_field_fraction(bin_edges, pdf):
     nonzero_indices = numpy.where(pdf > 0)[0]
     if len(nonzero_indices) > 0:
         first_percent = bin_edges[nonzero_indices[0]]
@@ -115,15 +115,15 @@ def main():
     list_vfields = [
         {
             "label": "divergence",
-            "vfield": genDivergenceVField(domain_bounds, num_cells),
+            "vfield": generate_curl_free_vfield(domain_bounds, num_cells),
         },
         {
             "label": "solenoidal",
-            "vfield": genSolenoidalVField(domain_bounds, num_cells),
+            "vfield": generate_div_free_vfield(domain_bounds, num_cells),
         },
         {
             "label": "mixed",
-            "vfield": genMixedVField(domain_bounds, num_cells),
+            "vfield": generate_mixed_vfield(domain_bounds, num_cells),
         },
     ]
     fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7, 7))
@@ -142,12 +142,12 @@ def main():
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
             field_operators.compute_vfield_curl(
                 vfield=vfield_q_div,
-                domain_lengths=domain_lengths
+                domain_lengths=domain_lengths,
             ),
         )
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
             vfield=vfield_q_sol,
-            domain_lengths=domain_lengths
+            domain_lengths=domain_lengths,
         )
         ave_q_diff = numpy.median(numpy.abs(sfield_check_q_diff))
         ave_sol_in_div = numpy.median(numpy.abs(sfield_check_div_is_sol_free))
