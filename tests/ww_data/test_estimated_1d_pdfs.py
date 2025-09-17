@@ -39,19 +39,21 @@ def main():
             )
             bin_centers = result.bin_centers
             estimated_pdf = result.density
-            assert len(
-                bin_centers,
-            ) >= 3, f"Error: Bin centers for {pdf_label} with {num_bins} bins should have at least 3 bins, but got {len(bin_centers)}"
-            assert bin_centers.shape == estimated_pdf.shape, f"Error: Mismatch in shapes of `bin_centers` ({bin_centers.shape}) and `estimated_pdf` ({estimated_pdf.shape}) for {pdf_label} with {num_bins} bins"
+            assert len(bin_centers) >= 3, (
+                f"{pdf_label} ({num_bins} bins): expected at least 3 bins, got {len(bin_centers)}"
+            )
+            assert bin_centers.shape == estimated_pdf.shape, (
+                f"{pdf_label} ({num_bins} bins): shape mismatch, "
+                f"centers={bin_centers.shape}, pdf={estimated_pdf.shape}"
+            )
             if len(bin_centers) > 3:
-                assert len(
-                    bin_centers,
-                ) == num_bins, f"Error: The number of `bin_centers` ({len(bin_centers)}) does not match the expected number of bins ({num_bins}) for {pdf_label}"
+                assert len(bin_centers) == num_bins, (
+                    f"{pdf_label}: expected {num_bins} centers, got {len(bin_centers)}"
+                )
             ax.step(bin_centers, estimated_pdf, where="mid", lw=2, label=f"{num_bins} bins")
             bin_widths = numpy.diff(result.bin_edges)
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > integral_tolerance: pdfs_that_failed.append(pdf_label)
-
         ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
         ax.set_ylabel(r"PDF$(x)$")
     axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
