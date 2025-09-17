@@ -42,16 +42,16 @@ def demo_blocks() -> None:
         },
     )
     lm.log_action(
-      title="Create Directory",
-      succeeded=None,
-      message="Directory already exists; nothing to do.",
-      notes={"Path": "/tmp/sim/OT_N32"},
+        title="Create Directory",
+        succeeded=None,
+        message="Directory already exists; nothing to do.",
+        notes={"Path": "/tmp/sim/OT_N32"},
     )
     lm.log_warning(
         "Existing file was overwritten.",
         notes={
             "Path": "/tmp/sim/OT_N64/sim_params.json",
-            "Format": "json"
+            "Format": "json",
         },
     )
     lm.log_error(
@@ -64,7 +64,7 @@ def demo_blocks() -> None:
         message="One or more checks failed (dry-run validation).",
         notes={
             "Executable": "/path/to/test_orszag_tang",
-            "Args": "--dry-run"
+            "Args": "--dry-run",
         },
         message_position="top",
     )
@@ -74,7 +74,7 @@ def demo_blocks() -> None:
         notes={
             "OS": "macOS 14.5",
             "Python": "3.12.2",
-            "Rich": "13.7.1"
+            "Rich": "13.7.1",
         },
         message_position="bottom",
     )
@@ -122,7 +122,7 @@ def demo_renderers() -> None:
             message="Called via render_block directly.",
             message_notes={
                 "why": "demonstration",
-                "prefer": "log helpers"
+                "prefer": "log helpers",
             },
         ),
         show_time=True,
