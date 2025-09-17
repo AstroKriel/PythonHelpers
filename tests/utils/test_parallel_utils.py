@@ -96,152 +96,132 @@ class TestParallelExecution(unittest.TestCase):
         self.assertEqual(all(result), True)
 
     def test_timeout(self):
-      grouped_args = [(d,) for d in [0.5, 1, 3, 5]]
-      try:
-        parallel_utils.run_in_parallel(
-          func            = sleepy_task,
-          grouped_args       = grouped_args,
-          timeout_seconds = 1.5,
-          num_workers       = 2,
-          show_progress   = False
-        )
-        self.fail("Expected a RuntimeError due to timeout, but none was raised.")
-      except RuntimeError as e:
-        self.assertIn("tasks failed", str(e))
-        self.assertNotIn("Task 0 timed out", str(e))
-        self.assertNotIn("Task 1 timed out", str(e))
-        self.assertIn("Task 2 timed out", str(e))
-        self.assertIn("Task 3 timed out", str(e))
-        self.assertNotIn("Task 4 timed out", str(e))
+        grouped_args = [(d, ) for d in [0.5, 1, 3, 5]]
+        try:
+            parallel_utils.run_in_parallel(
+                func=sleepy_task,
+                grouped_args=grouped_args,
+                timeout_seconds=1.5,
+                num_workers=2,
+                show_progress=False,
+            )
+            self.fail("Expected a RuntimeError due to timeout, but none was raised.")
+        except RuntimeError as e:
+            self.assertIn("tasks failed", str(e))
+            self.assertNotIn("Task 0 timed out", str(e))
+            self.assertNotIn("Task 1 timed out", str(e))
+            self.assertIn("Task 2 timed out", str(e))
+            self.assertIn("Task 3 timed out", str(e))
+            self.assertNotIn("Task 4 timed out", str(e))
 
     def test_parallel_scaling(self):
-      num_values_per_block = 1000
-      num_blocks = 64
-      blocks = [
-        [
-          float(x)
-          for x in range(num_values_per_block)
-        ] for _ in range(num_blocks)
-      ]
-      grouped_args = [
-        (block_of_values,)
-        for block_of_values in blocks
-      ]
-      elapsed_times = []
-      for num_workers in [1, 2, 4, 8]:
-        ave_elapsed_time = time_function(
-          func        = cpu_heavy_task,
-          grouped_args   = grouped_args,
-          num_repeats = 5,
-          num_workers   = num_workers,
-          verbose     = False
-        )
-        elapsed_times.append(ave_elapsed_time)
-      for pair_index in range(len(elapsed_times)-1):
-        self.assertGreater(elapsed_times[pair_index], elapsed_times[pair_index+1])
+        num_values_per_block = 1000
+        num_blocks = 64
+        blocks = [[float(x) for x in range(num_values_per_block)] for _ in range(num_blocks)]
+        grouped_args = [(block_of_values, ) for block_of_values in blocks]
+        elapsed_times = []
+        for num_workers in [1, 2, 4, 8]:
+            ave_elapsed_time = time_function(
+                func=cpu_heavy_task,
+                grouped_args=grouped_args,
+                num_repeats=5,
+                num_workers=num_workers,
+                verbose=False,
+            )
+            elapsed_times.append(ave_elapsed_time)
+        for pair_index in range(len(elapsed_times) - 1):
+            self.assertGreater(elapsed_times[pair_index], elapsed_times[pair_index + 1])
 
     def test_parallel_correctness(self):
-      num_values_per_block = 10
-      num_blocks = 6
-      blocks = [
-        [
-          float(x)
-          for x in range(num_values_per_block)
-        ] for _ in range(num_blocks)
-      ]
-      grouped_args = [
-        (block_of_values,)
-        for block_of_values in blocks
-      ]
-      expected_results = [
-        cpu_heavy_task(block_of_values)
-        for block_of_values in blocks
-      ]
-      results = parallel_utils.run_in_parallel(
-        func          = cpu_heavy_task,
-        grouped_args     = grouped_args,
-        num_workers     = 2,
-        show_progress = False
-      )
-      self.assertEqual(len(results), len(expected_results))
-      for result, expected in zip(results, expected_results):
-        self.assertEqual(result, expected)
+        num_values_per_block = 10
+        num_blocks = 6
+        blocks = [[float(x) for x in range(num_values_per_block)] for _ in range(num_blocks)]
+        grouped_args = [(block_of_values, ) for block_of_values in blocks]
+        expected_results = [cpu_heavy_task(block_of_values) for block_of_values in blocks]
+        results = parallel_utils.run_in_parallel(
+            func=cpu_heavy_task,
+            grouped_args=grouped_args,
+            num_workers=2,
+            show_progress=False,
+        )
+        self.assertEqual(len(results), len(expected_results))
+        for result, expected in zip(results, expected_results):
+            self.assertEqual(result, expected)
 
     def test_empty_grouped_args(self):
-      grouped_args = []
-      result = parallel_utils.run_in_parallel(
-          func          = dummy_task,
-          grouped_args     = grouped_args,
-          num_workers     = 2,
-          show_progress = False
-      )
-      self.assertEqual(result, [])
+        grouped_args = []
+        result = parallel_utils.run_in_parallel(
+            func=dummy_task,
+            grouped_args=grouped_args,
+            num_workers=2,
+            show_progress=False,
+        )
+        self.assertEqual(result, [])
 
     def test_exception_propagation(self):
-      grouped_args = [()] * 3
-      with self.assertRaises(RuntimeError) as cm:
-        parallel_utils.run_in_parallel(
-          func          = error_task,
-          grouped_args     = grouped_args,
-          num_workers     = 2,
-          show_progress = False
-        )
-      error_lines = str(cm.exception).split('\n')[1:]
-      self.assertEqual(len(error_lines), 3)
-      self.assertTrue(all("ValueError" in line for line in error_lines))
+        grouped_args = [()] * 3
+        with self.assertRaises(RuntimeError) as cm:
+            parallel_utils.run_in_parallel(
+                func=error_task,
+                grouped_args=grouped_args,
+                num_workers=2,
+                show_progress=False,
+            )
+        error_lines = str(cm.exception).split('\n')[1:]
+        self.assertEqual(len(error_lines), 3)
+        self.assertTrue(all("ValueError" in line for line in error_lines))
 
     def test_mixed_success_failure(self):
-      grouped_args = [(i,) for i in range(10)]
-      with self.assertRaises(RuntimeError) as cm:
-        parallel_utils.run_in_parallel(
-          func          = mixed_task,
-          grouped_args     = grouped_args,
-          num_workers     = 2,
-          show_progress = False
-        )
-      error = cm.exception
-      self.assertIn("Task 5 failed", str(error))
-      self.assertIn("Task 5 failed: ZeroDivisionError", str(error))
+        grouped_args = [(i, ) for i in range(10)]
+        with self.assertRaises(RuntimeError) as cm:
+            parallel_utils.run_in_parallel(
+                func=mixed_task,
+                grouped_args=grouped_args,
+                num_workers=2,
+                show_progress=False,
+            )
+        error = cm.exception
+        self.assertIn("Task 5 failed", str(error))
+        self.assertIn("Task 5 failed: ZeroDivisionError", str(error))
 
     def test_process_expiry_handling(self):
-      grouped_args = [()] * 3
-      with self.assertRaises(RuntimeError) as cm:
-        parallel_utils.run_in_parallel(
-            func          = crashing_task,
-            grouped_args     = grouped_args,
-            num_workers     = 2,
-            show_progress = False
-        )
-      self.assertIn("ProcessExpired", str(cm.exception))
+        grouped_args = [()] * 3
+        with self.assertRaises(RuntimeError) as cm:
+            parallel_utils.run_in_parallel(
+                func=crashing_task,
+                grouped_args=grouped_args,
+                num_workers=2,
+                show_progress=False,
+            )
+        self.assertIn("ProcessExpired", str(cm.exception))
 
     def test_result_ordering(self):
-      grouped_args = [(0.2, 3), (10.1, 1), (0.3, 4), (0.0, 2)]
-      results = parallel_utils.run_in_parallel(
-        func          = delayed_return,
-        grouped_args     = grouped_args,
-        num_workers     = 4,
-        show_progress = False
-      )
-      self.assertEqual(results, [3, 1, 4, 2])
+        grouped_args = [(0.2, 3), (10.1, 1), (0.3, 4), (0.0, 2)]
+        results = parallel_utils.run_in_parallel(
+            func=delayed_return,
+            grouped_args=grouped_args,
+            num_workers=4,
+            show_progress=False,
+        )
+        self.assertEqual(results, [3, 1, 4, 2])
 
     def test_various_data_types(self):
-      grouped_args = [
-        ("hello",),
-        ({"key": "value"},),
-        (123,),
-        (b"bytes",),
-      ]
-      results = parallel_utils.run_in_parallel(
-        func          = dummy_task,
-        grouped_args     = grouped_args,
-        num_workers     = 2,
-        show_progress = False
-      )
-      expected_reults = [
-        arg[0]
-        for arg in grouped_args
-      ]
-      self.assertEqual(results, expected_reults)
+        grouped_args = [
+            ("hello", ),
+            ({
+                "key": "value",
+            }, ),
+            (123, ),
+            (b"bytes", ),
+        ]
+        results = parallel_utils.run_in_parallel(
+            func=dummy_task,
+            grouped_args=grouped_args,
+            num_workers=2,
+            show_progress=False,
+        )
+        expected_reults = [arg[0] for arg in grouped_args]
+        self.assertEqual(results, expected_reults)
 
 
 if __name__ == "__main__":
