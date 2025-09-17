@@ -42,7 +42,7 @@ def add_cbar_from_cmap(
     norm,
     label: str | None = "",
     side: str = "right",
-    percentage: float = 0.1,
+    ax_percentage: float = 0.1,
     cbar_padding: float = 0.02,
     label_padding: float = 10,
     fontsize: float = 20,
@@ -51,14 +51,14 @@ def add_cbar_from_cmap(
     box = ax.get_position()
     if side in ["left", "right"]:
         orientation = "vertical"
-        cbar_size = box.width * percentage
+        cbar_size = box.width * ax_percentage
         if side == "right":
             cbar_bounds = [box.x1 + cbar_padding, box.y0, cbar_size, box.height]
         else:
             cbar_bounds = [box.x0 - cbar_size - cbar_padding, box.y0, cbar_size, box.height]
     elif side in ["top", "bottom"]:
         orientation = "horizontal"
-        cbar_size = box.height * percentage
+        cbar_size = box.height * ax_percentage
         if side == "top":
             cbar_bounds = [box.x0, box.y1 + cbar_padding, box.width, cbar_size]
         else:
