@@ -147,7 +147,11 @@ def estimate_pdf(
         bin_widths = numpy.diff(bin_edges)
         bin_counts = numpy.array([0.0, 1.0, 0.0], dtype=numpy.float64)
         density = bin_counts / (numpy.sum(bin_counts, dtype=numpy.float64) * bin_widths)
-        return EstimatedPDF(bin_centers=bin_centers, bin_edges=bin_edges, density=density)
+        return EstimatedPDF(
+            bin_centers=bin_centers,
+            bin_edges=bin_edges,
+            density=density,
+        )
     ## determine bin centers
     if bin_centers is None:
         if num_bins is None: raise ValueError("You did not provide a binning option.")
@@ -179,7 +183,11 @@ def estimate_pdf(
         raise ValueError("None of the `values` fell into any bins.")
     ## normalise by bin width and total counts
     density = bin_counts / (total_counts * bin_widths)
-    return EstimatedPDF(bin_centers=bin_centers, bin_edges=bin_edges, density=density)
+    return EstimatedPDF(
+        bin_centers=bin_centers,
+        bin_edges=bin_edges,
+        density=density,
+    )
 
 
 def estimate_jpdf(
