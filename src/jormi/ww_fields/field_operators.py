@@ -8,45 +8,39 @@ import numpy
 from jormi.ww_data import finite_difference
 
 ##
-## === FUNCTIONS ===
+## === HELPERS ===
 ##
 
 
-def compute_sfield_rms(
-    sfield_q: numpy.ndarray
-) -> numpy.ndarray:
-    return numpy.sqrt(numpy.mean(numpy.square(sfield_q)))
+def _validate_domain_length(
+    domain_length: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    if not (isinstance(domain_length, (tuple, list)) and len(domain_length) == 3):
+        raise ValueError(
+            "`domain_length` must be a 3-tuple (domain_length_x, domain_length_y, domain_length_z).",
+        )
+    domain_length_x = float(domain_length[0])
+    domain_length_y = float(domain_length[1])
+    domain_length_z = float(domain_length[2])
+    if not (domain_length_x > 0 and domain_length_y > 0 and domain_length_z > 0):
+        raise ValueError("All entries of `domain_length` must be positive.")
+    return (domain_length_x, domain_length_y, domain_length_z)
 
 
-def compute_vfield_cross_product(
-    vfield_q1: numpy.ndarray,
-    vfield_q2: numpy.ndarray,
-) -> numpy.ndarray:
-    return numpy.array(
-        [
-            vfield_q1[1] * vfield_q2[2] - vfield_q1[2] * vfield_q2[1],
-            vfield_q1[2] * vfield_q2[0] - vfield_q1[0] * vfield_q2[2],
-            vfield_q1[0] * vfield_q2[1] - vfield_q1[1] * vfield_q2[0],
-        ],
+def _get_cell_widths(
+    domain_length: tuple[float, float, float],
+    n_cells_xyz: tuple[int, int, int],
+) -> tuple[float, float, float]:
+    domain_length_x, domain_length_y, domain_length_z = _validate_domain_length(domain_length)
+    n_cells_x, n_cells_y, n_cells_z = n_cells_xyz
+    return (
+        domain_length_x / n_cells_x,
+        domain_length_y / n_cells_y,
+        domain_length_z / n_cells_z,
     )
 
 
-def compute_vfield_dot_product(
-    vfield_q1: numpy.ndarray,
-    vfield_q2: numpy.ndarray,
-) -> numpy.ndarray:
-    return numpy.einsum("ixyz,ixyz->xyz", vfield_q1, vfield_q2)
-
-
-def compute_vfield_magnitude(
-    vfield_q: numpy.ndarray
-) -> numpy.ndarray:
-    return numpy.sqrt(numpy.sum(numpy.multiply(vfield_q, vfield_q), axis=0))
-
-
-def get_grad_func(
-    grad_order: int
-):
+def _get_grad_func(grad_order: int):
     implemented_grad_funcs = {
         2: finite_difference.second_order_centered_difference,
         4: finite_difference.fourth_order_centered_difference,
@@ -54,59 +48,133 @@ def get_grad_func(
     }
     if grad_order not in implemented_grad_funcs:
         raise ValueError(f"Gradient order `{grad_order}` is invalid.")
-    grad_func = implemented_grad_funcs[grad_order]
-    return grad_func
+    return implemented_grad_funcs[grad_order]
+
+
+##
+## === OPERATORS ===
+##
+
+
+def compute_sfield_rms(
+    sfield: numpy.ndarray,
+) -> float:
+    sfield = numpy.asarray(sfield, dtype=numpy.float64)
+    return float(numpy.sqrt(numpy.mean(numpy.square(sfield))))
+
+
+def compute_vfield_dot_product(
+    vfield_1: numpy.ndarray,
+    vfield_2: numpy.ndarray,
+) -> numpy.ndarray:
+    vfield_1 = numpy.asarray(vfield_1, dtype=numpy.float64)
+    vfield_2 = numpy.asarray(vfield_2, dtype=numpy.float64)
+    if (vfield_1.shape != vfield_2.shape) or (vfield_1.ndim != 4) or (vfield_1.shape[0] != 3):
+        raise ValueError("Both inputs must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+    return numpy.einsum("ixyz,ixyz->xyz", vfield_1, vfield_2, optimize=True)
+
+
+def compute_vfield_magnitude(
+    vfield: numpy.ndarray,
+) -> numpy.ndarray:
+    vfield = numpy.asarray(vfield, dtype=numpy.float64)
+    if (vfield.ndim != 4) or (vfield.shape[0] != 3):
+        raise ValueError("`vfield` must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+    return numpy.sqrt(numpy.sum(vfield * vfield, axis=0))
+
+
+def compute_vfield_cross_product(
+    vfield_1: numpy.ndarray,
+    vfield_2: numpy.ndarray,
+) -> numpy.ndarray:
+    vfield_1 = numpy.asarray(vfield_1, dtype=numpy.float64)
+    vfield_2 = numpy.asarray(vfield_2, dtype=numpy.float64)
+    if (vfield_1.shape != vfield_2.shape) or (vfield_1.ndim != 4) or (vfield_1.shape[0] != 3):
+        raise ValueError("Both inputs must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+    return numpy.stack(
+        [
+            vfield_1[1] * vfield_2[2] - vfield_1[2] * vfield_2[1],
+            vfield_1[2] * vfield_2[0] - vfield_1[0] * vfield_2[2],
+            vfield_1[0] * vfield_2[1] - vfield_1[1] * vfield_2[0],
+        ],
+        axis=0,
+    )
 
 
 def compute_vfield_curl(
-    vfield_q: numpy.ndarray,
-    box_length: float = 1.0,
+    vfield: numpy.ndarray,
+    domain_length: tuple[float, float, float],
     grad_order: int = 2,
 ) -> numpy.ndarray:
-    grad_func = get_grad_func(grad_order)
-    ## input format: (vector-component, x, y, z), assuming cubic domain with uniform grid
+    ## input format: (vector-component, x, y, z), assuming uniform grid
     ## output format: (curl-component, x, y, z)
-    vfield_q = numpy.array(vfield_q)
-    cell_width = box_length / vfield_q.shape[1]
-    ## curl components
-    return numpy.array(
+    vfield = numpy.asarray(vfield, dtype=numpy.float64)
+    if vfield.ndim != 4 or vfield.shape[0] != 3:
+        raise ValueError("`vfield` must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+    grad_func = _get_grad_func(grad_order)
+    n_cells_x, n_cells_y, n_cells_z = vfield.shape[1:]
+    cell_width_x, cell_width_y, cell_width_z = _get_cell_widths(
+        domain_length,
+        (n_cells_x, n_cells_y, n_cells_z),
+    )
+    # curl components
+    return numpy.stack(
         [
-            grad_func(vfield_q[2], cell_width, grad_axis=1) - grad_func(vfield_q[1], cell_width, grad_axis=2),
-            grad_func(vfield_q[0], cell_width, grad_axis=2) - grad_func(vfield_q[2], cell_width, grad_axis=0),
-            grad_func(vfield_q[1], cell_width, grad_axis=0) - grad_func(vfield_q[0], cell_width, grad_axis=1),
+            grad_func(vfield[2], cell_width_y, grad_axis=1) - grad_func(vfield[1], cell_width_z, grad_axis=2),
+            grad_func(vfield[0], cell_width_z, grad_axis=2) - grad_func(vfield[2], cell_width_x, grad_axis=0),
+            grad_func(vfield[1], cell_width_x, grad_axis=0) - grad_func(vfield[0], cell_width_y, grad_axis=1),
         ],
+        axis=0,
     )
 
 
 def compute_sfield_gradient(
-    sfield_q: numpy.ndarray,
-    box_length: float = 1.0,
+    sfield: numpy.ndarray,
+    domain_length: tuple[float, float, float],
     grad_order: int = 2,
 ) -> numpy.ndarray:
-    grad_func = get_grad_func(grad_order)
-    ## input format: (x, y, z), assuming cubic domain with uniform grid
+    ## input format: (x, y, z), assuming uniform grid
     ## output format: (gradient-direction, x, y, z)
-    sfield_q = numpy.array(sfield_q)
-    cell_width = box_length / sfield_q.shape[0]
-    return numpy.array([grad_func(sfield_q, cell_width, grad_axis) for grad_axis in [0, 1, 2]])
+    sfield = numpy.asarray(sfield, dtype=numpy.float64)
+    if sfield.ndim != 3:
+        raise ValueError("`sfield` must have shape (n_cells_x, n_cells_y, n_cells_z).")
+    grad_func = _get_grad_func(grad_order)
+    n_cells_x, n_cells_y, n_cells_z = sfield.shape
+    cell_width_x, cell_width_y, cell_width_z = _get_cell_widths(
+        domain_length,
+        (n_cells_x, n_cells_y, n_cells_z),
+    )
+    return numpy.array(
+        [
+            grad_func(sfield, cell_width_x, grad_axis=0),
+            grad_func(sfield, cell_width_y, grad_axis=1),
+            grad_func(sfield, cell_width_z, grad_axis=2),
+        ],
+    )
 
 
 def compute_vfield_gradient(
-    vfield_q: numpy.ndarray,
-    box_length: float = 1.0,
+    vfield: numpy.ndarray,
+    domain_length: tuple[float, float, float],
     grad_order: int = 2,
 ) -> numpy.ndarray:
     ## df_i/dx_j: (component-i, gradient-direction-j, x, y, z)
-    return numpy.array([compute_sfield_gradient(sfield_qi, box_length, grad_order) for sfield_qi in vfield_q])
+    vfield = numpy.asarray(vfield, dtype=numpy.float64)
+    if vfield.ndim != 4 or vfield.shape[0] != 3:
+        raise ValueError("`vfield` must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+    return numpy.stack(
+        [compute_sfield_gradient(vfield[dim_index], domain_length, grad_order) for dim_index in range(3)],
+        axis=0,
+    )
 
 
 def compute_vfield_divergence(
-    vfield_q: numpy.ndarray,
-    box_length: float = 1.0,
+    vfield: numpy.ndarray,
+    domain_length: tuple[float, float, float],
     grad_order: int = 2,
 ) -> numpy.ndarray:
-    r2tensor_grad_q = compute_vfield_gradient(vfield_q, box_length, grad_order)
-    return numpy.einsum("iixyz->xyz", r2tensor_grad_q)
+    r2tensor_grad_q = compute_vfield_gradient(vfield, domain_length, grad_order)
+    return numpy.einsum("iixyz->xyz", r2tensor_grad_q, optimize=True)
 
 
 ## } MODULE
