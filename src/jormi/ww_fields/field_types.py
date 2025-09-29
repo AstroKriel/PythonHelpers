@@ -35,12 +35,11 @@ class UniformDomain:
 
     def _validate_resolution(self):
         if (not isinstance(self.resolution, (tuple, list))) or len(self.resolution) != 3:
-            raise ValueError("`resolution` must be a 3-tuple (n_cells_x, n_cells_y, n_cells_z).")
-        n_cells_x, n_cells_y, n_cells_z = self.resolution
-        if not all(isinstance(n_cells, (int, numpy.integer))
-                   for n_cells in (n_cells_x, n_cells_y, n_cells_z)):
+            raise ValueError("`resolution` must be a 3-tuple (num_cells_x, num_cells_y, num_cells_z).")
+        num_cells_x, num_cells_y, num_cells_z = self.resolution
+        if not all(isinstance(num_cells, (int, numpy.integer)) for num_cells in (num_cells_x, num_cells_y, num_cells_z)):
             raise ValueError("`resolution` entries must be ints.")
-        if not (n_cells_x > 0 and n_cells_y > 0 and n_cells_z > 0):
+        if not (num_cells_x > 0 and num_cells_y > 0 and num_cells_z > 0):
             raise ValueError("All entries of `resolution` must be positive.")
 
     def _validate_domain_bounds(self):
@@ -66,11 +65,11 @@ class UniformDomain:
         self,
     ) -> tuple[float, float, float]:
         (x_min, x_max), (y_min, y_max), (z_min, z_max) = self.domain_bounds
-        n_cells_x, n_cells_y, n_cells_z = self.resolution
+        num_cells_x, num_cells_y, num_cells_z = self.resolution
         return (
-            (x_max - x_min) / n_cells_x,
-            (y_max - y_min) / n_cells_y,
-            (z_max - z_min) / n_cells_z,
+            (x_max - x_min) / num_cells_x,
+            (y_max - y_min) / num_cells_y,
+            (z_max - z_min) / num_cells_z,
         )
 
     @property
