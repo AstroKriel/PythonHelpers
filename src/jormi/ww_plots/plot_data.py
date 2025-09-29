@@ -23,12 +23,12 @@ def plot_sfield_slice(
     cbar_side: str = "right",
 ):
     if field_slice.ndim != 2: raise ValueError("`field_slice` must be a 2D array.")
-    vmin = 0.95 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
-    vmax = 1.05 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
+    min_value = 0.99 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
+    max_value = 1.01 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
     cmap, norm = add_color.create_cmap(
         cmap_name=cmap_name,
-        vmin=vmin,
-        vmax=vmax,
+        vmin=min_value,
+        vmax=max_value,
     )
     im_obj = ax.imshow(
         field_slice.T,
