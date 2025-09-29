@@ -30,7 +30,7 @@ def _ensure_vfield_array_shape(
     vfield_array: numpy.ndarray,
 ) -> None:
     if (vfield_array.ndim != 4) or (vfield_array.shape[0] != 3):
-        raise ValueError("Vector field arrays must have shape (3, n_cells_x, n_cells_y, n_cells_z).")
+        raise ValueError("Vector field arrays must have shape (3, num_cells_x, num_cells_y, num_cells_z).")
 
 
 def _validate_sfield(
@@ -163,7 +163,7 @@ def compute_vfield_curl(
 ) -> field_types.VectorField:
     _validate_vfield(vfield)
     _validate_domain(domain)
-    _ensure_domain_matches_vfield(vfield=vfield, domain=domain)
+    _ensure_domain_matches_vfield(domain=domain, vfield=vfield)
     vfield_array = numpy.asarray(vfield.data, dtype=numpy.float64)
     _ensure_vfield_array_shape(vfield_array)
     grad_func = _get_grad_func(grad_order)
@@ -194,10 +194,10 @@ def compute_sfield_gradient(
 ) -> field_types.VectorField:
     _validate_sfield(sfield)
     _validate_domain(domain)
-    _ensure_domain_matches_sfield(sfield=sfield, domain=domain)
+    _ensure_domain_matches_sfield(domain=domain, sfield=sfield)
     sfield_array = numpy.asarray(sfield.data, dtype=numpy.float64)
     if sfield_array.ndim != 3:
-        raise ValueError("`sfield.data` must have shape (n_cells_x, n_cells_y, n_cells_z).")
+        raise ValueError("`sfield.data` must have shape (num_cells_x, num_cells_y, num_cells_z).")
     grad_func = _get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
     grad_array = numpy.array(
@@ -222,12 +222,12 @@ def compute_vfield_divergence(
 ) -> field_types.ScalarField:
     _validate_vfield(vfield)
     _validate_domain(domain)
-    _ensure_domain_matches_vfield(vfield=vfield, domain=domain)
+    _ensure_domain_matches_vfield(domain=domain, vfield=vfield)
     vfield_array = numpy.asarray(vfield.data, dtype=numpy.float64)
     _ensure_vfield_array_shape(vfield_array)
     grad_func = _get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
-    # Build df_i/dx_j stack (3,3,nx,ny,nz)
+    # Build df_i/dx_j stack (3, 3, nx, ny, nz)
     grad_stack = numpy.stack(
         [
             numpy.array(
@@ -264,13 +264,13 @@ def compute_vfield_divergence(
 
 def compute_magnetic_energy(
     vfield_b: field_types.VectorField,
-    coeff: float = 0.5,
+    energy_prefactor: float = 0.5,
     label: str = "E_mag",
 ) -> field_types.ScalarField:
     _validate_vfield(vfield_b)
     vfield_b_array = numpy.asarray(vfield_b.data, dtype=numpy.float64)
     _ensure_vfield_array_shape(vfield_b_array)
-    Emag_array = coeff * numpy.add.reduce(vfield_b_array * vfield_b_array, axis=0)
+    Emag_array = energy_prefactor * numpy.add.reduce(vfield_b_array * vfield_b_array, axis=0)
     return field_types.ScalarField(
         sim_time=vfield_b.sim_time,
         data=Emag_array,
