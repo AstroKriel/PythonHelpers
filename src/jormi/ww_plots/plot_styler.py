@@ -183,7 +183,7 @@ def _compose_rc_params(
     return rc_params
 
 
-def set_plot_theme(
+def set_theme(
     theme: Theme | str = Theme.LIGHT,
     use_tex: bool = True,
 ) -> None:
