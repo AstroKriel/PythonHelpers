@@ -40,7 +40,7 @@ def create_figure(
     theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
 ) -> tuple[Figure, Any]:
     """Initialize a figure with a flexible grid layout."""
-    if auto_style: plot_styler.set_plot_theme(theme=theme)
+    if auto_style: plot_styler.set_theme(theme=theme)
     fig_width = fig_scale * axis_shape[1] * num_cols
     fig_height = fig_scale * axis_shape[0] * num_rows
     fig, axs = mpl_plot.subplots(
@@ -125,20 +125,26 @@ def save_figure(
 def animate_pngs_to_mp4(
     frames_dir: str | Path,
     mp4_path: str | Path,
-    pattern: str = "frame_%05d.png",
+    pattern: str = "frame_*.png",
     fps: int = 30,
     timeout_seconds: int = 60,
 ) -> None:
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
     io_manager.init_directory(mp4_path.parent)
-    cmd = (
-        f'ffmpeg -hide_banner -loglevel error -y '
-        f'-framerate {fps} -i {pattern} '
-        f'-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" '
-        f'-c:v mpeg4 -q:v 3 -pix_fmt yuv420p '
-        f'-r {fps} "{mp4_path}"'
-    )
+    args = " ".join([
+        "-hide_banner",  # less stdout
+        "-loglevel error",  # only errors
+        "-y",  # overwrite output
+        f"-framerate {fps}",  # input fps (put before -i)
+        "-pattern_type glob",  # enable glob input (put before -i)
+        f'-i "{pattern}"',  # input pattern (e.g., field_slice_*.png)
+        '-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"',  # enforce even dims
+        "-c:v mpeg4 -q:v 3",  # codec + quality
+        "-pix_fmt yuv420p",  # broad compatibility
+        f"-r {fps}",  # output frames-per-second
+    ])
+    cmd = f'ffmpeg {args} "{mp4_path}"'
     shell_manager.execute_shell_command(
         command=cmd,
         working_directory=frames_dir,
