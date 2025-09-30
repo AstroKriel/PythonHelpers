@@ -174,6 +174,67 @@ class TestListUtils(unittest.TestCase):
         result = list_utils.get_index_of_first_crossing(values, 0.25, direction="falling")
         self.assertIsNone(result)
 
+    def test_sample_returns_expected_length(self):
+        def _test(_input_length, _sampled_length):
+            elems = list(range(_input_length))
+            out_elems = list_utils.sample_list(elems, _sampled_length)
+            self.assertEqual(len(out_elems), _sampled_length)
+        for input_length in range(18, 25):
+            _test(_input_length=input_length, _sampled_length=5)
+
+    def test_sample_expected_elems_divisible_cases(self):
+        ## test: (num_elems - 1) % (max_elems - 1) == 0 -> last element included
+        ## 20 % 4 == 0
+        elems = list(range(21))
+        out = list_utils.sample_list(elems, 5)
+        expected = [0, 5, 10, 15, 20]
+        self.assertEqual(out, expected)
+        ## 12 % 4 == 0
+        elems = list(range(13))
+        out = list_utils.sample_list(elems, 5)
+        expected = [0, 3, 6, 9, 12]
+        self.assertEqual(out, expected)
+
+    def test_sample_expected_elems_nondivisible_cases(self):
+        ## last element is typically NOT included with pure integer stride
+        ## 19 % 4 != 0
+        elems = list(range(20))
+        out = list_utils.sample_list(elems, 5)
+        expected = [0, 4, 8, 12, 16]
+        self.assertEqual(out, expected)
+        self.assertNotEqual(out[-1], elems[-1])  # sanity check: last elem is not included
+        ## 21 % 4 != 0
+        elems = list(range(22))
+        out = list_utils.sample_list(elems, 5)
+        expected = [0, 5, 10, 15, 20]
+        self.assertEqual(out, expected)
+        self.assertNotEqual(out[-1], elems[-1])
+
+    def test_first_element_and_constant_stride(self):
+        elems = list(range(37))
+        max_elems = 7
+        out = list_utils.sample_list(elems, max_elems)
+        ## first element always
+        self.assertEqual(out[0], elems[0])
+        ## constant integer stride between chosen indices
+        indices_to_keep = [value_index for value_index, value in enumerate(out)]
+        gaps = [b - a for a, b in zip(indices_to_keep[:-1], indices_to_keep[1:])]
+        self.assertTrue(all(g == gaps[0] for g in gaps))  # constant gap
+        self.assertGreater(gaps[0], 0)
+
+    def test_single_element_requested(self):
+        elems = [1, 2, 3]
+        out = list_utils.sample_list(elems, 1)
+        self.assertEqual(out, [1])
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            list_utils.sample_list([], 3)
+        with self.assertRaises(ValueError):
+            list_utils.sample_list([1, 2, 3], 0)
+        with self.assertRaises(ValueError):
+            list_utils.sample_list([1, 2, 3], -1)
+
 
 ##
 ## === ENTRY POINT

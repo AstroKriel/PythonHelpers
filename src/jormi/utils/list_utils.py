@@ -12,6 +12,20 @@ from jormi.utils import type_utils
 ##
 
 
+def sample_list(
+    elems: list,
+    max_elems: int,
+) -> list:
+    num_elems = len(elems)
+    if num_elems == 0: raise ValueError("`elems` must be non-empty.")
+    if max_elems < 1: raise ValueError("`max_elems` must be >= 1.")
+    if max_elems == 1: return [elems[0]]
+    if num_elems <= max_elems: return elems
+    index_stride = (num_elems - 1) // (max_elems - 1)
+    indices_to_keep = [round(_index * index_stride) for _index in range(max_elems)]
+    return [elems[elem_index] for elem_index in indices_to_keep]
+
+
 def filter_out_nones(elems: list):
     return [elem for elem in elems if elem is not None]
 
