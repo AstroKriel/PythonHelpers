@@ -12,15 +12,22 @@ matplotlib.use("Agg", force=True)
 ## === DEPENDENCIES
 ##
 
-from typing import Literal, Any
+from typing import Literal, Sequence, cast
 from pathlib import Path
 from matplotlib import rcParams
 from matplotlib import pyplot as mpl_plot
-from matplotlib.axes import Axes as mpl_axes
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes as mpl_Axes
+from matplotlib.figure import Figure as mpl_Figure
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
+
+##
+## === DATA TYPES
+##
+
+AxRow = Sequence[mpl_Axes]
+AxGrid = Sequence[AxRow]
 
 ##
 ## === FUNCTIONS
@@ -31,14 +38,14 @@ def create_figure(
     num_rows: int = 1,
     num_cols: int = 1,
     fig_scale: float = 1.0,
-    axis_shape: tuple = (4, 6),
+    axis_shape: tuple[float, float] = (4, 6),
     x_spacing: float = 0.05,
     y_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
     theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
-) -> tuple[Figure, Any]:
+) -> tuple[mpl_Figure, mpl_Axes]:
     """Initialize a figure with a flexible grid layout."""
     if auto_style: plot_styler.set_theme(theme=theme)
     fig_width = fig_scale * axis_shape[1] * num_cols
@@ -55,8 +62,25 @@ def create_figure(
     return fig, axs
 
 
+def get_axs_grid(
+    axs: mpl_Axes | AxRow | AxGrid,
+    num_rows: int,
+    num_cols: int,
+) -> list[list[mpl_Axes]]:
+    """Normalise axes for 2D indexing [row, col]."""
+    if isinstance(axs, mpl_Axes): return [[axs]]
+    if num_rows == 1 and num_cols == 1:
+        ## 1x1 subplots that returned a 1D container
+        ax_row = list(cast(AxRow, axs))
+        return [[ax_row[0]]]
+    if num_rows == 1: return [list(cast(AxRow, axs))]
+    if num_cols == 1: return [[ax_row] for ax_row in cast(AxRow, axs)]
+    ## convert each row into a list
+    return [list(ax_row) for ax_row in cast(AxGrid, axs)]
+
+
 def add_inset_axis(
-    ax: mpl_axes,
+    ax: mpl_Axes,
     bounds: tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
     x_label: str | None = None,
     y_label: str | None = None,
@@ -132,18 +156,20 @@ def animate_pngs_to_mp4(
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
     io_manager.init_directory(mp4_path.parent)
-    args = " ".join([
-        "-hide_banner",  # less stdout
-        "-loglevel error",  # only errors
-        "-y",  # overwrite output
-        f"-framerate {fps}",  # input fps (put before -i)
-        "-pattern_type glob",  # enable glob input (put before -i)
-        f'-i "{pattern}"',  # input pattern (e.g., field_slice_*.png)
-        '-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"',  # enforce even dims
-        "-c:v mpeg4 -q:v 3",  # codec + quality
-        "-pix_fmt yuv420p",  # broad compatibility
-        f"-r {fps}",  # output frames-per-second
-    ])
+    args = " ".join(
+        [
+            "-hide_banner",  # less stdout
+            "-loglevel error",  # only errors
+            "-y",  # overwrite output
+            f"-framerate {fps}",  # input fps (put before -i)
+            "-pattern_type glob",  # enable glob input (put before -i)
+            f'-i "{pattern}"',  # input pattern (e.g., field_slice_*.png)
+            '-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"',  # enforce even dims
+            "-c:v mpeg4 -q:v 3",  # codec + quality
+            "-pix_fmt yuv420p",  # broad compatibility
+            f"-r {fps}",  # output frames-per-second
+        ],
+    )
     cmd = f'ffmpeg {args} "{mp4_path}"'
     shell_manager.execute_shell_command(
         command=cmd,
