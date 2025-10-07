@@ -6,6 +6,7 @@
 
 import numpy
 from dataclasses import dataclass
+from functools import cached_property
 
 ##
 ## === DATA STRUCTURES
@@ -37,7 +38,8 @@ class UniformDomain:
         if (not isinstance(self.resolution, (tuple, list))) or len(self.resolution) != 3:
             raise ValueError("`resolution` must be a 3-tuple (num_cells_x, num_cells_y, num_cells_z).")
         num_cells_x, num_cells_y, num_cells_z = self.resolution
-        if not all(isinstance(num_cells, (int, numpy.integer)) for num_cells in (num_cells_x, num_cells_y, num_cells_z)):
+        if not all(isinstance(num_cells, (int, numpy.integer))
+                   for num_cells in (num_cells_x, num_cells_y, num_cells_z)):
             raise ValueError("`resolution` entries must be ints.")
         if not (num_cells_x > 0 and num_cells_y > 0 and num_cells_z > 0):
             raise ValueError("All entries of `resolution` must be positive.")
@@ -60,7 +62,7 @@ class UniformDomain:
             if not (hi_float > lo_float):
                 raise ValueError(f"{axis_name[axis_index]}-axis: max must be > min.")
 
-    @property
+    @cached_property
     def cell_widths(
         self,
     ) -> tuple[float, float, float]:
@@ -72,7 +74,7 @@ class UniformDomain:
             (z_max - z_min) / num_cells_z,
         )
 
-    @property
+    @cached_property
     def domain_lengths(
         self,
     ) -> tuple[float, float, float]:
@@ -81,6 +83,30 @@ class UniformDomain:
             x_max - x_min,
             y_max - y_min,
             z_max - z_min,
+        )
+
+    @cached_property
+    def cell_centers(
+        self,
+    ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+
+        def _get_bin_centers(
+            axis_min: float,
+            cell_width: float,
+            num_cells: int,
+        ) -> numpy.ndarray:
+            return axis_min + (numpy.arange(num_cells, dtype=float) + 0.5) * cell_width
+
+        (x_min, _), (y_min, _), (z_min, _) = self.domain_bounds
+        num_cells_x, num_cells_y, num_cells_z = self.resolution
+        cell_width_x, cell_width_y, cell_width_z = self.cell_widths
+        x_centers = _get_bin_centers(x_min, cell_width_x, num_cells_x)
+        y_centers = _get_bin_centers(y_min, cell_width_y, num_cells_y)
+        z_centers = _get_bin_centers(z_min, cell_width_z, num_cells_z)
+        return (
+            x_centers,
+            y_centers,
+            z_centers,
         )
 
 
