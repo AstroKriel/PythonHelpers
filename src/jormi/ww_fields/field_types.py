@@ -116,12 +116,66 @@ class ScalarField:
     data: numpy.ndarray
     label: str
 
+    def __post_init__(self):
+        self._validate_sim_time()
+        self._validate_data()
+        self._validate_label()
+
+    def _validate_sim_time(self):
+        try:
+            sim_time = float(self.sim_time)
+        except Exception as error:
+            raise ValueError("`sim_time` must be a float.") from error
+        if not numpy.isfinite(sim_time):
+            raise ValueError("`sim_time` must be finite.")
+
+    def _validate_data(self):
+        if not isinstance(self.data, numpy.ndarray):
+            raise TypeError("`data` must be a numpy.ndarray.")
+        if self.data.ndim != 3:
+            raise ValueError(f"`data` must have shape (num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.")
+
+    def _validate_label(self):
+        if not isinstance(self.label, str):
+            raise TypeError("`label` must be a string.")
+        if not self.label:
+            raise ValueError("`label` must be a non-empty string.")
+
 
 @dataclass(frozen=True)
 class VectorField:
     sim_time: float
     data: numpy.ndarray
     labels: tuple[str, str, str]
+
+    def __post_init__(self):
+        self._validate_sim_time()
+        self._validate_data()
+        self._validate_labels()
+
+    def _validate_sim_time(self):
+        try:
+            sim_time = float(self.sim_time)
+        except Exception as error:
+            raise ValueError("`sim_time` must be a float.") from error
+        if not numpy.isfinite(sim_time):
+            raise ValueError("`sim_time` must be finite.")
+
+    def _validate_data(self):
+        if not isinstance(self.data, numpy.ndarray):
+            raise TypeError("`data` must be a numpy.ndarray.")
+        if self.data.ndim != 4:
+            raise ValueError(f"`data` must have shape (3, num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.")
+        if self.data.shape[0] != 3:
+            raise ValueError(f"First axis of `data` must have length 3 (x, y, z components); got {self.data.shape[0]}.")
+
+    def _validate_labels(self):
+        if (not isinstance(self.labels, (tuple, list))) or len(self.labels) != 3:
+            raise ValueError("`labels` must be a 3-tuple of strings.")
+        if not all(isinstance(label, str) for label in self.labels):
+            raise TypeError("All entries of `labels` must be strings.")
+        if not all(label for label in self.labels):
+            raise ValueError("All entries of `labels` must be non-empty strings.")
 
 
 ## } MODULE
