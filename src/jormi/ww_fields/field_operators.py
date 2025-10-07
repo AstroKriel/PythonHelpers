@@ -27,9 +27,9 @@ def _get_grad_func(
 
 
 def _ensure_vfield_array_shape(
-    vfield_array: numpy.ndarray,
+    varray: numpy.ndarray,
 ) -> None:
-    if (vfield_array.ndim != 4) or (vfield_array.shape[0] != 3):
+    if (varray.ndim != 4) or (varray.shape[0] != 3):
         raise ValueError("Vector field arrays must have shape (3, num_cells_x, num_cells_y, num_cells_z).")
 
 
@@ -68,7 +68,7 @@ def _ensure_domain_matches_sfield(
 ) -> None:
     if domain.resolution != sfield.data.shape:
         raise ValueError(
-            f"Domain resolution {domain.resolution} does not match scalar grid {sfield.data.shape}"
+            f"Domain resolution {domain.resolution} does not match scalar grid {sfield.data.shape}",
         )
 
 
@@ -78,7 +78,7 @@ def _ensure_domain_matches_vfield(
 ) -> None:
     if domain.resolution != vfield.data.shape[1:]:
         raise ValueError(
-            f"Domain resolution {domain.resolution} does not match vector grid {vfield.data.shape[1:]}"
+            f"Domain resolution {domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
 
 
@@ -87,12 +87,18 @@ def _ensure_domain_matches_vfield(
 ##
 
 
+def compute_array_rms(
+    sarray: numpy.ndarray,
+) -> float:
+    return float(numpy.sqrt(numpy.mean(numpy.square(sarray))))
+
+
 def compute_sfield_rms(
     sfield: field_types.ScalarField,
 ) -> float:
     _validate_sfield(sfield)
-    sfield_array = numpy.asarray(sfield.data, dtype=numpy.float64)
-    return float(numpy.sqrt(numpy.mean(numpy.square(sfield_array))))
+    sarray = numpy.asarray(sfield.data, dtype=numpy.float64)
+    return compute_array_rms(sarray)
 
 
 def compute_vfield_magnitude(
@@ -100,9 +106,9 @@ def compute_vfield_magnitude(
     label: str = "|vec(f)|",
 ) -> field_types.ScalarField:
     _validate_vfield(vfield)
-    vfield_array = numpy.asarray(vfield.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_array)
-    field_magn = numpy.sqrt(numpy.sum(vfield_array * vfield_array, axis=0))
+    varray = numpy.asarray(vfield.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray)
+    field_magn = numpy.sqrt(numpy.sum(varray * varray, axis=0))
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=field_magn,
@@ -117,11 +123,11 @@ def compute_vfield_dot_product(
 ) -> field_types.ScalarField:
     _validate_vfield(vfield_a)
     _validate_vfield(vfield_b)
-    vfield_a_array = numpy.asarray(vfield_a.data, dtype=numpy.float64)
-    vfield_b_array = numpy.asarray(vfield_b.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_a_array)
-    _ensure_same_grid_size(vfield_a_array, vfield_b_array)
-    dot_array = numpy.einsum("ixyz,ixyz->xyz", vfield_a_array, vfield_b_array, optimize=True)
+    varray_a = numpy.asarray(vfield_a.data, dtype=numpy.float64)
+    varray_b = numpy.asarray(vfield_b.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray_a)
+    _ensure_same_grid_size(varray_a, varray_b)
+    dot_array = numpy.einsum("ixyz,ixyz->xyz", varray_a, varray_b, optimize=True)
     return field_types.ScalarField(
         sim_time=vfield_a.sim_time,
         data=dot_array,
@@ -136,15 +142,15 @@ def compute_vfield_cross_product(
 ) -> field_types.VectorField:
     _validate_vfield(vfield_a)
     _validate_vfield(vfield_b)
-    vfield_a_array = numpy.asarray(vfield_a.data, dtype=numpy.float64)
-    vfield_b_array = numpy.asarray(vfield_b.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_a_array)
-    _ensure_same_grid_size(vfield_a_array, vfield_b_array)
+    varray_a = numpy.asarray(vfield_a.data, dtype=numpy.float64)
+    varray_b = numpy.asarray(vfield_b.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray_a)
+    _ensure_same_grid_size(varray_a, varray_b)
     cross_array = numpy.stack(
         [
-            vfield_a_array[1] * vfield_b_array[2] - vfield_a_array[2] * vfield_b_array[1],
-            vfield_a_array[2] * vfield_b_array[0] - vfield_a_array[0] * vfield_b_array[2],
-            vfield_a_array[0] * vfield_b_array[1] - vfield_a_array[1] * vfield_b_array[0],
+            varray_a[1] * varray_b[2] - varray_a[2] * varray_b[1],
+            varray_a[2] * varray_b[0] - varray_a[0] * varray_b[2],
+            varray_a[0] * varray_b[1] - varray_a[1] * varray_b[0],
         ],
         axis=0,
     )
@@ -164,18 +170,18 @@ def compute_vfield_curl(
     _validate_vfield(vfield)
     _validate_domain(domain)
     _ensure_domain_matches_vfield(domain=domain, vfield=vfield)
-    vfield_array = numpy.asarray(vfield.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_array)
+    varray = numpy.asarray(vfield.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray)
     grad_func = _get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
     curl_array = numpy.stack(
         [
-            grad_func(vfield_array[2], cell_width_y, grad_axis=1) -
-            grad_func(vfield_array[1], cell_width_z, grad_axis=2),
-            grad_func(vfield_array[0], cell_width_z, grad_axis=2) -
-            grad_func(vfield_array[2], cell_width_x, grad_axis=0),
-            grad_func(vfield_array[1], cell_width_x, grad_axis=0) -
-            grad_func(vfield_array[0], cell_width_y, grad_axis=1),
+            grad_func(varray[2], cell_width_y, grad_axis=1) -
+            grad_func(varray[1], cell_width_z, grad_axis=2),
+            grad_func(varray[0], cell_width_z, grad_axis=2) -
+            grad_func(varray[2], cell_width_x, grad_axis=0),
+            grad_func(varray[1], cell_width_x, grad_axis=0) -
+            grad_func(varray[0], cell_width_y, grad_axis=1),
         ],
         axis=0,
     )
@@ -195,16 +201,16 @@ def compute_sfield_gradient(
     _validate_sfield(sfield)
     _validate_domain(domain)
     _ensure_domain_matches_sfield(domain=domain, sfield=sfield)
-    sfield_array = numpy.asarray(sfield.data, dtype=numpy.float64)
-    if sfield_array.ndim != 3:
+    sarray = numpy.asarray(sfield.data, dtype=numpy.float64)
+    if sarray.ndim != 3:
         raise ValueError("`sfield.data` must have shape (num_cells_x, num_cells_y, num_cells_z).")
     grad_func = _get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
     grad_array = numpy.array(
         [
-            grad_func(sfield_array, cell_width_x, grad_axis=0),
-            grad_func(sfield_array, cell_width_y, grad_axis=1),
-            grad_func(sfield_array, cell_width_z, grad_axis=2),
+            grad_func(sarray, cell_width_x, grad_axis=0),
+            grad_func(sarray, cell_width_y, grad_axis=1),
+            grad_func(sarray, cell_width_z, grad_axis=2),
         ],
     )
     return field_types.VectorField(
@@ -223,32 +229,32 @@ def compute_vfield_divergence(
     _validate_vfield(vfield)
     _validate_domain(domain)
     _ensure_domain_matches_vfield(domain=domain, vfield=vfield)
-    vfield_array = numpy.asarray(vfield.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_array)
+    varray = numpy.asarray(vfield.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray)
     grad_func = _get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
-    # Build df_i/dx_j stack (3, 3, nx, ny, nz)
+    ## build df_i/dx_j stack (3, 3, nx, ny, nz)
     grad_stack = numpy.stack(
         [
             numpy.array(
                 [
-                    grad_func(vfield_array[0], cell_width_x, grad_axis=0),
-                    grad_func(vfield_array[0], cell_width_y, grad_axis=1),
-                    grad_func(vfield_array[0], cell_width_z, grad_axis=2),
+                    grad_func(varray[0], cell_width_x, grad_axis=0),
+                    grad_func(varray[0], cell_width_y, grad_axis=1),
+                    grad_func(varray[0], cell_width_z, grad_axis=2),
                 ],
             ),
             numpy.array(
                 [
-                    grad_func(vfield_array[1], cell_width_x, grad_axis=0),
-                    grad_func(vfield_array[1], cell_width_y, grad_axis=1),
-                    grad_func(vfield_array[1], cell_width_z, grad_axis=2),
+                    grad_func(varray[1], cell_width_x, grad_axis=0),
+                    grad_func(varray[1], cell_width_y, grad_axis=1),
+                    grad_func(varray[1], cell_width_z, grad_axis=2),
                 ],
             ),
             numpy.array(
                 [
-                    grad_func(vfield_array[2], cell_width_x, grad_axis=0),
-                    grad_func(vfield_array[2], cell_width_y, grad_axis=1),
-                    grad_func(vfield_array[2], cell_width_z, grad_axis=2),
+                    grad_func(varray[2], cell_width_x, grad_axis=0),
+                    grad_func(varray[2], cell_width_y, grad_axis=1),
+                    grad_func(varray[2], cell_width_z, grad_axis=2),
                 ],
             ),
         ],
@@ -263,16 +269,16 @@ def compute_vfield_divergence(
 
 
 def compute_magnetic_energy(
-    vfield_b: field_types.VectorField,
+    vfield: field_types.VectorField,
     energy_prefactor: float = 0.5,
     label: str = "E_mag",
 ) -> field_types.ScalarField:
-    _validate_vfield(vfield_b)
-    vfield_b_array = numpy.asarray(vfield_b.data, dtype=numpy.float64)
-    _ensure_vfield_array_shape(vfield_b_array)
-    Emag_array = energy_prefactor * numpy.add.reduce(vfield_b_array * vfield_b_array, axis=0)
+    _validate_vfield(vfield)
+    varray = numpy.asarray(vfield.data, dtype=numpy.float64)
+    _ensure_vfield_array_shape(varray)
+    Emag_array = energy_prefactor * numpy.add.reduce(varray * varray, axis=0)
     return field_types.ScalarField(
-        sim_time=vfield_b.sim_time,
+        sim_time=vfield.sim_time,
         data=Emag_array,
         label=label,
     )
