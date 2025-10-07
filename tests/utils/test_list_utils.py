@@ -175,10 +175,12 @@ class TestListUtils(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_sample_returns_expected_length(self):
+
         def _test(_input_length, _sampled_length):
             elems = list(range(_input_length))
             out_elems = list_utils.sample_list(elems, _sampled_length)
             self.assertEqual(len(out_elems), _sampled_length)
+
         for input_length in range(18, 25):
             _test(_input_length=input_length, _sampled_length=5)
 
