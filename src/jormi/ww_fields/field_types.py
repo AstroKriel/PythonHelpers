@@ -9,6 +9,13 @@ from dataclasses import dataclass
 from functools import cached_property
 
 ##
+## === GLOBAL PARAMETERS
+##
+
+DEFAULT_FLOAT_TYPE = numpy.float64
+DEFAULT_INT_TYPE = numpy.int64
+
+##
 ## === DATA STRUCTURES
 ##
 
@@ -75,6 +82,12 @@ class UniformDomain:
         )
 
     @cached_property
+    def cell_volume(
+        self,
+    ) -> float:
+        return float(numpy.prod(self.cell_widths, dtype=DEFAULT_FLOAT_TYPE))
+
+    @cached_property
     def domain_lengths(
         self,
     ) -> tuple[float, float, float]:
@@ -84,6 +97,18 @@ class UniformDomain:
             y_max - y_min,
             z_max - z_min,
         )
+
+    @cached_property
+    def num_cells(
+        self,
+    ) -> int:
+        return int(numpy.prod(self.resolution, dtype=DEFAULT_INT_TYPE))
+
+    @cached_property
+    def total_volume(
+        self,
+    ) -> float:
+        return float(numpy.prod(self.domain_lengths, dtype=DEFAULT_FLOAT_TYPE))
 
     @cached_property
     def cell_centers(
@@ -133,7 +158,9 @@ class ScalarField:
         if not isinstance(self.data, numpy.ndarray):
             raise TypeError("`data` must be a numpy.ndarray.")
         if self.data.ndim != 3:
-            raise ValueError(f"`data` must have shape (num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.")
+            raise ValueError(
+                f"`data` must have shape (num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.",
+            )
 
     def _validate_label(self):
         if not isinstance(self.label, str):
@@ -165,9 +192,13 @@ class VectorField:
         if not isinstance(self.data, numpy.ndarray):
             raise TypeError("`data` must be a numpy.ndarray.")
         if self.data.ndim != 4:
-            raise ValueError(f"`data` must have shape (3, num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.")
+            raise ValueError(
+                f"`data` must have shape (3, num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.",
+            )
         if self.data.shape[0] != 3:
-            raise ValueError(f"First axis of `data` must have length 3 (x, y, z components); got {self.data.shape[0]}.")
+            raise ValueError(
+                f"First axis of `data` must have length 3 (x, y, z components); got {self.data.shape[0]}.",
+            )
 
     def _validate_labels(self):
         if (not isinstance(self.labels, (tuple, list))) or len(self.labels) != 3:
