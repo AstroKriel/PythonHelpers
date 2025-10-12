@@ -5,76 +5,10 @@
 ##
 
 import numpy
+from typing import Any
+from numpy.typing import NDArray, DTypeLike
 from jormi.ww_data import finite_difference
 from jormi.ww_fields import field_types
-
-##
-## === VALIDATION HELPERS
-##
-
-
-def _ensure_sarray_shape(
-    sarray: numpy.ndarray,
-) -> None:
-    if sarray.ndim != 3:
-        raise ValueError("Scalar field arrays must have shape (num_cells_x, num_cells_y, num_cells_z).")
-
-
-def _ensure_varray_shape(
-    varray: numpy.ndarray,
-) -> None:
-    if (varray.ndim != 4) or (varray.shape[0] != 3):
-        raise ValueError("Vector field arrays must have shape (3, num_cells_x, num_cells_y, num_cells_z).")
-
-
-def _ensure_sfield_type(
-    sfield,
-) -> None:
-    if not isinstance(sfield, field_types.ScalarField):
-        raise TypeError(f"Expected ScalarField, got {type(sfield).__name__}")
-
-
-def _ensure_vfield_type(
-    vfield,
-) -> None:
-    if not isinstance(vfield, field_types.VectorField):
-        raise TypeError(f"Expected VectorField, got {type(vfield).__name__}")
-
-
-def _ensure_uniform_domain_type(
-    domain,
-) -> None:
-    if not isinstance(domain, field_types.UniformDomain):
-        raise TypeError(f"Expected UniformDomain, got {type(domain).__name__}")
-
-
-def _ensure_same_grid_size(
-    array_a: numpy.ndarray,
-    array_b: numpy.ndarray,
-) -> None:
-    if array_a.shape != array_b.shape:
-        raise ValueError(f"Grid mismatch: {array_a.shape} vs {array_b.shape}")
-
-
-def _ensure_domain_matches_sfield(
-    domain: field_types.UniformDomain,
-    sfield: field_types.ScalarField,
-) -> None:
-    if domain.resolution != sfield.data.shape:
-        raise ValueError(
-            f"Domain resolution {domain.resolution} does not match scalar grid {sfield.data.shape}",
-        )
-
-
-def _ensure_domain_matches_vfield(
-    domain: field_types.UniformDomain,
-    vfield: field_types.VectorField,
-) -> None:
-    if domain.resolution != vfield.data.shape[1:]:
-        raise ValueError(
-            f"Domain resolution {domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
-        )
-
 
 ##
 ## === WORKSPACE UTILITIES
@@ -83,30 +17,23 @@ def _ensure_domain_matches_vfield(
 
 def _ensure_array_properties(
     array_shape: tuple[int, ...],
-    dtype: numpy.dtype = field_types.DEFAULT_FLOAT_TYPE,
-    array: numpy.ndarray | None = None,
-) -> numpy.ndarray:
+    dtype: DTypeLike | None,
+    array: NDArray[Any] | None = None,
+) -> NDArray[Any]:
     """
     Return a scratch array with the requested shape/dtype, reusing the provided array
     if compatible, otherwise allocates a new array.
     """
-    dtype = numpy.dtype(dtype)  # use numpy types
+    if dtype is None:
+        if array is not None:
+            dtype = array.dtype
+        else:
+            dtype = numpy.float64
+    else:
+        dtype = numpy.dtype(dtype)
     if (array is None) or (array.shape != array_shape) or (array.dtype != dtype):
         return numpy.empty(array_shape, dtype=dtype)
     return array
-
-
-def _get_grad_func(
-    grad_order: int,
-):
-    valid_grad_orders = {
-        2: finite_difference.second_order_centered_difference,
-        4: finite_difference.fourth_order_centered_difference,
-        6: finite_difference.sixth_order_centered_difference,
-    }
-    if grad_order not in valid_grad_orders:
-        raise ValueError(f"Gradient order `{grad_order}` is invalid.")
-    return valid_grad_orders[grad_order]
 
 
 ##
@@ -114,21 +41,28 @@ def _get_grad_func(
 ##
 
 
+def _as_float_view(
+    array: numpy.ndarray,
+) -> numpy.ndarray:
+    ## promote integers/low-precision to at least float64 for safe reductions
+    return array.astype(numpy.result_type(array.dtype, numpy.float64), copy=False)
+
+
 def _sum_of_component_squares(
     varray: numpy.ndarray,
     out_array: numpy.ndarray | None = None,
     tmp_array: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    _ensure_varray_shape(varray)
+    field_types.ensure_varray(varray)
     domain_shape = varray.shape[1:]
     out_array = _ensure_array_properties(
         array_shape=domain_shape,
-        dtype=field_types.DEFAULT_FLOAT_TYPE,
+        dtype=varray.dtype,
         array=out_array,
     )
     tmp_array = _ensure_array_properties(
         array_shape=domain_shape,
-        dtype=field_types.DEFAULT_FLOAT_TYPE,
+        dtype=varray.dtype,
         array=tmp_array,
     )
     numpy.multiply(varray[0], varray[0], out=out_array)  # v_x^2
@@ -145,21 +79,22 @@ def _dot_over_components(
     out_array: numpy.ndarray | None = None,
     tmp_array: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    _ensure_varray_shape(varray_a)
-    _ensure_varray_shape(varray_b)
-    _ensure_same_grid_size(
+    field_types.ensure_varray(varray_a)
+    field_types.ensure_varray(varray_b)
+    field_types.ensure_same_grid(
         array_a=varray_a,
         array_b=varray_b,
     )
     domain_shape = varray_a.shape[1:]
+    dtype = numpy.result_type(varray_a.dtype, varray_b.dtype)
     out_array = _ensure_array_properties(
         array_shape=domain_shape,
-        dtype=field_types.DEFAULT_FLOAT_TYPE,
+        dtype=dtype,
         array=out_array,
     )
     tmp_array = _ensure_array_properties(
         array_shape=domain_shape,
-        dtype=field_types.DEFAULT_FLOAT_TYPE,
+        dtype=dtype,
         array=tmp_array,
     )
     numpy.multiply(varray_a[0], varray_b[0], out=out_array)  # a_x b_x
@@ -173,18 +108,18 @@ def _dot_over_components(
 def compute_array_rms(
     sarray: numpy.ndarray,
 ) -> float:
-    sarray = numpy.asarray(sarray, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_sarray_shape(sarray)
-    return float(numpy.sqrt(numpy.mean(numpy.square(sarray))))
+    field_types.ensure_sarray(sarray)
+    _sarray = _as_float_view(sarray)
+    return float(numpy.sqrt(numpy.mean(numpy.square(_sarray))))
 
 
 def compute_array_volume_integral(
     sarray: numpy.ndarray,
     cell_volume: float,
 ) -> float:
-    sarray = numpy.asarray(sarray, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_sarray_shape(sarray)
-    return float(cell_volume * numpy.sum(sarray, dtype=field_types.DEFAULT_FLOAT_TYPE))
+    field_types.ensure_sarray(sarray)
+    _sarray = _as_float_view(sarray)
+    return float(cell_volume * numpy.sum(_sarray))
 
 
 ##
@@ -195,23 +130,23 @@ def compute_array_volume_integral(
 def compute_sfield_rms(
     sfield: field_types.ScalarField,
 ) -> float:
-    _ensure_sfield_type(sfield)
+    field_types.ensure_sfield(sfield)
     return compute_array_rms(sfield.data)
 
 
 def compute_sfield_volume_integral(
     sfield: field_types.ScalarField,
-    domain: field_types.UniformDomain,
+    domain_details: field_types.UniformDomain,
 ) -> float:
-    _ensure_sfield_type(sfield)
-    _ensure_uniform_domain_type(domain)
-    _ensure_domain_matches_sfield(
-        domain=domain,
+    field_types.ensure_sfield(sfield)
+    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_domain_matches_sfield(
+        domain_details=domain_details,
         sfield=sfield,
     )
     return compute_array_volume_integral(
         sarray=sfield.data,
-        cell_volume=domain.cell_volume,
+        cell_volume=domain_details.cell_volume,
     )
 
 
@@ -219,9 +154,9 @@ def compute_vfield_magnitude(
     vfield: field_types.VectorField,
     label: str = "|vec(f)|",
 ) -> field_types.ScalarField:
-    _ensure_vfield_type(vfield)
-    varray = numpy.asarray(vfield.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray)
+    field_types.ensure_vfield(vfield)
+    varray = vfield.data
+    field_types.ensure_varray(varray)
     field_magn = _sum_of_component_squares(varray)  # allocates output (reused below)
     numpy.sqrt(field_magn, out=field_magn)  # in-place transform
     return field_types.ScalarField(
@@ -236,13 +171,13 @@ def compute_vfield_dot_product(
     vfield_b: field_types.VectorField,
     label: str = "dot-product",
 ) -> field_types.ScalarField:
-    _ensure_vfield_type(vfield_a)
-    _ensure_vfield_type(vfield_b)
-    varray_a = numpy.asarray(vfield_a.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    varray_b = numpy.asarray(vfield_b.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray_a)
-    _ensure_varray_shape(varray_b)
-    _ensure_same_grid_size(
+    field_types.ensure_vfield(vfield_a)
+    field_types.ensure_vfield(vfield_b)
+    varray_a = vfield_a.data
+    varray_b = vfield_b.data
+    field_types.ensure_varray(varray_a)
+    field_types.ensure_varray(varray_b)
+    field_types.ensure_same_grid(
         array_a=varray_a,
         array_b=varray_b,
     )
@@ -262,17 +197,18 @@ def compute_vfield_cross_product(
     vfield_b: field_types.VectorField,
     labels: tuple[str, str, str] = ("cross-x", "cross-y", "cross-z"),
 ) -> field_types.VectorField:
-    _ensure_vfield_type(vfield_a)
-    _ensure_vfield_type(vfield_b)
-    varray_a = numpy.asarray(vfield_a.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    varray_b = numpy.asarray(vfield_b.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray_a)
-    _ensure_varray_shape(varray_b)
-    _ensure_same_grid_size(
+    field_types.ensure_vfield(vfield_a)
+    field_types.ensure_vfield(vfield_b)
+    varray_a = vfield_a.data
+    varray_b = vfield_b.data
+    field_types.ensure_varray(varray_a)
+    field_types.ensure_varray(varray_b)
+    field_types.ensure_same_grid(
         array_a=varray_a,
         array_b=varray_b,
     )
-    cross_array = numpy.empty(varray_a.shape, dtype=field_types.DEFAULT_FLOAT_TYPE)
+    dtype = numpy.result_type(varray_a.dtype, varray_b.dtype)
+    cross_array = numpy.empty(varray_a.shape, dtype=dtype)
     cross_array[0] = varray_a[1] * varray_b[2] - varray_a[2] * varray_b[1]
     cross_array[1] = -varray_a[0] * varray_b[2] + varray_a[2] * varray_b[0]
     cross_array[2] = varray_a[0] * varray_b[1] - varray_a[1] * varray_b[0]
@@ -285,21 +221,21 @@ def compute_vfield_cross_product(
 
 def compute_vfield_curl(
     vfield: field_types.VectorField,
-    domain: field_types.UniformDomain,
+    domain_details: field_types.UniformDomain,
     labels: tuple[str, str, str] = ("curl-x", "curl-y", "curl-z"),
     grad_order: int = 2,
 ) -> field_types.VectorField:
-    _ensure_vfield_type(vfield)
-    _ensure_uniform_domain_type(domain)
-    _ensure_domain_matches_vfield(
-        domain=domain,
+    field_types.ensure_vfield(vfield)
+    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_domain_matches_vfield(
+        domain_details=domain_details,
         vfield=vfield,
     )
-    varray = numpy.asarray(vfield.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray)
-    nabla = _get_grad_func(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
-    curl_array = numpy.empty(varray.shape, dtype=field_types.DEFAULT_FLOAT_TYPE)
+    varray = vfield.data
+    field_types.ensure_varray(varray)
+    nabla = finite_difference.get_grad_func(grad_order)
+    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
+    curl_array = numpy.empty(varray.shape, dtype=varray.dtype)
     curl_array[0] = nabla(varray[2], cell_width_y, grad_axis=1) - nabla(varray[1], cell_width_z, grad_axis=2)
     curl_array[1] = nabla(varray[0], cell_width_z, grad_axis=2) - nabla(varray[2], cell_width_x, grad_axis=0)
     curl_array[2] = nabla(varray[1], cell_width_x, grad_axis=0) - nabla(varray[0], cell_width_y, grad_axis=1)
@@ -312,21 +248,21 @@ def compute_vfield_curl(
 
 def compute_sfield_gradient(
     sfield: field_types.ScalarField,
-    domain: field_types.UniformDomain,
+    domain_details: field_types.UniformDomain,
     labels: tuple[str, str, str] = ("df/dx", "df/dy", "df/dz"),
     grad_order: int = 2,
 ) -> field_types.VectorField:
-    _ensure_sfield_type(sfield)
-    _ensure_uniform_domain_type(domain)
-    _ensure_domain_matches_sfield(
-        domain=domain,
+    field_types.ensure_sfield(sfield)
+    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_domain_matches_sfield(
+        domain_details=domain_details,
         sfield=sfield,
     )
-    sarray = numpy.asarray(sfield.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_sarray_shape(sarray)
-    nabla = _get_grad_func(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
-    grad_array = numpy.empty((3, *sarray.shape), dtype=field_types.DEFAULT_FLOAT_TYPE)
+    sarray = sfield.data
+    field_types.ensure_sarray(sarray)
+    nabla = finite_difference.get_grad_func(grad_order)
+    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
+    grad_array = numpy.empty((3, *sarray.shape), dtype=sarray.dtype)
     grad_array[0] = nabla(sarray, cell_width_x, grad_axis=0)
     grad_array[1] = nabla(sarray, cell_width_y, grad_axis=1)
     grad_array[2] = nabla(sarray, cell_width_z, grad_axis=2)
@@ -339,20 +275,20 @@ def compute_sfield_gradient(
 
 def compute_vfield_divergence(
     vfield: field_types.VectorField,
-    domain: field_types.UniformDomain,
+    domain_details: field_types.UniformDomain,
     label: str = "div(f)",
     grad_order: int = 2,
 ) -> field_types.ScalarField:
-    _ensure_vfield_type(vfield)
-    _ensure_uniform_domain_type(domain)
-    _ensure_domain_matches_vfield(
-        domain=domain,
-        vfield=vfield
+    field_types.ensure_vfield(vfield)
+    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_domain_matches_vfield(
+        domain_details=domain_details,
+        vfield=vfield,
     )
-    varray = numpy.asarray(vfield.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray)
-    nabla = _get_grad_func(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = domain.cell_widths
+    varray = vfield.data
+    field_types.ensure_varray(varray)
+    nabla = finite_difference.get_grad_func(grad_order)
+    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
     dfx_dx = nabla(varray[0], cell_width_x, grad_axis=0)
     dfy_dy = nabla(varray[1], cell_width_y, grad_axis=1)
     dfz_dz = nabla(varray[2], cell_width_z, grad_axis=2)
@@ -374,11 +310,11 @@ def compute_magnetic_energy_density(
     energy_prefactor: float = 0.5,
     label: str = "Emag",
 ) -> field_types.ScalarField:
-    _ensure_vfield_type(vfield)
-    varray = numpy.asarray(vfield.data, dtype=field_types.DEFAULT_FLOAT_TYPE)
-    _ensure_varray_shape(varray)
+    field_types.ensure_vfield(vfield)
+    varray = vfield.data
+    field_types.ensure_varray(varray)
     Emag_array = _sum_of_component_squares(varray)  # allocates output (reused below)
-    Emag_array *= energy_prefactor  # in-place transform
+    Emag_array *= numpy.asarray(energy_prefactor, dtype=Emag_array.dtype)  # in-place transform
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=Emag_array,
@@ -388,13 +324,13 @@ def compute_magnetic_energy_density(
 
 def compute_total_magnetic_energy(
     vfield: field_types.VectorField,
-    domain: field_types.UniformDomain,
+    domain_details: field_types.UniformDomain,
     energy_prefactor: float = 0.5,
 ) -> float:
-    _ensure_vfield_type(vfield)
-    _ensure_uniform_domain_type(domain)
-    _ensure_domain_matches_vfield(
-        domain=domain,
+    field_types.ensure_vfield(vfield)
+    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_domain_matches_vfield(
+        domain_details=domain_details,
         vfield=vfield,
     )
     Emag_sfield = compute_magnetic_energy_density(
@@ -403,7 +339,7 @@ def compute_total_magnetic_energy(
     )
     return compute_sfield_volume_integral(
         sfield=Emag_sfield,
-        domain=domain,
+        domain_details=domain_details,
     )
 
 
