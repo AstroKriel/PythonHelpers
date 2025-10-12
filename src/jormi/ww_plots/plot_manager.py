@@ -12,7 +12,8 @@ matplotlib.use("Agg", force=True)
 ## === DEPENDENCIES
 ##
 
-from typing import Literal, Sequence, cast
+import numpy
+from typing import Literal
 from pathlib import Path
 from matplotlib import rcParams
 from matplotlib import pyplot as mpl_plot
@@ -21,13 +22,6 @@ from matplotlib.figure import Figure as mpl_Figure
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
-
-##
-## === DATA TYPES
-##
-
-AxRow = Sequence[mpl_Axes]
-AxGrid = Sequence[AxRow]
 
 ##
 ## === FUNCTIONS
@@ -45,8 +39,11 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
-) -> tuple[mpl_Figure, mpl_Axes]:
-    """Initialize a figure with a flexible grid layout."""
+) -> tuple[mpl_Figure, numpy.ndarray]:
+    """
+    Create a figure with a flexible grid layout.
+    The output is always a 2D array of Axes, even for single-panel or single-column figures.
+    """
     if auto_style: plot_styler.set_theme(theme=theme)
     fig_width = fig_scale * axis_shape[1] * num_cols
     fig_height = fig_scale * axis_shape[0] * num_rows
@@ -56,27 +53,10 @@ def create_figure(
         figsize=(fig_width, fig_height),
         sharex=share_x,
         sharey=share_y,
-        squeeze=(num_rows == 1 or num_cols == 1),
+        squeeze=False,
     )
     fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
     return fig, axs
-
-
-def get_axs_grid(
-    axs: mpl_Axes | AxRow | AxGrid,
-    num_rows: int,
-    num_cols: int,
-) -> list[list[mpl_Axes]]:
-    """Normalise axes for 2D indexing [row, col]."""
-    if isinstance(axs, mpl_Axes): return [[axs]]
-    if num_rows == 1 and num_cols == 1:
-        ## 1x1 subplots that returned a 1D container
-        ax_row = list(cast(AxRow, axs))
-        return [[ax_row[0]]]
-    if num_rows == 1: return [list(cast(AxRow, axs))]
-    if num_cols == 1: return [[ax_row] for ax_row in cast(AxRow, axs)]
-    ## convert each row into a list
-    return [list(ax_row) for ax_row in cast(AxGrid, axs)]
 
 
 def add_inset_axis(
