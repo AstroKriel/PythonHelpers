@@ -9,13 +9,6 @@ from dataclasses import dataclass
 from functools import cached_property
 
 ##
-## === GLOBAL PARAMETERS
-##
-
-DEFAULT_FLOAT_TYPE = numpy.float64
-DEFAULT_INT_TYPE = numpy.int64
-
-##
 ## === DATA STRUCTURES
 ##
 
@@ -85,7 +78,7 @@ class UniformDomain:
     def cell_volume(
         self,
     ) -> float:
-        return float(numpy.prod(self.cell_widths, dtype=DEFAULT_FLOAT_TYPE))
+        return float(numpy.prod(self.cell_widths))
 
     @cached_property
     def domain_lengths(
@@ -102,13 +95,13 @@ class UniformDomain:
     def num_cells(
         self,
     ) -> int:
-        return int(numpy.prod(self.resolution, dtype=DEFAULT_INT_TYPE))
+        return int(numpy.prod(self.resolution))
 
     @cached_property
     def total_volume(
         self,
     ) -> float:
-        return float(numpy.prod(self.domain_lengths, dtype=DEFAULT_FLOAT_TYPE))
+        return float(numpy.prod(self.domain_lengths))
 
     @cached_property
     def cell_centers(
@@ -137,9 +130,9 @@ class UniformDomain:
 
 @dataclass(frozen=True)
 class ScalarField:
-    sim_time: float
     data: numpy.ndarray
     label: str
+    sim_time: float | None = None
 
     def __post_init__(self):
         self._validate_sim_time()
@@ -147,6 +140,8 @@ class ScalarField:
         self._validate_label()
 
     def _validate_sim_time(self):
+        if self.sim_time is None:
+            return
         try:
             sim_time = float(self.sim_time)
         except Exception as error:
@@ -171,9 +166,9 @@ class ScalarField:
 
 @dataclass(frozen=True)
 class VectorField:
-    sim_time: float
     data: numpy.ndarray
     labels: tuple[str, str, str]
+    sim_time: float | None = None
 
     def __post_init__(self):
         self._validate_sim_time()
@@ -181,6 +176,8 @@ class VectorField:
         self._validate_labels()
 
     def _validate_sim_time(self):
+        if self.sim_time is None:
+            return
         try:
             sim_time = float(self.sim_time)
         except Exception as error:
@@ -207,6 +204,74 @@ class VectorField:
             raise TypeError("All entries of `labels` must be strings.")
         if not all(label for label in self.labels):
             raise ValueError("All entries of `labels` must be non-empty strings.")
+
+
+##
+## === DATA TYPE VALIDATION
+##
+
+
+def ensure_sarray(
+    sarray: numpy.ndarray,
+) -> None:
+    if sarray.ndim != 3:
+        raise ValueError("Scalar field arrays must have shape (num_cells_x, num_cells_y, num_cells_z).")
+
+
+def ensure_varray(
+    varray: numpy.ndarray,
+) -> None:
+    if (varray.ndim != 4) or (varray.shape[0] != 3):
+        raise ValueError("Vector field arrays must have shape (3, num_cells_x, num_cells_y, num_cells_z).")
+
+
+def ensure_sfield(
+    sfield,
+) -> None:
+    if not isinstance(sfield, ScalarField):
+        raise TypeError(f"Expected ScalarField, got {type(sfield).__name__}")
+
+
+def ensure_vfield(
+    vfield,
+) -> None:
+    if not isinstance(vfield, VectorField):
+        raise TypeError(f"Expected VectorField, got {type(vfield).__name__}")
+
+
+def ensure_uniform_domain(
+    domain_details,
+) -> None:
+    if not isinstance(domain_details, UniformDomain):
+        raise TypeError(f"Expected UniformDomain, got {type(domain_details).__name__}")
+
+
+def ensure_same_grid(
+    array_a: numpy.ndarray,
+    array_b: numpy.ndarray,
+) -> None:
+    if array_a.shape != array_b.shape:
+        raise ValueError(f"Grid mismatch: {array_a.shape} vs {array_b.shape}")
+
+
+def ensure_domain_matches_sfield(
+    domain_details: UniformDomain,
+    sfield: ScalarField,
+) -> None:
+    if domain_details.resolution != sfield.data.shape:
+        raise ValueError(
+            f"domain_details resolution {domain_details.resolution} does not match scalar grid {sfield.data.shape}",
+        )
+
+
+def ensure_domain_matches_vfield(
+    domain_details: UniformDomain,
+    vfield: VectorField,
+) -> None:
+    if domain_details.resolution != vfield.data.shape[1:]:
+        raise ValueError(
+            f"domain_details resolution {domain_details.resolution} does not match vector grid {vfield.data.shape[1:]}",
+        )
 
 
 ## } MODULE
