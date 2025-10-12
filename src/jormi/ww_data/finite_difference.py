@@ -11,6 +11,19 @@ import numpy
 ##
 
 
+def get_grad_func(
+    grad_order: int,
+):
+    valid_grad_orders = {
+        2: second_order_centered_difference,
+        4: fourth_order_centered_difference,
+        6: sixth_order_centered_difference,
+    }
+    if grad_order not in valid_grad_orders:
+        raise ValueError(f"Gradient order `{grad_order}` is invalid.")
+    return valid_grad_orders[grad_order]
+
+
 def second_order_centered_difference(
     sarray: numpy.ndarray,
     cell_width: float,
