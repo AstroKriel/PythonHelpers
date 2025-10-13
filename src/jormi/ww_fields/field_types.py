@@ -8,7 +8,7 @@ import numpy
 from dataclasses import dataclass
 from functools import cached_property
 from jormi.utils import type_utils
-from jormi.ww_data import array_types, array_operators
+from jormi.ww_fields import array_types, array_operators
 
 ##
 ## === DATA STRUCTURES

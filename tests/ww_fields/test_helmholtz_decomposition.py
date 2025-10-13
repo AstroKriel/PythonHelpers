@@ -149,7 +149,6 @@ def main():
         decomp = decompose_fields.compute_helmholtz_decomposition(
             vfield=vfield,
             domain_details=domain_details,
-            field_label="q",
         )
         vfield_div = decomp.div_vfield
         vfield_sol = decomp.sol_vfield

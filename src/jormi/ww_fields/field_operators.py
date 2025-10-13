@@ -5,8 +5,7 @@
 ##
 
 import numpy
-from jormi.ww_data import array_types, array_operators, finite_difference
-from jormi.ww_fields import field_types
+from jormi.ww_fields import array_types, array_operators, finite_difference, field_types
 
 ##
 ## === OPTIMISED OPERATORS WORKING ON FIELDS
@@ -146,17 +145,17 @@ def compute_vfield_cross_product(
     )
     array_types.ensure_sarray(tmp_sarray)
     ## cross_x = a_y * b_z - a_z * b_y
-    numpy.multiply(varray_a[1], varray_b[2], out=cross_varray[0])  # a_y * b_z
-    numpy.multiply(varray_a[2], varray_b[1], out=tmp_sarray)  # a_z * b_y
-    numpy.subtract(cross_varray[0], tmp_sarray, out=cross_varray[0])
+    numpy.multiply(varray_a[1], varray_b[2], out=cross_varray[0])  # out[0] = a_y * b_z
+    numpy.multiply(varray_a[2], varray_b[1], out=tmp_sarray)  # tmp = a_z * b_y
+    numpy.subtract(cross_varray[0], tmp_sarray, out=cross_varray[0])  # out[0] = a_y * b_z - a_z * b_y
     ## cross_y = -a_x * b_z + a_z * b_x
-    numpy.multiply(varray_a[2], varray_b[0], out=cross_varray[1])  # a_z * b_x
-    numpy.multiply(varray_a[0], varray_b[2], out=tmp_sarray)  # a_x * b_z
-    numpy.subtract(cross_varray[1], tmp_sarray, out=cross_varray[1])
+    numpy.multiply(varray_a[2], varray_b[0], out=cross_varray[1])  # out[1] = a_z * b_x
+    numpy.multiply(varray_a[0], varray_b[2], out=tmp_sarray)  # tmp = a_x * b_z
+    numpy.subtract(cross_varray[1], tmp_sarray, out=cross_varray[1])  # out[1] = a_z * b_x - a_x * b_z
     ## cross_z = a_x * by - a_y * b_x
-    numpy.multiply(varray_a[0], varray_b[1], out=cross_varray[2])  # a_x * b_y
-    numpy.multiply(varray_a[1], varray_b[0], out=tmp_sarray)  # a_y * b_x
-    numpy.subtract(cross_varray[2], tmp_sarray, out=cross_varray[2])
+    numpy.multiply(varray_a[0], varray_b[1], out=cross_varray[2])  # out[2] = a_x * b_y
+    numpy.multiply(varray_a[1], varray_b[0], out=tmp_sarray)  # tmp = a_y * b_x
+    numpy.subtract(cross_varray[2], tmp_sarray, out=cross_varray[2])  # out[2] = a_x * b_y - a_y * b_x
     return field_types.VectorField(
         sim_time=vfield_a.sim_time,
         data=cross_varray,
@@ -193,20 +192,20 @@ def compute_vfield_curl(
     array_types.ensure_varray(curl_varray)
     ## curl_x = dv_z/dy - dv_y/dz
     numpy.subtract(
-        nabla(varray[2], cell_width_y, grad_axis=1),
-        nabla(varray[1], cell_width_z, grad_axis=2),
+        nabla(sarray=varray[2], cell_width=cell_width_y, grad_axis=1),
+        nabla(sarray=varray[1], cell_width=cell_width_z, grad_axis=2),
         out=curl_varray[0],
     )
     ## curl_y = dv_x/dz - dv_z/dx
     numpy.subtract(
-        nabla(varray[0], cell_width_z, grad_axis=2),
-        nabla(varray[2], cell_width_x, grad_axis=0),
+        nabla(sarray=varray[0], cell_width=cell_width_z, grad_axis=2),
+        nabla(sarray=varray[2], cell_width=cell_width_x, grad_axis=0),
         out=curl_varray[1],
     )
     ## curl_z = dv_y/dx - dv_x/dy
     numpy.subtract(
-        nabla(varray[1], cell_width_x, grad_axis=0),
-        nabla(varray[0], cell_width_y, grad_axis=1),
+        nabla(sarray=varray[1], cell_width=cell_width_x, grad_axis=0),
+        nabla(sarray=varray[0], cell_width=cell_width_y, grad_axis=1),
         out=curl_varray[2],
     )
     return field_types.VectorField(
@@ -241,9 +240,9 @@ def compute_vfield_divergence(
     )
     array_types.ensure_sarray(div_sarray)
     ## start with dv_x/dx, then add others in-place to avoid an extra tmp_sarray
-    div_sarray[...] = nabla(varray[0], cell_width_x, grad_axis=0)
-    numpy.add(div_sarray, nabla(varray[1], cell_width_y, grad_axis=1), out=div_sarray)
-    numpy.add(div_sarray, nabla(varray[2], cell_width_z, grad_axis=2), out=div_sarray)
+    div_sarray[...] = nabla(sarray=varray[0], cell_width=cell_width_x, grad_axis=0)
+    numpy.add(div_sarray, nabla(sarray=varray[1], cell_width=cell_width_y, grad_axis=1), out=div_sarray)
+    numpy.add(div_sarray, nabla(sarray=varray[2], cell_width=cell_width_z, grad_axis=2), out=div_sarray)
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=div_sarray,

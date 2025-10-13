@@ -7,8 +7,7 @@
 import numpy
 from dataclasses import dataclass
 from jormi.utils import func_utils
-from jormi.ww_data import array_types, array_operators, finite_difference
-from jormi.ww_fields import field_types, decompose_fields
+from jormi.ww_fields import array_types, array_operators, finite_difference, field_types, decompose_fields
 
 ##
 ## === DATA STRUCTURES
@@ -103,6 +102,7 @@ def compute_magnetic_curvature_terms(
         label=r"$t_i t_j (du_j/dx_i)$",
     )
     compression_sarray = numpy.trace(gradu_r2tarray, axis1=0, axis2=1)
+    del gradu_r2tarray
     compression_sfield = field_types.ScalarField(
         sim_time=u_vfield.sim_time,
         data=compression_sarray,
@@ -226,7 +226,7 @@ def compute_dissipation_function(
     )
     divu_sarray = numpy.trace(gradu_r2tarray, axis1=0, axis2=1)
     ## S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij * (d_k u_k)
-    sym_term_r2tarray = 0.5 * gradu_r2tarray + numpy.transpose(gradu_r2tarray, (1, 0, 2, 3, 4))
+    sym_term_r2tarray = 0.5 * gradu_r2tarray + numpy.transpose(gradu_r2tarray, axes=(1, 0, 2, 3, 4))
     identity_matrix = numpy.eye(3, dtype=dtype)
     bulk_term_r2tarray = numpy.einsum(
         "ij,xyz->jixyz",
@@ -236,7 +236,7 @@ def compute_dissipation_function(
     )
     sr_r2tarray = sym_term_r2tarray - (1.0 / 3.0) * bulk_term_r2tarray
     ## d_j S_ji = d_x S_xi + d_y S_yi + d_z S_zi
-    grad_func = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_func(grad_order)
     df_varray = array_operators.ensure_array_properties(
         array_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         dtype=dtype,
@@ -244,21 +244,17 @@ def compute_dissipation_function(
     array_types.ensure_varray(df_varray)
     for comp_i in range(3):
         ## d_x S_xi
-        df_varray[comp_i, ...] = grad_func(
-            sr_r2tarray[0, comp_i],
-            cell_width_x,
-            grad_axis=0,
-        )
+        df_varray[comp_i, ...] = nabla(sarray=sr_r2tarray[0, comp_i], cell_width=cell_width_x, grad_axis=0)
         ## + d_y S_yi
         numpy.add(
             df_varray[comp_i, ...],
-            grad_func(sr_r2tarray[1, comp_i], cell_width_y, grad_axis=1),
+            nabla(sarray=sr_r2tarray[1, comp_i], cell_width=cell_width_y, grad_axis=1),
             out=df_varray[comp_i, ...],
         )
         ## + d_z S_zi
         numpy.add(
             df_varray[comp_i, ...],
-            grad_func(sr_r2tarray[2, comp_i], cell_width_z, grad_axis=2),
+            nabla(sarray=sr_r2tarray[2, comp_i], cell_width=cell_width_z, grad_axis=2),
             out=df_varray[comp_i, ...],
         )
     return field_types.VectorField(

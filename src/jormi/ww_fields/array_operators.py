@@ -6,7 +6,7 @@
 
 import numpy
 from numpy.typing import DTypeLike
-from jormi.ww_data import array_types, finite_difference
+from jormi.ww_fields import array_types, finite_difference
 
 ##
 ## === WORKSPACE UTILITIES
@@ -19,7 +19,7 @@ def ensure_array_properties(
     array: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
     """
-    Return a scratch array with the requested shape/dtype, reusing the provided array
+    Return an array with the requested shape/dtype, reusing the provided array
     if compatible, otherwise allocates a new array.
     """
     if dtype is None:
@@ -83,9 +83,9 @@ def compute_sarray_grad(
     array_types.ensure_varray(grad_varray)
     cell_width_x, cell_width_y, cell_width_z = cell_widths
     ## fill ds/dx_i vector: (gradient-dir-i, x, y, z)
-    grad_varray[0, ...] = nabla(sarray, cell_width_x, grad_axis=0)
-    grad_varray[1, ...] = nabla(sarray, cell_width_y, grad_axis=1)
-    grad_varray[2, ...] = nabla(sarray, cell_width_z, grad_axis=2)
+    grad_varray[0, ...] = nabla(sarray=sarray, cell_width=cell_width_x, grad_axis=0)
+    grad_varray[1, ...] = nabla(sarray=sarray, cell_width=cell_width_y, grad_axis=1)
+    grad_varray[2, ...] = nabla(sarray=sarray, cell_width=cell_width_z, grad_axis=2)
     return grad_varray
 
 
@@ -109,11 +109,11 @@ def sum_of_component_squares(
         array=tmp_sarray,
     )
     array_types.ensure_sarray(tmp_sarray)
-    numpy.multiply(varray[0], varray[0], out=out_sarray)  # v_x^2
-    numpy.multiply(varray[1], varray[1], out=tmp_sarray)  # v_y^2
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # v_x^2 + v_y^2
-    numpy.multiply(varray[2], varray[2], out=tmp_sarray)  # v_z^2
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # v_x^2 + v_y^2 + v_z^2
+    numpy.multiply(varray[0], varray[0], out=out_sarray)  # out = v_x^2
+    numpy.multiply(varray[1], varray[1], out=tmp_sarray)  # tmp = v_y^2
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = v_x^2 + v_y^2
+    numpy.multiply(varray[2], varray[2], out=tmp_sarray)  # tmp = v_z^2
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = v_x^2 + v_y^2 + v_z^2
     return out_sarray
 
 
@@ -143,11 +143,11 @@ def dot_over_components(
         array=tmp_sarray,
     )
     array_types.ensure_sarray(tmp_sarray)
-    numpy.multiply(varray_a[0], varray_b[0], out=out_sarray)  # a_x b_x
-    numpy.multiply(varray_a[1], varray_b[1], out=tmp_sarray)  # a_y b_y
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # a_x b_x + a_y b_y
-    numpy.multiply(varray_a[2], varray_b[2], out=tmp_sarray)  # a_z b_z
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # a_x b_x + a_y b_y + a_z b_z
+    numpy.multiply(varray_a[0], varray_b[0], out=out_sarray)  # out = a_x b_x
+    numpy.multiply(varray_a[1], varray_b[1], out=tmp_sarray)  # tmp = a_y b_y
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = a_x b_x + a_y b_y
+    numpy.multiply(varray_a[2], varray_b[2], out=tmp_sarray)  # tmp = a_z b_z
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = a_x b_x + a_y b_y + a_z b_z
     return out_sarray
 
 
@@ -171,9 +171,9 @@ def compute_varray_grad(
     cell_width_x, cell_width_y, cell_width_z = cell_widths
     ## fill du_j/dx_i tensor: (component-j, gradient-dir-i, x, y, z)
     for comp_j in range(3):
-        grad_r2tarray[comp_j, 0, ...] = nabla(varray[comp_j], cell_width_x, grad_axis=0)
-        grad_r2tarray[comp_j, 1, ...] = nabla(varray[comp_j], cell_width_y, grad_axis=1)
-        grad_r2tarray[comp_j, 2, ...] = nabla(varray[comp_j], cell_width_z, grad_axis=2)
+        grad_r2tarray[comp_j, 0, ...] = nabla(sarray=varray[comp_j], cell_width=cell_width_x, grad_axis=0)
+        grad_r2tarray[comp_j, 1, ...] = nabla(sarray=varray[comp_j], cell_width=cell_width_y, grad_axis=1)
+        grad_r2tarray[comp_j, 2, ...] = nabla(sarray=varray[comp_j], cell_width=cell_width_z, grad_axis=2)
     return grad_r2tarray
 
 

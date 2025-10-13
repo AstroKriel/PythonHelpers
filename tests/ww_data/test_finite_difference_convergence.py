@@ -8,8 +8,9 @@ import sys
 import numpy
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager
-from jormi.ww_data import compute_stats, finite_difference
+from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
+from jormi.ww_fields import finite_difference
 
 ##
 ## === HELPER FUNCTIONS
@@ -110,10 +111,10 @@ class TestFiniteDifferenceConvergence:
             label=r"${\rm d}y^* / {\rm d}x$",
         )
 
-    def _plot_approx_soln(self, grad_func, color, label):
+    def _plot_approx_soln(self, nabla, color, label):
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
         y_values = evaluate_function_at_points(x_values)
-        dydx_values = estimate_function_derivative(x_values, y_values, grad_func)
+        dydx_values = estimate_function_derivative(x_values, y_values, nabla)
         self.axs[1, 0].plot(
             x_values,
             dydx_values,
@@ -129,17 +130,17 @@ class TestFiniteDifferenceConvergence:
         failed_methods = []
         for grad_method in self.grad_methods:
             expected_scaling = grad_method["expected_scaling"]
-            grad_func = grad_method["func"]
+            nabla = grad_method["func"]
             color = grad_method["color"]
             label = grad_method["label"]
-            self._plot_approx_soln(grad_func, color, label)
+            self._plot_approx_soln(nabla, color, label)
             errors = []
             for num_points in self.num_points_to_test:
                 x_values = sample_domain(self.domain_bounds, num_points)
                 y_values = evaluate_function_at_points(x_values)
                 dydx_exact = evaluate_exact_function_derivative_at_points(x_values)
                 cell_width = x_values[1] - x_values[0]  # assumes uniform samples
-                dydx_approx = grad_func(y_values, cell_width, grad_axis=0)
+                dydx_approx = nabla(y_values, cell_width, grad_axis=0)
                 error = compute_stats.compute_p_norm(
                     array_a=dydx_exact,
                     array_b=dydx_approx,

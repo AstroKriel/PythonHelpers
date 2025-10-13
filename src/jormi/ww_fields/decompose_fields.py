@@ -7,8 +7,7 @@
 import numpy
 from dataclasses import dataclass
 from jormi.utils import func_utils
-from jormi.ww_data import finite_difference
-from jormi.ww_fields import field_types, field_operators
+from jormi.ww_fields import field_types, field_operators, finite_difference
 
 ##
 ## === DATA STRUCTURES
@@ -169,9 +168,9 @@ def compute_tnb_terms(
     ## gradient tensor: df_j/dx_i with layout (j, i, x, y, z)
     grad_array = numpy.empty((3, 3, num_cells_x, num_cells_y, num_cells_z), dtype=dtype)
     for comp_j in range(3):
-        grad_array[comp_j, 0] = nabla(varray[comp_j], cell_width_x, grad_axis=0)  # df_j/dx
-        grad_array[comp_j, 1] = nabla(varray[comp_j], cell_width_y, grad_axis=1)  # df_j/dy
-        grad_array[comp_j, 2] = nabla(varray[comp_j], cell_width_z, grad_axis=2)  # df_j/dz
+        grad_array[comp_j, 0] = nabla(sarray=varray[comp_j], cell_width=cell_width_x, grad_axis=0)  # df_j/dx
+        grad_array[comp_j, 1] = nabla(sarray=varray[comp_j], cell_width=cell_width_y, grad_axis=1)  # df_j/dy
+        grad_array[comp_j, 2] = nabla(sarray=varray[comp_j], cell_width=cell_width_z, grad_axis=2)  # df_j/dz
     ## term1_j = f_i * (df_j/dx_i) = (f dot grad) f
     normal_term1_varray = numpy.einsum(
         "ixyz,jixyz->jxyz",
@@ -203,7 +202,10 @@ def compute_tnb_terms(
             r"$\kappa_z$",
         ),
     )
-    curvature_sfield = field_operators.compute_vfield_magnitude(kappa_vfield, label="kappa")
+    curvature_sfield = field_operators.compute_vfield_magnitude(
+        vfield=kappa_vfield,
+        label=r"$|\vec{\kappa}|$",
+    )
     curvature_sarray = curvature_sfield.data
     ## N_i = kappa_i / |kappa|
     normal_uvarray = numpy.zeros_like(kappa_varray)
