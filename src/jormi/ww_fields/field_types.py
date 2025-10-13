@@ -7,6 +7,8 @@
 import numpy
 from dataclasses import dataclass
 from functools import cached_property
+from jormi.utils import type_utils
+from jormi.ww_data import array_types, array_operators
 
 ##
 ## === DATA STRUCTURES
@@ -29,28 +31,42 @@ class UniformDomain:
         self._validate_domain_bounds()
 
     def _validate_periodicity(self):
-        if (not isinstance(self.periodicity, (tuple, list))) or len(self.periodicity) != 3:
-            raise ValueError("`periodicity` must be a 3-tuple of bools.")
-        if not all(isinstance(periodicity, (bool, numpy.bool_)) for periodicity in self.periodicity):
-            raise ValueError("`periodicity` entries must be bools.")
+        type_utils.assert_sequence(
+            var_obj=self.periodicity,
+            var_name="periodicity",
+            valid_containers=(tuple, ),
+            seq_length=3,
+            valid_elem_types=(bool, numpy.bool_),
+        )
 
     def _validate_resolution(self):
-        if (not isinstance(self.resolution, (tuple, list))) or len(self.resolution) != 3:
-            raise ValueError("`resolution` must be a 3-tuple (num_cells_x, num_cells_y, num_cells_z).")
+        type_utils.assert_sequence(
+            var_obj=self.resolution,
+            var_name="resolution",
+            valid_containers=(tuple, ),
+            seq_length=3,
+            valid_elem_types=(int, numpy.integer),
+        )
         num_cells_x, num_cells_y, num_cells_z = self.resolution
-        if not all(isinstance(num_cells, (int, numpy.integer))
-                   for num_cells in (num_cells_x, num_cells_y, num_cells_z)):
-            raise ValueError("`resolution` entries must be ints.")
         if not (num_cells_x > 0 and num_cells_y > 0 and num_cells_z > 0):
             raise ValueError("All entries of `resolution` must be positive.")
 
     def _validate_domain_bounds(self):
-        if (not isinstance(self.domain_bounds, (tuple, list))) or len(self.domain_bounds) != 3:
-            raise ValueError("`domain_bounds` must be ((x_min,x_max), (y_min,y_max), (z_min,z_max)).")
+        type_utils.assert_sequence(
+            var_obj=self.domain_bounds,
+            var_name="domain_bounds",
+            valid_containers=(tuple, ),
+            seq_length=3,
+            valid_elem_types=(tuple, list),
+        )
         axis_name = ("x", "y", "z")
         for axis_index, bounds in enumerate(self.domain_bounds):
-            if (not isinstance(bounds, (tuple, list))) or len(bounds) != 2:
-                raise ValueError(f"{axis_name[axis_index]}-axis: bounds must be a 2-tuple (min, max).")
+            type_utils.assert_sequence(
+                var_obj=bounds,
+                var_name=f"domain_bounds[{axis_name[axis_index]}]",
+                valid_containers=(tuple, list),
+                seq_length=2,
+            )
             lo_value, hi_value = bounds
             try:
                 lo_float = float(lo_value)
@@ -150,18 +166,13 @@ class ScalarField:
             raise ValueError("`sim_time` must be finite.")
 
     def _validate_data(self):
-        if not isinstance(self.data, numpy.ndarray):
-            raise TypeError("`data` must be a numpy.ndarray.")
-        if self.data.ndim != 3:
-            raise ValueError(
-                f"`data` must have shape (num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.",
-            )
+        array_types.ensure_sarray(self.data)
 
     def _validate_label(self):
-        if not isinstance(self.label, str):
-            raise TypeError("`label` must be a string.")
-        if not self.label:
-            raise ValueError("`label` must be a non-empty string.")
+        type_utils.assert_nonempty_str(
+            var_obj=self.label,
+            var_name="label",
+        )
 
 
 @dataclass(frozen=True)
@@ -186,24 +197,63 @@ class VectorField:
             raise ValueError("`sim_time` must be finite.")
 
     def _validate_data(self):
-        if not isinstance(self.data, numpy.ndarray):
-            raise TypeError("`data` must be a numpy.ndarray.")
-        if self.data.ndim != 4:
-            raise ValueError(
-                f"`data` must have shape (3, num_cells_x, num_cells_y, num_cells_z); got {self.data.shape}.",
-            )
-        if self.data.shape[0] != 3:
-            raise ValueError(
-                f"First axis of `data` must have length 3 (x, y, z components); got {self.data.shape[0]}.",
-            )
+        array_types.ensure_varray(self.data)
 
     def _validate_labels(self):
-        if (not isinstance(self.labels, (tuple, list))) or len(self.labels) != 3:
-            raise ValueError("`labels` must be a 3-tuple of strings.")
-        if not all(isinstance(label, str) for label in self.labels):
-            raise TypeError("All entries of `labels` must be strings.")
-        if not all(label for label in self.labels):
-            raise ValueError("All entries of `labels` must be non-empty strings.")
+        type_utils.assert_sequence(
+            var_obj=self.labels,
+            var_name="labels",
+            valid_containers=(tuple, ),
+            seq_length=3,
+            valid_elem_types=str,
+        )
+        for label_index, label in enumerate(self.labels):
+            type_utils.assert_nonempty_str(
+                var_obj=label,
+                var_name=f"labels[{label_index}]",
+            )
+
+
+@dataclass(frozen=True)
+class UnitVectorField(VectorField):
+    tol: float = 1e-6
+
+    def __post_init__(self):
+        super().__post_init__()
+        self._validate_unit_magnitude()
+
+    def _validate_unit_magnitude(self):
+        q_uvarray = self.data
+        q_magn_sq_sarray = array_operators.sum_of_component_squares(q_uvarray)
+        if numpy.any(q_magn_sq_sarray == 0):
+            raise ValueError("UnitVectorField cannot contain zero vectors.")
+        max_error = float(numpy.max(numpy.abs(q_magn_sq_sarray - 1.0)))
+        if max_error > self.tol:
+            raise ValueError(
+                f"Vector magnitude deviates from unit-magnitude=1.0 by max(error)={max_error:.3e} (tol={self.tol}).",
+            )
+
+    @classmethod
+    def from_vfield(
+        cls,
+        vfield: VectorField,
+        *,
+        tol: float = 1e-6,
+    ) -> "UnitVectorField":
+        return cls(
+            data=vfield.data,
+            labels=vfield.labels,
+            sim_time=vfield.sim_time,
+            tol=tol,
+        )
+
+
+def as_unit_vfield(
+    vfield: VectorField,
+    tol: float = 1e-6,
+) -> UnitVectorField:
+    ## zero-copy rewrap with validation
+    return UnitVectorField.from_vfield(vfield, tol=tol)
 
 
 ##
@@ -211,53 +261,46 @@ class VectorField:
 ##
 
 
-def ensure_sarray(
-    sarray: numpy.ndarray,
-) -> None:
-    if sarray.ndim != 3:
-        raise ValueError("Scalar field arrays must have shape (num_cells_x, num_cells_y, num_cells_z).")
-
-
-def ensure_varray(
-    varray: numpy.ndarray,
-) -> None:
-    if (varray.ndim != 4) or (varray.shape[0] != 3):
-        raise ValueError("Vector field arrays must have shape (3, num_cells_x, num_cells_y, num_cells_z).")
-
-
 def ensure_sfield(
     sfield,
 ) -> None:
-    if not isinstance(sfield, ScalarField):
-        raise TypeError(f"Expected ScalarField, got {type(sfield).__name__}")
+    type_utils.assert_type(
+        var_obj=sfield,
+        valid_types=ScalarField,
+    )
 
 
 def ensure_vfield(
     vfield,
 ) -> None:
-    if not isinstance(vfield, VectorField):
-        raise TypeError(f"Expected VectorField, got {type(vfield).__name__}")
+    type_utils.assert_type(
+        var_obj=vfield,
+        valid_types=VectorField,
+    )
+
+
+def ensure_uvfield(uvfield) -> None:
+    type_utils.assert_type(
+        var_obj=uvfield,
+        valid_types=UnitVectorField,
+    )
 
 
 def ensure_uniform_domain(
     domain_details,
 ) -> None:
-    if not isinstance(domain_details, UniformDomain):
-        raise TypeError(f"Expected UniformDomain, got {type(domain_details).__name__}")
-
-
-def ensure_same_grid(
-    array_a: numpy.ndarray,
-    array_b: numpy.ndarray,
-) -> None:
-    if array_a.shape != array_b.shape:
-        raise ValueError(f"Grid mismatch: {array_a.shape} vs {array_b.shape}")
+    type_utils.assert_type(
+        var_obj=domain_details,
+        valid_types=UniformDomain,
+    )
 
 
 def ensure_domain_matches_sfield(
     domain_details: UniformDomain,
     sfield: ScalarField,
 ) -> None:
+    ensure_uniform_domain(domain_details)
+    ensure_sfield(sfield)
     if domain_details.resolution != sfield.data.shape:
         raise ValueError(
             f"domain_details resolution {domain_details.resolution} does not match scalar grid {sfield.data.shape}",
@@ -268,6 +311,8 @@ def ensure_domain_matches_vfield(
     domain_details: UniformDomain,
     vfield: VectorField,
 ) -> None:
+    ensure_uniform_domain(domain_details)
+    ensure_vfield(vfield)  # also accepts subclasses (e.g. UnitVectorField)
     if domain_details.resolution != vfield.data.shape[1:]:
         raise ValueError(
             f"domain_details resolution {domain_details.resolution} does not match vector grid {vfield.data.shape[1:]}",
