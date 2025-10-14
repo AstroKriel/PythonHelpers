@@ -5,6 +5,7 @@
 ##
 
 import numpy
+from jormi.ww_fields import field_types
 
 ##
 ## === FUNCTIONS
@@ -14,57 +15,65 @@ import numpy
 def generate_gaussian_random_sfield(
     num_cells: int,
     correlation_length: float,
-    num_dims: int = 3,
-) -> numpy.ndarray:
-    """Generates a N-dimensional random scalar field with a power-law power spectrum."""
-    if num_dims not in [2, 3]: raise ValueError("`num_dims` must be either `2` or `3`.")
-    white_noise = numpy.random.normal(0, 1, (num_cells, ) * num_dims)
-    ki_values = numpy.fft.fftfreq(num_cells)
-    grid_k_vec = numpy.meshgrid(*(ki_values for _ in range(num_dims)), indexing="ij")
-    grid_k_magn = numpy.sqrt(numpy.sum([numpy.square(grid_k_comp) for grid_k_comp in grid_k_vec]))
-    fft_filter = numpy.exp(-0.5 * numpy.square(numpy.multiply(grid_k_magn, correlation_length)))
-    sfield_fft = fft_filter * numpy.fft.fftn(white_noise)
-    sfield = numpy.real(numpy.fft.ifftn(sfield_fft))
-    return sfield
+    sim_time: float | None = None,
+) -> field_types.ScalarField:
+  """Generate a 3D random scalar field with Gaussian correlation length."""
+  white_noise = numpy.random.normal(0.0, 1.0, (num_cells, num_cells, num_cells))
+  ki_values = numpy.fft.fftfreq(num_cells)  # in cycles per grid length
+  kx_grid, ky_grid, kz_grid = numpy.meshgrid(ki_values, ki_values, ki_values, indexing="ij")
+  k_magn_grid = numpy.sqrt(kx_grid * kx_grid + ky_grid * ky_grid + kz_grid * kz_grid)
+  ## Gaussian filter in k-space with a particular lengthscale (correlation_length)
+  fft_filter = numpy.exp(-0.5 * numpy.square(numpy.multiply(k_magn_grid, correlation_length)))
+  fft_sarray = fft_filter * numpy.fft.fftn(white_noise)
+  sarray = numpy.fft.ifftn(fft_sarray).real
+  field_label = rf"$\exp(-(k\,\ell_\mathrm{{cor}})^2/2), \,\ell_\mathrm{{cor}}={correlation_length:.2f}$"
+  return field_types.ScalarField(
+      sim_time=sim_time,
+      data=sarray,
+      field_label=field_label,
+  )
 
 
 def generate_powerlaw_sfield(
     num_cells: int,
     alpha_perp: float,
     alpha_para: float | None = None,
-) -> numpy.ndarray:
+    sim_time: float | None = None,
+) -> field_types.ScalarField:
     """
-  Generates a 3-dimensional random scalar field with a power-law power spectrum.
-  
-  - If `alpha_para` is None, the field will be isotropic, with k^(-alpha_perp).
-  - If `alpha_para` is provided, the field will be anisotropic, with k_para^(-alpha_perp) * k_perp^(-alpha_para).
-  """
+    Generates a 3-dimensional random scalar field with a power-law power spectrum:
+        - If `alpha_para` is None, the amplitude is isotropic: `|k|^{-alpha_perp}`
+        - If `alpha_para` is provided, the amplitude is anisotropic: `|k_perp|^{-alpha_perp} |k_parallel|^{-alpha_para}`
+    """
     k_modes = numpy.fft.fftfreq(num_cells) * num_cells
-    grid_kx, grid_ky, grid_kz = numpy.meshgrid(k_modes, k_modes, k_modes, indexing="ij")
+    kx_grid, ky_grid, kz_grid = numpy.meshgrid(k_modes, k_modes, k_modes, indexing="ij")
     if alpha_para is None:
         ## isotropic case
-        grid_k_magn = numpy.sqrt(
-            numpy.square(grid_kx) + numpy.square(grid_ky) + numpy.square(grid_kz),
+        field_label = rf"$k^{{-{alpha_perp:.2f}}}$"
+        k_magn_grid = numpy.sqrt(
+            numpy.square(kx_grid) + numpy.square(ky_grid) + numpy.square(kz_grid),
         )
-        grid_k_magn[0, 0, 0] = 1
-        amplitude = numpy.power(grid_k_magn, -(alpha_perp + 2) / 2.0)
+        k_magn_grid[0, 0, 0] = 1
+        amplitude = numpy.power(k_magn_grid, -(alpha_perp + 2) / 2.0)
     else:
         ## anisotropic case
-        grid_k_magn_perp = numpy.sqrt(grid_kx**2 + grid_ky**2)
-        grid_k_magn_para = numpy.abs(grid_kz)
-        grid_k_magn_perp[grid_k_magn_perp == 0] = 1
-        grid_k_magn_para[grid_k_magn_para == 0] = 1
-        amplitude = numpy.power(
-            grid_k_magn_perp,
-            -alpha_para / 2.0,
-        ) * numpy.power(grid_k_magn_para, -alpha_perp / 2.0)
-    random_field = numpy.random.randn(
-        num_cells,
-        num_cells,
-        num_cells,
-    ) + 1j * numpy.random.randn(num_cells, num_cells, num_cells)
-    spectrum_3d = random_field * amplitude
-    return numpy.fft.ifftn(spectrum_3d).real
+        field_label = rf"$k_\perp^{{-{alpha_perp:.2f}}} \,k_\parallel^{{-{alpha_para:.2f}}}$"
+        k_perp_magn_grid = numpy.sqrt(kx_grid**2 + ky_grid**2)
+        k_para_magn_grid = numpy.abs(kz_grid)
+        k_perp_magn_grid[k_perp_magn_grid == 0] = 1
+        k_para_magn_grid[k_para_magn_grid == 0] = 1
+        amplitude = (
+            numpy.power(k_perp_magn_grid, -alpha_perp / 2.0) *
+            numpy.power(k_para_magn_grid, -alpha_para / 2.0)
+        )
+    random_sarray = numpy.random.randn(num_cells, num_cells, num_cells) + 1j * numpy.random.randn(num_cells, num_cells, num_cells)
+    fft_spectrum_sarray = random_sarray * amplitude
+    spectrum_sarray = numpy.fft.ifftn(fft_spectrum_sarray).real
+    return field_types.ScalarField(
+      sim_time=sim_time,
+      data=spectrum_sarray,
+      field_label=field_label,
+  )
 
 
 ## } MODULE
