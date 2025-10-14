@@ -43,7 +43,7 @@ class TNBTerms:
 ##
 
 
-@func_utils.time_function
+# @func_utils.time_function
 def compute_helmholtz_decomposition(
     vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
@@ -119,7 +119,7 @@ def compute_helmholtz_decomposition(
     )
 
 
-@func_utils.time_function
+# @func_utils.time_function
 def compute_tnb_terms(
     vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,

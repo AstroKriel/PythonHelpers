@@ -43,7 +43,7 @@ class LorentzForceTerms:
 ##
 
 
-@func_utils.time_function
+# @func_utils.time_function
 def compute_magnetic_curvature_terms(
     u_vfield: field_types.VectorField,
     tangent_uvfield: field_types.UnitVectorField,
@@ -116,7 +116,7 @@ def compute_magnetic_curvature_terms(
     )
 
 
-@func_utils.time_function
+# @func_utils.time_function
 def compute_lorentz_force_terms(
     b_vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
@@ -186,7 +186,7 @@ def compute_lorentz_force_terms(
     )
 
 
-@func_utils.time_function
+# @func_utils.time_function
 def compute_dissipation_function(
     u_vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
