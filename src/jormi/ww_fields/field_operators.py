@@ -69,7 +69,7 @@ def compute_vfield_magnitude(
     field_label: str = r"$|\vec{f}|$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
-    sim_time = sfield.sim_time
+    sim_time = vfield.sim_time
     varray = vfield.data
     array_types.ensure_varray(varray)
     field_magn = array_operators.sum_of_component_squares(varray)  # allocates output (reused below)
