@@ -35,8 +35,14 @@ def get_index_of_closest_value(
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value."""
-    type_utils.assert_type(values, (list, numpy.ndarray))
-    type_utils.assert_type(target, (int, float))
+    type_utils.assert_type(
+        var_obj=values,
+        valid_types=(list, numpy.ndarray),
+    )
+    type_utils.assert_type(
+        var_obj=target,
+        valid_types=(int, float),
+    )
     if len(values) == 0: raise ValueError("Input list cannot be empty")
     array = numpy.asarray(values)
     if target is None: return None
@@ -102,8 +108,14 @@ def get_intersect_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the intersection of two lists (optionally sorted)."""
-    type_utils.assert_type(list_a, (list, numpy.ndarray))
-    type_utils.assert_type(list_b, (list, numpy.ndarray))
+    type_utils.assert_type(
+        var_obj=list_a,
+        valid_types=(list, numpy.ndarray),
+    )
+    type_utils.assert_type(
+        var_obj=list_b,
+        valid_types=(list, numpy.ndarray),
+    )
     if (len(list_a) == 0) or (len(list_b) == 0): return []
     set_intersect = set(list_a) & set(list_b)
     return sorted(set_intersect) if sort_values else list(set_intersect)
@@ -115,8 +127,14 @@ def get_union_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the union of two lists (optionally sorted)."""
-    type_utils.assert_type(list_a, (list, numpy.ndarray))
-    type_utils.assert_type(list_b, (list, numpy.ndarray))
+    type_utils.assert_type(
+        var_obj=list_a,
+        valid_types=(list, numpy.ndarray),
+    )
+    type_utils.assert_type(
+        var_obj=list_b,
+        valid_types=(list, numpy.ndarray),
+    )
     if (len(list_a) == 0) or (len(list_b) == 0): return list(list_a) + list(list_b)
     set_union = set(list_a) | set(list_b)
     return sorted(set_union) if sort_values else list(set_union)
@@ -124,7 +142,10 @@ def get_union_of_lists(
 
 def flatten_list(elems: list | numpy.ndarray) -> list:
     """Flatten a nested list into a single list."""
-    type_utils.assert_type(elems, (list, numpy.ndarray))
+    type_utils.assert_type(
+        var_obj=elems,
+        valid_types=(list, numpy.ndarray),
+    )
     flat_elems = []
     for elem in list(elems):
         if isinstance(elem, (list, numpy.ndarray)):

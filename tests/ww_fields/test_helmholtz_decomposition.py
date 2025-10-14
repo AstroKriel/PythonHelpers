@@ -24,7 +24,7 @@ def generate_curl_free_vfield(domain_bounds, num_cells):
     sfield_qz = 2 * grid_z
     return field_types.VectorField(
         data=numpy.stack([sfield_qx, sfield_qy, sfield_qz]),
-        labels=("q_x", "q_y", "q_z"),
+        field_label=r"$\vec{q}$",
     )
 
 
@@ -39,7 +39,7 @@ def generate_div_free_vfield(domain_bounds, num_cells):
     sfield_qz = numpy.zeros_like(grid_z)
     return field_types.VectorField(
         data=numpy.stack([sfield_qx, sfield_qy, sfield_qz]),
-        labels=("q_x", "q_y", "q_z"),
+        field_label=r"$\vec{q}$",
     )
 
 
@@ -48,7 +48,7 @@ def generate_mixed_vfield(domain_bounds, num_cells):
     v_sol = generate_div_free_vfield(domain_bounds, num_cells)
     return field_types.VectorField(
         data=v_div.data + v_sol.data,
-        labels=("q_x", "q_y", "q_z"),
+        field_label=r"$\vec{q}$",
     )
 
 
@@ -121,7 +121,7 @@ def main():
     num_cells = 50
     domain_bounds = (-1.0, 1.0)
     resolution = (num_cells, num_cells, num_cells)
-    domain_details = field_types.UniformDomain(
+    uniform_domain = field_types.UniformDomain(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=(domain_bounds, domain_bounds, domain_bounds),
@@ -148,23 +148,23 @@ def main():
         print(f"input: {vfield_name} field")
         decomp = decompose_fields.compute_helmholtz_decomposition(
             vfield=vfield,
-            domain_details=domain_details,
+            uniform_domain=uniform_domain,
         )
         vfield_div = decomp.div_vfield
         vfield_sol = decomp.sol_vfield
         ## q - (q_div + q_sol)
         residual = field_types.VectorField(
             data=vfield.data - (vfield_div.data + vfield_sol.data),
-            labels=vfield.labels,
+            field_label=vfield.field_label,
         )
         sfield_check_q_diff = field_operators.compute_vfield_magnitude(residual)
         ## curl(q_div)
-        curl_div = field_operators.compute_vfield_curl(vfield=vfield_div, domain_details=domain_details)
+        curl_div = field_operators.compute_vfield_curl(vfield=vfield_div, uniform_domain=uniform_domain)
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(curl_div)
         ## div(q_sol)
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
             vfield=vfield_sol,
-            domain_details=domain_details,
+            uniform_domain=uniform_domain,
         )
         ## stats
         abs_q_diff = numpy.abs(sfield_check_q_diff.data)

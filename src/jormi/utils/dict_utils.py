@@ -18,8 +18,14 @@ def merge_dicts(
     dict_b: dict,
 ) -> dict:
     """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-    type_utils.assert_type(dict_a, dict)
-    type_utils.assert_type(dict_b, dict)
+    type_utils.assert_type(
+        var_obj=dict_a,
+        valid_types=dict,
+    )
+    type_utils.assert_type(
+        var_obj=dict_b,
+        valid_types=dict,
+    )
     merged_dict = dict_a.copy()
     for key, value in dict_b.items():
         if key in merged_dict:
