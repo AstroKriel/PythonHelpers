@@ -44,7 +44,8 @@ def main():
     num_bins = int(1e2)
     plot_samples = False
     integral_tolerance = 1e-2
-    fig, ax = plot_manager.create_figure()
+    fig, axs = plot_manager.create_figure()
+    ax = axs[0, 0]
     x_samples, y_samples = sample_from_ellipse(num_points, ax)
     result = compute_stats.estimate_jpdf(
         data_x=x_samples,
@@ -57,7 +58,7 @@ def main():
     jpdf = result.density
     bin_widths_x = numpy.diff(result.bin_edges_cols)
     bin_widths_y = numpy.diff(result.bin_edges_rows)
-    pdf_integral = numpy.sum(jpdf * bin_widths_y[:, None] * bin_widths_x[None, :])
+    pdf_integral = numpy.sum(jpdf * bin_widths_y[:, numpy.newaxis] * bin_widths_x[numpy.newaxis, :])
     ax.imshow(
         jpdf,
         extent=[
@@ -75,8 +76,8 @@ def main():
     ## add annotations
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$y$")
-    ax.axhline(y=0, color="black", ls="--", zorder=1)
-    ax.axvline(x=0, color="black", ls="--", zorder=1)
+    ax.axhline(y=0.0, color="black", ls="--", zorder=1)
+    ax.axvline(x=0.0, color="black", ls="--", zorder=1)
     ax.set_xlim([numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)])
     ax.set_ylim([numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)])
     directory = io_manager.get_caller_directory()
