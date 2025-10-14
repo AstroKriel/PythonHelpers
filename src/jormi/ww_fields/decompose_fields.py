@@ -46,20 +46,20 @@ class TNBTerms:
 @func_utils.time_function
 def compute_helmholtz_decomposition(
     vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
 ) -> HelmholtzDecomposition:
     """
     Compute the Helmholtz decomposition of a three-dimensional vector field into
     its divergence-free (solenoidal) and curl-free (irrotational) components.
     """
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(domain_details)
-    field_types.ensure_domain_matches_vfield(domain_details, vfield)
-    if not all(domain_details.periodicity):
+    field_types.ensure_uniform_domain(uniform_domain)
+    field_types.ensure_domain_matches_vfield(uniform_domain, vfield)
+    if not all(uniform_domain.periodicity):
         raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
     dtype = vfield.data.dtype
-    num_cells_x, num_cells_y, num_cells_z = domain_details.resolution
-    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
+    num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
+    cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     kx_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_x, d=cell_width_x)
     ky_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_y, d=cell_width_y)
     kz_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_z, d=cell_width_z)
@@ -121,7 +121,7 @@ def compute_helmholtz_decomposition(
 @func_utils.time_function
 def compute_tnb_terms(
     vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     grad_order: int = 2,
 ) -> TNBTerms:
     """
@@ -129,8 +129,8 @@ def compute_tnb_terms(
     for a three-dimensional vector field on a uniform grid.
     """
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(domain_details)
-    field_types.ensure_domain_matches_vfield(domain_details, vfield)
+    field_types.ensure_uniform_domain(uniform_domain)
+    field_types.ensure_domain_matches_vfield(uniform_domain, vfield)
     sim_time = vfield.sim_time
     varray = vfield.data
     ## --- COMPUTE TANGENT BASIS
@@ -153,7 +153,7 @@ def compute_tnb_terms(
     ## gradient tensor: df_j/dx_i with layout (j, i, x, y, z)
     grad_r2tarray = array_operators.compute_varray_grad(
         varray=varray,
-        cell_widths=domain_details.cell_widths,
+        cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order
     )
     ## term1_j = f_i * (df_j/dx_i) = (f dot grad) f

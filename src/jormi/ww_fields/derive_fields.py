@@ -48,7 +48,7 @@ def compute_magnetic_curvature_terms(
     u_vfield: field_types.VectorField,
     tangent_uvfield: field_types.UnitVectorField,
     normal_uvfield: field_types.UnitVectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     out_grad_r2tarray: numpy.ndarray | None = None,
     grad_order: int = 2,
 ) -> MagneticCurvatureTerms:
@@ -63,16 +63,16 @@ def compute_magnetic_curvature_terms(
     field_types.ensure_vfield(u_vfield)
     field_types.ensure_uvfield(tangent_uvfield)
     field_types.ensure_uvfield(normal_uvfield)
-    field_types.ensure_uniform_domain(domain_details)
-    field_types.ensure_domain_matches_vfield(domain_details, u_vfield)
-    field_types.ensure_domain_matches_vfield(domain_details, tangent_uvfield)
-    field_types.ensure_domain_matches_vfield(domain_details, normal_uvfield)
+    field_types.ensure_uniform_domain(uniform_domain)
+    field_types.ensure_domain_matches_vfield(uniform_domain, u_vfield)
+    field_types.ensure_domain_matches_vfield(uniform_domain, tangent_uvfield)
+    field_types.ensure_domain_matches_vfield(uniform_domain, normal_uvfield)
     tangent_uvarray = tangent_uvfield.data
     normal_uvarray = normal_uvfield.data
     ## du_j/dx_i with layout (j, i, x, y, z)
     gradu_r2tarray = array_operators.compute_varray_grad(
         varray=u_vfield.data,
-        cell_widths=domain_details.cell_widths,
+        cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
         out_r2tarray=out_grad_r2tarray,
     )
@@ -118,7 +118,7 @@ def compute_magnetic_curvature_terms(
 @func_utils.time_function
 def compute_lorentz_force_terms(
     b_vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     grad_order: int = 2,
 ) -> LorentzForceTerms:
     """
@@ -127,12 +127,12 @@ def compute_lorentz_force_terms(
         gradP_perp_i = 0.5 * d_i |b|^2 - 0.5 * t_i t_j d_j |b|^2
         lorentz_i    = tension_i - gradP_perp_i
     """
-    field_types.ensure_uniform_domain(domain_details)
     field_types.ensure_vfield(b_vfield)
-    field_types.ensure_domain_matches_vfield(domain_details, b_vfield)
+    field_types.ensure_uniform_domain(uniform_domain)
+    field_types.ensure_domain_matches_vfield(uniform_domain, b_vfield)
     tnb_terms = decompose_fields.compute_tnb_terms(
         vfield=b_vfield,
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         grad_order=grad_order,
     )
     tangent_uvarray = tnb_terms.tangent_uvfield.data
@@ -143,7 +143,7 @@ def compute_lorentz_force_terms(
     ## d_i P where P = 0.5 * |b|^2; first compute d_i |b|^2 then scale
     gradP_varray = array_operators.compute_sarray_grad(
         sarray=b_magn_sq_sarray,
-        cell_widths=domain_details.cell_widths,
+        cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
     )
     gradP_varray *= 0.5  # scale in-place
@@ -187,7 +187,7 @@ def compute_lorentz_force_terms(
 @func_utils.time_function
 def compute_dissipation_function(
     u_vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     grad_order: int = 2,
 ) -> field_types.VectorField:
     """
@@ -195,16 +195,16 @@ def compute_dissipation_function(
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) * delta_ij * (d_k u_k)
     """
     field_types.ensure_vfield(u_vfield)
-    field_types.ensure_uniform_domain(domain_details)
-    field_types.ensure_domain_matches_vfield(domain_details, u_vfield)
+    field_types.ensure_uniform_domain(uniform_domain)
+    field_types.ensure_domain_matches_vfield(uniform_domain, u_vfield)
     u_varray = u_vfield.data
     dtype = u_vfield.data.dtype
-    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
-    num_cells_x, num_cells_y, num_cells_z = domain_details.resolution
+    cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
+    num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
     ## d_i u_j
     gradu_r2tarray = array_operators.compute_varray_grad(
         varray=u_varray,
-        cell_widths=domain_details.cell_widths,
+        cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
     )
     divu_sarray = numpy.trace(gradu_r2tarray, axis1=0, axis2=1)

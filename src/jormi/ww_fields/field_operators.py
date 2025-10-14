@@ -21,38 +21,38 @@ def compute_sfield_rms(
 
 def compute_sfield_volume_integral(
     sfield: field_types.ScalarField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
 ) -> float:
     field_types.ensure_sfield(sfield)
-    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_sfield(
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         sfield=sfield,
     )
     return array_operators.compute_sarray_volume_integral(
         sarray=sfield.data,
-        cell_volume=domain_details.cell_volume,
+        cell_volume=uniform_domain.cell_volume,
     )
 
 
 def compute_sfield_gradient(
     sfield: field_types.ScalarField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     out_varray: numpy.ndarray | None = None,
     field_label: str = r"$\nabla f$",
     grad_order: int = 2,
 ) -> field_types.VectorField:
     field_types.ensure_sfield(sfield)
-    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_sfield(
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         sfield=sfield,
     )
     sarray = sfield.data
     array_types.ensure_sarray(sarray)
     grad_varray = array_operators.compute_sarray_grad(
         sarray=sarray,
-        cell_widths=domain_details.cell_widths,
+        cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
         out_varray=out_varray,
     )
@@ -157,21 +157,21 @@ def compute_vfield_cross_product(
 
 def compute_vfield_curl(
     vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     grad_order: int = 2,
     out_varray: numpy.ndarray | None = None,
     field_label: str = r"$\nabla\times\vec{f}$",
 ) -> field_types.VectorField:
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_vfield(
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         vfield=vfield,
     )
     varray = vfield.data
     array_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
+    cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     curl_varray = array_operators.ensure_array_properties(
         array_shape=varray.shape,
         dtype=varray.dtype,
@@ -205,21 +205,21 @@ def compute_vfield_curl(
 
 def compute_vfield_divergence(
     vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     out_sarray: numpy.ndarray | None = None,
     field_label: str = r"$\nabla\cdot\vec{f}$",
     grad_order: int = 2,
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_vfield(
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         vfield=vfield,
     )
     varray = vfield.data
     array_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
+    cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     domain_shape = varray.shape[1:]
     div_sarray = array_operators.ensure_array_properties(
         array_shape=domain_shape,
@@ -262,13 +262,13 @@ def compute_magnetic_energy_density(
 
 def compute_total_magnetic_energy(
     vfield: field_types.VectorField,
-    domain_details: field_types.UniformDomain,
+    uniform_domain: field_types.UniformDomain,
     energy_prefactor: float = 0.5,
 ) -> float:
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(domain_details)
+    field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_vfield(
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
         vfield=vfield,
     )
     Emag_sfield = compute_magnetic_energy_density(
@@ -277,7 +277,7 @@ def compute_total_magnetic_energy(
     )
     return compute_sfield_volume_integral(
         sfield=Emag_sfield,
-        domain_details=domain_details,
+        uniform_domain=uniform_domain,
     )
 
 

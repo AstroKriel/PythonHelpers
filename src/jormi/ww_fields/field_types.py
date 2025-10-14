@@ -297,35 +297,35 @@ def ensure_uvfield(uvfield) -> None:
 
 
 def ensure_uniform_domain(
-    domain_details,
+    uniform_domain,
 ) -> None:
     type_utils.assert_type(
-        var_obj=domain_details,
+        var_obj=uniform_domain,
         valid_types=UniformDomain,
     )
 
 
 def ensure_domain_matches_sfield(
-    domain_details: UniformDomain,
+    uniform_domain: UniformDomain,
     sfield: ScalarField,
 ) -> None:
-    ensure_uniform_domain(domain_details)
+    ensure_uniform_domain(uniform_domain)
     ensure_sfield(sfield)
-    if domain_details.resolution != sfield.data.shape:
+    if uniform_domain.resolution != sfield.data.shape:
         raise ValueError(
-            f"[{sfield.field_label}] domain resolution {domain_details.resolution} does not match scalar grid {sfield.data.shape}",
+            f"[{sfield.field_label}] domain resolution {uniform_domain.resolution} does not match scalar grid {sfield.data.shape}",
         )
 
 
 def ensure_domain_matches_vfield(
-    domain_details: UniformDomain,
+    uniform_domain: UniformDomain,
     vfield: VectorField,
 ) -> None:
-    ensure_uniform_domain(domain_details)
+    ensure_uniform_domain(uniform_domain)
     ensure_vfield(vfield)  # also accepts subclasses (e.g. UnitVectorField)
-    if domain_details.resolution != vfield.data.shape[1:]:
+    if uniform_domain.resolution != vfield.data.shape[1:]:
         raise ValueError(
-            f"[{vfield.field_label}] domain resolution {domain_details.resolution} does not match vector grid {vfield.data.shape[1:]}",
+            f"[{vfield.field_label}] domain resolution {uniform_domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
 
 
