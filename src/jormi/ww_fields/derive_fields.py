@@ -67,6 +67,7 @@ def compute_magnetic_curvature_terms(
     field_types.ensure_domain_matches_vfield(uniform_domain, u_vfield)
     field_types.ensure_domain_matches_vfield(uniform_domain, tangent_uvfield)
     field_types.ensure_domain_matches_vfield(uniform_domain, normal_uvfield)
+    sim_time = u_vfield.sim_time
     tangent_uvarray = tangent_uvfield.data
     normal_uvarray = normal_uvfield.data
     ## du_j/dx_i with layout (j, i, x, y, z)
@@ -85,7 +86,7 @@ def compute_magnetic_curvature_terms(
         optimize=True,
     )
     curvature_sfield = field_types.ScalarField(
-        sim_time=u_vfield.sim_time,
+        sim_time=sim_time,
         data=curvature_sarray,
         field_label=r"$n_i n_j \,\partial_i u_j$",
     )
@@ -97,14 +98,14 @@ def compute_magnetic_curvature_terms(
         optimize=True,
     )
     stretching_sfield = field_types.ScalarField(
-        sim_time=u_vfield.sim_time,
+        sim_time=sim_time,
         data=stretching_sarray,
         field_label=r"$t_i t_j \,\partial_i u_j$",
     )
     compression_sarray = numpy.trace(gradu_r2tarray, axis1=0, axis2=1)
     del gradu_r2tarray
     compression_sfield = field_types.ScalarField(
-        sim_time=u_vfield.sim_time,
+        sim_time=sim_time,
         data=compression_sarray,
         field_label=r"$\partial_i u_i$",
     )
@@ -130,6 +131,7 @@ def compute_lorentz_force_terms(
     field_types.ensure_vfield(b_vfield)
     field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_vfield(uniform_domain, b_vfield)
+    sim_time = b_vfield.sim_time
     tnb_terms = decompose_fields.compute_tnb_terms(
         vfield=b_vfield,
         uniform_domain=uniform_domain,
@@ -156,24 +158,24 @@ def compute_lorentz_force_terms(
         optimize=True,
     )
     ## |b|^2 * kappa_i
-    tension_varray = b_magn_sq_sarray[None, ...] * curvature_sarray[None, ...] * normal_uvarray
+    tension_varray = b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[numpy.newaxis, ...] * normal_uvarray
     ## d_i P - t_i t_j d_j P
     gradP_perp_varray = gradP_varray - gradP_aligned_varray
     ## tension - gradP_perp
     lorentz_varray = tension_varray - gradP_perp_varray
     ## output fields
     gradP_perp_vfield = field_types.VectorField(
-        sim_time=b_vfield.sim_time,
+        sim_time=sim_time,
         data=gradP_perp_varray,
         field_label=r"$(\nabla (b^2/2))_\perp$",
     )
     tension_vfield = field_types.VectorField(
-        sim_time=b_vfield.sim_time,
+        sim_time=sim_time,
         data=tension_varray,
         field_label=r"$b^2 \,\vec{\kappa}$",
     )
     lorentz_vfield = field_types.VectorField(
-        sim_time=b_vfield.sim_time,
+        sim_time=sim_time,
         data=lorentz_varray,
         field_label=r"$(\nabla\times\vec{b})\times\vec{b}$",
     )
@@ -197,6 +199,7 @@ def compute_dissipation_function(
     field_types.ensure_vfield(u_vfield)
     field_types.ensure_uniform_domain(uniform_domain)
     field_types.ensure_domain_matches_vfield(uniform_domain, u_vfield)
+    sim_time = u_vfield.sim_time
     u_varray = u_vfield.data
     dtype = u_vfield.data.dtype
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
@@ -241,7 +244,7 @@ def compute_dissipation_function(
             out=df_varray[comp_i, ...],
         )
     return field_types.VectorField(
-        sim_time=u_vfield.sim_time,
+        sim_time=sim_time,
         data=df_varray,
         field_label=r"$\partial_j \mathcal{S}_{j i}$",
     )

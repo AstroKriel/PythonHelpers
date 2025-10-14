@@ -48,6 +48,7 @@ def compute_sfield_gradient(
         uniform_domain=uniform_domain,
         sfield=sfield,
     )
+    sim_time = sfield.sim_time
     sarray = sfield.data
     array_types.ensure_sarray(sarray)
     grad_varray = array_operators.compute_sarray_grad(
@@ -57,7 +58,7 @@ def compute_sfield_gradient(
         out_varray=out_varray,
     )
     return field_types.VectorField(
-        sim_time=sfield.sim_time,
+        sim_time=sim_time,
         data=grad_varray,
         field_label=field_label,
     )
@@ -68,12 +69,13 @@ def compute_vfield_magnitude(
     field_label: str = r"$|\vec{f}|$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
+    sim_time = sfield.sim_time
     varray = vfield.data
     array_types.ensure_varray(varray)
     field_magn = array_operators.sum_of_component_squares(varray)  # allocates output (reused below)
     numpy.sqrt(field_magn, out=field_magn)  # in-place transform
     return field_types.ScalarField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=field_magn,
         field_label=field_label,
     )
@@ -168,6 +170,7 @@ def compute_vfield_curl(
         uniform_domain=uniform_domain,
         vfield=vfield,
     )
+    sim_time = vfield.sim_time
     varray = vfield.data
     array_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
@@ -197,7 +200,7 @@ def compute_vfield_curl(
         out=curl_varray[2],
     )
     return field_types.VectorField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=curl_varray,
         field_label=field_label,
     )
@@ -216,6 +219,7 @@ def compute_vfield_divergence(
         uniform_domain=uniform_domain,
         vfield=vfield,
     )
+    sim_time = vfield.sim_time
     varray = vfield.data
     array_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
@@ -232,7 +236,7 @@ def compute_vfield_divergence(
     numpy.add(div_sarray, nabla(sarray=varray[1], cell_width=cell_width_y, grad_axis=1), out=div_sarray)
     numpy.add(div_sarray, nabla(sarray=varray[2], cell_width=cell_width_z, grad_axis=2), out=div_sarray)
     return field_types.ScalarField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=div_sarray,
         field_label=field_label,
     )
@@ -249,12 +253,13 @@ def compute_magnetic_energy_density(
     field_label: str = r"$E_\mathrm{mag}$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
+    sim_time = vfield.sim_time
     varray = vfield.data
     array_types.ensure_varray(varray)
     Emag_sarray = array_operators.sum_of_component_squares(varray)  # allocates output (reused below)
     Emag_sarray *= numpy.asarray(energy_prefactor, dtype=Emag_sarray.dtype)  # scale in-place
     return field_types.ScalarField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=Emag_sarray,
         field_label=field_label,
     )

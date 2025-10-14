@@ -57,6 +57,7 @@ def compute_helmholtz_decomposition(
     field_types.ensure_domain_matches_vfield(uniform_domain, vfield)
     if not all(uniform_domain.periodicity):
         raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
+    sim_time = vfield.sim_time
     dtype = vfield.data.dtype
     num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
@@ -101,12 +102,12 @@ def compute_helmholtz_decomposition(
         copy=False,
     )
     div_vfield = field_types.VectorField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=div_varray,
         field_label=r"$\vec{f}_\parallel$"
     )
     sol_vfield = field_types.VectorField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=sol_varray,
         field_label=r"$\vec{f}_\perp$",
     )
@@ -145,7 +146,7 @@ def compute_tnb_terms(
         where=(f_magn_sarray > 0),  # guard from zero magnitude
     )
     tangent_uvfield = field_types.UnitVectorField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=tangent_uvarray,
         field_label=r"$\hat{t}$",
     )
@@ -194,7 +195,7 @@ def compute_tnb_terms(
         where=(curvature_sarray > 0),  # guard zero curvature
     )
     normal_uvfield = field_types.UnitVectorField(
-        sim_time=vfield.sim_time,
+        sim_time=sim_time,
         data=normal_uvarray,
         field_label=r"$\hat{n}$",
     )
