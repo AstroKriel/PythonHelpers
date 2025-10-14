@@ -62,13 +62,14 @@ def delayed_return(duration, value):
 
 def plot_task(fig_directory, num_samples):
     try:
-        fig, ax = plot_manager.create_figure()
+        fig, axs = plot_manager.create_figure()
+        ax = axs[0,0]
         x = numpy.linspace(0, 5 * numpy.pi, num_samples)
         y = numpy.sin(x)
         ax.plot(x, y, color="black", ls="-", lw=1, marker="o", ms=5)
         ax.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
         ax.set_ylabel(r"$\sin(2\pi x + 32)$")
-        annotate_axis.add_text(ax, 0.05, 0.95, r"$(0.05, 0.95)$ \% of the fig domain")
+        annotate_axis.add_text(ax, 0.05, 0.95, r"$(0.05, 0.95)$ \% of the fig uniform_domain")
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
         fig_file_path = io_manager.combine_file_path_parts([fig_directory, fig_name])
         plot_manager.save_figure(fig, fig_file_path, verbose=False)
