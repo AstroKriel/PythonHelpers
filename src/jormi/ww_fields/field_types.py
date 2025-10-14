@@ -147,7 +147,7 @@ class UniformDomain:
 @dataclass(frozen=True)
 class ScalarField:
     data: numpy.ndarray
-    label: str
+    field_label: str
     sim_time: float | None = None
 
     def __post_init__(self):
@@ -170,15 +170,16 @@ class ScalarField:
 
     def _validate_label(self):
         type_utils.assert_nonempty_str(
-            var_obj=self.label,
-            var_name="label",
+            var_obj=self.field_label,
+            var_name="field_label",
         )
 
 
 @dataclass(frozen=True)
 class VectorField:
     data: numpy.ndarray
-    labels: tuple[str, str, str]
+    field_label: str
+    comp_labels: tuple[str, str, str] = ("x", "y", "z")
     sim_time: float | None = None
 
     def __post_init__(self):
@@ -200,17 +201,23 @@ class VectorField:
         array_types.ensure_varray(self.data)
 
     def _validate_labels(self):
+        type_utils.assert_nonempty_str(
+            var_obj=self.field_label,
+            var_name="field_label",
+        )
         type_utils.assert_sequence(
-            var_obj=self.labels,
-            var_name="labels",
+            var_obj=self.comp_labels,
+            var_name="comp_labels",
             valid_containers=(tuple, ),
             seq_length=3,
             valid_elem_types=str,
         )
-        for label_index, label in enumerate(self.labels):
+        if len(set(self.comp_labels)) != 3:
+            raise ValueError("Each element of `comp_labels` must be unique.")
+        for label_index, field_label in enumerate(self.comp_labels):
             type_utils.assert_nonempty_str(
-                var_obj=label,
-                var_name=f"labels[{label_index}]",
+                var_obj=field_label,
+                var_name=f"comp_labels[{label_index}]",
             )
 
 
@@ -225,8 +232,10 @@ class UnitVectorField(VectorField):
     def _validate_unit_magnitude(self):
         q_uvarray = self.data
         q_magn_sq_sarray = array_operators.sum_of_component_squares(q_uvarray)
-        if numpy.any(q_magn_sq_sarray == 0):
-            raise ValueError("UnitVectorField cannot contain zero vectors.")
+        if not numpy.all(numpy.isfinite(q_magn_sq_sarray)):
+            raise ValueError("UnitVectorField should not contain any NaN/Inf magnitudes.")
+        if numpy.any(q_magn_sq_sarray <= 1e-300):
+            raise ValueError("UnitVectorField should not contain any (near-)zero vectors.")
         max_error = float(numpy.max(numpy.abs(q_magn_sq_sarray - 1.0)))
         if max_error > self.tol:
             raise ValueError(
@@ -242,7 +251,8 @@ class UnitVectorField(VectorField):
     ) -> "UnitVectorField":
         return cls(
             data=vfield.data,
-            labels=vfield.labels,
+            field_label=vfield.field_label,
+            comp_labels=vfield.comp_labels,
             sim_time=vfield.sim_time,
             tol=tol,
         )
@@ -303,7 +313,7 @@ def ensure_domain_matches_sfield(
     ensure_sfield(sfield)
     if domain_details.resolution != sfield.data.shape:
         raise ValueError(
-            f"domain_details resolution {domain_details.resolution} does not match scalar grid {sfield.data.shape}",
+            f"[{sfield.field_label}] domain resolution {domain_details.resolution} does not match scalar grid {sfield.data.shape}",
         )
 
 
@@ -315,7 +325,7 @@ def ensure_domain_matches_vfield(
     ensure_vfield(vfield)  # also accepts subclasses (e.g. UnitVectorField)
     if domain_details.resolution != vfield.data.shape[1:]:
         raise ValueError(
-            f"domain_details resolution {domain_details.resolution} does not match vector grid {vfield.data.shape[1:]}",
+            f"[{vfield.field_label}] domain resolution {domain_details.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
 
 

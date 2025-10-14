@@ -7,7 +7,7 @@
 import numpy
 from dataclasses import dataclass
 from jormi.utils import func_utils
-from jormi.ww_fields import field_types, field_operators, finite_difference
+from jormi.ww_fields import array_operators, finite_difference, field_types, field_operators
 
 ##
 ## === DATA STRUCTURES
@@ -84,7 +84,7 @@ def compute_helmholtz_decomposition(
     ## solenoidal (divergence-free) component: \vec{F}(\vec{k}) - (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
     sol_fft_varray = fft_varray - div_fft_varray
     ## transform back to real space
-    div_array = numpy.fft.ifftn(
+    div_varray = numpy.fft.ifftn(
         div_fft_varray,
         axes=(1, 2, 3),
         norm="forward",
@@ -92,7 +92,7 @@ def compute_helmholtz_decomposition(
         dtype,
         copy=False,
     )
-    sol_array = numpy.fft.ifftn(
+    sol_varray = numpy.fft.ifftn(
         sol_fft_varray,
         axes=(1, 2, 3),
         norm="forward",
@@ -102,21 +102,13 @@ def compute_helmholtz_decomposition(
     )
     div_vfield = field_types.VectorField(
         sim_time=vfield.sim_time,
-        data=div_array,
-        labels=(
-            r"$f_{\parallel,x}$",
-            r"$f_{\parallel,y}$",
-            r"$f_{\parallel,z}$",
-        ),
+        data=div_varray,
+        field_label=r"$\vec{f}_\parallel$"
     )
     sol_vfield = field_types.VectorField(
         sim_time=vfield.sim_time,
-        data=sol_array,
-        labels=(
-            r"$f_{\perp,x}$",
-            r"$f_{\perp,y}$",
-            r"$f_{\perp,z}$",
-        ),
+        data=sol_varray,
+        field_label=r"$\vec{f}_\perp$",
     )
     del kx_values, ky_values, kz_values, kx_grid, ky_grid, kz_grid, k_magn_grid
     del fft_varray, k_dot_fft_sfield, div_fft_varray, sol_fft_varray
@@ -139,11 +131,8 @@ def compute_tnb_terms(
     field_types.ensure_vfield(vfield)
     field_types.ensure_uniform_domain(domain_details)
     field_types.ensure_domain_matches_vfield(domain_details, vfield)
+    sim_time = vfield.sim_time
     varray = vfield.data
-    dtype = varray.dtype
-    nabla = finite_difference.get_grad_func(grad_order)
-    num_cells_x, num_cells_y, num_cells_z = domain_details.resolution
-    cell_width_x, cell_width_y, cell_width_z = domain_details.cell_widths
     ## --- COMPUTE TANGENT BASIS
     ## field magnitude: |f| = (f_k f_k)^(1/2)
     f_magn_sarray = field_operators.compute_vfield_magnitude(vfield).data
@@ -158,24 +147,20 @@ def compute_tnb_terms(
     tangent_uvfield = field_types.UnitVectorField(
         sim_time=vfield.sim_time,
         data=tangent_uvarray,
-        labels=(
-            r"$\hat{t}_x$",
-            r"$\hat{t}_y$",
-            r"$\hat{t}_z$",
-        ),
+        field_label=r"$\hat{t}$",
     )
     ## --- COMPUTE NORMAL BASIS
     ## gradient tensor: df_j/dx_i with layout (j, i, x, y, z)
-    grad_array = numpy.empty((3, 3, num_cells_x, num_cells_y, num_cells_z), dtype=dtype)
-    for comp_j in range(3):
-        grad_array[comp_j, 0] = nabla(sarray=varray[comp_j], cell_width=cell_width_x, grad_axis=0)  # df_j/dx
-        grad_array[comp_j, 1] = nabla(sarray=varray[comp_j], cell_width=cell_width_y, grad_axis=1)  # df_j/dy
-        grad_array[comp_j, 2] = nabla(sarray=varray[comp_j], cell_width=cell_width_z, grad_axis=2)  # df_j/dz
+    grad_r2tarray = array_operators.compute_varray_grad(
+        varray=varray,
+        cell_widths=domain_details.cell_widths,
+        grad_order=grad_order
+    )
     ## term1_j = f_i * (df_j/dx_i) = (f dot grad) f
     normal_term1_varray = numpy.einsum(
         "ixyz,jixyz->jxyz",
         varray,
-        grad_array,
+        grad_r2tarray,
         optimize=True,
     )
     ## term2_j = f_i * f_j * f_m * (df_m/dx_i)
@@ -184,29 +169,22 @@ def compute_tnb_terms(
         varray,
         varray,
         varray,
-        grad_array,
+        grad_r2tarray,
         optimize=True,
     )
     ## curvature vector: kappa_j = term1_j / |f|^2  -  term2_j / |f|^4
     inv_magn2_sarray = numpy.zeros_like(f_magn_sarray)
     numpy.divide(1.0, f_magn_sarray, out=inv_magn2_sarray, where=(f_magn_sarray > 0))
     inv_magn2_sarray **= 2  # 1/|f|^2
-    inv_magn4_array = inv_magn2_sarray**2  # 1/|f|^4
-    kappa_varray = normal_term1_varray * inv_magn2_sarray - normal_term2_varray * inv_magn4_array
-    kappa_vfield = field_types.VectorField(
-        sim_time=vfield.sim_time,
-        data=kappa_varray,
-        labels=(
-            r"$\kappa_x$",
-            r"$\kappa_y$",
-            r"$\kappa_z$",
-        ),
+    inv_magn4_sarray = inv_magn2_sarray**2  # 1/|f|^4
+    kappa_varray = normal_term1_varray * inv_magn2_sarray - normal_term2_varray * inv_magn4_sarray
+    curvature_sarray = array_operators.sum_of_component_squares(varray=kappa_varray)
+    numpy.sqrt(curvature_sarray, out=curvature_sarray)
+    curvature_sfield = field_types.ScalarField(
+        sim_time=sim_time,
+        data=curvature_sarray,
+        field_label=r"$|\vec{\kappa}|$",
     )
-    curvature_sfield = field_operators.compute_vfield_magnitude(
-        vfield=kappa_vfield,
-        label=r"$|\vec{\kappa}|$",
-    )
-    curvature_sarray = curvature_sfield.data
     ## N_i = kappa_i / |kappa|
     normal_uvarray = numpy.zeros_like(kappa_varray)
     numpy.divide(
@@ -218,25 +196,17 @@ def compute_tnb_terms(
     normal_uvfield = field_types.UnitVectorField(
         sim_time=vfield.sim_time,
         data=normal_uvarray,
-        labels=(
-            r"$\hat{n}_x$",
-            r"$\hat{n}_y$",
-            r"$\hat{n}_z$",
-        ),
+        field_label=r"$\hat{n}$",
     )
     ## --- COMPUTE BINORMAL BASIS
     ## B = T x N  (orthogonal to both T and N)
     binormal_vfield = field_operators.compute_vfield_cross_product(
         vfield_a=tangent_uvfield,
         vfield_b=normal_uvfield,
-        labels=(
-            r"$\hat{b}_x$",
-            r"$\hat{b}_y$",
-            r"$\hat{b}_z$",
-        ),
+        field_label=r"$\hat{b}$",
     )
     binormal_uvfield = field_types.as_unit_vfield(vfield=binormal_vfield)
-    del normal_term1_varray, normal_term2_varray, inv_magn2_sarray, inv_magn4_array
+    del normal_term1_varray, normal_term2_varray, inv_magn2_sarray, inv_magn4_sarray
     return TNBTerms(
         tangent_uvfield=tangent_uvfield,
         normal_uvfield=normal_uvfield,

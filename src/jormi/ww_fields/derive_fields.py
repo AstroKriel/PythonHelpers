@@ -87,7 +87,7 @@ def compute_magnetic_curvature_terms(
     curvature_sfield = field_types.ScalarField(
         sim_time=u_vfield.sim_time,
         data=curvature_sarray,
-        label=r"$n_i n_j (du_j/dx_i)$",
+        field_label=r"$n_i n_j \,\partial_i u_j$",
     )
     stretching_sarray = numpy.einsum(
         "ixyz,jxyz,jixyz->xyz",
@@ -99,14 +99,14 @@ def compute_magnetic_curvature_terms(
     stretching_sfield = field_types.ScalarField(
         sim_time=u_vfield.sim_time,
         data=stretching_sarray,
-        label=r"$t_i t_j (du_j/dx_i)$",
+        field_label=r"$t_i t_j \,\partial_i u_j$",
     )
     compression_sarray = numpy.trace(gradu_r2tarray, axis1=0, axis2=1)
     del gradu_r2tarray
     compression_sfield = field_types.ScalarField(
         sim_time=u_vfield.sim_time,
         data=compression_sarray,
-        label=r"$du_i/dx_i$",
+        field_label=r"$\partial_i u_i$",
     )
     return MagneticCurvatureTerms(
         curvature_sfield=curvature_sfield,
@@ -165,29 +165,17 @@ def compute_lorentz_force_terms(
     gradP_perp_vfield = field_types.VectorField(
         sim_time=b_vfield.sim_time,
         data=gradP_perp_varray,
-        labels=(
-            r"$(0.5 \,\nabla b^2)_{\perp, x}$",
-            r"$(0.5 \,\nabla b^2)_{\perp, y}$",
-            r"$(0.5 \,\nabla b^2)_{\perp, z}$",
-        ),
+        field_label=r"$(\nabla (b^2/2))_\perp$",
     )
     tension_vfield = field_types.VectorField(
         sim_time=b_vfield.sim_time,
         data=tension_varray,
-        labels=(
-            r"$(b^2 \vec{\kappa})_x$",
-            r"$(b^2 \vec{\kappa})_y$",
-            r"$(b^2 \vec{\kappa})_z$",
-        ),
+        field_label=r"$b^2 \,\vec{\kappa}$",
     )
     lorentz_vfield = field_types.VectorField(
         sim_time=b_vfield.sim_time,
         data=lorentz_varray,
-        labels=(
-            r"$((\nabla\times\vec{b})\times\vec{b})_x$",
-            r"$((\nabla\times\vec{b})\times\vec{b})_y$",
-            r"$((\nabla\times\vec{b})\times\vec{b})_z$",
-        ),
+        field_label=r"$(\nabla\times\vec{b})\times\vec{b}$",
     )
     return LorentzForceTerms(
         lorentz_vfield=lorentz_vfield,
@@ -201,11 +189,6 @@ def compute_dissipation_function(
     u_vfield: field_types.VectorField,
     domain_details: field_types.UniformDomain,
     grad_order: int = 2,
-    labels: tuple[str, str, str] = (
-        r"$\partial_i \mathcal{S}_{i,x}$",
-        r"$\partial_i \mathcal{S}_{i,y}$",
-        r"$\partial_i \mathcal{S}_{i,z}$",
-    ),
 ) -> field_types.VectorField:
     """
     Compute d_j S_ji, where
@@ -260,7 +243,7 @@ def compute_dissipation_function(
     return field_types.VectorField(
         sim_time=u_vfield.sim_time,
         data=df_varray,
-        labels=labels,
+        field_label=r"$\partial_j \mathcal{S}_{j i}$",
     )
 
 

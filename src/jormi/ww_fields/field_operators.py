@@ -39,11 +39,7 @@ def compute_sfield_gradient(
     sfield: field_types.ScalarField,
     domain_details: field_types.UniformDomain,
     out_varray: numpy.ndarray | None = None,
-    labels: tuple[str, str, str] = (
-        r"$\partial f/\partial x$",
-        r"$\partial f/\partial y$",
-        r"$\partial f/\partial z$",
-    ),
+    field_label: str = r"$\nabla f$",
     grad_order: int = 2,
 ) -> field_types.VectorField:
     field_types.ensure_sfield(sfield)
@@ -63,13 +59,13 @@ def compute_sfield_gradient(
     return field_types.VectorField(
         sim_time=sfield.sim_time,
         data=grad_varray,
-        labels=labels,
+        field_label=field_label,
     )
 
 
 def compute_vfield_magnitude(
     vfield: field_types.VectorField,
-    label: str = r"$|\vec(f)|$",
+    field_label: str = r"$|\vec{f}|$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
     varray = vfield.data
@@ -79,14 +75,14 @@ def compute_vfield_magnitude(
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=field_magn,
-        label=label,
+        field_label=field_label,
     )
 
 
 def compute_vfield_dot_product(
     vfield_a: field_types.VectorField,
     vfield_b: field_types.VectorField,
-    label: str = r"$\vec{a}\cdot\vec{b}$",
+    field_label: str = r"$\vec{a}\cdot\vec{b}$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield_a)
     field_types.ensure_vfield(vfield_b)
@@ -105,7 +101,7 @@ def compute_vfield_dot_product(
     return field_types.ScalarField(
         sim_time=vfield_a.sim_time,
         data=dot_sarray,
-        label=label,
+        field_label=field_label,
     )
 
 
@@ -114,11 +110,7 @@ def compute_vfield_cross_product(
     vfield_b: field_types.VectorField,
     out_varray: numpy.ndarray | None = None,
     tmp_sarray: numpy.ndarray | None = None,
-    labels: tuple[str, str, str] = (
-        r"$(\vec{a}\times\vec{b})_x$",
-        r"$(\vec{a}\times\vec{b})_y$",
-        r"$(\vec{a}\times\vec{b})_z$",
-    ),
+    field_label: str = r"$\vec{a}\times\vec{b}$",
 ) -> field_types.VectorField:
     field_types.ensure_vfield(vfield_a)
     field_types.ensure_vfield(vfield_b)
@@ -152,14 +144,14 @@ def compute_vfield_cross_product(
     numpy.multiply(varray_a[2], varray_b[0], out=cross_varray[1])  # out[1] = a_z * b_x
     numpy.multiply(varray_a[0], varray_b[2], out=tmp_sarray)  # tmp = a_x * b_z
     numpy.subtract(cross_varray[1], tmp_sarray, out=cross_varray[1])  # out[1] = a_z * b_x - a_x * b_z
-    ## cross_z = a_x * by - a_y * b_x
+    ## cross_z = a_x * b_y - a_y * b_x
     numpy.multiply(varray_a[0], varray_b[1], out=cross_varray[2])  # out[2] = a_x * b_y
     numpy.multiply(varray_a[1], varray_b[0], out=tmp_sarray)  # tmp = a_y * b_x
     numpy.subtract(cross_varray[2], tmp_sarray, out=cross_varray[2])  # out[2] = a_x * b_y - a_y * b_x
     return field_types.VectorField(
         sim_time=vfield_a.sim_time,
         data=cross_varray,
-        labels=labels,
+        field_label=field_label,
     )
 
 
@@ -168,11 +160,7 @@ def compute_vfield_curl(
     domain_details: field_types.UniformDomain,
     grad_order: int = 2,
     out_varray: numpy.ndarray | None = None,
-    labels: tuple[str, str, str] = (
-        r"$(\nabla\times\vec{f})_x$",
-        r"$(\nabla\times\vec{f})_y$",
-        r"$(\nabla\times\vec{f})_z$",
-    ),
+    field_label: str = r"$\nabla\times\vec{f}$",
 ) -> field_types.VectorField:
     field_types.ensure_vfield(vfield)
     field_types.ensure_uniform_domain(domain_details)
@@ -211,7 +199,7 @@ def compute_vfield_curl(
     return field_types.VectorField(
         sim_time=vfield.sim_time,
         data=curl_varray,
-        labels=labels,
+        field_label=field_label,
     )
 
 
@@ -219,7 +207,7 @@ def compute_vfield_divergence(
     vfield: field_types.VectorField,
     domain_details: field_types.UniformDomain,
     out_sarray: numpy.ndarray | None = None,
-    label: str = r"$\nabla\cdot\vec{f}$",
+    field_label: str = r"$\nabla\cdot\vec{f}$",
     grad_order: int = 2,
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
@@ -246,7 +234,7 @@ def compute_vfield_divergence(
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=div_sarray,
-        label=label,
+        field_label=field_label,
     )
 
 
@@ -258,7 +246,7 @@ def compute_vfield_divergence(
 def compute_magnetic_energy_density(
     vfield: field_types.VectorField,
     energy_prefactor: float = 0.5,
-    label: str = r"$E_\mathrm{mag}$",
+    field_label: str = r"$E_\mathrm{mag}$",
 ) -> field_types.ScalarField:
     field_types.ensure_vfield(vfield)
     varray = vfield.data
@@ -268,7 +256,7 @@ def compute_magnetic_energy_density(
     return field_types.ScalarField(
         sim_time=vfield.sim_time,
         data=Emag_sarray,
-        label=label,
+        field_label=field_label,
     )
 
 
