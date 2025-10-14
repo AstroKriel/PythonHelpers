@@ -44,8 +44,8 @@ def main():
     num_bins = int(1e2)
     plot_samples = False
     integral_tolerance = 1e-2
-    fig, axs = plot_manager.create_figure()
-    ax = axs[0, 0]
+    fig, axs_grid = plot_manager.create_figure()
+    ax = axs_grid[0, 0]
     x_samples, y_samples = sample_from_ellipse(num_points, ax)
     result = compute_stats.estimate_jpdf(
         data_x=x_samples,

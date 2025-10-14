@@ -30,7 +30,8 @@ def generate_data(num_points):
 def main():
     x_values, y_values, dydx_exact, d2ydx2_exact = generate_data(25)
     x_interp = numpy.linspace(x_values.min(), x_values.max(), 50)
-    fig, axs = plot_manager.create_figure(num_rows=3, share_x=True, axis_shape=(5, 8))
+    fig, axs_grid = plot_manager.create_figure(num_rows=3, share_x=True, axis_shape=(5, 8))
+    axs_list = list(numpy.squeeze(axs_grid))
     plot_style_approx = {
         "color": "black",
         "ls": "",
@@ -39,9 +40,9 @@ def main():
         "zorder": 5,
         "label": "raw data",
     }
-    axs[0].plot(x_values, y_values, **plot_style_approx)
-    axs[1].plot(x_values, dydx_exact, **plot_style_approx)
-    axs[2].plot(x_values, d2ydx2_exact, **plot_style_approx)
+    axs_list[0].plot(x_values, y_values, **plot_style_approx)
+    axs_list[1].plot(x_values, dydx_exact, **plot_style_approx)
+    axs_list[2].plot(x_values, d2ydx2_exact, **plot_style_approx)
     for (interp_method, color) in [
         ("linear", "red"),
         ("quadratic", "green"),
@@ -64,16 +65,16 @@ def main():
             "zorder": 3,
             "label": f"interp1d ({interp_method})",
         }
-        axs[0].plot(x_interp, y_interp, **plot_style_approx)
-        axs[1].plot(x_interp, dydx_interp, **plot_style_approx)
-        axs[2].plot(x_interp, d2ydx2_interp, **plot_style_approx)
-    axs[0].set_ylabel("y-values")
-    axs[1].set_ylabel("first derivatives")
-    axs[2].set_ylabel("second derivatives")
-    axs[2].set_xlabel("x-values")
-    axs[1].axhline(y=0, ls="--", color="black", zorder=1)
-    axs[2].axhline(y=0, ls="--", color="black", zorder=1)
-    axs[1].legend(loc="upper left")
+        axs_list[0].plot(x_interp, y_interp, **plot_style_approx)
+        axs_list[1].plot(x_interp, dydx_interp, **plot_style_approx)
+        axs_list[2].plot(x_interp, d2ydx2_interp, **plot_style_approx)
+    axs_list[0].set_ylabel("y-values")
+    axs_list[1].set_ylabel("first derivatives")
+    axs_list[2].set_ylabel("second derivatives")
+    axs_list[2].set_xlabel("x-values")
+    axs_list[1].axhline(y=0, ls="--", color="black", zorder=1)
+    axs_list[2].axhline(y=0, ls="--", color="black", zorder=1)
+    axs_list[1].legend(loc="upper left")
     plot_manager.save_figure(fig, "interpolate_and_estimate_gradients.png")
 
 

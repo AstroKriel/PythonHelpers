@@ -26,11 +26,11 @@ def main():
     }
     integral_tolerance = 1e-2
     num_pdfs = len(pdfs_to_test)
-    fig, axs = plot_manager.create_figure(num_rows=num_pdfs, y_spacing=0.25)
-    if num_pdfs == 1: axs = list(axs)
+    fig, axs_grid = plot_manager.create_figure(num_rows=num_pdfs, y_spacing=0.25)
+    if num_pdfs == 1: axs_grid = list(axs_grid)
     pdfs_that_failed = []
     for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
-        ax = axs[pdf_index]
+        ax = axs_grid[pdf_index]
         for num_bins in num_bins_to_test:
             result = compute_stats.estimate_pdf(
                 pdf_samples,
@@ -56,8 +56,8 @@ def main():
             if abs(pdf_integral - 1.0) > integral_tolerance: pdfs_that_failed.append(pdf_label)
         ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
         ax.set_ylabel(r"PDF$(x)$")
-    axs[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
-    axs[-1].set_xlabel(r"$x$")
+    axs_grid[-1].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
+    axs_grid[-1].set_xlabel(r"$x$")
     directory = io_manager.get_caller_directory()
     file_name = "estimated_1d_pdfs.png"
     file_path = io_manager.combine_file_path_parts([directory, file_name])

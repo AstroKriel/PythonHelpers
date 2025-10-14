@@ -140,7 +140,7 @@ def main():
             "vfield": generate_mixed_vfield(domain_bounds, num_cells),
         },
     ]
-    fig, axs = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7, 7))
+    fig, axs_grid = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7, 7))
     failed_vfields = []
     for vfield_index, vfield_entry in enumerate(list_vfields):
         vfield_name = vfield_entry["label"]
@@ -184,34 +184,34 @@ def main():
         print(f"|curl(q_div)| median = {ave_sol_in_div:.2e} +/- {std_sol_in_div:.2e}")
         print(f"|div(q_sol)| median = {ave_div_in_sol:.2e} +/- {std_div_in_sol:.2e}")
         ## plots
-        plot_vfield_sliceSlice(axs[vfield_index, 0], vfield, domain_bounds)
-        plot_vfield_sliceSlice(axs[vfield_index, 1], vfield_div, domain_bounds)
-        plot_vfield_sliceSlice(axs[vfield_index, 2], vfield_sol, domain_bounds)
-        axs[vfield_index, 0].text(
+        plot_vfield_sliceSlice(axs_grid[vfield_index, 0], vfield, domain_bounds)
+        plot_vfield_sliceSlice(axs_grid[vfield_index, 1], vfield_div, domain_bounds)
+        plot_vfield_sliceSlice(axs_grid[vfield_index, 2], vfield_sol, domain_bounds)
+        axs_grid[vfield_index, 0].text(
             0.5,
             0.05,
             f"input: {vfield_name} field",
             va="bottom",
             ha="center",
-            transform=axs[vfield_index, 0].transAxes,
+            transform=axs_grid[vfield_index, 0].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs[vfield_index, 1].text(
+        axs_grid[vfield_index, 1].text(
             0.5,
             0.05,
             "measured: divergence component",
             va="bottom",
             ha="center",
-            transform=axs[vfield_index, 1].transAxes,
+            transform=axs_grid[vfield_index, 1].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs[vfield_index, 2].text(
+        axs_grid[vfield_index, 2].text(
             0.5,
             0.05,
             "measured: solenoidal component",
             va="bottom",
             ha="center",
-            transform=axs[vfield_index, 2].transAxes,
+            transform=axs_grid[vfield_index, 2].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
         if not (bool_q_returned and bool_div_is_sol_free and bool_sol_is_div_free):

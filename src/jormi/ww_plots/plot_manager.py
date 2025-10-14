@@ -47,7 +47,7 @@ def create_figure(
     if auto_style: plot_styler.set_theme(theme=theme)
     fig_width = fig_scale * axis_shape[1] * num_cols
     fig_height = fig_scale * axis_shape[0] * num_rows
-    fig, axs = mpl_plot.subplots(
+    fig, axs_grid = mpl_plot.subplots(
         nrows=num_rows,
         ncols=num_cols,
         figsize=(fig_width, fig_height),
@@ -56,7 +56,7 @@ def create_figure(
         squeeze=False,
     )
     fig.subplots_adjust(wspace=x_spacing, hspace=y_spacing)
-    return fig, axs
+    return fig, axs_grid
 
 
 def add_inset_axis(

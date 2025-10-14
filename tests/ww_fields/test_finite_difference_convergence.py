@@ -79,7 +79,7 @@ class TestFiniteDifferenceConvergence:
         ]
 
     def run(self):
-        fig, self.axs = plot_manager.create_figure(
+        fig, self.axs_grid = plot_manager.create_figure(
             num_rows=2,
             num_cols=2,
             fig_scale=1.35,
@@ -101,8 +101,8 @@ class TestFiniteDifferenceConvergence:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
         y_values = evaluate_function_at_points(x_values)
         dydx_values = evaluate_exact_function_derivative_at_points(x_values)
-        self.axs[0, 0].plot(x_values, y_values, color="black", ls="-", lw=2)
-        self.axs[1, 0].plot(
+        self.axs_grid[0, 0].plot(x_values, y_values, color="black", ls="-", lw=2)
+        self.axs_grid[1, 0].plot(
             x_values,
             dydx_values,
             color="black",
@@ -115,7 +115,7 @@ class TestFiniteDifferenceConvergence:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
         y_values = evaluate_function_at_points(x_values)
         dydx_values = estimate_function_derivative(x_values, y_values, nabla)
-        self.axs[1, 0].plot(
+        self.axs_grid[1, 0].plot(
             x_values,
             dydx_values,
             marker="o",
@@ -159,7 +159,7 @@ class TestFiniteDifferenceConvergence:
         amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], errors[0], expected_scaling)
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
         residuals = (numpy.array(errors) - expected_errors) / expected_errors
-        self.axs[0, 1].plot(
+        self.axs_grid[0, 1].plot(
             inverse_dx_values,
             errors,
             marker="o",
@@ -168,7 +168,7 @@ class TestFiniteDifferenceConvergence:
             color=color,
             label=label,
         )
-        self.axs[0, 1].plot(
+        self.axs_grid[0, 1].plot(
             inverse_dx_values,
             expected_errors,
             ls="--",
@@ -178,7 +178,7 @@ class TestFiniteDifferenceConvergence:
             scalex=False,
             scaley=False,
         )
-        self.axs[1, 1].plot(
+        self.axs_grid[1, 1].plot(
             inverse_dx_values[1:],
             numpy.abs(residuals[1:]),
             marker="o",
@@ -190,33 +190,33 @@ class TestFiniteDifferenceConvergence:
         return numpy.all(numpy.diff(numpy.diff(numpy.abs(residuals[1:]))) < 0.0)
 
     def _annotate_figure(self):
-        y_min, y_max = self.axs[1, 0].get_ylim()
+        y_min, y_max = self.axs_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)
-        self.axs[1, 0].set_ylim([y_min, y_max_new])
-        self.axs[1, 0].text(
+        self.axs_grid[1, 0].set_ylim([y_min, y_max_new])
+        self.axs_grid[1, 0].text(
             0.5,
             0.95,
             f"example with {self.num_samples_for_exact_soln} sampled points",
             ha="center",
             va="top",
-            transform=self.axs[1, 0].transAxes,
+            transform=self.axs_grid[1, 0].transAxes,
         )
-        self.axs[0, 0].set_xticklabels([])
-        self.axs[0, 0].set_ylabel(r"$y^*$")
-        self.axs[1, 0].set_xlabel(r"$x$")
-        self.axs[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
-        self.axs[1, 0].legend(loc="lower right")
-        self.axs[0, 1].set_xscale("log")
-        self.axs[0, 1].set_yscale("log")
-        self.axs[0, 1].set_xticklabels([])
-        self.axs[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
-        self.axs[0, 1].legend(loc="lower left")
-        self.axs[0, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
-        self.axs[1, 1].set_xscale("log")
-        self.axs[1, 1].set_yscale("log")
-        self.axs[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
-        self.axs[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
-        self.axs[1, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.axs_grid[0, 0].set_xticklabels([])
+        self.axs_grid[0, 0].set_ylabel(r"$y^*$")
+        self.axs_grid[1, 0].set_xlabel(r"$x$")
+        self.axs_grid[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
+        self.axs_grid[1, 0].legend(loc="lower right")
+        self.axs_grid[0, 1].set_xscale("log")
+        self.axs_grid[0, 1].set_yscale("log")
+        self.axs_grid[0, 1].set_xticklabels([])
+        self.axs_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
+        self.axs_grid[0, 1].legend(loc="lower left")
+        self.axs_grid[0, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.axs_grid[1, 1].set_xscale("log")
+        self.axs_grid[1, 1].set_yscale("log")
+        self.axs_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
+        self.axs_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
+        self.axs_grid[1, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
 
 
 ##
