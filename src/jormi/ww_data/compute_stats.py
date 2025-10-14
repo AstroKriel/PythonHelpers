@@ -6,6 +6,8 @@
 
 import numpy
 from dataclasses import dataclass
+from scipy.special import erfinv as scipy_erfinv
+from jormi.utils import type_utils
 from jormi.ww_data import smooth_data
 
 ##
@@ -35,8 +37,8 @@ class EstimatedJPDF:
 
 
 def compute_p_norm(
-    array_a: numpy.ndarray,
-    array_b: numpy.ndarray,
+    array_a: numpy.ndarray | list[float],
+    array_b: numpy.ndarray | list[float],
     p_norm: float = 2,
     normalise_by_length: bool = False,
 ) -> float:
@@ -88,12 +90,46 @@ def compute_p_norm(
         raise ValueError(f"`p_norm = {p_norm}` is invalid. Must be positive or infinity.")
 
 
-def sample_gaussian_distribution_from_quantiles(q1, q2, p1, p2, num_samples=10**3):
-    """Sample a normal distribution with quantiles 0 < q1 < q2 < 100 and corresponding probabilities 0 < p1 < p2 < 1."""
-    if not (0 < q1 < q2 < 1): raise ValueError("Invalid quantile probabilities")
+def sample_gaussian_distribution_from_quantiles(
+    q1: float,
+    q2: float,
+    p1: float,
+    p2: float,
+    num_samples=10**3,
+) -> numpy.ndarray:
+    """
+    Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 correspond with
+    probability-values 0 < p1 < p2 < 1.
+    """
+    type_utils.assert_type(
+        var_obj=q1,
+        valid_types=(float, int),
+    )
+    type_utils.assert_type(
+        var_obj=q2,
+        valid_types=(float, int),
+    )
+    type_utils.assert_type(
+        var_obj=p1,
+        valid_types=(float, int),
+    )
+    type_utils.assert_type(
+        var_obj=p2,
+        valid_types=(float, int),
+    )
+    type_utils.assert_type(
+        var_obj=num_samples,
+        valid_types=int,
+    )
+    if not (0.0 < q1 < q2 < 1.0):
+        raise ValueError("`q1` and `q2` must satisfy 0 < q1 < q2 < 1.")
+    if not (p1 < p2):
+        raise ValueError("`p1` must be strictly less than `p2`.")
+    if num_samples <= 0:
+        raise ValueError("`num_samples` must be a positive integer.")
     ## inverse CDF
-    cdf_inv_p1 = numpy.sqrt(2) * numpy.erfinv(2 * q1 - 1)
-    cdf_inv_p2 = numpy.sqrt(2) * numpy.erfinv(2 * q2 - 1)
+    cdf_inv_p1 = numpy.sqrt(2) * scipy_erfinv(2 * q1 - 1)
+    cdf_inv_p2 = numpy.sqrt(2) * scipy_erfinv(2 * q2 - 1)
     ## solve for the mean and standard deviation of the normal distribution
     mean_value = ((p1 * cdf_inv_p2) - (p2 * cdf_inv_p1)) / (cdf_inv_p2 - cdf_inv_p1)
     std_value = (p2 - p1) / (cdf_inv_p2 - cdf_inv_p1)
@@ -214,6 +250,7 @@ def estimate_jpdf(
     if num_bins is None:
         if bin_centers_cols is not None: num_bins = len(bin_centers_cols)
         if bin_centers_rows is not None: num_bins = len(bin_centers_rows)
+    assert num_bins is not None
     if bin_centers_cols is None:
         bin_centers_cols = create_uniformly_spaced_bin_centers(
             data_x,
