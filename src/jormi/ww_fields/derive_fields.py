@@ -6,8 +6,7 @@
 
 import numpy
 from dataclasses import dataclass
-from jormi.utils import func_utils
-from jormi.ww_fields import array_types, array_operators, finite_difference, field_types, decompose_fields
+from jormi.ww_fields import farray_types, farray_operators, finite_difference, field_types, decompose_fields
 
 ##
 ## === DATA STRUCTURES
@@ -70,14 +69,14 @@ def compute_magnetic_curvature_terms(
     sim_time = u_vfield.sim_time
     tangent_uvarray = tangent_uvfield.data
     normal_uvarray = normal_uvfield.data
-    ## du_j/dx_i with layout (j, i, x, y, z)
-    gradu_r2tarray = array_operators.compute_varray_grad(
+    ## d_i u_j: (j, i, x, y, z)
+    gradu_r2tarray = farray_operators.compute_varray_grad(
         varray=u_vfield.data,
         cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
         out_r2tarray=out_grad_r2tarray,
     )
-    array_types.ensure_r2tarray(gradu_r2tarray)
+    farray_types.ensure_r2tarray(gradu_r2tarray)
     curvature_sarray = numpy.einsum(
         "ixyz,jxyz,jixyz->xyz",
         normal_uvarray,
@@ -141,9 +140,9 @@ def compute_lorentz_force_terms(
     normal_uvarray = tnb_terms.normal_uvfield.data
     curvature_sarray = tnb_terms.curvature_sfield.data
     del tnb_terms
-    b_magn_sq_sarray = array_operators.sum_of_component_squares(b_vfield.data)
+    b_magn_sq_sarray = farray_operators.sum_of_squared_components(b_vfield.data)
     ## d_i P where P = 0.5 * |b|^2; first compute d_i |b|^2 then scale
-    gradP_varray = array_operators.compute_sarray_grad(
+    gradP_varray = farray_operators.compute_sarray_grad(
         sarray=b_magn_sq_sarray,
         cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
@@ -158,7 +157,8 @@ def compute_lorentz_force_terms(
         optimize=True,
     )
     ## |b|^2 * kappa_i
-    tension_varray = b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[numpy.newaxis, ...] * normal_uvarray
+    tension_varray = b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[numpy.newaxis,
+                                                                             ...] * normal_uvarray
     ## d_i P - t_i t_j d_j P
     gradP_perp_varray = gradP_varray - gradP_aligned_varray
     ## tension - gradP_perp
@@ -205,7 +205,7 @@ def compute_dissipation_function(
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
     ## d_i u_j
-    gradu_r2tarray = array_operators.compute_varray_grad(
+    gradu_r2tarray = farray_operators.compute_varray_grad(
         varray=u_varray,
         cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
@@ -223,11 +223,11 @@ def compute_dissipation_function(
     sr_r2tarray = sym_term_r2tarray - (1.0 / 3.0) * bulk_term_r2tarray
     ## d_j S_ji = d_x S_xi + d_y S_yi + d_z S_zi
     nabla = finite_difference.get_grad_func(grad_order)
-    df_varray = array_operators.ensure_array_properties(
+    df_varray = farray_operators.ensure_properties(
         array_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         dtype=dtype,
     )
-    array_types.ensure_varray(df_varray)
+    farray_types.ensure_varray(df_varray)
     for comp_i in range(3):
         ## d_x S_xi
         df_varray[comp_i, ...] = nabla(sarray=sr_r2tarray[0, comp_i], cell_width=cell_width_x, grad_axis=0)

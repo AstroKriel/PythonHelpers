@@ -8,7 +8,7 @@ import numpy
 from dataclasses import dataclass
 from functools import cached_property
 from jormi.utils import type_utils
-from jormi.ww_fields import array_types, array_operators
+from jormi.ww_fields import farray_types, farray_operators
 
 ##
 ## === DATA STRUCTURES
@@ -166,7 +166,7 @@ class ScalarField:
             raise ValueError("`sim_time` must be finite.")
 
     def _validate_data(self):
-        array_types.ensure_sarray(self.data)
+        farray_types.ensure_sarray(self.data)
 
     def _validate_label(self):
         type_utils.assert_nonempty_str(
@@ -198,7 +198,7 @@ class VectorField:
             raise ValueError("`sim_time` must be finite.")
 
     def _validate_data(self):
-        array_types.ensure_varray(self.data)
+        farray_types.ensure_varray(self.data)
 
     def _validate_labels(self):
         type_utils.assert_nonempty_str(
@@ -231,7 +231,7 @@ class UnitVectorField(VectorField):
 
     def _validate_unit_magnitude(self):
         q_uvarray = self.data
-        q_magn_sq_sarray = array_operators.sum_of_component_squares(q_uvarray)
+        q_magn_sq_sarray = farray_operators.sum_of_squared_components(q_uvarray)
         if not numpy.all(numpy.isfinite(q_magn_sq_sarray)):
             raise ValueError("UnitVectorField should not contain any NaN/Inf magnitudes.")
         if numpy.any(q_magn_sq_sarray <= 1e-300):
@@ -313,7 +313,7 @@ def ensure_domain_matches_sfield(
     ensure_sfield(sfield)
     if uniform_domain.resolution != sfield.data.shape:
         raise ValueError(
-            f"[{sfield.field_label}] domain resolution {uniform_domain.resolution} does not match scalar grid {sfield.data.shape}",
+            f"Domain resolution {uniform_domain.resolution} does not match scalar grid {sfield.data.shape}",
         )
 
 
@@ -325,7 +325,7 @@ def ensure_domain_matches_vfield(
     ensure_vfield(vfield)  # also accepts subclasses (e.g. UnitVectorField)
     if uniform_domain.resolution != vfield.data.shape[1:]:
         raise ValueError(
-            f"[{vfield.field_label}] domain resolution {uniform_domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
+            f"Domain resolution {uniform_domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
 
 

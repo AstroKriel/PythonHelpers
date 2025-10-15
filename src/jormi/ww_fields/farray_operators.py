@@ -6,14 +6,15 @@
 
 import numpy
 from numpy.typing import DTypeLike
-from jormi.ww_fields import array_types, finite_difference
+from jormi.utils import type_utils, array_utils
+from jormi.ww_fields import farray_types, finite_difference
 
 ##
 ## === WORKSPACE UTILITIES
 ##
 
 
-def ensure_array_properties(
+def ensure_properties(
     array_shape: tuple[int, ...],
     dtype: DTypeLike | None,
     array: numpy.ndarray | None = None,
@@ -50,7 +51,7 @@ def _as_float_view(
 def compute_sarray_rms(
     sarray: numpy.ndarray,
 ) -> float:
-    array_types.ensure_sarray(sarray)
+    farray_types.ensure_sarray(sarray)
     _sarray = _as_float_view(sarray)
     return float(numpy.sqrt(numpy.mean(numpy.square(_sarray))))
 
@@ -59,7 +60,7 @@ def compute_sarray_volume_integral(
     sarray: numpy.ndarray,
     cell_volume: float,
 ) -> float:
-    array_types.ensure_sarray(sarray)
+    farray_types.ensure_sarray(sarray)
     _sarray = _as_float_view(sarray)
     return float(cell_volume * numpy.sum(_sarray))
 
@@ -70,17 +71,17 @@ def compute_sarray_grad(
     grad_order: int = 2,
     out_varray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    array_types.ensure_sarray(sarray)
-    array_types.ensure_valid_cell_widths(cell_widths)
+    farray_types.ensure_sarray(sarray)
+    farray_types.ensure_valid_cell_widths(cell_widths)
     nabla = finite_difference.get_grad_func(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray.shape
     dtype = numpy.result_type(sarray.dtype, numpy.float64)
-    grad_varray = ensure_array_properties(
+    grad_varray = ensure_properties(
         array_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         dtype=dtype,
         array=out_varray,
     )
-    array_types.ensure_varray(grad_varray)
+    farray_types.ensure_varray(grad_varray)
     cell_width_x, cell_width_y, cell_width_z = cell_widths
     ## fill ds/dx_i vector: (gradient-dir-i, x, y, z)
     grad_varray[0, ...] = nabla(sarray=sarray, cell_width=cell_width_x, grad_axis=0)
@@ -89,26 +90,26 @@ def compute_sarray_grad(
     return grad_varray
 
 
-def sum_of_component_squares(
+def sum_of_squared_components(
     varray: numpy.ndarray,
     out_sarray: numpy.ndarray | None = None,
     tmp_sarray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    array_types.ensure_varray(varray)
+    farray_types.ensure_varray(varray)
     domain_shape = varray.shape[1:]
     dtype = numpy.result_type(varray.dtype, numpy.float64)
-    out_sarray = ensure_array_properties(
+    out_sarray = ensure_properties(
         array_shape=domain_shape,
         dtype=dtype,
         array=out_sarray,
     )
-    array_types.ensure_sarray(out_sarray)
-    tmp_sarray = ensure_array_properties(
+    farray_types.ensure_sarray(out_sarray)
+    tmp_sarray = ensure_properties(
         array_shape=domain_shape,
         dtype=dtype,
         array=tmp_sarray,
     )
-    array_types.ensure_sarray(tmp_sarray)
+    farray_types.ensure_sarray(tmp_sarray)
     numpy.multiply(varray[0], varray[0], out=out_sarray)  # out = v_x^2
     numpy.multiply(varray[1], varray[1], out=tmp_sarray)  # tmp = v_y^2
     numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = v_x^2 + v_y^2
@@ -123,26 +124,26 @@ def dot_over_components(
     out_sarray: numpy.ndarray | None = None,
     tmp_sarray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    array_types.ensure_varray(varray_a)
-    array_types.ensure_varray(varray_b)
-    array_types.ensure_same_shape(
+    farray_types.ensure_varray(varray_a)
+    farray_types.ensure_varray(varray_b)
+    array_utils.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )
     domain_shape = varray_a.shape[1:]
     dtype = numpy.result_type(varray_a.dtype, varray_b.dtype)
-    out_sarray = ensure_array_properties(
+    out_sarray = ensure_properties(
         array_shape=domain_shape,
         dtype=dtype,
         array=out_sarray,
     )
-    array_types.ensure_sarray(out_sarray)
-    tmp_sarray = ensure_array_properties(
+    farray_types.ensure_sarray(out_sarray)
+    tmp_sarray = ensure_properties(
         array_shape=domain_shape,
         dtype=dtype,
         array=tmp_sarray,
     )
-    array_types.ensure_sarray(tmp_sarray)
+    farray_types.ensure_sarray(tmp_sarray)
     numpy.multiply(varray_a[0], varray_b[0], out=out_sarray)  # out = a_x b_x
     numpy.multiply(varray_a[1], varray_b[1], out=tmp_sarray)  # tmp = a_y b_y
     numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = a_x b_x + a_y b_y
@@ -157,17 +158,17 @@ def compute_varray_grad(
     grad_order: int = 2,
     out_r2tarray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
-    array_types.ensure_varray(varray)
-    array_types.ensure_valid_cell_widths(cell_widths)
+    farray_types.ensure_varray(varray)
+    farray_types.ensure_valid_cell_widths(cell_widths)
     nabla = finite_difference.get_grad_func(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray.shape[1:]
     dtype = numpy.result_type(varray.dtype, numpy.float64)
-    grad_r2tarray = ensure_array_properties(
+    grad_r2tarray = ensure_properties(
         array_shape=(3, 3, num_cells_x, num_cells_y, num_cells_z),
         dtype=dtype,
         array=out_r2tarray,
     )
-    array_types.ensure_r2tarray(grad_r2tarray)
+    farray_types.ensure_r2tarray(grad_r2tarray)
     cell_width_x, cell_width_y, cell_width_z = cell_widths
     ## fill du_j/dx_i tensor: (component-j, gradient-dir-i, x, y, z)
     for comp_j in range(3):

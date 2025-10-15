@@ -6,8 +6,7 @@
 
 import numpy
 from dataclasses import dataclass
-from jormi.utils import func_utils
-from jormi.ww_fields import array_operators, finite_difference, field_types, field_operators
+from jormi.ww_fields import farray_operators, field_types, field_operators
 
 ##
 ## === DATA STRUCTURES
@@ -104,7 +103,7 @@ def compute_helmholtz_decomposition(
     div_vfield = field_types.VectorField(
         sim_time=sim_time,
         data=div_varray,
-        field_label=r"$\vec{f}_\parallel$"
+        field_label=r"$\vec{f}_\parallel$",
     )
     sol_vfield = field_types.VectorField(
         sim_time=sim_time,
@@ -152,10 +151,10 @@ def compute_tnb_terms(
     )
     ## --- COMPUTE NORMAL BASIS
     ## gradient tensor: df_j/dx_i with layout (j, i, x, y, z)
-    grad_r2tarray = array_operators.compute_varray_grad(
+    grad_r2tarray = farray_operators.compute_varray_grad(
         varray=varray,
         cell_widths=uniform_domain.cell_widths,
-        grad_order=grad_order
+        grad_order=grad_order,
     )
     ## term1_j = f_i * (df_j/dx_i) = (f dot grad) f
     normal_term1_varray = numpy.einsum(
@@ -179,7 +178,7 @@ def compute_tnb_terms(
     inv_magn2_sarray **= 2  # 1/|f|^2
     inv_magn4_sarray = inv_magn2_sarray**2  # 1/|f|^4
     kappa_varray = normal_term1_varray * inv_magn2_sarray - normal_term2_varray * inv_magn4_sarray
-    curvature_sarray = array_operators.sum_of_component_squares(varray=kappa_varray)
+    curvature_sarray = farray_operators.sum_of_squared_components(varray=kappa_varray)
     numpy.sqrt(curvature_sarray, out=curvature_sarray)
     curvature_sfield = field_types.ScalarField(
         sim_time=sim_time,

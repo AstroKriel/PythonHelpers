@@ -5,7 +5,8 @@
 ##
 
 import numpy
-from jormi.ww_fields import array_types, array_operators, finite_difference, field_types
+from jormi.utils import array_utils
+from jormi.ww_fields import farray_types, farray_operators, finite_difference, field_types
 
 ##
 ## === OPTIMISED OPERATORS WORKING ON FIELDS
@@ -16,7 +17,7 @@ def compute_sfield_rms(
     sfield: field_types.ScalarField,
 ) -> float:
     field_types.ensure_sfield(sfield)
-    return array_operators.compute_sarray_rms(sfield.data)
+    return farray_operators.compute_sarray_rms(sfield.data)
 
 
 def compute_sfield_volume_integral(
@@ -29,7 +30,7 @@ def compute_sfield_volume_integral(
         uniform_domain=uniform_domain,
         sfield=sfield,
     )
-    return array_operators.compute_sarray_volume_integral(
+    return farray_operators.compute_sarray_volume_integral(
         sarray=sfield.data,
         cell_volume=uniform_domain.cell_volume,
     )
@@ -50,8 +51,8 @@ def compute_sfield_gradient(
     )
     sim_time = sfield.sim_time
     sarray = sfield.data
-    array_types.ensure_sarray(sarray)
-    grad_varray = array_operators.compute_sarray_grad(
+    farray_types.ensure_sarray(sarray)
+    grad_varray = farray_operators.compute_sarray_grad(
         sarray=sarray,
         cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
@@ -71,8 +72,8 @@ def compute_vfield_magnitude(
     field_types.ensure_vfield(vfield)
     sim_time = vfield.sim_time
     varray = vfield.data
-    array_types.ensure_varray(varray)
-    field_magn = array_operators.sum_of_component_squares(varray)  # allocates output (reused below)
+    farray_types.ensure_varray(varray)
+    field_magn = farray_operators.sum_of_squared_components(varray)  # allocates output (reused below)
     numpy.sqrt(field_magn, out=field_magn)  # in-place transform
     return field_types.ScalarField(
         sim_time=sim_time,
@@ -90,13 +91,13 @@ def compute_vfield_dot_product(
     field_types.ensure_vfield(vfield_b)
     varray_a = vfield_a.data
     varray_b = vfield_b.data
-    array_types.ensure_varray(varray_a)
-    array_types.ensure_varray(varray_b)
-    array_types.ensure_same_shape(
+    farray_types.ensure_varray(varray_a)
+    farray_types.ensure_varray(varray_b)
+    array_utils.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )
-    dot_sarray = array_operators.dot_over_components(
+    dot_sarray = farray_operators.dot_over_components(
         varray_a=varray_a,
         varray_b=varray_b,
     )
@@ -118,26 +119,26 @@ def compute_vfield_cross_product(
     field_types.ensure_vfield(vfield_b)
     varray_a = vfield_a.data
     varray_b = vfield_b.data
-    array_types.ensure_varray(varray_a)
-    array_types.ensure_varray(varray_b)
-    array_types.ensure_same_shape(
+    farray_types.ensure_varray(varray_a)
+    farray_types.ensure_varray(varray_b)
+    array_utils.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )
     domain_shape = varray_a.shape[1:]
     dtype = numpy.result_type(varray_a.dtype, varray_b.dtype)
-    cross_varray = array_operators.ensure_array_properties(
+    cross_varray = farray_operators.ensure_properties(
         array_shape=varray_a.shape,
         dtype=dtype,
         array=out_varray,
     )
-    array_types.ensure_varray(cross_varray)
-    tmp_sarray = array_operators.ensure_array_properties(
+    farray_types.ensure_varray(cross_varray)
+    tmp_sarray = farray_operators.ensure_properties(
         array_shape=domain_shape,
         dtype=dtype,
         array=tmp_sarray,
     )
-    array_types.ensure_sarray(tmp_sarray)
+    farray_types.ensure_sarray(tmp_sarray)
     ## cross_x = a_y * b_z - a_z * b_y
     numpy.multiply(varray_a[1], varray_b[2], out=cross_varray[0])  # out[0] = a_y * b_z
     numpy.multiply(varray_a[2], varray_b[1], out=tmp_sarray)  # tmp = a_z * b_y
@@ -172,15 +173,15 @@ def compute_vfield_curl(
     )
     sim_time = vfield.sim_time
     varray = vfield.data
-    array_types.ensure_varray(varray)
+    farray_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
-    curl_varray = array_operators.ensure_array_properties(
+    curl_varray = farray_operators.ensure_properties(
         array_shape=varray.shape,
         dtype=varray.dtype,
         array=out_varray,
     )
-    array_types.ensure_varray(curl_varray)
+    farray_types.ensure_varray(curl_varray)
     ## curl_x = dv_z/dy - dv_y/dz
     numpy.subtract(
         nabla(sarray=varray[2], cell_width=cell_width_y, grad_axis=1),
@@ -221,16 +222,16 @@ def compute_vfield_divergence(
     )
     sim_time = vfield.sim_time
     varray = vfield.data
-    array_types.ensure_varray(varray)
+    farray_types.ensure_varray(varray)
     nabla = finite_difference.get_grad_func(grad_order)
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     domain_shape = varray.shape[1:]
-    div_sarray = array_operators.ensure_array_properties(
+    div_sarray = farray_operators.ensure_properties(
         array_shape=domain_shape,
         dtype=varray.dtype,
         array=out_sarray,
     )
-    array_types.ensure_sarray(div_sarray)
+    farray_types.ensure_sarray(div_sarray)
     ## start with dv_x/dx, then add others in-place to avoid an extra tmp_sarray
     div_sarray[...] = nabla(sarray=varray[0], cell_width=cell_width_x, grad_axis=0)
     numpy.add(div_sarray, nabla(sarray=varray[1], cell_width=cell_width_y, grad_axis=1), out=div_sarray)
@@ -255,8 +256,8 @@ def compute_magnetic_energy_density(
     field_types.ensure_vfield(vfield)
     sim_time = vfield.sim_time
     varray = vfield.data
-    array_types.ensure_varray(varray)
-    Emag_sarray = array_operators.sum_of_component_squares(varray)  # allocates output (reused below)
+    farray_types.ensure_varray(varray)
+    Emag_sarray = farray_operators.sum_of_squared_components(varray)  # allocates output (reused below)
     Emag_sarray *= numpy.asarray(energy_prefactor, dtype=Emag_sarray.dtype)  # scale in-place
     return field_types.ScalarField(
         sim_time=sim_time,
