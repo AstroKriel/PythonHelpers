@@ -161,9 +161,9 @@ def compute_vfield_cross_product(
 def compute_vfield_curl(
     vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
-    grad_order: int = 2,
     out_varray: numpy.ndarray | None = None,
     field_label: str = r"$\nabla\times\vec{f}$",
+    grad_order: int = 2,
 ) -> field_types.VectorField:
     field_types.ensure_vfield(vfield)
     field_types.ensure_uniform_domain(uniform_domain)

@@ -68,8 +68,8 @@ def compute_sarray_volume_integral(
 def compute_sarray_grad(
     sarray: numpy.ndarray,
     cell_widths: tuple[float, float, float] | list[float],
-    grad_order: int = 2,
     out_varray: numpy.ndarray | None = None,
+    grad_order: int = 2,
 ) -> numpy.ndarray:
     farray_types.ensure_sarray(sarray)
     farray_types.ensure_valid_cell_widths(cell_widths)
@@ -155,8 +155,8 @@ def dot_over_components(
 def compute_varray_grad(
     varray: numpy.ndarray,
     cell_widths: tuple[float, float, float] | list[float],
-    grad_order: int = 2,
     out_r2tarray: numpy.ndarray | None = None,
+    grad_order: int = 2,
 ) -> numpy.ndarray:
     farray_types.ensure_varray(varray)
     farray_types.ensure_valid_cell_widths(cell_widths)
