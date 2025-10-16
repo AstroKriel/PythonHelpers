@@ -10,6 +10,7 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 from jormi.utils import type_utils, array_utils
+from jormi.ww_io import log_manager
 
 ##
 ## === DATA TYPES
@@ -246,6 +247,13 @@ def fit_linear_model(
         parameter_names=("intercept", "slope"),
         function=(lambda x_array, intercept, slope: intercept + slope * x_array),
     )
+    if data_series.x_sigma_array is not None:
+        log_manager.log_hint(
+            text=(
+                "Note: SciPy `curve_fit` does not account for `x_sigma_array` (its ignored); "
+                "only `y_sigma_array` is supported in the standard least-squares formalism."
+            )
+        )
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
             f=linear_model.function,
@@ -255,12 +263,12 @@ def fit_linear_model(
             absolute_sigma=True if data_series.has_y_uncertainty else False,
         )
     except RuntimeError as err:
-        raise RuntimeError(f"Linear model fit did not converge: {err}") from err
+        raise RuntimeError(f"Fit failed to converge: {err}") from err
     diag_array = numpy.diag(covariance_matrix)
-    stds_vector = numpy.sqrt(diag_array) if numpy.isfinite(diag_array).all() else None
+    sigmas_vector = numpy.sqrt(diag_array) if numpy.isfinite(diag_array).all() else None
     fit_stats = linear_model.create_fit_stats(
         values_vector=fitted_vector,
-        sigmas_vector=stds_vector,  # uncertainties can be ill-conditioned
+        sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
     residual_array = data_series.y_array - linear_model.function(data_series.x_array, *fitted_vector)
     return FitSummary(
@@ -276,48 +284,48 @@ def fit_linear_model(
 def fit_line_with_fixed_slope(
     data_series: DataSeries,
     fixed_slope: float,
-    y_sigmas: list | numpy.ndarray | None = None,
 ) -> FitSummary:
     """Fit a line with a fixed slope to a 1D data-series."""
     if data_series.num_points < 2:
         raise ValueError("Need at least 2 points to estimate intercept.")
-    if y_sigmas is None:
-        weight_array = numpy.ones_like(data_series.y_array, dtype=float)
-    else:
-        y_sigmas_array = array_utils.as_1d(
-            array_like=y_sigmas,
-            check_finite=True,
-        )
-        array_utils.ensure_same_shape(
-            array_a=y_sigmas_array,
-            array_b=data_series.y_array,
-        )
-        if numpy.any(y_sigmas_array <= 0) or not numpy.all(numpy.isfinite(y_sigmas_array)):
-            raise ValueError("`y_sigmas` must be positive and finite.")
-        weight_array = 1.0 / numpy.square(y_sigmas_array)
-    x_array = data_series.x_array
-    y_array = data_series.y_array
-    total_weight = numpy.sum(weight_array)
-    y_minus_mx_array = y_array - fixed_slope * x_array
-    intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / total_weight)
-    residual_array = y_array - (intercept_value + fixed_slope * x_array)
-    ssr_value = float(numpy.sum(weight_array * numpy.square(residual_array)))
-    num_dof = data_series.num_points - 1
-    sigma_sq = 1.0 if (y_sigmas is not None) else (ssr_value / num_dof)
-    intercept_std = float(numpy.sqrt(sigma_sq / total_weight))
-    fixed_model = Model(
+    fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         parameter_names=("intercept", "slope"),
-        function=(lambda x_array, intercept, slope: intercept + slope * x_array),
+        function=(lambda x_array, intercept, _fixed_slope: intercept + _fixed_slope * x_array),
     )
+    weight_array = data_series.y_weights()
+    uses_absolute_sigma = data_series.has_y_uncertainty
+    if data_series.has_x_uncertainty:
+        log_manager.log_hint(
+            text=(
+                "Note: `x_sigma_array` is not used in the fixed-slope estimator; "
+                "only `y_sigma_array` contributes to weighting."
+            )
+        )
+    # weighted intercept
+    x_array = data_series.x_array
+    y_array = data_series.y_array
+    weight_sum = float(numpy.sum(weight_array))
+    y_minus_mx_array = y_array - fixed_slope * x_array
+    intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
+    # residuals
+    residual_array = y_array - (intercept_value + fixed_slope * x_array)
+    # intercept uncertainty
+    if uses_absolute_sigma:
+        sigma_sq = 1.0
+    else:
+        num_dof = data_series.num_points - 1
+        ssr_value = float(numpy.sum(weight_array * numpy.square(residual_array)))
+        sigma_sq = ssr_value / num_dof
+    intercept_std = float(numpy.sqrt(sigma_sq / weight_sum))
     fitted_vector = numpy.array([intercept_value, fixed_slope], dtype=float)
-    sigmas_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
-    fit_stats = fixed_model.create_fit_stats(
+    errors_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
+    fit_stats = fixed_slope_model.create_fit_stats(
         values_vector=fitted_vector,
-        sigmas_vector=sigmas_vector,
+        errors_vector=errors_vector,
     )
     return FitSummary(
-        model=fixed_model,
+        model=fixed_slope_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
         num_points=data_series.num_points,
@@ -366,7 +374,7 @@ def get_line_angle(
 ) -> float:
     """
     Compute the apparent angle (in degrees) of a line with a particular slope
-    when plotted in a rectangular domain fitted on a figure with set aspect ratio.
+    when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
     """
     type_utils.assert_sequence(
         var_obj=domain_bounds,
