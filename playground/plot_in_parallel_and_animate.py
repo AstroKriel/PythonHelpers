@@ -4,10 +4,10 @@ import numpy
 from pathlib import Path
 from jormi.ww_io import io_manager
 from jormi.ww_plots import plot_manager
-from jormi.parallelism import independent_tasks
+from jormi.utils import parallel_utils
 
 
-def render_sine_frame(
+def render_frame(
     output_dir: str | Path,
     frame_index: int,
     num_frames: int,
@@ -15,7 +15,8 @@ def render_sine_frame(
     x = numpy.linspace(0, 1, 1000)
     phase = frame_index / max(1, num_frames - 1)
     y = numpy.sin(2 * numpy.pi * (x - phase))
-    fig, ax = plot_manager.create_figure()
+    fig, axs_grid = plot_manager.create_figure()
+    ax = axs_grid[0,0]
     ax.plot(x, y, linewidth=2.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(-1.1, 1.1)
@@ -31,10 +32,10 @@ def main():
     num_frames = 300
     output_dir = Path(__file__).parent / "frames"
     io_manager.init_directory(output_dir)
-    grouped_args = [(output_dir, frame_index, num_frames) for frame_index in range(num_frames)]
-    independent_tasks.run_in_parallel(
-        func=render_sine_frame,
-        grouped_args=grouped_args,
+    grouped_worker_args = [(output_dir, frame_index, num_frames) for frame_index in range(num_frames)]
+    parallel_utils.run_in_parallel(
+        worker_func=render_frame,
+        grouped_worker_args=grouped_worker_args,
         timeout_seconds=60,
         show_progress=True,
         enable_plotting=True,
