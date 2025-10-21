@@ -35,11 +35,11 @@ def get_index_of_closest_value(
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value."""
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=values,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=target,
         valid_types=(int, float),
     )
@@ -108,11 +108,11 @@ def get_intersect_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the intersection of two lists (optionally sorted)."""
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=list_a,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=list_b,
         valid_types=(list, numpy.ndarray),
     )
@@ -127,11 +127,11 @@ def get_union_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the union of two lists (optionally sorted)."""
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=list_a,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=list_b,
         valid_types=(list, numpy.ndarray),
     )
@@ -142,7 +142,7 @@ def get_union_of_lists(
 
 def flatten_list(elems: list | numpy.ndarray) -> list:
     """Flatten a nested list into a single list."""
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=elems,
         valid_types=(list, numpy.ndarray),
     )

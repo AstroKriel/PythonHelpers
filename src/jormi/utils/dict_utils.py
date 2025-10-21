@@ -5,24 +5,24 @@
 ##
 
 import copy
-from jormi.utils import type_utils, func_utils
+from jormi.utils import type_utils, fn_utils
 
 ##
 ## === FUNCTIONS
 ##
 
 
-@func_utils.warn_if_result_is_unused
+@fn_utils.warn_if_fn_result_is_unused
 def merge_dicts(
     dict_a: dict,
     dict_b: dict,
 ) -> dict:
     """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=dict_a,
         valid_types=dict,
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=dict_b,
         valid_types=dict,
     )

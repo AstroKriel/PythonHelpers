@@ -19,29 +19,29 @@ from jormi.ww_io import log_manager
 
 @dataclass(frozen=True)
 class DataSeries:
-    x_array: numpy.ndarray
-    y_array: numpy.ndarray
+    x_data_array: numpy.ndarray
+    y_data_array: numpy.ndarray
     x_sigma_array: numpy.ndarray | None = None
     y_sigma_array: numpy.ndarray | None = None
 
     def __post_init__(
         self,
     ):
-        self._validate_data_array(self.x_array)
-        self._validate_data_array(self.y_array)
+        self._validate_data_array(self.x_data_array)
+        self._validate_data_array(self.y_data_array)
         array_utils.ensure_same_shape(
-            array_a=self.x_array,
-            array_b=self.y_array,
+            array_a=self.x_data_array,
+            array_b=self.y_data_array,
         )
         if self.x_sigma_array is not None:
             self._validate_sigma_array(
                 sigma_array=self.x_sigma_array,
-                ref_array=self.x_array,
+                ref_array=self.x_data_array,
             )
         if self.y_sigma_array is not None:
             self._validate_sigma_array(
                 sigma_array=self.y_sigma_array,
-                ref_array=self.y_array,
+                ref_array=self.y_data_array,
             )
 
     @staticmethod
@@ -78,15 +78,15 @@ class DataSeries:
     def num_points(
         self,
     ) -> int:
-        return len(self.x_array)
+        return len(self.x_data_array)
 
     @cached_property
     def x_bounds(
         self,
     ) -> tuple[float, float]:
         return (
-            numpy.min(self.x_array),
-            numpy.max(self.x_array),
+            numpy.min(self.x_data_array),
+            numpy.max(self.x_data_array),
         )
 
     @cached_property
@@ -94,8 +94,8 @@ class DataSeries:
         self,
     ) -> tuple[float, float]:
         return (
-            numpy.min(self.y_array),
-            numpy.max(self.y_array),
+            numpy.min(self.y_data_array),
+            numpy.max(self.y_data_array),
         )
 
     @cached_property
@@ -114,7 +114,7 @@ class DataSeries:
         self
     ) -> numpy.ndarray:
         if self.y_sigma_array is None:
-            return numpy.ones_like(self.y_array, dtype=float)
+            return numpy.ones_like(self.y_data_array, dtype=float)
         return 1.0 / numpy.square(self.y_sigma_array)
 
 
@@ -128,14 +128,14 @@ class FitStatistic:
 @dataclass(frozen=True)
 class Model:
     model_name: str
-    parameter_names: tuple[str, ...]
-    function: Callable[..., numpy.ndarray]
+    param_names: tuple[str, ...]
+    model_fn: Callable[..., numpy.ndarray]
 
     def index_of(
         self,
-        parameter_name: str,
+        param_name: str,
     ) -> int:
-        return self.parameter_names.index(parameter_name)
+        return self.param_names.index(param_name)
 
     def create_fit_stats(
         self,
@@ -146,8 +146,8 @@ class Model:
             array_like=values_vector,
             check_finite=True,
         )
-        if values_array.size != len(self.parameter_names):
-            raise ValueError("`values_vector` length does not match `parameter_names`.")
+        if values_array.size != len(self.param_names):
+            raise ValueError("`values_vector` length does not match `param_names`.")
         sigmas_array = None
         if sigmas_vector is not None:
             sigmas_array = array_utils.as_1d(
@@ -159,7 +159,7 @@ class Model:
                 array_b=sigmas_array,
             )
         fit_stats: dict[str, FitStatistic] = {}
-        for param_index, param_name in enumerate(self.parameter_names):
+        for param_index, param_name in enumerate(self.param_names):
             value = float(values_array[param_index])
             sigma = None
             if sigmas_array is not None:
@@ -183,10 +183,10 @@ class FitSummary:
     y_bounds: tuple[float, float]
 
     def __post_init__(self):
-        missing_params = set(self.model.parameter_names) - set(self.fit_stats.keys())
+        missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
             missing_str = ", ".join(sorted(missing_params))
-            raise ValueError(f"Missing parameters: {missing_str}")
+            raise ValueError(f"Missing parameter(s): {missing_str}")
         array_utils.ensure_array(self.residual_array)
         array_utils.ensure_1d(self.residual_array)
         array_utils.ensure_finite(self.residual_array)
@@ -205,30 +205,30 @@ class FitSummary:
     ) -> float:
         return float(numpy.sqrt(numpy.mean(numpy.square(self.residual_array))))
 
-    def get_parameter_values(
+    def get_param_values(
         self,
     ) -> list[float]:
-        return [self.fit_stats[parameter_name].value for parameter_name in self.model.parameter_names]
+        return [self.fit_stats[param_name].value for param_name in self.model.param_names]
 
-    def get_parameter(
+    def get_param(
         self,
-        parameter_name: str,
+        param_name: str,
     ) -> FitStatistic:
-        return self.fit_stats[parameter_name]
+        return self.fit_stats[param_name]
 
     @cached_property
     def degrees_of_freedom(self) -> int:
-        return self.num_points - len(self.model.parameter_names)
+        return self.num_points - len(self.model.param_names)
 
     def evaluate_fit(
         self,
         x_values: list | numpy.ndarray,
     ) -> numpy.ndarray:
-        x_array = array_utils.as_1d(
+        x_data_array = array_utils.as_1d(
             array_like=x_values,
             check_finite=True,
         )
-        return self.model.function(x_array, *self.get_parameter_values())
+        return self.model.model_fn(x_data_array, *self.get_param_values())
 
 
 ##
@@ -244,8 +244,8 @@ def fit_linear_model(
         raise ValueError("Need at least 3 points to fit a line.")
     linear_model = Model(
         model_name="linear",
-        parameter_names=("intercept", "slope"),
-        function=(lambda x_array, intercept, slope: intercept + slope * x_array),
+        param_names=("intercept", "slope"),
+        model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
     )
     if data_series.x_sigma_array is not None:
         log_manager.log_hint(
@@ -256,9 +256,9 @@ def fit_linear_model(
         )
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
-            f=linear_model.function,
-            xdata=data_series.x_array,
-            ydata=data_series.y_array,
+            f=linear_model.model_fn,
+            xdata=data_series.x_data_array,
+            ydata=data_series.y_data_array,
             sigma=data_series.y_sigma_array if data_series.has_y_uncertainty else None,
             absolute_sigma=True if data_series.has_y_uncertainty else False,
         )
@@ -270,7 +270,7 @@ def fit_linear_model(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
-    residual_array = data_series.y_array - linear_model.function(data_series.x_array, *fitted_vector)
+    residual_array = data_series.y_data_array - linear_model.model_fn(data_series.x_data_array, *fitted_vector)
     return FitSummary(
         model=linear_model,
         fit_stats=fit_stats,
@@ -290,8 +290,8 @@ def fit_line_with_fixed_slope(
         raise ValueError("Need at least 2 points to estimate intercept.")
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
-        parameter_names=("intercept", "slope"),
-        function=(lambda x_array, intercept, _fixed_slope: intercept + _fixed_slope * x_array),
+        param_names=("intercept", "slope"),
+        model_fn=(lambda x_data_array, intercept, _fixed_slope: intercept + _fixed_slope * x_data_array),
     )
     weight_array = data_series.y_weights()
     uses_absolute_sigma = data_series.has_y_uncertainty
@@ -303,13 +303,13 @@ def fit_line_with_fixed_slope(
             )
         )
     # weighted intercept
-    x_array = data_series.x_array
-    y_array = data_series.y_array
+    x_data_array = data_series.x_data_array
+    y_data_array = data_series.y_data_array
     weight_sum = float(numpy.sum(weight_array))
-    y_minus_mx_array = y_array - fixed_slope * x_array
+    y_minus_mx_array = y_data_array - fixed_slope * x_data_array
     intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
     # residuals
-    residual_array = y_array - (intercept_value + fixed_slope * x_array)
+    residual_array = y_data_array - (intercept_value + fixed_slope * x_data_array)
     # intercept uncertainty
     if uses_absolute_sigma:
         sigma_sq = 1.0
@@ -376,7 +376,7 @@ def get_line_angle(
     Compute the apparent angle (in degrees) of a line with a particular slope
     when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
     """
-    type_utils.assert_sequence(
+    type_utils.ensure_sequence(
         var_obj=domain_bounds,
         seq_length=4,
         valid_containers=(tuple, list),

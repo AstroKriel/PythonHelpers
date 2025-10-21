@@ -19,7 +19,7 @@ from jormi.ww_data import smooth_data
 class EstimatedPDF:
     bin_centers: numpy.ndarray
     bin_edges: numpy.ndarray
-    density: numpy.ndarray
+    densities: numpy.ndarray
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class EstimatedJPDF:
     bin_centers_cols: numpy.ndarray
     bin_edges_rows: numpy.ndarray
     bin_edges_cols: numpy.ndarray
-    density: numpy.ndarray
+    densities: numpy.ndarray
 
 
 ##
@@ -101,23 +101,23 @@ def sample_gaussian_distribution_from_quantiles(
     Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 correspond with
     probability-values 0 < p1 < p2 < 1.
     """
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=q1,
         valid_types=(float, int),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=q2,
         valid_types=(float, int),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=p1,
         valid_types=(float, int),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=p2,
         valid_types=(float, int),
     )
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=num_samples,
         valid_types=int,
     )
@@ -182,11 +182,11 @@ def estimate_pdf(
         )
         bin_widths = numpy.diff(bin_edges)
         bin_counts = numpy.array([0.0, 1.0, 0.0], dtype=numpy.float64)
-        density = bin_counts / (numpy.sum(bin_counts, dtype=numpy.float64) * bin_widths)
+        densities = bin_counts / (numpy.sum(bin_counts, dtype=numpy.float64) * bin_widths)
         return EstimatedPDF(
             bin_centers=bin_centers,
             bin_edges=bin_edges,
-            density=density,
+            densities=densities,
         )
     ## determine bin centers
     if bin_centers is None:
@@ -218,11 +218,11 @@ def estimate_pdf(
     if total_counts <= 0:
         raise ValueError("None of the `values` fell into any bins.")
     ## normalise by bin width and total counts
-    density = bin_counts / (total_counts * bin_widths)
+    densities = bin_counts / (total_counts * bin_widths)
     return EstimatedPDF(
         bin_centers=bin_centers,
         bin_edges=bin_edges,
-        density=density,
+        densities=densities,
     )
 
 
@@ -306,7 +306,7 @@ def estimate_jpdf(
         bin_centers_cols=bin_centers_cols,
         bin_edges_rows=bin_edges_rows,
         bin_edges_cols=bin_edges_cols,
-        density=estimated_jpdf,
+        densities=estimated_jpdf,
     )
 
 

@@ -15,7 +15,7 @@ from jormi.utils import type_utils
 def ensure_array(
     array: numpy.ndarray,
 ):
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=array,
         valid_types=numpy.ndarray,
     )

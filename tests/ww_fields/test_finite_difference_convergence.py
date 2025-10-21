@@ -26,15 +26,15 @@ def sample_domain(domain_bounds, num_points):
     )  # to ensure periodicity
 
 
-def evaluate_function_at_points(x_values):
+def evaluate_fntion_at_points(x_values):
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
 
 
-def evaluate_exact_function_derivative_at_points(x_values):
+def evaluate_exact_fntion_derivative_at_points(x_values):
     return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 
-def estimate_function_derivative(x_values, y_values, func_dydx):
+def estimate_fntion_derivative(x_values, y_values, func_dydx):
     cell_width = (x_values[-1] - x_values[0]) / len(x_values)  # assumes uniform samples
     return func_dydx(y_values, cell_width, grad_axis=0)
 
@@ -59,19 +59,19 @@ class TestFiniteDifferenceConvergence:
         self.num_points_to_test = [10, 20, 50, 1e2, 2e2, 5e2]
         self.grad_methods = [
             {
-                "func": finite_difference.second_order_centered_difference,
+                "worker_fn": finite_difference.second_order_centered_difference,
                 "expected_scaling": -2,
                 "label": "2nd order",
                 "color": "red",
             },
             {
-                "func": finite_difference.fourth_order_centered_difference,
+                "worker_fn": finite_difference.fourth_order_centered_difference,
                 "expected_scaling": -4,
                 "label": "4th order",
                 "color": "forestgreen",
             },
             {
-                "func": finite_difference.sixth_order_centered_difference,
+                "worker_fn": finite_difference.sixth_order_centered_difference,
                 "expected_scaling": -6,
                 "label": "6th order",
                 "color": "royalblue",
@@ -99,8 +99,8 @@ class TestFiniteDifferenceConvergence:
 
     def _plot_exact_soln(self):
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
-        y_values = evaluate_function_at_points(x_values)
-        dydx_values = evaluate_exact_function_derivative_at_points(x_values)
+        y_values = evaluate_fntion_at_points(x_values)
+        dydx_values = evaluate_exact_fntion_derivative_at_points(x_values)
         self.axs_grid[0, 0].plot(x_values, y_values, color="black", ls="-", lw=2)
         self.axs_grid[1, 0].plot(
             x_values,
@@ -113,8 +113,8 @@ class TestFiniteDifferenceConvergence:
 
     def _plot_approx_soln(self, nabla, color, label):
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
-        y_values = evaluate_function_at_points(x_values)
-        dydx_values = estimate_function_derivative(x_values, y_values, nabla)
+        y_values = evaluate_fntion_at_points(x_values)
+        dydx_values = estimate_fntion_derivative(x_values, y_values, nabla)
         self.axs_grid[1, 0].plot(
             x_values,
             dydx_values,
@@ -130,15 +130,15 @@ class TestFiniteDifferenceConvergence:
         failed_methods = []
         for grad_method in self.grad_methods:
             expected_scaling = grad_method["expected_scaling"]
-            nabla = grad_method["func"]
+            nabla = grad_method["worker_fn"]
             color = grad_method["color"]
             label = grad_method["label"]
             self._plot_approx_soln(nabla, color, label)
             errors = []
             for num_points in self.num_points_to_test:
                 x_values = sample_domain(self.domain_bounds, num_points)
-                y_values = evaluate_function_at_points(x_values)
-                dydx_exact = evaluate_exact_function_derivative_at_points(x_values)
+                y_values = evaluate_fntion_at_points(x_values)
+                dydx_exact = evaluate_exact_fntion_derivative_at_points(x_values)
                 cell_width = x_values[1] - x_values[0]  # assumes uniform samples
                 dydx_approx = nabla(y_values, cell_width, grad_axis=0)
                 error = compute_stats.compute_p_norm(

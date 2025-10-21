@@ -34,7 +34,7 @@ def main():
     io_manager.init_directory(output_dir)
     grouped_worker_args = [(output_dir, frame_index, num_frames) for frame_index in range(num_frames)]
     parallel_utils.run_in_parallel(
-        worker_func=render_frame,
+        worker_fn=render_frame,
         grouped_worker_args=grouped_worker_args,
         timeout_seconds=60,
         show_progress=True,

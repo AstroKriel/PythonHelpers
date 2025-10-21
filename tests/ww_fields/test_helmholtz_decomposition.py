@@ -15,7 +15,7 @@ from jormi.ww_fields import field_types, field_operators, decompose_fields
 ##
 
 
-def generate_curl_free_vfield(domain_bounds, num_cells):
+def generate_div_vfield(domain_bounds, num_cells):
     """Generate a curl-free (irrotational) vector field."""
     domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
     grid_x, grid_y, grid_z = numpy.meshgrid(domain, domain, domain, indexing="ij")
@@ -28,14 +28,14 @@ def generate_curl_free_vfield(domain_bounds, num_cells):
     )
 
 
-def generate_div_free_vfield(domain_bounds, num_cells):
+def generate_sol_vfield(domain_bounds, num_cells):
     """Generate a solenoidal (divergence-free) vector field."""
     domain_length = domain_bounds[1] - domain_bounds[0]
     domain = numpy.linspace(domain_bounds[0], domain_bounds[1], int(num_cells))
     k = 2 * numpy.pi / domain_length
     grid_x, grid_y, grid_z = numpy.meshgrid(domain, domain, domain, indexing="ij")
     sfield_qx = -k * grid_x * numpy.sin(k * grid_x * grid_y)
-    sfield_qy =  k * grid_y * numpy.sin(k * grid_x * grid_y)
+    sfield_qy = k * grid_y * numpy.sin(k * grid_x * grid_y)
     sfield_qz = numpy.zeros_like(grid_z)
     return field_types.VectorField(
         data=numpy.stack([sfield_qx, sfield_qy, sfield_qz]),
@@ -43,11 +43,28 @@ def generate_div_free_vfield(domain_bounds, num_cells):
     )
 
 
-def generate_mixed_vfield(domain_bounds, num_cells):
-    v_div = generate_curl_free_vfield(domain_bounds, num_cells)
-    v_sol = generate_div_free_vfield(domain_bounds, num_cells)
+def generate_uniform_vfield(const_vector, num_cells):
+    """Generate a uniform (bulk-only) vector field with constant components."""
+    sfield_qx = numpy.full((num_cells, num_cells, num_cells), float(const_vector[0]))
+    sfield_qy = numpy.full((num_cells, num_cells, num_cells), float(const_vector[1]))
+    sfield_qz = numpy.full((num_cells, num_cells, num_cells), float(const_vector[2]))
     return field_types.VectorField(
-        data=v_div.data + v_sol.data,
+        data=numpy.stack([sfield_qx, sfield_qy, sfield_qz]),
+        field_label=r"$\vec{q}$",
+    )
+
+
+def generate_mixed_vfield(domain_bounds, num_cells, bulk_vector=(0.0, 0.0, 0.0)):
+    """Generate a mixed field: div + sol (+ optional uniform bulk)."""
+    v_div = generate_div_vfield(domain_bounds, num_cells)
+    v_sol = generate_sol_vfield(domain_bounds, num_cells)
+    if any(float(b) != 0.0 for b in bulk_vector):
+        v_bulk = generate_uniform_vfield(bulk_vector, num_cells)
+        data = v_div.data + v_sol.data + v_bulk.data
+    else:
+        data = v_div.data + v_sol.data
+    return field_types.VectorField(
+        data=data,
         field_label=r"$\vec{q}$",
     )
 
@@ -126,101 +143,150 @@ def main():
         resolution=resolution,
         domain_bounds=(domain_bounds, domain_bounds, domain_bounds),
     )
+    ## include a pure-bulk test: should recover bulk in bulk_vfield, and near-zero div/sol
+    bulk_vector = (0.3, -0.1, 0.2)
     list_vfields = [
         {
+            "label": "mixed",
+            "vfield": generate_mixed_vfield(domain_bounds, num_cells, bulk_vector=bulk_vector),
+        },
+        {
             "label": "divergence",
-            "vfield": generate_curl_free_vfield(domain_bounds, num_cells),
+            "vfield": generate_div_vfield(domain_bounds, num_cells),
         },
         {
             "label": "solenoidal",
-            "vfield": generate_div_free_vfield(domain_bounds, num_cells),
+            "vfield": generate_sol_vfield(domain_bounds, num_cells),
         },
         {
-            "label": "mixed",
-            "vfield": generate_mixed_vfield(domain_bounds, num_cells),
+            "label": "bulk",
+            "vfield": generate_uniform_vfield(bulk_vector, num_cells),
         },
     ]
-    fig, axs_grid = plot_manager.create_figure(num_rows=3, num_cols=3, axis_shape=(7, 7))
+    ## 4 rows (input + 3 decomps/combined) x 4 cols (combined, div-only, sol-only, bulk-only)
+    fig, axs_grid = plot_manager.create_figure(
+        num_rows=4,
+        num_cols=4,
+        axis_shape=(7, 7),
+    )
     failed_vfields = []
     for vfield_index, vfield_entry in enumerate(list_vfields):
         vfield_name = vfield_entry["label"]
         vfield = vfield_entry["vfield"]
         print(f"input: {vfield_name} field")
+        ## decompose
         decomp = decompose_fields.compute_helmholtz_decomposition(
             vfield=vfield,
             uniform_domain=uniform_domain,
         )
         vfield_div = decomp.div_vfield
         vfield_sol = decomp.sol_vfield
-        ## q - (q_div + q_sol)
-        residual = field_types.VectorField(
-            data=vfield.data - (vfield_div.data + vfield_sol.data),
+        vfield_bulk = decomp.bulk_vfield
+        ## reconstructed field: q_rec = q_div + q_sol + q_bulk
+        vfield_rec = field_types.VectorField(
+            data=vfield_div.data + vfield_sol.data + vfield_bulk.data,
             field_label=vfield.field_label,
         )
+        ## residual: q - q_rec (should be ~0)
+        residual = field_types.VectorField(
+            data=vfield.data - vfield_rec.data,
+            field_label=vfield.field_label,
+        )
+        ## checks
         sfield_check_q_diff = field_operators.compute_vfield_magnitude(residual)
-        ## curl(q_div)
-        curl_div = field_operators.compute_vfield_curl(vfield=vfield_div, uniform_domain=uniform_domain)
-        sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(curl_div)
-        ## div(q_sol)
+        curl_div = field_operators.compute_vfield_curl(
+            vfield=vfield_div,
+            uniform_domain=uniform_domain,
+        )
+        sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
+            vfield=curl_div,
+        )
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
             vfield=vfield_sol,
             uniform_domain=uniform_domain,
         )
+        curl_bulk = field_operators.compute_vfield_curl(vfield=vfield_bulk, uniform_domain=uniform_domain)
+        div_bulk = field_operators.compute_vfield_divergence(
+            vfield=vfield_bulk, uniform_domain=uniform_domain
+        )
+        sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
+        sfield_check_bulk_div = div_bulk  ## already scalar field
         ## stats
         abs_q_diff = numpy.abs(sfield_check_q_diff.data)
         abs_sol_in_div = numpy.abs(sfield_check_div_is_sol_free.data)
         abs_div_in_sol = numpy.abs(sfield_check_sol_is_div_free.data)
+        abs_curl_bulk = numpy.abs(sfield_check_bulk_curl.data)
+        abs_div_bulk = numpy.abs(sfield_check_bulk_div.data)
         ave_q_diff = numpy.median(abs_q_diff)
         ave_sol_in_div = numpy.median(abs_sol_in_div)
         ave_div_in_sol = numpy.median(abs_div_in_sol)
+        ave_curl_bulk = numpy.median(abs_curl_bulk)
+        ave_div_bulk = numpy.median(abs_div_bulk)
         std_q_diff = numpy.std(abs_q_diff)
         std_sol_in_div = numpy.std(abs_sol_in_div)
         std_div_in_sol = numpy.std(abs_div_in_sol)
-        ## simple thresholds (unchanged)
+        std_curl_bulk = numpy.std(abs_curl_bulk)
+        std_div_bulk = numpy.std(abs_div_bulk)
+        ## simple thresholds (tolerant; these can be tightened)
         bool_q_returned = ave_q_diff < 0.5
         bool_div_is_sol_free = ave_sol_in_div < 0.5
         bool_sol_is_div_free = ave_div_in_sol < 0.5
-        print(f"|q - (q_div + q_sol)| median = {ave_q_diff:.2e} +/- {std_q_diff:.2e}")
+        bool_bulk_uniform_curl = ave_curl_bulk < 1e-12
+        bool_bulk_uniform_div = ave_div_bulk < 1e-12
+        print(f"|q - (q_div + q_sol + q_bulk)| median = {ave_q_diff:.2e} +/- {std_q_diff:.2e}")
         print(f"|curl(q_div)| median = {ave_sol_in_div:.2e} +/- {std_sol_in_div:.2e}")
         print(f"|div(q_sol)| median = {ave_div_in_sol:.2e} +/- {std_div_in_sol:.2e}")
-        ## plots
-        plot_vfield_sliceSlice(axs_grid[vfield_index, 0], vfield, domain_bounds)
-        plot_vfield_sliceSlice(axs_grid[vfield_index, 1], vfield_div, domain_bounds)
-        plot_vfield_sliceSlice(axs_grid[vfield_index, 2], vfield_sol, domain_bounds)
-        axs_grid[vfield_index, 0].text(
+        print(f"|curl(q_bulk)| median = {ave_curl_bulk:.2e} +/- {std_curl_bulk:.2e}")
+        print(f"|div(q_bulk)| median = {ave_div_bulk:.2e} +/- {std_div_bulk:.2e}")
+        ## plots: for each input field, fill a 4x4 block column-wise:
+        col = vfield_index  ## one column per input case
+        plot_vfield_sliceSlice(axs_grid[0, col], vfield_rec, domain_bounds)
+        plot_vfield_sliceSlice(axs_grid[1, col], vfield_div, domain_bounds)
+        plot_vfield_sliceSlice(axs_grid[2, col], vfield_sol, domain_bounds)
+        plot_vfield_sliceSlice(axs_grid[3, col], vfield_bulk, domain_bounds)
+        axs_grid[0, col].text(
             0.5,
             0.05,
-            f"input: {vfield_name} field",
+            f"reconstructed: {vfield_name}",
             va="bottom",
             ha="center",
-            transform=axs_grid[vfield_index, 0].transAxes,
+            transform=axs_grid[0, col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs_grid[vfield_index, 1].text(
+        axs_grid[1, col].text(
             0.5,
             0.05,
             "measured: divergence component",
             va="bottom",
             ha="center",
-            transform=axs_grid[vfield_index, 1].transAxes,
+            transform=axs_grid[1, col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs_grid[vfield_index, 2].text(
+        axs_grid[2, col].text(
             0.5,
             0.05,
             "measured: solenoidal component",
             va="bottom",
             ha="center",
-            transform=axs_grid[vfield_index, 2].transAxes,
+            transform=axs_grid[2, col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        if not (bool_q_returned and bool_div_is_sol_free and bool_sol_is_div_free):
-            if not bool_q_returned:
-                print("Failed test. q_div + q_sol != q")
-            if not bool_div_is_sol_free:
-                print("Failed test. |curl(q_div)| > threshold")
-            if not bool_sol_is_div_free:
-                print("Failed test. |div(q_sol)| > threshold")
+        axs_grid[3, col].text(
+            0.5,
+            0.05,
+            "measured: bulk component",
+            va="bottom",
+            ha="center",
+            transform=axs_grid[3, col].transAxes,
+            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+        )
+        if not (bool_q_returned and bool_div_is_sol_free and bool_sol_is_div_free and bool_bulk_uniform_curl
+                and bool_bulk_uniform_div):
+            if not bool_q_returned: print("Failed test. q_div + q_sol + q_bulk != q")
+            if not bool_div_is_sol_free: print("Failed test. |curl(q_div)| > threshold")
+            if not bool_sol_is_div_free: print("Failed test. |div(q_sol)| > threshold")
+            if not bool_bulk_uniform_curl: print("Failed test. |curl(q_bulk)| not ~ 0")
+            if not bool_bulk_uniform_div: print("Failed test. |div(q_bulk)| not ~ 0")
             failed_vfields.append(vfield_name)
         else:
             print("Test passed successfully!")

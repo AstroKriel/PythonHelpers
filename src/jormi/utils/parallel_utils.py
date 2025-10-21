@@ -23,9 +23,9 @@ def _spawn_fresh_processes() -> None:
         pass
 
 
-def _normalise_grouped_args(grouped_args: Iterable[Any]) -> List[List[Any]]:
+def _normalise_grouped_args(grouped_worker_args: Iterable[Any]) -> List[List[Any]]:
     _grouped_args: List[List[Any]] = []
-    for args in grouped_args:
+    for args in grouped_worker_args:
         if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
             _grouped_args.append(list(args))
         else:
@@ -47,19 +47,19 @@ def _enable_plotting(
 
 
 def _invoke_with_plotting(
-    func: Callable[..., Any],
+    worker_fn: Callable[..., Any],
     task_args: List[Any],
     theme: str = "light",
     use_tex: bool = True,
 ) -> Any:
     _enable_plotting(theme=theme, use_tex=use_tex)
-    return func(*task_args)
+    return worker_fn(*task_args)
 
 
 def run_in_parallel(
     *,
-    func: Callable[..., Any],
-    grouped_args: Iterable[Any],
+    worker_fn: Callable[..., Any],
+    grouped_worker_args: Iterable[Any],
     num_workers: int | None = None,
     timeout_seconds: float | None = None,
     show_progress: bool = True,
@@ -68,15 +68,15 @@ def run_in_parallel(
     use_tex: bool = True,
 ) -> List[Any]:
     _spawn_fresh_processes()
-    grouped_args = _normalise_grouped_args(grouped_args)
+    grouped_worker_args = _normalise_grouped_args(grouped_worker_args)
     if num_workers is None: num_workers = os.cpu_count() or 1
-    task_results: list[Any] = [None] * len(grouped_args)
+    task_results: list[Any] = [None] * len(grouped_worker_args)
     failed_tasks: list[tuple[int, str]] = []
     with ProcessPool(max_workers=num_workers) as pool:
         pending_tasks = []
-        for task_index, task_args in enumerate(grouped_args):
+        for task_index, task_args in enumerate(grouped_worker_args):
             if enable_plotting:
-                task_pair = [func, task_args]
+                task_pair = [worker_fn, task_args]
                 task = (
                     pool.schedule(
                         _invoke_with_plotting,
@@ -97,8 +97,8 @@ def run_in_parallel(
                 )
             else:
                 task = (
-                    pool.schedule(func, args=task_args, timeout=timeout_seconds)
-                    if timeout_seconds is not None else pool.schedule(func, args=task_args)
+                    pool.schedule(worker_fn, args=task_args, timeout=timeout_seconds)
+                    if timeout_seconds is not None else pool.schedule(worker_fn, args=task_args)
                 )
             pending_tasks.append((task_index, task))
         if show_progress:

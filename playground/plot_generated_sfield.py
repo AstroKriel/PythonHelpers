@@ -12,7 +12,7 @@ from jormi.ww_plots import plot_manager, annotate_axis
 from jormi.ww_fields import generate_fields, compute_spectra
 
 ##
-## === MAIN PROGRAM
+## === PROGRAM MAIN
 ##
 
 
