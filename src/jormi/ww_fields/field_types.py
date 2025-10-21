@@ -31,7 +31,7 @@ class UniformDomain:
         self._validate_domain_bounds()
 
     def _validate_periodicity(self):
-        type_utils.assert_sequence(
+        type_utils.ensure_sequence(
             var_obj=self.periodicity,
             var_name="periodicity",
             valid_containers=(tuple, ),
@@ -40,7 +40,7 @@ class UniformDomain:
         )
 
     def _validate_resolution(self):
-        type_utils.assert_sequence(
+        type_utils.ensure_sequence(
             var_obj=self.resolution,
             var_name="resolution",
             valid_containers=(tuple, ),
@@ -52,7 +52,7 @@ class UniformDomain:
             raise ValueError("All entries of `resolution` must be positive.")
 
     def _validate_domain_bounds(self):
-        type_utils.assert_sequence(
+        type_utils.ensure_sequence(
             var_obj=self.domain_bounds,
             var_name="domain_bounds",
             valid_containers=(tuple, ),
@@ -61,7 +61,7 @@ class UniformDomain:
         )
         axis_name = ("x", "y", "z")
         for axis_index, bounds in enumerate(self.domain_bounds):
-            type_utils.assert_sequence(
+            type_utils.ensure_sequence(
                 var_obj=bounds,
                 var_name=f"domain_bounds[{axis_name[axis_index]}]",
                 valid_containers=(tuple, list),
@@ -156,20 +156,17 @@ class ScalarField:
         self._validate_label()
 
     def _validate_sim_time(self):
-        if self.sim_time is None:
-            return
-        try:
-            sim_time = float(self.sim_time)
-        except Exception as error:
-            raise ValueError("`sim_time` must be a float.") from error
-        if not numpy.isfinite(sim_time):
-            raise ValueError("`sim_time` must be finite.")
+        type_utils.ensure_finite_float(
+            var_obj=self.sim_time,
+            var_name="sim_time",
+            allow_none=True
+        )
 
     def _validate_data(self):
         farray_types.ensure_sarray(self.data)
 
     def _validate_label(self):
-        type_utils.assert_nonempty_str(
+        type_utils.ensure_nonempty_str(
             var_obj=self.field_label,
             var_name="field_label",
         )
@@ -188,24 +185,21 @@ class VectorField:
         self._validate_labels()
 
     def _validate_sim_time(self):
-        if self.sim_time is None:
-            return
-        try:
-            sim_time = float(self.sim_time)
-        except Exception as error:
-            raise ValueError("`sim_time` must be a float.") from error
-        if not numpy.isfinite(sim_time):
-            raise ValueError("`sim_time` must be finite.")
+        type_utils.ensure_finite_float(
+            var_obj=self.sim_time,
+            var_name="sim_time",
+            allow_none=True
+        )
 
     def _validate_data(self):
         farray_types.ensure_varray(self.data)
 
     def _validate_labels(self):
-        type_utils.assert_nonempty_str(
+        type_utils.ensure_nonempty_str(
             var_obj=self.field_label,
             var_name="field_label",
         )
-        type_utils.assert_sequence(
+        type_utils.ensure_sequence(
             var_obj=self.comp_labels,
             var_name="comp_labels",
             valid_containers=(tuple, ),
@@ -215,7 +209,7 @@ class VectorField:
         if len(set(self.comp_labels)) != 3:
             raise ValueError("Each element of `comp_labels` must be unique.")
         for label_index, field_label in enumerate(self.comp_labels):
-            type_utils.assert_nonempty_str(
+            type_utils.ensure_nonempty_str(
                 var_obj=field_label,
                 var_name=f"comp_labels[{label_index}]",
             )
@@ -274,7 +268,7 @@ def as_unit_vfield(
 def ensure_sfield(
     sfield,
 ) -> None:
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=sfield,
         valid_types=ScalarField,
     )
@@ -283,14 +277,14 @@ def ensure_sfield(
 def ensure_vfield(
     vfield,
 ) -> None:
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=vfield,
         valid_types=VectorField,
     )
 
 
 def ensure_uvfield(uvfield) -> None:
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=uvfield,
         valid_types=UnitVectorField,
     )
@@ -299,7 +293,7 @@ def ensure_uvfield(uvfield) -> None:
 def ensure_uniform_domain(
     uniform_domain,
 ) -> None:
-    type_utils.assert_type(
+    type_utils.ensure_type(
         var_obj=uniform_domain,
         valid_types=UniformDomain,
     )

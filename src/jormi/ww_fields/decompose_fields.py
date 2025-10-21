@@ -17,10 +17,12 @@ from jormi.ww_fields import farray_operators, field_types, field_operators
 class HelmholtzDecomposition:
     div_vfield: field_types.VectorField
     sol_vfield: field_types.VectorField
+    bulk_vfield: field_types.VectorField
 
     def __post_init__(self):
         field_types.ensure_vfield(self.div_vfield)
         field_types.ensure_vfield(self.sol_vfield)
+        field_types.ensure_vfield(self.bulk_vfield)
 
 
 @dataclass(frozen=True)
@@ -42,14 +44,14 @@ class TNBTerms:
 ##
 
 
-# @func_utils.time_function
+# @fn_utils.time_fn
 def compute_helmholtz_decomposition(
     vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
 ) -> HelmholtzDecomposition:
     """
     Compute the Helmholtz decomposition of a three-dimensional vector field into
-    its divergence-free (solenoidal) and curl-free (irrotational) components.
+    its divergence-free (solenoidal), curl-free (irrotational), and bulk (k=0) components.
     """
     field_types.ensure_vfield(vfield)
     field_types.ensure_uniform_domain(uniform_domain)
@@ -58,6 +60,7 @@ def compute_helmholtz_decomposition(
         raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
     sim_time = vfield.sim_time
     dtype = vfield.data.dtype
+    ## --- Build Fourier wavenumbers on the uniform grid
     num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     kx_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_x, d=cell_width_x)
@@ -65,13 +68,26 @@ def compute_helmholtz_decomposition(
     kz_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_z, d=cell_width_z)
     kx_grid, ky_grid, kz_grid = numpy.meshgrid(kx_values, ky_values, kz_values, indexing="ij")
     k_magn_grid = kx_grid**2 + ky_grid**2 + kz_grid**2
-    ## avoid division by zero
-    ## note: numpy.fft.fftn will assume the zero frequency is at index 0
+    ## avoid division by zero at k=0 (we zero out k=0 in the fft_varray anyway)
     k_magn_grid[0, 0, 0] = 1.0
+    ## --- Transform into Fourier space
+    ## with norm="forward", the k=0 coefficient is the spatial mean of the field
     fft_varray = numpy.fft.fftn(vfield.data, axes=(1, 2, 3), norm="forward")
-    ## \vec{k} cdot \vec{F}(\vec{k})
-    k_dot_fft_sfield = kx_grid * fft_varray[0] + ky_grid * fft_varray[1] + kz_grid * fft_varray[2]
-    ## divergence (curl-free) component: (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
+    ## --- Compute bulk term
+    ## only keep the k=0 coefficient (spatial mean; constant in space)
+    bulk_fft_varray = numpy.zeros_like(fft_varray)
+    bulk_fft_varray[:, 0, 0, 0] = fft_varray[:, 0, 0, 0]
+    ## remove the k=0 coefficient from the working spectrum so projections do not steal the mean
+    fft_varray[:, 0, 0, 0] = 0.0
+    ## --- Compute projections in Fourier space
+    ## with fft_varray[i] = F_i(k) and k = (kx, ky, kz)
+    ## the divergence (curl-free) part is: div_fft_varray[i] = (k_i / k^2) * (k_j * F_j(k))
+    ## the solenoidal (div-free) part is: sol_fft_varray[i] = F_i(k) - div_fft_varray[i]
+    k_dot_fft_sfield = (
+        kx_grid * fft_varray[0] +
+        ky_grid * fft_varray[1] +
+        kz_grid * fft_varray[2]
+    )
     with numpy.errstate(divide="ignore", invalid="ignore"):
         div_fft_varray = numpy.stack(
             [
@@ -81,25 +97,21 @@ def compute_helmholtz_decomposition(
             ],
             axis=0,
         )
-    ## solenoidal (divergence-free) component: \vec{F}(\vec{k}) - (\vec{k} / k^2) (\vec{k} \cdot \vec{F}(\vec{k}))
+    ## solenoidal (divergence-free) component in Fourier space
     sol_fft_varray = fft_varray - div_fft_varray
     ## transform back to real space
-    div_varray = numpy.fft.ifftn(
-        div_fft_varray,
-        axes=(1, 2, 3),
-        norm="forward",
-    ).real.astype(
-        dtype,
-        copy=False,
+    div_varray = numpy.fft.ifftn(div_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
+    sol_varray = numpy.fft.ifftn(sol_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
+    bulk_varray = numpy.fft.ifftn(bulk_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
+    ## free-up large temporary quantities before constructing new fields
+    del (
+        kx_values, ky_values, kz_values,
+        kx_grid, ky_grid, kz_grid,
+        k_magn_grid,
+        fft_varray, k_dot_fft_sfield,
+        div_fft_varray, sol_fft_varray, bulk_fft_varray
     )
-    sol_varray = numpy.fft.ifftn(
-        sol_fft_varray,
-        axes=(1, 2, 3),
-        norm="forward",
-    ).real.astype(
-        dtype,
-        copy=False,
-    )
+    ## package-up fields
     div_vfield = field_types.VectorField(
         sim_time=sim_time,
         data=div_varray,
@@ -110,15 +122,19 @@ def compute_helmholtz_decomposition(
         data=sol_varray,
         field_label=r"$\vec{f}_\perp$",
     )
-    del kx_values, ky_values, kz_values, kx_grid, ky_grid, kz_grid, k_magn_grid
-    del fft_varray, k_dot_fft_sfield, div_fft_varray, sol_fft_varray
+    bulk_vfield = field_types.VectorField(
+        sim_time=sim_time,
+        data=bulk_varray,
+        field_label=r"$\vec{f}_\mathrm{bulk}$",
+    )
     return HelmholtzDecomposition(
         div_vfield=div_vfield,
         sol_vfield=sol_vfield,
+        bulk_vfield=bulk_vfield,
     )
 
 
-# @func_utils.time_function
+# @fn_utils.time_fn
 def compute_tnb_terms(
     vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,

@@ -11,7 +11,7 @@ import numpy
 ##
 
 
-def get_grad_func(
+def get_grad_fn(
     grad_order: int,
 ):
     valid_grad_orders = {

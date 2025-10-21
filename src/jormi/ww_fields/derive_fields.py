@@ -42,7 +42,7 @@ class LorentzForceTerms:
 ##
 
 
-# @func_utils.time_function
+# @fn_utils.time_fn
 def compute_magnetic_curvature_terms(
     u_vfield: field_types.VectorField,
     tangent_uvfield: field_types.UnitVectorField,
@@ -115,7 +115,7 @@ def compute_magnetic_curvature_terms(
     )
 
 
-# @func_utils.time_function
+# @fn_utils.time_fn
 def compute_lorentz_force_terms(
     b_vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
@@ -186,8 +186,8 @@ def compute_lorentz_force_terms(
     )
 
 
-# @func_utils.time_function
-def compute_dissipation_function(
+# @fn_utils.time_fn
+def compute_dissipation_fntion(
     u_vfield: field_types.VectorField,
     uniform_domain: field_types.UniformDomain,
     grad_order: int = 2,
@@ -222,7 +222,7 @@ def compute_dissipation_function(
     )
     sr_r2tarray = sym_term_r2tarray - (1.0 / 3.0) * bulk_term_r2tarray
     ## d_j S_ji = d_x S_xi + d_y S_yi + d_z S_zi
-    nabla = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_fn(grad_order)
     df_varray = farray_operators.ensure_properties(
         array_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         dtype=dtype,

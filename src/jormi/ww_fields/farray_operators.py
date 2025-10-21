@@ -73,7 +73,7 @@ def compute_sarray_grad(
 ) -> numpy.ndarray:
     farray_types.ensure_sarray(sarray)
     farray_types.ensure_valid_cell_widths(cell_widths)
-    nabla = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray.shape
     dtype = numpy.result_type(sarray.dtype, numpy.float64)
     grad_varray = ensure_properties(
@@ -160,7 +160,7 @@ def compute_varray_grad(
 ) -> numpy.ndarray:
     farray_types.ensure_varray(varray)
     farray_types.ensure_valid_cell_widths(cell_widths)
-    nabla = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray.shape[1:]
     dtype = numpy.result_type(varray.dtype, numpy.float64)
     grad_r2tarray = ensure_properties(

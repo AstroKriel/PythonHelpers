@@ -45,7 +45,7 @@ def ensure_r2tarray(
 def ensure_valid_cell_widths(
     cell_widths: tuple[float, float, float] | list[float],
 ) -> None:
-    type_utils.assert_sequence(
+    type_utils.ensure_sequence(
         var_obj=cell_widths,
         valid_containers=(tuple, list),
         seq_length=3,

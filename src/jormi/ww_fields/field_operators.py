@@ -174,7 +174,7 @@ def compute_vfield_curl(
     sim_time = vfield.sim_time
     varray = vfield.data
     farray_types.ensure_varray(varray)
-    nabla = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     curl_varray = farray_operators.ensure_properties(
         array_shape=varray.shape,
@@ -223,7 +223,7 @@ def compute_vfield_divergence(
     sim_time = vfield.sim_time
     varray = vfield.data
     farray_types.ensure_varray(varray)
-    nabla = finite_difference.get_grad_func(grad_order)
+    nabla = finite_difference.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
     domain_shape = varray.shape[1:]
     div_sarray = farray_operators.ensure_properties(
