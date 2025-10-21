@@ -25,7 +25,7 @@ def time_fn(
             result = fn(*args, **kwargs)
         except Exception as error:
             raise RuntimeError(
-                f"Error occurred in {fn.__name__}() while measuring the elapsed time."
+                f"Error occurred in {fn.__name__}() while measuring the elapsed time.",
             ) from error
         elapsed_time = time.time() - start_time
         print(f"{fn.__name__}() took {elapsed_time:.3f} seconds to execute.")

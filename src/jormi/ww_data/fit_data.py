@@ -111,7 +111,7 @@ class DataSeries:
         return self.y_sigma_array is not None
 
     def y_weights(
-        self
+        self,
     ) -> numpy.ndarray:
         if self.y_sigma_array is None:
             return numpy.ones_like(self.y_data_array, dtype=float)
@@ -252,7 +252,7 @@ def fit_linear_model(
             text=(
                 "Note: SciPy `curve_fit` does not account for `x_sigma_array` (its ignored); "
                 "only `y_sigma_array` is supported in the standard least-squares formalism."
-            )
+            ),
         )
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
@@ -270,7 +270,9 @@ def fit_linear_model(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
-    residual_array = data_series.y_data_array - linear_model.model_fn(data_series.x_data_array, *fitted_vector)
+    residual_array = data_series.y_data_array - linear_model.model_fn(
+        data_series.x_data_array, *fitted_vector
+    )
     return FitSummary(
         model=linear_model,
         fit_stats=fit_stats,
@@ -300,7 +302,7 @@ def fit_line_with_fixed_slope(
             text=(
                 "Note: `x_sigma_array` is not used in the fixed-slope estimator; "
                 "only `y_sigma_array` contributes to weighting."
-            )
+            ),
         )
     # weighted intercept
     x_data_array = data_series.x_data_array

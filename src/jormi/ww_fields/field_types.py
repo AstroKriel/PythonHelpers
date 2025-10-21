@@ -7,7 +7,7 @@
 import numpy
 from dataclasses import dataclass
 from functools import cached_property
-from jormi.utils import type_utils
+from jormi.utils import type_utils, array_utils
 from jormi.ww_fields import farray_types, farray_operators
 
 ##
@@ -159,7 +159,7 @@ class ScalarField:
         type_utils.ensure_finite_float(
             var_obj=self.sim_time,
             var_name="sim_time",
-            allow_none=True
+            allow_none=True,
         )
 
     def _validate_data(self):
@@ -188,7 +188,7 @@ class VectorField:
         type_utils.ensure_finite_float(
             var_obj=self.sim_time,
             var_name="sim_time",
-            allow_none=True
+            allow_none=True,
         )
 
     def _validate_data(self):
@@ -296,6 +296,30 @@ def ensure_uniform_domain(
     type_utils.ensure_type(
         var_obj=uniform_domain,
         valid_types=UniformDomain,
+    )
+
+
+def ensure_same_sfield_shape(
+    sfield_a: ScalarField,
+    sfield_b: ScalarField,
+) -> None:
+    ensure_sfield(sfield=sfield_a)
+    ensure_sfield(sfield=sfield_b)
+    array_utils.ensure_same_shape(
+        array_a=sfield_a.data,
+        array_b=sfield_b.data,
+    )
+
+
+def ensure_same_vfield_shape(
+    vfield_a: VectorField,
+    vfield_b: VectorField,
+) -> None:
+    ensure_vfield(vfield=vfield_a)
+    ensure_vfield(vfield=vfield_b)
+    array_utils.ensure_same_shape(
+        array_a=vfield_a.data,
+        array_b=vfield_b.data,
     )
 
 

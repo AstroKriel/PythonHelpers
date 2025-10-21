@@ -16,7 +16,7 @@ def render_frame(
     phase = frame_index / max(1, num_frames - 1)
     y = numpy.sin(2 * numpy.pi * (x - phase))
     fig, axs_grid = plot_manager.create_figure()
-    ax = axs_grid[0,0]
+    ax = axs_grid[0, 0]
     ax.plot(x, y, linewidth=2.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(-1.1, 1.1)

@@ -157,8 +157,10 @@ def compute_lorentz_force_terms(
         optimize=True,
     )
     ## |b|^2 * kappa_i
-    tension_varray = b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[numpy.newaxis,
-                                                                             ...] * normal_uvarray
+    tension_varray = b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[
+        numpy.newaxis,
+        ...,
+    ] * normal_uvarray
     ## d_i P - t_i t_j d_j P
     gradP_perp_varray = gradP_varray - gradP_aligned_varray
     ## tension - gradP_perp

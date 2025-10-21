@@ -6,6 +6,7 @@
 
 import numpy
 from dataclasses import dataclass
+from jormi.utils import array_utils
 from jormi.ww_fields import farray_operators, field_types, field_operators
 
 ##
@@ -19,10 +20,20 @@ class HelmholtzDecomposition:
     sol_vfield: field_types.VectorField
     bulk_vfield: field_types.VectorField
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ):
         field_types.ensure_vfield(self.div_vfield)
         field_types.ensure_vfield(self.sol_vfield)
         field_types.ensure_vfield(self.bulk_vfield)
+        field_types.ensure_same_vfield_shape(
+            vfield_a=self.div_vfield,
+            vfield_b=self.sol_vfield,
+        )
+        field_types.ensure_same_vfield_shape(
+            vfield_a=self.div_vfield,
+            vfield_b=self.bulk_vfield,
+        )
 
 
 @dataclass(frozen=True)
@@ -32,11 +43,29 @@ class TNBTerms:
     binormal_uvfield: field_types.UnitVectorField
     curvature_sfield: field_types.ScalarField
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ):
         field_types.ensure_uvfield(self.tangent_uvfield)
         field_types.ensure_uvfield(self.normal_uvfield)
         field_types.ensure_uvfield(self.binormal_uvfield)
         field_types.ensure_sfield(self.curvature_sfield)
+        array_utils.ensure_same_shape(
+            array_a=self.tangent_uvfield.data,
+            array_b=self.normal_uvfield.data,
+        )
+        array_utils.ensure_same_shape(
+            array_a=self.tangent_uvfield.data,
+            array_b=self.normal_uvfield.data,
+        )
+        array_utils.ensure_same_shape(
+            array_a=self.tangent_uvfield.data,
+            array_b=self.binormal_uvfield.data,
+        )
+        array_utils.ensure_same_shape(
+            array_a=self.tangent_uvfield.data,
+            array_b=self.curvature_sfield.data,
+        )
 
 
 ##
@@ -83,11 +112,7 @@ def compute_helmholtz_decomposition(
     ## with fft_varray[i] = F_i(k) and k = (kx, ky, kz)
     ## the divergence (curl-free) part is: div_fft_varray[i] = (k_i / k^2) * (k_j * F_j(k))
     ## the solenoidal (div-free) part is: sol_fft_varray[i] = F_i(k) - div_fft_varray[i]
-    k_dot_fft_sfield = (
-        kx_grid * fft_varray[0] +
-        ky_grid * fft_varray[1] +
-        kz_grid * fft_varray[2]
-    )
+    k_dot_fft_sfield = (kx_grid * fft_varray[0] + ky_grid * fft_varray[1] + kz_grid * fft_varray[2])
     with numpy.errstate(divide="ignore", invalid="ignore"):
         div_fft_varray = numpy.stack(
             [
@@ -100,16 +125,35 @@ def compute_helmholtz_decomposition(
     ## solenoidal (divergence-free) component in Fourier space
     sol_fft_varray = fft_varray - div_fft_varray
     ## transform back to real space
-    div_varray = numpy.fft.ifftn(div_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
-    sol_varray = numpy.fft.ifftn(sol_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
-    bulk_varray = numpy.fft.ifftn(bulk_fft_varray, axes=(1, 2, 3), norm="forward").real.astype(dtype, copy=False)
+    div_varray = numpy.fft.ifftn(
+        div_fft_varray, axes=(1, 2, 3), norm="forward"
+    ).real.astype(
+        dtype, copy=False
+    )
+    sol_varray = numpy.fft.ifftn(
+        sol_fft_varray, axes=(1, 2, 3), norm="forward"
+    ).real.astype(
+        dtype, copy=False
+    )
+    bulk_varray = numpy.fft.ifftn(
+        bulk_fft_varray, axes=(1, 2, 3), norm="forward"
+    ).real.astype(
+        dtype, copy=False
+    )
     ## free-up large temporary quantities before constructing new fields
     del (
-        kx_values, ky_values, kz_values,
-        kx_grid, ky_grid, kz_grid,
+        kx_values,
+        ky_values,
+        kz_values,
+        kx_grid,
+        ky_grid,
+        kz_grid,
         k_magn_grid,
-        fft_varray, k_dot_fft_sfield,
-        div_fft_varray, sol_fft_varray, bulk_fft_varray
+        fft_varray,
+        k_dot_fft_sfield,
+        div_fft_varray,
+        sol_fft_varray,
+        bulk_fft_varray,
     )
     ## package-up fields
     div_vfield = field_types.VectorField(

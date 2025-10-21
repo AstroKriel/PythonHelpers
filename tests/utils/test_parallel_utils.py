@@ -63,7 +63,7 @@ def delayed_return(duration, value):
 def plot_task(fig_directory, num_samples):
     try:
         fig, axs_grid = plot_manager.create_figure()
-        ax = axs_grid[0,0]
+        ax = axs_grid[0, 0]
         x = numpy.linspace(0, 5 * numpy.pi, num_samples)
         y = numpy.sin(x)
         ax.plot(x, y, color="black", ls="-", lw=1, marker="o", ms=5)

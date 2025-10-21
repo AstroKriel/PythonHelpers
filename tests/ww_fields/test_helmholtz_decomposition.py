@@ -207,7 +207,8 @@ def main():
         )
         curl_bulk = field_operators.compute_vfield_curl(vfield=vfield_bulk, uniform_domain=uniform_domain)
         div_bulk = field_operators.compute_vfield_divergence(
-            vfield=vfield_bulk, uniform_domain=uniform_domain
+            vfield=vfield_bulk,
+            uniform_domain=uniform_domain,
         )
         sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
         sfield_check_bulk_div = div_bulk  ## already scalar field
