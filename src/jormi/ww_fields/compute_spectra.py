@@ -19,18 +19,30 @@ except ImportError:
     MPI_RANK = 0
     MPI_NUM_PROCS = 1
 
+from jormi.utils import type_utils
+
 ##
 ## === FUNCTIONS
 ##
 
 
 @functools.lru_cache(maxsize=10)
-def _compute_radial_grid(shape: tuple[int, ...]):
-    k_center = numpy.array([(n - 1) / 2 for n in shape], dtype=float)
-    grid_kz, grid_ky, grid_kx = numpy.indices(shape)
+def _compute_radial_grid(
+    grouped_num_cells: tuple[int, ...]
+):
+    type_utils.ensure_sequence(
+        var_obj=grouped_num_cells,
+        seq_length=3,
+        valid_elem_types=int,
+    )
+    k_center = numpy.array([(num_cells - 1) / 2 for num_cells in grouped_num_cells], dtype=float)
+    k_grid = numpy.indices(grouped_num_cells)
     return numpy.sqrt(
-        numpy.square(grid_kx - k_center[0]) + numpy.square(grid_ky - k_center[1]) +
-        numpy.square(grid_kz - k_center[2]),
+        numpy.sum(
+            numpy.square(k_grid[0] - k_center[0]),
+            numpy.square(k_grid[1] - k_center[1]),
+            numpy.square(k_grid[2] - k_center[2]),
+        )
     )
 
 

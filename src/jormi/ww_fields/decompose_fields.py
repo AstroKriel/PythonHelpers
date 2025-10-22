@@ -210,20 +210,20 @@ def compute_tnb_terms(
         field_label=r"$\hat{t}$",
     )
     ## --- COMPUTE NORMAL BASIS
-    ## gradient tensor: df_j/dx_i with layout (j, i, x, y, z)
+    ## gradient tensor: d_i f_j with layout (j, i, x, y, z)
     grad_r2tarray = farray_operators.compute_varray_grad(
         varray=varray,
         cell_widths=uniform_domain.cell_widths,
         grad_order=grad_order,
     )
-    ## term1_j = f_i * (df_j/dx_i) = (f dot grad) f
+    ## term1_j = f_i * (d_i f_j) = (f dot grad) f
     normal_term1_varray = numpy.einsum(
         "ixyz,jixyz->jxyz",
         varray,
         grad_r2tarray,
         optimize=True,
     )
-    ## term2_j = f_i * f_j * f_m * (df_m/dx_i)
+    ## term2_j = f_i * f_j * f_m * (d_i f_m)
     normal_term2_varray = numpy.einsum(
         "ixyz,jxyz,mxyz,mixyz->jxyz",
         varray,
@@ -232,7 +232,7 @@ def compute_tnb_terms(
         grad_r2tarray,
         optimize=True,
     )
-    ## curvature vector: kappa_j = term1_j / |f|^2  -  term2_j / |f|^4
+    ## curvature vector: kappa_j = term1_j / |f|^2 - term2_j / |f|^4
     inv_magn2_sarray = numpy.zeros_like(f_magn_sarray)
     numpy.divide(1.0, f_magn_sarray, out=inv_magn2_sarray, where=(f_magn_sarray > 0))
     inv_magn2_sarray **= 2  # 1/|f|^2
@@ -251,7 +251,7 @@ def compute_tnb_terms(
         kappa_varray,
         curvature_sarray,
         out=normal_uvarray,
-        where=(curvature_sarray > 0),  # guard zero curvature
+        where=(curvature_sarray > 0.0),  # guard against zero curvature
     )
     normal_uvfield = field_types.UnitVectorField(
         sim_time=sim_time,

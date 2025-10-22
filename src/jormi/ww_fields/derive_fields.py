@@ -57,7 +57,7 @@ def compute_magnetic_curvature_terms(
     Index notation:
         curvature   = n_i n_j (du_j/dx_i)
         stretching  = t_i t_j (du_j/dx_i)
-        compression = du_i/dx_i
+        compression = d_i u_i
     """
     field_types.ensure_vfield(u_vfield)
     field_types.ensure_uvfield(tangent_uvfield)

@@ -182,19 +182,19 @@ def compute_vfield_curl(
         array=out_varray,
     )
     farray_types.ensure_varray(curl_varray)
-    ## curl_x = dv_z/dy - dv_y/dz
+    ## curl_x = d_yv_z - d_z v_y
     numpy.subtract(
         nabla(sarray=varray[2], cell_width=cell_width_y, grad_axis=1),
         nabla(sarray=varray[1], cell_width=cell_width_z, grad_axis=2),
         out=curl_varray[0],
     )
-    ## curl_y = dv_x/dz - dv_z/dx
+    ## curl_y = d_zv_x - d_x v_z
     numpy.subtract(
         nabla(sarray=varray[0], cell_width=cell_width_z, grad_axis=2),
         nabla(sarray=varray[2], cell_width=cell_width_x, grad_axis=0),
         out=curl_varray[1],
     )
-    ## curl_z = dv_y/dx - dv_x/dy
+    ## curl_z = d_xv_y - d_y v_x
     numpy.subtract(
         nabla(sarray=varray[1], cell_width=cell_width_x, grad_axis=0),
         nabla(sarray=varray[0], cell_width=cell_width_y, grad_axis=1),
@@ -232,7 +232,7 @@ def compute_vfield_divergence(
         array=out_sarray,
     )
     farray_types.ensure_sarray(div_sarray)
-    ## start with dv_x/dx, then add others in-place to avoid an extra tmp_sarray
+    ## start with d_i f_i for i=1, then add i=2 and i=3 in-place (to avoid an extra tmp_sarray)
     div_sarray[...] = nabla(sarray=varray[0], cell_width=cell_width_x, grad_axis=0)
     numpy.add(div_sarray, nabla(sarray=varray[1], cell_width=cell_width_y, grad_axis=1), out=div_sarray)
     numpy.add(div_sarray, nabla(sarray=varray[2], cell_width=cell_width_z, grad_axis=2), out=div_sarray)

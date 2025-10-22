@@ -83,7 +83,7 @@ def compute_sarray_grad(
     )
     farray_types.ensure_varray(grad_varray)
     cell_width_x, cell_width_y, cell_width_z = cell_widths
-    ## fill ds/dx_i vector: (gradient-dir-i, x, y, z)
+    ## fill d_i f vector: (gradient-dir-i, x, y, z)
     grad_varray[0, ...] = nabla(sarray=sarray, cell_width=cell_width_x, grad_axis=0)
     grad_varray[1, ...] = nabla(sarray=sarray, cell_width=cell_width_y, grad_axis=1)
     grad_varray[2, ...] = nabla(sarray=sarray, cell_width=cell_width_z, grad_axis=2)
@@ -170,7 +170,7 @@ def compute_varray_grad(
     )
     farray_types.ensure_r2tarray(grad_r2tarray)
     cell_width_x, cell_width_y, cell_width_z = cell_widths
-    ## fill du_j/dx_i tensor: (component-j, gradient-dir-i, x, y, z)
+    ## fill d_i f_j tensor: (component-j, gradient-dir-i, x, y, z)
     for comp_j in range(3):
         grad_r2tarray[comp_j, 0, ...] = nabla(sarray=varray[comp_j], cell_width=cell_width_x, grad_axis=0)
         grad_r2tarray[comp_j, 1, ...] = nabla(sarray=varray[comp_j], cell_width=cell_width_y, grad_axis=1)
