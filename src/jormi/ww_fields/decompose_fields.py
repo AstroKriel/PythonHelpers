@@ -126,19 +126,28 @@ def compute_helmholtz_decomposition(
     sol_fft_varray = fft_varray - div_fft_varray
     ## transform back to real space
     div_varray = numpy.fft.ifftn(
-        div_fft_varray, axes=(1, 2, 3), norm="forward"
+        div_fft_varray,
+        axes=(1, 2, 3),
+        norm="forward",
     ).real.astype(
-        dtype, copy=False
+        dtype,
+        copy=False,
     )
     sol_varray = numpy.fft.ifftn(
-        sol_fft_varray, axes=(1, 2, 3), norm="forward"
+        sol_fft_varray,
+        axes=(1, 2, 3),
+        norm="forward",
     ).real.astype(
-        dtype, copy=False
+        dtype,
+        copy=False,
     )
     bulk_varray = numpy.fft.ifftn(
-        bulk_fft_varray, axes=(1, 2, 3), norm="forward"
+        bulk_fft_varray,
+        axes=(1, 2, 3),
+        norm="forward",
     ).real.astype(
-        dtype, copy=False
+        dtype,
+        copy=False,
     )
     ## free-up large temporary quantities before constructing new fields
     del (
