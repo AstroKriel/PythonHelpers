@@ -5,10 +5,33 @@
 ##
 
 import numpy
-from dataclasses import dataclass
+from typing import Literal, Self
 from functools import cached_property
+from dataclasses import dataclass
+
 from jormi.utils import type_utils, array_utils
 from jormi.ww_fields import farray_types, farray_operators
+
+##
+## === TYPES + CONSTANTS
+##
+
+CompAxis = Literal["x", "y", "z"]
+CompIndex = Literal[0, 1, 2]
+
+DEFAULT_COMP_AXES_ORDER: tuple[CompAxis, CompAxis, CompAxis] = ("x", "y", "z")
+DEFAULT_COMP_AXIS_TO_INDEX: dict[CompAxis, CompIndex] = {"x": 0, "y": 1, "z": 2}
+
+
+def get_default_comp_index(
+    comp_axis: CompAxis,
+) -> CompIndex:
+    """Map component axis (x,y,z) to index (0,1,2)."""
+    try:
+        return DEFAULT_COMP_AXIS_TO_INDEX[comp_axis]
+    except KeyError as error:
+        raise ValueError(f"`comp_axis` must be one of {DEFAULT_COMP_AXES_ORDER}, got {comp_axis}.") from error
+
 
 ##
 ## === DATA STRUCTURES
@@ -25,12 +48,16 @@ class UniformDomain:
         tuple[float, float],
     ]
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ) -> None:
         self._validate_periodicity()
         self._validate_resolution()
         self._validate_domain_bounds()
 
-    def _validate_periodicity(self):
+    def _validate_periodicity(
+        self,
+    ) -> None:
         type_utils.ensure_sequence(
             var_obj=self.periodicity,
             var_name="periodicity",
@@ -39,7 +66,9 @@ class UniformDomain:
             valid_elem_types=(bool, numpy.bool_),
         )
 
-    def _validate_resolution(self):
+    def _validate_resolution(
+        self,
+    ) -> None:
         type_utils.ensure_sequence(
             var_obj=self.resolution,
             var_name="resolution",
@@ -51,7 +80,9 @@ class UniformDomain:
         if not (num_cells_x > 0 and num_cells_y > 0 and num_cells_z > 0):
             raise ValueError("All entries of `resolution` must be positive.")
 
-    def _validate_domain_bounds(self):
+    def _validate_domain_bounds(
+        self,
+    ) -> None:
         type_utils.ensure_sequence(
             var_obj=self.domain_bounds,
             var_name="domain_bounds",
@@ -176,54 +207,61 @@ class ScalarField:
 class VectorField:
     data: numpy.ndarray
     field_label: str
-    comp_labels: tuple[str, str, str] = ("x", "y", "z")
+    comp_labels: tuple[CompAxis, CompAxis, CompAxis] = DEFAULT_COMP_AXES_ORDER
     sim_time: float | None = None
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ) -> None:
         self._validate_sim_time()
         self._validate_data()
         self._validate_labels()
 
-    def _validate_sim_time(self):
+    def _validate_sim_time(
+        self,
+    ) -> None:
         type_utils.ensure_finite_float(
             var_obj=self.sim_time,
             var_name="sim_time",
             allow_none=True,
         )
 
-    def _validate_data(self):
+    def _validate_data(
+        self,
+    ) -> None:
         farray_types.ensure_varray(self.data)
 
-    def _validate_labels(self):
+    def _validate_labels(
+        self,
+    ) -> None:
         type_utils.ensure_nonempty_str(
             var_obj=self.field_label,
             var_name="field_label",
         )
-        type_utils.ensure_sequence(
-            var_obj=self.comp_labels,
-            var_name="comp_labels",
-            valid_containers=(tuple, ),
-            seq_length=3,
-            valid_elem_types=str,
-        )
-        if len(set(self.comp_labels)) != 3:
-            raise ValueError("Each element of `comp_labels` must be unique.")
-        for label_index, field_label in enumerate(self.comp_labels):
-            type_utils.ensure_nonempty_str(
-                var_obj=field_label,
-                var_name=f"comp_labels[{label_index}]",
-            )
+        ensure_default_comp_order(self.comp_labels)
+
+    def get_comp_data(
+        self,
+        comp_axis: CompAxis,
+    ) -> numpy.ndarray:
+        """Return a (Nx, Ny, Nz) view of the requested component."""
+        comp_index = get_default_comp_index(comp_axis)
+        return self.data[comp_index, ...]
 
 
 @dataclass(frozen=True)
 class UnitVectorField(VectorField):
     tol: float = 1e-6
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ) -> None:
         super().__post_init__()
         self._validate_unit_magnitude()
 
-    def _validate_unit_magnitude(self):
+    def _validate_unit_magnitude(
+        self,
+    ) -> None:
         q_uvarray = self.data
         q_magn_sq_sarray = farray_operators.sum_of_squared_components(q_uvarray)
         if not numpy.all(numpy.isfinite(q_magn_sq_sarray)):
@@ -242,7 +280,7 @@ class UnitVectorField(VectorField):
         vfield: VectorField,
         *,
         tol: float = 1e-6,
-    ) -> "UnitVectorField":
+    ) -> Self:
         return cls(
             data=vfield.data,
             field_label=vfield.field_label,
@@ -266,7 +304,7 @@ def as_unit_vfield(
 
 
 def ensure_sfield(
-    sfield,
+    sfield: ScalarField,
 ) -> None:
     type_utils.ensure_type(
         var_obj=sfield,
@@ -275,7 +313,7 @@ def ensure_sfield(
 
 
 def ensure_vfield(
-    vfield,
+    vfield: VectorField,
 ) -> None:
     type_utils.ensure_type(
         var_obj=vfield,
@@ -283,7 +321,9 @@ def ensure_vfield(
     )
 
 
-def ensure_uvfield(uvfield) -> None:
+def ensure_uvfield(
+    uvfield: UnitVectorField,
+) -> None:
     type_utils.ensure_type(
         var_obj=uvfield,
         valid_types=UnitVectorField,
@@ -291,7 +331,7 @@ def ensure_uvfield(uvfield) -> None:
 
 
 def ensure_uniform_domain(
-    uniform_domain,
+    uniform_domain: UniformDomain,
 ) -> None:
     type_utils.ensure_type(
         var_obj=uniform_domain,
@@ -345,6 +385,36 @@ def ensure_domain_matches_vfield(
         raise ValueError(
             f"Domain resolution {uniform_domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
+
+
+def ensure_all_comp_labels_exist(
+    comp_labels: tuple[CompAxis, CompAxis, CompAxis],
+) -> None:
+    """Ensure comp_labels is a permutation of DEFAULT_COMP_AXES_ORDER (the order is not enforced)."""
+    type_utils.ensure_sequence(
+        var_obj=comp_labels,
+        var_name="comp_labels",
+        valid_containers=(tuple, ),
+        seq_length=3,
+        valid_elem_types=str,
+    )
+    for comp_index, comp_label in enumerate(comp_labels):
+        type_utils.ensure_nonempty_str(
+            var_obj=comp_label,
+            var_name=f"comp_labels[{comp_index}]",
+        )
+        if comp_label not in DEFAULT_COMP_AXES_ORDER:
+            raise ValueError(f"`comp_labels` must contain only elements from {DEFAULT_COMP_AXES_ORDER}, got {comp_labels}.")
+    if set(comp_labels) != set(DEFAULT_COMP_AXES_ORDER):
+        raise ValueError(f"`comp_labels` must be a permutation of {DEFAULT_COMP_AXES_ORDER} (no repeats, none missing), got {comp_labels}.")
+
+
+def ensure_default_comp_order(
+    comp_labels: tuple[CompAxis, CompAxis, CompAxis],
+) -> None:
+    ensure_all_comp_labels_exist(comp_labels)
+    if comp_labels != DEFAULT_COMP_AXES_ORDER:
+        raise ValueError(f"`comp_labels` must be exactly {DEFAULT_COMP_AXES_ORDER} in that order, got {comp_labels}.")
 
 
 ## } MODULE
