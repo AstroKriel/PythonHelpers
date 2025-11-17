@@ -58,8 +58,9 @@ def as_compass_cardinal(
         return direction
     direction_lower = direction.lower()
     for compass_cardinal in CompassCardinal:
-        if (direction_lower == compass_cardinal.value.lower()) or (direction_lower
-                                                                   == compass_cardinal.name.lower()):
+        is_like_value = (direction_lower == compass_cardinal.value.lower())
+        is_like_name = (direction_lower == compass_cardinal.name.lower())
+        if is_like_value or is_like_name:
             return compass_cardinal
     valid_values = [compass_direction.value for compass_direction in CompassCardinal]
     valid_str = list_utils.cast_to_string(
@@ -88,8 +89,9 @@ def as_compass_ordinal(
         return direction
     direction_lower = direction.lower()
     for compass_ordinal in CompassOrdinal:
-        if (direction_lower == compass_ordinal.value.lower()) or (direction_lower
-                                                                  == compass_ordinal.name.lower()):
+        is_like_value = (direction_lower == compass_ordinal.value.lower())
+        is_like_name = (direction_lower == compass_ordinal.name.lower())
+        if is_like_value or is_like_name:
             return compass_ordinal
     valid_values = [compass_direction.value for compass_direction in CompassOrdinal]
     valid_str = list_utils.cast_to_string(
