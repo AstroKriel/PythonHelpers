@@ -7,9 +7,32 @@
 import cmasher
 import matplotlib.colors as mpl_colors
 
+from matplotlib.cm import ScalarMappable
+
 ##
 ## === FUNCTIONS
 ##
+
+
+class CUSTOM_CMAPS:
+
+    white_brown = LinearSegmentedColormap.from_list(
+        name="blue-red",
+        colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
+        N=256,
+    )
+
+    white_brown = LinearSegmentedColormap.from_list(
+        name="white-brown",
+        colors=["#fdfdfd", "#f49325", "#010101"],
+        N=256,
+    )
+
+    purple_green = LinearSegmentedColormap.from_list(
+        name="purple-green",
+        colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
+        N=256,
+    )
 
 
 def create_norm(
@@ -40,7 +63,7 @@ def add_cbar_from_cmap(
     ax,
     cmap,
     norm,
-    label: str | None = "",
+    label: str | None = None,
     side: str = "right",
     ax_percentage: float = 0.1,
     cbar_padding: float = 0.02,
@@ -53,26 +76,53 @@ def add_cbar_from_cmap(
         orientation = "vertical"
         cbar_size = box.width * ax_percentage
         if side == "right":
-            cbar_bounds = [box.x1 + cbar_padding, box.y0, cbar_size, box.height]
+            cbar_bounds = [
+                box.x1 + cbar_padding,
+                box.y0,
+                cbar_size,
+                box.height,
+            ]
         else:
-            cbar_bounds = [box.x0 - cbar_size - cbar_padding, box.y0, cbar_size, box.height]
+            cbar_bounds = [
+                box.x0 - cbar_size - cbar_padding,
+                box.y0,
+                cbar_size,
+                box.height,
+            ]
     elif side in ["top", "bottom"]:
         orientation = "horizontal"
         cbar_size = box.height * ax_percentage
         if side == "top":
-            cbar_bounds = [box.x0, box.y1 + cbar_padding, box.width, cbar_size]
+            cbar_bounds = [
+                box.x0,
+                box.y1 + cbar_padding,
+                box.width,
+                cbar_size,
+            ]
         else:
-            cbar_bounds = [box.x0, box.y0 - cbar_size - cbar_padding, box.width, cbar_size]
+            cbar_bounds = [
+                box.x0,
+                box.y0 - cbar_size - cbar_padding,
+                box.width,
+                cbar_size,
+            ]
     else:
         raise ValueError(f"Unsupported side: {side}")
     ax_cbar = fig.add_axes(cbar_bounds)
-    cbar = fig.colorbar(mappable=None, cmap=cmap, norm=norm, cax=ax_cbar, orientation=orientation)
+    mappable = ScalarMappable(norm=norm, cmap=cmap)
+    mappable.set_array([])
+    cbar = fig.colorbar(mappable, cax=ax_cbar, orientation=orientation)
     if orientation == "horizontal":
-        cbar.ax.set_title(label, fontsize=fontsize, pad=label_padding)
+        if label:
+            cbar.set_label(label, fontsize=fontsize, labelpad=label_padding)
+            cbar.ax.xaxis.set_label_position(side)
         cbar.ax.xaxis.set_ticks_position(side)
     else:
-        cbar.set_label(label, fontsize=fontsize, rotation=-90, va="bottom")
+        if label:
+            cbar.set_label(label, fontsize=fontsize, labelpad=label_padding, rotation=90)
+            cbar.ax.yaxis.set_label_position(side)
         cbar.ax.yaxis.set_ticks_position(side)
+        cbar.ax.get_yaxis().label.set_verticalalignment("center")  # optional
     return cbar
 
 

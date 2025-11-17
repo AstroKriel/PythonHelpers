@@ -5,8 +5,10 @@
 ##
 
 import numpy
+
 from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.collections import LineCollection
+
 from jormi.utils import list_utils
 
 ##
@@ -146,13 +148,16 @@ def overlay_curve(
 ):
     x_values = numpy.asarray(x_values).squeeze()
     y_values = numpy.asarray(y_values).squeeze()
-    if x_values.ndim != 1: raise ValueError(f"`x_values` must be 1D. Got shape {x_values.shape}.")
-    if y_values.ndim != 1: raise ValueError(f"`y_values` must be 1D. Got shape {y_values.shape}.")
+    if x_values.ndim != 1:
+        raise ValueError(f"`x_values` must be 1D. Got shape {x_values.shape}.")
+    if y_values.ndim != 1:
+        raise ValueError(f"`y_values` must be 1D. Got shape {y_values.shape}.")
     if x_values.shape != y_values.shape:
         raise ValueError(
             f"`x_values` and `y_values` must have the same shape. {x_values.shape} != {y_values.shape}.",
         )
-    if x_values.size < 2: raise ValueError("There needs to be at least two points to plot a curve.")
+    if x_values.size < 2:
+        raise ValueError("There needs to be at least two points to plot a curve.")
     collection = LineCollection(
         [numpy.column_stack((x_values, y_values))],
         colors=color,

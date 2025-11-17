@@ -5,7 +5,8 @@
 ##
 
 import numpy
-from jormi.utils import type_utils
+
+from jormi.ww_types import type_manager
 
 ##
 ## === FUNCTIONS
@@ -26,21 +27,23 @@ def sample_list(
     return [elems[elem_index] for elem_index in indices_to_keep]
 
 
-def filter_out_nones(elems: list):
+def filter_out_nones(
+    elems: list,
+) -> list:
     return [elem for elem in elems if elem is not None]
 
 
 def get_index_of_closest_value(
-    values: list | numpy.ndarray,
+    values: list,
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value."""
-    type_utils.ensure_type(
-        var_obj=values,
+    type_manager.ensure_type(
+        param=values,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.ensure_type(
-        var_obj=target,
+    type_manager.ensure_type(
+        param=target,
         valid_types=(int, float),
     )
     if len(values) == 0: raise ValueError("Input list cannot be empty")
@@ -52,10 +55,10 @@ def get_index_of_closest_value(
 
 
 def get_index_of_first_crossing(
-    values: list[float] | numpy.ndarray,
+    values: list[float],
     target: float,
     direction: str | None = None,
-):
+) -> None:
     values = numpy.asarray(values)
     min_value = numpy.min(values)
     max_value = numpy.max(values)
@@ -68,8 +71,10 @@ def get_index_of_first_crossing(
         raise ValueError(
             f"`direction` must be one of {valid_filters}, but got {direction!r}. Choose from {cast_to_string(valid_filters)}",
         )
-    if target == min_value: return numpy.argmin(values)
-    if target == max_value: return numpy.argmax(values)
+    if target == min_value:
+        return numpy.argmin(values)
+    if target == max_value:
+        return numpy.argmax(values)
     for value_index in range(len(values) - 1):
         value_left = values[value_index]
         value_right = values[value_index + 1]
@@ -85,35 +90,46 @@ def get_index_of_first_crossing(
 
 
 def cast_to_string(
-    elems: list | numpy.ndarray,
-    conjunction: str = "or",
-    wrap_in_quotes: bool = True,
-    use_oxford_comma: bool = True,
-):
+    elems: list,
+    wrap_in_quotes: bool = False,
+    conjunction: str = "",
+) -> str:
     elems = flatten_list(list(elems))
-    if len(elems) == 0: return ""
+    if len(elems) == 0:
+        return ""
     elems = [f"`{elem}`" if wrap_in_quotes else str(elem) for elem in elems]
-    if (conjunction != "") and (len(elems) > 1):
-        if len(elems) == 2: return f"{elems[0]} {conjunction} {elems[1]}"
-        if use_oxford_comma and len(elems) > 2:
-            return ", ".join(elems[:-1]) + f", {conjunction} {elems[-1]}"
-        else:
-            return ", ".join(elems[:-1]) + f" {conjunction} {elems[-1]}"
-    return ", ".join(elems)
+    conjunction = conjunction.strip()
+    if conjunction == "":
+        return ", ".join(elems)
+    if len(elems) == 2:
+        return f"{elems[0]} {conjunction} {elems[1]}"
+    return ", ".join(elems[:-1]) + f" {conjunction} {elems[-1]}"
+
+
+def get_preview_string(
+    elems: list,
+    preview_length: int | None = None,
+) -> str:
+    elems_preview = cast_to_string(
+        elems=elems[:preview_length],
+        wrap_in_quotes=False,
+        conjunction=None,
+    )
+    return elems_preview + ("..." if len(elems) > preview_length else "")
 
 
 def get_intersect_of_lists(
-    list_a: list | numpy.ndarray,
-    list_b: list | numpy.ndarray,
+    list_a: list,
+    list_b: list,
     sort_values: bool = False,
 ) -> list:
     """Find the intersection of two lists (optionally sorted)."""
-    type_utils.ensure_type(
-        var_obj=list_a,
+    type_manager.ensure_type(
+        param=list_a,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.ensure_type(
-        var_obj=list_b,
+    type_manager.ensure_type(
+        param=list_b,
         valid_types=(list, numpy.ndarray),
     )
     if (len(list_a) == 0) or (len(list_b) == 0): return []
@@ -122,17 +138,17 @@ def get_intersect_of_lists(
 
 
 def get_union_of_lists(
-    list_a: list | numpy.ndarray,
-    list_b: list | numpy.ndarray,
+    list_a: list,
+    list_b: list,
     sort_values: bool = False,
 ) -> list:
     """Find the union of two lists (optionally sorted)."""
-    type_utils.ensure_type(
-        var_obj=list_a,
+    type_manager.ensure_type(
+        param=list_a,
         valid_types=(list, numpy.ndarray),
     )
-    type_utils.ensure_type(
-        var_obj=list_b,
+    type_manager.ensure_type(
+        param=list_b,
         valid_types=(list, numpy.ndarray),
     )
     if (len(list_a) == 0) or (len(list_b) == 0): return list(list_a) + list(list_b)
@@ -140,10 +156,12 @@ def get_union_of_lists(
     return sorted(set_union) if sort_values else list(set_union)
 
 
-def flatten_list(elems: list | numpy.ndarray) -> list:
+def flatten_list(
+    elems: list,
+) -> list:
     """Flatten a nested list into a single list."""
-    type_utils.ensure_type(
-        var_obj=elems,
+    type_manager.ensure_type(
+        param=elems,
         valid_types=(list, numpy.ndarray),
     )
     flat_elems = []

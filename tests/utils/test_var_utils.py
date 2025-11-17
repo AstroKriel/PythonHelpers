@@ -5,7 +5,7 @@
 ##
 
 import unittest
-from jormi.utils import type_utils
+from jormi.ww_types import type_manager
 
 ##
 ## === TEST SUITE
@@ -16,55 +16,55 @@ class TestVarUtils(unittest.TestCase):
 
     def test_correct_type_single(self):
         ## typical case: variable is of the required type.
-        type_utils.ensure_type(
-            var_obj=42,
+        type_manager.ensure_type(
+            param=42,
             valid_types=int,
         )
 
     def test_correct_type_multiple(self):
         ## typical case: variable matches one of the multiple required types.
-        type_utils.ensure_type(
-            var_obj="Hello",
+        type_manager.ensure_type(
+            param="Hello",
             valid_types=(str, int),
         )
 
     def test_incorrect_type(self):
         ## edge case 1: variable is not of the required type.
         with self.assertRaises(TypeError):
-            type_utils.ensure_type(
-                var_obj=42,
+            type_manager.ensure_type(
+                param=42,
                 valid_types=str,
             )
 
     def test_incorrect_type_multiple(self):
         ## edge case 2: variable does not match any of the required types.
         with self.assertRaises(TypeError):
-            type_utils.ensure_type(
-                var_obj=42.5,
+            type_manager.ensure_type(
+                param=42.5,
                 valid_types=(str, int),
             )
 
     def test_list_as_type(self):
         ## edge case 3: list passed as the required type(s).
-        type_utils.ensure_type(
-            var_obj="Hello",
+        type_manager.ensure_type(
+            param="Hello",
             valid_types=[str, int],
         )
         with self.assertRaises(TypeError):
-            type_utils.ensure_type(
-                var_obj=42.5,
+            type_manager.ensure_type(
+                param=42.5,
                 valid_types=[str, int],
             )
 
     def test_single_type_tuple(self):
         ## edge case 4: single type passed in a tuple.
-        type_utils.ensure_type(
-            var_obj=42,
+        type_manager.ensure_type(
+            param=42,
             valid_types=(int, ),
         )
         with self.assertRaises(TypeError):
-            type_utils.ensure_type(
-                var_obj="string",
+            type_manager.ensure_type(
+                param="string",
                 valid_types=(int, ),
             )
 
@@ -72,17 +72,17 @@ class TestVarUtils(unittest.TestCase):
         ## edge case 5: empty tuple means no type check.
         ## now expecting a `ValueError` instead of silently passing with an empty tuple
         with self.assertRaises(ValueError):
-            type_utils.ensure_type(
-                var_obj=42,
+            type_manager.ensure_type(
+                param=42,
                 valid_types=(),
             )
 
     def test_variable_name_in_error_message(self):
         ## edge case 6: variable name should be included in error message.
-        ## expect "unknown variable" in the error message if `var_name` is not provided
+        ## expect "unknown variable" in the error message if `param_name` is not provided
         with self.assertRaises(TypeError) as cm:
-            type_utils.ensure_type(
-                var_obj=42,
+            type_manager.ensure_type(
+                param=42,
                 valid_types=str,
             )
         self.assertIn("name not provided", str(cm.exception))
@@ -91,12 +91,12 @@ class TestVarUtils(unittest.TestCase):
 
     def test_variable_name_in_error_message_with_var_name(self):
         ## edge case 7: variable name should be included in the error message when passed.
-        ## expect the provided `var_name` ("test_var") in the error message
+        ## expect the provided `param_name` ("test_var") in the error message
         with self.assertRaises(TypeError) as cm:
-            type_utils.ensure_type(
-                var_obj=42,
+            type_manager.ensure_type(
+                param=42,
                 valid_types=str,
-                var_name="test_var",
+                param_name="test_var",
             )
         self.assertIn("test_var", str(cm.exception))
         self.assertIn("str", str(cm.exception))

@@ -5,9 +5,11 @@
 ##
 
 import numpy
+
 from dataclasses import dataclass
-from jormi.utils import array_utils
-from jormi.ww_fields import farray_operators, field_types, field_operators
+
+from jormi.ww_types import array_types, field_types
+from jormi.ww_fields import farray_operators, field_operators
 
 ##
 ## === DATA STRUCTURES
@@ -50,19 +52,19 @@ class TNBTerms:
         field_types.ensure_uvfield(self.normal_uvfield)
         field_types.ensure_uvfield(self.binormal_uvfield)
         field_types.ensure_sfield(self.curvature_sfield)
-        array_utils.ensure_same_shape(
+        array_types.ensure_same_shape(
             array_a=self.tangent_uvfield.data,
             array_b=self.normal_uvfield.data,
         )
-        array_utils.ensure_same_shape(
+        array_types.ensure_same_shape(
             array_a=self.tangent_uvfield.data,
             array_b=self.normal_uvfield.data,
         )
-        array_utils.ensure_same_shape(
+        array_types.ensure_same_shape(
             array_a=self.tangent_uvfield.data,
             array_b=self.binormal_uvfield.data,
         )
-        array_utils.ensure_same_shape(
+        array_types.ensure_same_shape(
             array_a=self.tangent_uvfield.data,
             array_b=self.curvature_sfield.data,
         )

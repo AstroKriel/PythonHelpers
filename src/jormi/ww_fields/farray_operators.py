@@ -5,9 +5,11 @@
 ##
 
 import numpy
+
 from numpy.typing import DTypeLike
-from jormi.utils import type_utils, array_utils
-from jormi.ww_fields import farray_types, finite_difference
+
+from jormi.ww_types import array_types, farray_types
+from jormi.ww_fields import finite_difference
 
 ##
 ## === WORKSPACE UTILITIES
@@ -126,7 +128,7 @@ def dot_over_components(
 ) -> numpy.ndarray:
     farray_types.ensure_varray(varray_a)
     farray_types.ensure_varray(varray_b)
-    array_utils.ensure_same_shape(
+    array_types.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )

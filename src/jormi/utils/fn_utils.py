@@ -15,6 +15,7 @@ import warnings
 def time_fn(
     fn,
 ):
+    """Decorator to measure and log a function's execution time."""
 
     def wrapper(
         *args,
@@ -35,22 +36,23 @@ def time_fn(
 
 
 class WarnIfUnused:
+    """Wrapper to warn if a wrapped result is not used by the caller."""
 
     def __init__(
         self,
-        value,
+        result,
         fn_name,
     ):
-        self._value = value
+        self._result = result
         self._fn_name = fn_name
-        self._value_was_used = False
+        self._result_was_used = False
 
     def __del__(
         self,
     ):
-        if not self._value_was_used:
+        if not self._result_was_used:
             warnings.warn(
-                message=f"The value returned by {self._fn_name}() was never used.",
+                message=f"The result returned by {self._fn_name}() was never used.",
                 category=UserWarning,
                 stacklevel=2,
             )
@@ -59,27 +61,28 @@ class WarnIfUnused:
         self,
         name,
     ):
-        self._value_was_used = True
-        return getattr(self._value, name)
+        self._result_was_used = True
+        return getattr(self._result, name)
 
     def __call__(
         self,
         *args,
         **kwargs,
     ):
-        self._value_was_used = True
-        return self._value(*args, **kwargs)
+        self._result_was_used = True
+        return self._result(*args, **kwargs)
 
     def __repr__(
         self,
     ):
-        self._value_was_used = True
-        return repr(self._value)
+        self._result_was_used = True
+        return repr(self._result)
 
 
 def warn_if_fn_result_is_unused(
     fn,
 ):
+    """Decorator to warn when a non-None result is ignored by the caller."""
 
     def wrapper(
         *args,
@@ -87,7 +90,10 @@ def warn_if_fn_result_is_unused(
     ):
         result = fn(*args, **kwargs)
         if result is not None:
-            return WarnIfUnused(result, fn.__name__)
+            return WarnIfUnused(
+                result=result,
+                fn_name=fn.__name__,
+            )
         return result
 
     return wrapper

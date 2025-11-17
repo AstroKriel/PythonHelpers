@@ -19,7 +19,7 @@ except ImportError:
     MPI_RANK = 0
     MPI_NUM_PROCS = 1
 
-from jormi.utils import type_utils
+from jormi.ww_types import type_manager
 
 ##
 ## === FUNCTIONS
@@ -28,10 +28,10 @@ from jormi.utils import type_utils
 
 @functools.lru_cache(maxsize=10)
 def _compute_radial_grid(
-    grouped_num_cells: tuple[int, ...]
+    grouped_num_cells: tuple[int, ...],
 ):
-    type_utils.ensure_sequence(
-        var_obj=grouped_num_cells,
+    type_manager.ensure_sequence(
+        param=grouped_num_cells,
         seq_length=3,
         valid_elem_types=int,
     )
@@ -42,7 +42,7 @@ def _compute_radial_grid(
             numpy.square(k_grid[0] - k_center[0]),
             numpy.square(k_grid[1] - k_center[1]),
             numpy.square(k_grid[2] - k_center[2]),
-        )
+        ),
     )
 
 

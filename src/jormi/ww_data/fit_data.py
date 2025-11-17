@@ -5,11 +5,13 @@
 ##
 
 import numpy
+
 from typing import Callable
 from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
-from jormi.utils import type_utils, array_utils
+
+from jormi.ww_types import type_manager, array_types
 from jormi.ww_io import log_manager
 
 ##
@@ -29,7 +31,7 @@ class DataSeries:
     ):
         self._validate_data_array(self.x_data_array)
         self._validate_data_array(self.y_data_array)
-        array_utils.ensure_same_shape(
+        array_types.ensure_same_shape(
             array_a=self.x_data_array,
             array_b=self.y_data_array,
         )
@@ -48,14 +50,14 @@ class DataSeries:
     def _validate_data_array(
         array: numpy.ndarray,
     ):
-        array_utils.ensure_nonempty(array)
-        array_utils.ensure_finite(array)
-        array_utils.ensure_1d(array)
+        array_types.ensure_nonempty(array)
+        array_types.ensure_finite(array)
+        array_types.ensure_1d(array)
         value_range = numpy.max(array) - numpy.min(array)
-        ref_value = numpy.max([
+        ref_value = max(
             1.0,
             numpy.median(numpy.abs(array)),
-        ])
+        )
         if (value_range / ref_value < 1e-2) and (value_range < 1e-9):
             raise ValueError("Data values are (nearly) identical.")
 
@@ -64,10 +66,10 @@ class DataSeries:
         sigma_array: numpy.ndarray,
         ref_array: numpy.ndarray,
     ):
-        array_utils.ensure_nonempty(sigma_array)
-        array_utils.ensure_finite(sigma_array)
-        array_utils.ensure_1d(sigma_array)
-        array_utils.ensure_same_shape(
+        array_types.ensure_nonempty(sigma_array)
+        array_types.ensure_finite(sigma_array)
+        array_types.ensure_1d(sigma_array)
+        array_types.ensure_same_shape(
             array_a=sigma_array,
             array_b=ref_array,
         )
@@ -142,7 +144,7 @@ class Model:
         values_vector: list | numpy.ndarray,
         sigmas_vector: list | numpy.ndarray | None = None,
     ) -> dict[str, FitStatistic]:
-        values_array = array_utils.as_1d(
+        values_array = array_types.as_1d(
             array_like=values_vector,
             check_finite=True,
         )
@@ -150,11 +152,11 @@ class Model:
             raise ValueError("`values_vector` length does not match `param_names`.")
         sigmas_array = None
         if sigmas_vector is not None:
-            sigmas_array = array_utils.as_1d(
+            sigmas_array = array_types.as_1d(
                 array_like=sigmas_vector,
                 check_finite=False,
             )
-            array_utils.ensure_same_shape(
+            array_types.ensure_same_shape(
                 array_a=values_array,
                 array_b=sigmas_array,
             )
@@ -187,9 +189,9 @@ class FitSummary:
         if missing_params:
             missing_str = ", ".join(sorted(missing_params))
             raise ValueError(f"Missing parameter(s): {missing_str}")
-        array_utils.ensure_array(self.residual_array)
-        array_utils.ensure_1d(self.residual_array)
-        array_utils.ensure_finite(self.residual_array)
+        array_types.ensure_array(self.residual_array)
+        array_types.ensure_1d(self.residual_array)
+        array_types.ensure_finite(self.residual_array)
         if self.residual_array.size != self.num_points:
             raise ValueError("`num_points` must equal the length of `residual_array`.")
 
@@ -224,7 +226,7 @@ class FitSummary:
         self,
         x_values: list | numpy.ndarray,
     ) -> numpy.ndarray:
-        x_data_array = array_utils.as_1d(
+        x_data_array = array_types.as_1d(
             array_like=x_values,
             check_finite=True,
         )
@@ -271,7 +273,8 @@ def fit_linear_model(
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
     residual_array = data_series.y_data_array - linear_model.model_fn(
-        data_series.x_data_array, *fitted_vector
+        data_series.x_data_array,
+        *fitted_vector,
     )
     return FitSummary(
         model=linear_model,
@@ -378,10 +381,10 @@ def get_line_angle(
     Compute the apparent angle (in degrees) of a line with a particular slope
     when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
     """
-    type_utils.ensure_sequence(
-        var_obj=domain_bounds,
+    type_manager.ensure_sequence(
+        param=domain_bounds,
         seq_length=4,
-        valid_containers=(tuple, list),
+        valid_seq_types=(tuple, list),
         valid_elem_types=(int, float),
         allow_none=False,
     )

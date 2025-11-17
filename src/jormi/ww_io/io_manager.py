@@ -7,12 +7,14 @@
 import numpy
 import shutil
 import inspect
+
 from typing import List
 from pathlib import Path
+
 from jormi.utils import list_utils
 
 ##
-## === UTILITY FUNCTIONS
+## === FUNCTIONS
 ##
 
 
@@ -23,7 +25,9 @@ def get_caller_directory() -> Path:
     return Path(caller_file_path).resolve().parent
 
 
-def combine_file_path_parts(file_path_parts: list[str | Path]) -> Path:
+def combine_file_path_parts(
+    file_path_parts: list[str | Path],
+) -> Path:
     return Path(*list_utils.flatten_list(list_utils.filter_out_nones(file_path_parts))).absolute()
 
 
@@ -34,8 +38,10 @@ def resolve_file_path(
 ):
     if file_path is None:
         missing = []
-        if (directory is None): missing.append("directory")
-        if (file_name is None): missing.append("file_name")
+        if (directory is None):
+            missing.append("directory")
+        if (file_name is None):
+            missing.append("file_name")
         if missing:
             raise ValueError(
                 "You have not provided enough information about the file and where it is. "
@@ -66,8 +72,10 @@ def init_directory(
     directory = Path(directory).resolve(strict=False)
     if not does_directory_exist(directory):
         directory.mkdir(parents=True)
-        if verbose: print("Initialised directory:", directory)
-    elif verbose: print("Directory already exists:", directory)
+        if verbose:
+            print("Initialised directory:", directory)
+    elif verbose:
+        print("Directory already exists:", directory)
 
 
 def does_file_exist(
@@ -191,8 +199,8 @@ class ItemFilter:
     def __init__(
         self,
         *,
-        include_string: str | List[str] | None = None,
-        exclude_string: str | List[str] | None = None,
+        req_include_words: str | List[str] | None = None,
+        req_exclude_words: str | List[str] | None = None,
         prefix: str | None = None,
         suffix: str | None = None,
         delimiter: str = "_",
@@ -203,8 +211,8 @@ class ItemFilter:
         include_files: bool = True,
         include_folders: bool = True,
     ):
-        self.include_string = self._to_list(include_string)
-        self.exclude_string = self._to_list(exclude_string)
+        self.req_include_words = self._to_list(req_include_words)
+        self.req_exclude_words = self._to_list(req_exclude_words)
         self.prefix = prefix
         self.suffix = suffix
         self.delimiter = delimiter
@@ -217,9 +225,12 @@ class ItemFilter:
         self._validate_inputs()
 
     def _to_list(self, value):
-        if value is None: return []
-        if isinstance(value, str): return [value]
-        if isinstance(value, list): return value
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, list):
+            return value
         raise ValueError("Expected a string or list of strings.")
 
     def _validate_inputs(self):
@@ -236,25 +247,37 @@ class ItemFilter:
             raise ValueError("`min_value` cannot be greater than `max_value`.")
 
     def _meets_criteria(self, item_path: Path) -> bool:
-        if item_path.is_file() and not self.include_files: return False
-        if item_path.is_dir() and not self.include_folders: return False
+        if item_path.is_file() and not self.include_files:
+            return False
+        if item_path.is_dir() and not self.include_folders:
+            return False
         item_name = item_path.name
-        if self.include_string and not all(include_string in item_name
-                                           for include_string in self.include_string):
+        all_include_words_present = all(
+            req_include_word in item_name for req_include_word in self.req_include_words
+        )
+        any_exclude_words_present = any(
+            req_exclude_word in item_name for req_exclude_word in self.req_exclude_words
+        )
+        if self.req_include_words and not all_include_words_present:
             return False
-        if self.exclude_string and any(exclude_string in item_name for exclude_string in self.exclude_string):
+        if self.req_exclude_words and any_exclude_words_present:
             return False
-        if self.prefix and not item_name.startswith(self.prefix): return False
-        if self.suffix and not item_name.endswith(self.suffix): return False
+        if self.prefix and not item_name.startswith(self.prefix):
+            return False
+        if self.suffix and not item_name.endswith(self.suffix):
+            return False
         name_parts = item_name.split(self.delimiter)
-        if (self.num_parts is not None) and (len(name_parts) != self.num_parts): return False
+        if (self.num_parts is not None) and (len(name_parts) != self.num_parts):
+            return False
         if self.index_of_value is not None:
-            if len(name_parts) < abs(self.index_of_value): return False
+            if len(name_parts) < abs(self.index_of_value):
+                return False
             try:
                 value = int(name_parts[self.index_of_value])
             except ValueError:
                 return False
-            if not (self.min_value <= value <= self.max_value): return False
+            if (value < self.min_value) or (self.max_value < value):
+                return False
         return True
 
     def filter(self, directory: str | Path) -> List[Path]:

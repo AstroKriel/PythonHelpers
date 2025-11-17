@@ -5,42 +5,83 @@
 ##
 
 import numpy
-from jormi.ww_plots import add_color
+from typing import Literal
+
+from jormi.ww_types import array_types
+from jormi.ww_plots import plot_manager, add_color
+
+##
+## === DATA TYPES
+##
+
+DataFormat = Literal["xy", "ij"]
 
 ##
 ## === FUNCTIONS
 ##
 
 
-def plot_sfield_slice(
-    ax,
-    field_slice: numpy.ndarray,
-    axis_bounds: tuple[float, float, float, float],
+def as_plot_view(
+    data_array: numpy.ndarray,
+    data_format: DataFormat,
+) -> numpy.ndarray:
+    """
+    Convert a 2D array to be plot-ready: [rows, cols].
+        - layout="xy": is indexed [x, y]
+        - layout="ij": is indexed [i:rows, j:cols]
+    """
+    match data_format:
+        case "xy":
+            return data_array.T
+        case "ij":
+            return data_array
+        case _:
+            raise ValueError(f"Data format `{data_format}` is not supported. Use 'xy' or 'ij'.")
+
+
+def plot_2d_sarray(
+    ax: plot_manager.Axis,
+    sarray_in: numpy.ndarray,
+    data_format: DataFormat,
+    axis_aspect_ratio: Literal["equal", "auto"] = "equal",
+    axis_bounds: tuple[float, float, float, float] | None = None,
     cbar_bounds: tuple[float, float] | None = None,
     cmap_name: str = "cmr.arctic",
-    add_colorbar: bool = True,
+    add_cbar: bool = True,
     cbar_label: str | None = None,
     cbar_side: str = "right",
 ):
-    if field_slice.ndim != 2: raise ValueError("`field_slice` must be a 2D array.")
-    min_value = 0.99 * numpy.min(field_slice) if (cbar_bounds is None) else cbar_bounds[0]
-    max_value = 1.01 * numpy.max(field_slice) if (cbar_bounds is None) else cbar_bounds[1]
+    array_types.ensure_dim(
+        array=sarray_in,
+        dim=2,
+    )
+    sarray_plot = as_plot_view(
+        data_array=sarray_in,
+        data_format=data_format,
+    )
+    if cbar_bounds is None:
+        min_value = 0.99 * numpy.nanmin(sarray_plot)
+        max_value = 1.01 * numpy.nanmax(sarray_plot)
+    else:
+        min_value = cbar_bounds[0]
+        max_value = cbar_bounds[1]
     cmap, norm = add_color.create_cmap(
         cmap_name=cmap_name,
         vmin=min_value,
         vmax=max_value,
     )
     im_obj = ax.imshow(
-        field_slice.T,
+        sarray_plot,
         extent=axis_bounds,
+        aspect=axis_aspect_ratio,
         origin="lower",
-        aspect="equal",
         cmap=cmap,
         norm=norm,
     )
-    ax.set_xlim([axis_bounds[0], axis_bounds[1]])
-    ax.set_ylim([axis_bounds[2], axis_bounds[3]])
-    if add_colorbar:
+    if axis_bounds is not None:
+        ax.set_xlim([axis_bounds[0], axis_bounds[1]])
+        ax.set_ylim([axis_bounds[2], axis_bounds[3]])
+    if add_cbar:
         add_color.add_cbar_from_cmap(
             ax=ax,
             cmap=cmap,
@@ -67,7 +108,7 @@ def _generate_grid(
 
 
 def plot_vfield_slice_quiver(
-    ax,
+    ax: plot_manager.Axis,
     field_slice_rows: numpy.ndarray,
     field_slice_cols: numpy.ndarray,
     axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
@@ -77,7 +118,10 @@ def plot_vfield_slice_quiver(
 ):
     if field_slice_rows.shape != field_slice_cols.shape:
         raise ValueError("`field_slice_rows` and `field_slice_cols` must be the same shape.")
-    grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
+    grid_x, grid_y = _generate_grid(
+        field_shape=field_slice_rows.shape,
+        axis_bounds=axis_bounds,
+    )
     quiver_step_rows = max(1, field_slice_rows.shape[0] // num_quivers)
     quiver_step_cols = max(1, field_slice_cols.shape[1] // num_quivers)
     field_slice_xrows_subset = field_slice_rows[::quiver_step_rows, ::quiver_step_cols]
@@ -95,7 +139,7 @@ def plot_vfield_slice_quiver(
 
 
 def plot_vfield_slice_streamplot(
-    ax,
+    ax: plot_manager.Axis,
     field_slice_rows: numpy.ndarray,
     field_slice_cols: numpy.ndarray,
     axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
@@ -107,7 +151,10 @@ def plot_vfield_slice_streamplot(
 ):
     if field_slice_rows.shape != field_slice_cols.shape:
         raise ValueError("`field_slice_rows` and `field_slice_cols` must have the same shape.")
-    grid_x, grid_y = _generate_grid(field_slice_rows.shape, axis_bounds)
+    grid_x, grid_y = _generate_grid(
+        field_shape=field_slice_rows.shape,
+        axis_bounds=axis_bounds,
+    )
     if streamline_width is None:
         if streamline_weights is None: streamline_width = 1
         elif streamline_weights.shape != field_slice_cols.shape:

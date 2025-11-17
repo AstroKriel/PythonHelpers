@@ -8,7 +8,7 @@ import unittest
 import os
 import numpy as np
 from pathlib import Path
-from jormi.ww_io import json_files
+from jormi.ww_io import json_io
 from jormi.utils import dict_utils
 
 ##
@@ -18,12 +18,12 @@ from jormi.utils import dict_utils
 
 def save_dict_to_json_file(*args, **kwargs):
     kwargs["verbose"] = False
-    json_files.save_dict_to_json_file(*args, **kwargs)
+    json_io.save_dict_to_json_file(*args, **kwargs)
 
 
 def read_json_file_into_dict(*args, **kwargs):
     kwargs["verbose"] = False
-    return json_files.read_json_file_into_dict(*args, **kwargs)
+    return json_io.read_json_file_into_dict(*args, **kwargs)
 
 
 ##
@@ -62,7 +62,7 @@ class TestJsonUtils(unittest.TestCase):
         data1 = {"a": 1}
         data2 = {"b": 2}
         save_dict_to_json_file(self.test_file_path, data1)
-        json_files.save_dict_to_json_file(self.test_file_path, data2, overwrite=True, verbose=False)
+        json_io.save_dict_to_json_file(self.test_file_path, data2, overwrite=True, verbose=False)
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, data2)
 
@@ -77,7 +77,7 @@ class TestJsonUtils(unittest.TestCase):
 
     def test_save_invalid_extension_raises(self):
         with self.assertRaises(ValueError):
-            json_files._create_json_file_from_dict("invalid.txt", {"a": 1})
+            json_io._create_json_file_from_dict("invalid.txt", {"a": 1})
 
     def test_numpy_serialization(self):
         data = {

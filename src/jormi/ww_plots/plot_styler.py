@@ -1,78 +1,25 @@
-## { PARAMS
+## { MODULE
+
+##
+## === DEPENDENCIES
+##
 
 import shutil
 import matplotlib
+
 from enum import Enum
 from typing import Mapping
 from cycler import cycler
+
+##
+## === DATA TYPES
+##
 
 FONT_SIZES: dict[str, int] = {
     "small": 16,
     "medium": 20,
     "large": 25,
 }
-
-
-def _get_base_rc_params(use_tex: bool = True) -> dict[str, object]:
-    rc_params: dict[str, object] = {
-        ## font
-        "font.family": "serif",
-        "font.size": FONT_SIZES["large"],
-        "axes.titlesize": FONT_SIZES["large"],
-        "axes.labelsize": FONT_SIZES["large"],
-        "xtick.labelsize": FONT_SIZES["medium"],
-        "ytick.labelsize": FONT_SIZES["medium"],
-        "figure.titlesize": FONT_SIZES["small"],
-        "legend.fontsize": FONT_SIZES["large"],
-        ## lines + axes
-        "lines.linewidth": 1.5,
-        "axes.linewidth": 1.0,
-        ## ticks
-        "xtick.top": True,
-        "ytick.right": True,
-        "xtick.direction": "in",
-        "ytick.direction": "in",
-        "xtick.minor.visible": True,
-        "ytick.minor.visible": True,
-        "xtick.major.size": 6,
-        "ytick.major.size": 6,
-        "xtick.minor.size": 3,
-        "ytick.minor.size": 3,
-        "xtick.major.width": 0.75,
-        "ytick.major.width": 0.75,
-        "xtick.minor.width": 0.75,
-        "ytick.minor.width": 0.75,
-        "xtick.major.pad": 5,
-        "ytick.major.pad": 5,
-        "xtick.minor.pad": 5,
-        "ytick.minor.pad": 5,
-        ## legend
-        "legend.labelspacing": 0.2,
-        "legend.loc": "upper right",
-        "legend.frameon": False,
-        ## figure + saving
-        "figure.figsize": (8.0, 6.0),
-        "savefig.dpi": 200,
-        "savefig.bbox": "tight",
-        "savefig.transparent": False,
-        "savefig.pad_inches": 0.1,
-    }
-    if use_tex and shutil.which("latex") is not None:
-        rc_params.update(
-            {
-                "text.usetex":
-                True,
-                "text.latex.preamble":
-                r"""
-        \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
-        \providecommand{\mathdefault}[1]{#1}
-      """,
-            },
-        )
-    else:
-        rc_params.update({"text.usetex": False})
-    return rc_params
-
 
 LIGHT_RC_PARAMS: dict[str, object] = {
     ## backgrounds
@@ -173,6 +120,71 @@ THEMES: Mapping[Theme, dict[str, object]] = {
     Theme.DARK: DARK_RC_PARAMS,
 }
 
+##
+## === HELPER FUNCTIONS
+##
+
+
+def _get_base_rc_params(use_tex: bool = True) -> dict[str, object]:
+    rc_params: dict[str, object] = {
+        ## font
+        "font.family": "serif",
+        "font.size": FONT_SIZES["large"],
+        "axes.titlesize": FONT_SIZES["large"],
+        "axes.labelsize": FONT_SIZES["large"],
+        "xtick.labelsize": FONT_SIZES["medium"],
+        "ytick.labelsize": FONT_SIZES["medium"],
+        "figure.titlesize": FONT_SIZES["small"],
+        "legend.fontsize": FONT_SIZES["large"],
+        ## lines + axes
+        "lines.linewidth": 1.5,
+        "axes.linewidth": 1.0,
+        ## ticks
+        "xtick.top": True,
+        "ytick.right": True,
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.minor.visible": True,
+        "ytick.minor.visible": True,
+        "xtick.major.size": 6,
+        "ytick.major.size": 6,
+        "xtick.minor.size": 3,
+        "ytick.minor.size": 3,
+        "xtick.major.width": 0.75,
+        "ytick.major.width": 0.75,
+        "xtick.minor.width": 0.75,
+        "ytick.minor.width": 0.75,
+        "xtick.major.pad": 5,
+        "ytick.major.pad": 5,
+        "xtick.minor.pad": 5,
+        "ytick.minor.pad": 5,
+        ## legend
+        "legend.labelspacing": 0.2,
+        "legend.loc": "upper right",
+        "legend.frameon": False,
+        ## figure + saving
+        "figure.figsize": (8.0, 6.0),
+        "savefig.dpi": 200,
+        "savefig.bbox": "tight",
+        "savefig.transparent": False,
+        "savefig.pad_inches": 0.1,
+    }
+    if use_tex and (shutil.which("latex") is not None):
+        rc_params.update(
+            {
+                "text.usetex":
+                True,
+                "text.latex.preamble":
+                r"""
+        \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
+        \providecommand{\mathdefault}[1]{#1}
+      """,
+            },
+        )
+    else:
+        rc_params.update({"text.usetex": False})
+    return rc_params
+
 
 def _compose_rc_params(
     theme: Theme = Theme.LIGHT,
@@ -181,6 +193,11 @@ def _compose_rc_params(
     rc_params = _get_base_rc_params(use_tex=use_tex).copy()
     rc_params.update(THEMES[theme])
     return rc_params
+
+
+##
+## === THEME SELECTION
+##
 
 
 def set_theme(
@@ -203,4 +220,4 @@ def set_theme(
     )
 
 
-## } PARAMS
+## } MODULE

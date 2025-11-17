@@ -5,8 +5,11 @@
 ##
 
 import numpy
+
 from dataclasses import dataclass
-from jormi.ww_fields import farray_types, farray_operators, finite_difference, field_types, decompose_fields
+
+from jormi.ww_types import farray_types, field_types
+from jormi.ww_fields import farray_operators, finite_difference, decompose_fields
 
 ##
 ## === DATA STRUCTURES

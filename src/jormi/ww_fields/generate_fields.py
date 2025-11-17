@@ -5,7 +5,8 @@
 ##
 
 import numpy
-from jormi.ww_fields import field_types
+
+from jormi.ww_types import field_types
 
 ##
 ## === FUNCTIONS

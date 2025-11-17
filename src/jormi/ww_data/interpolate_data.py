@@ -5,7 +5,9 @@
 ##
 
 import numpy
+
 from scipy.interpolate import interp1d as scipy_interp1d
+
 from jormi.utils import list_utils
 
 ##

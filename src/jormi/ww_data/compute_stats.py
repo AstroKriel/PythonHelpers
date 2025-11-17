@@ -5,13 +5,15 @@
 ##
 
 import numpy
+
 from dataclasses import dataclass
 from scipy.special import erfinv as scipy_erfinv
-from jormi.utils import type_utils
+
 from jormi.ww_data import smooth_data
+from jormi.ww_types import type_manager
 
 ##
-## === CONTAINERS
+## === DATA STRUCTURES
 ##
 
 
@@ -21,6 +23,8 @@ class EstimatedPDF:
     bin_edges: numpy.ndarray
     densities: numpy.ndarray
 
+    ## TODO: postinit to check shapes
+
 
 @dataclass(frozen=True)
 class EstimatedJPDF:
@@ -29,6 +33,8 @@ class EstimatedJPDF:
     bin_edges_rows: numpy.ndarray
     bin_edges_cols: numpy.ndarray
     densities: numpy.ndarray
+
+    ## TODO: postinit to check shapes
 
 
 ##
@@ -84,10 +90,11 @@ def compute_p_norm(
             numpy.sum(numpy.power(scaled_diff, p_norm, dtype=numpy.float64), dtype=numpy.float64),
             1.0 / p_norm,
         )
-        if normalise_by_length: value /= numpy.power(len(array_a), 1.0 / p_norm)
+        if normalise_by_length:
+            value /= numpy.power(len(array_a), 1.0 / p_norm)
         return float(value)
     else:
-        raise ValueError(f"`p_norm = {p_norm}` is invalid. Must be positive or infinity.")
+        raise ValueError(f"`p_norm = {p_norm}` is invalid; should either be positive or infinity.")
 
 
 def sample_gaussian_distribution_from_quantiles(
@@ -98,27 +105,27 @@ def sample_gaussian_distribution_from_quantiles(
     num_samples=10**3,
 ) -> numpy.ndarray:
     """
-    Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 correspond with
+    Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 corresponds with
     probability-values 0 < p1 < p2 < 1.
     """
-    type_utils.ensure_type(
-        var_obj=q1,
+    type_manager.ensure_type(
+        param=q1,
         valid_types=(float, int),
     )
-    type_utils.ensure_type(
-        var_obj=q2,
+    type_manager.ensure_type(
+        param=q2,
         valid_types=(float, int),
     )
-    type_utils.ensure_type(
-        var_obj=p1,
+    type_manager.ensure_type(
+        param=p1,
         valid_types=(float, int),
     )
-    type_utils.ensure_type(
-        var_obj=p2,
+    type_manager.ensure_type(
+        param=p2,
         valid_types=(float, int),
     )
-    type_utils.ensure_type(
-        var_obj=num_samples,
+    type_manager.ensure_type(
+        param=num_samples,
         valid_types=int,
     )
     if not (0.0 < q1 < q2 < 1.0):
@@ -146,19 +153,22 @@ def estimate_pdf(
     bin_range_percent: float = 1.0,
     delta_threshold: float = 1e-5,
 ) -> EstimatedPDF:
-    """Compute the 1D probability density function (PDF) for the provided `values`."""
+    """Compute a 1D probability density function (PDF) for the provided `values`."""
     ## cast to float64, flatten, mask non-finite
     values = numpy.asarray(values, dtype=numpy.float64).ravel()
     if weights is not None:
         weights = numpy.asarray(weights, dtype=numpy.float64).ravel()
-        if weights.shape != values.shape: raise ValueError("`weights` length must match `values`.")
+        if weights.shape != values.shape:
+            raise ValueError("`weights` length must match `values`.")
         mask = numpy.isfinite(values) & numpy.isfinite(weights)
         values, weights = values[mask], weights[mask]
-        if numpy.any(weights < 0): raise ValueError("`weights` must be non-negative.")
+        if numpy.any(weights < 0):
+            raise ValueError("`weights` must be non-negative.")
     else:
         mask = numpy.isfinite(values)
         values, weights = values[mask], None
-    if values.size == 0: raise ValueError("Cannot compute a PDF for an empty dataset.")
+    if values.size == 0:
+        raise ValueError("Cannot compute a PDF for an empty dataset.")
     ## degenerate case: very low variance, treat as delta spike
     if numpy.std(values, dtype=numpy.float64) < delta_threshold:
         mean_value = float(numpy.mean(values, dtype=numpy.float64))
@@ -190,7 +200,8 @@ def estimate_pdf(
         )
     ## determine bin centers
     if bin_centers is None:
-        if num_bins is None: raise ValueError("You did not provide a binning option.")
+        if num_bins is None:
+            raise ValueError("You did not provide a binning option.")
         bin_centers = create_uniformly_spaced_bin_centers(
             values,
             num_bins,
@@ -203,7 +214,8 @@ def estimate_pdf(
     ## edges from centers
     bin_edges = get_bin_edges_from_centers(bin_centers).astype(numpy.float64)
     bin_widths = numpy.diff(bin_edges)
-    if numpy.any(bin_widths <= 0): raise ValueError("All bin widths must be positive.")
+    if numpy.any(bin_widths <= 0):
+        raise ValueError("All bin widths must be positive.")
     ## assign values to bins
     bin_indices = numpy.searchsorted(bin_edges, values, side="right") - 1
     bin_indices = numpy.clip(bin_indices, 0, len(bin_centers) - 1)
@@ -248,8 +260,10 @@ def estimate_jpdf(
     if (bin_centers_cols is None) and (bin_centers_rows is None) and (num_bins is None):
         raise ValueError("You did not provide a binning option.")
     if num_bins is None:
-        if bin_centers_cols is not None: num_bins = len(bin_centers_cols)
-        if bin_centers_rows is not None: num_bins = len(bin_centers_rows)
+        if bin_centers_cols is not None:
+            num_bins = len(bin_centers_cols)
+        if bin_centers_rows is not None:
+            num_bins = len(bin_centers_rows)
     assert num_bins is not None
     if bin_centers_cols is None:
         bin_centers_cols = create_uniformly_spaced_bin_centers(
@@ -300,7 +314,8 @@ def estimate_jpdf(
     if smoothing_length is not None:
         estimated_jpdf = smooth_data.smooth_2d_data_with_gaussian_filter(estimated_jpdf, smoothing_length)
         total = float(numpy.sum(estimated_jpdf * bin_areas, dtype=numpy.float64))
-        if total > 0: estimated_jpdf /= total
+        if total > 0:
+            estimated_jpdf /= total
     return EstimatedJPDF(
         bin_centers_rows=bin_centers_rows,
         bin_centers_cols=bin_centers_cols,
@@ -310,7 +325,9 @@ def estimate_jpdf(
     )
 
 
-def get_bin_edges_from_centers(bin_centers: numpy.ndarray) -> numpy.ndarray:
+def get_bin_edges_from_centers(
+    bin_centers: numpy.ndarray,
+) -> numpy.ndarray:
     """Convert bin centers to edges."""
     bin_widths = numpy.diff(bin_centers)
     left_bin_edge = bin_centers[0] - 0.5 * bin_widths[0]

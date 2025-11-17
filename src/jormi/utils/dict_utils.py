@@ -5,7 +5,9 @@
 ##
 
 import copy
-from jormi.utils import type_utils, fn_utils
+
+from jormi.utils import fn_utils
+from jormi.ww_types import type_manager
 
 ##
 ## === FUNCTIONS
@@ -18,12 +20,12 @@ def merge_dicts(
     dict_b: dict,
 ) -> dict:
     """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-    type_utils.ensure_type(
-        var_obj=dict_a,
+    type_manager.ensure_type(
+        param=dict_a,
         valid_types=dict,
     )
-    type_utils.ensure_type(
-        var_obj=dict_b,
+    type_manager.ensure_type(
+        param=dict_b,
         valid_types=dict,
     )
     merged_dict = dict_a.copy()

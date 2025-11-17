@@ -15,17 +15,21 @@ def apply_2d_convolution(
     data: numpy.ndarray,
     smoothing_kernel: numpy.ndarray,
 ) -> numpy.ndarray:
-    kernel_nrows, kernel_ncols = smoothing_kernel.shape
-    pad_nrows = kernel_nrows // 2
-    pad_ncols = kernel_ncols // 2
-    padded_data = numpy.pad(data, ((pad_nrows, pad_nrows), (pad_ncols, pad_ncols)), mode="wrap")
-    data_nrows, data_ncols = data.shape
-    output = numpy.zeros((data_nrows, data_ncols), dtype=numpy.float64)
-    for index_row in range(data_nrows):
-        for index_col in range(data_ncols):
+    num_kernel_rows, num_kernel_cols = smoothing_kernel.shape
+    num_pad_rows = num_kernel_rows // 2
+    num_pad_cols = num_kernel_cols // 2
+    padded_data = numpy.pad(
+        data,
+        ((num_pad_rows, num_pad_rows), (num_pad_cols, num_pad_cols)),
+        mode="wrap",
+    )
+    num_data_rows, num_data_cols = data.shape
+    output = numpy.zeros((num_data_rows, num_data_cols), dtype=numpy.float64)
+    for index_row in range(num_data_rows):
+        for index_col in range(num_data_cols):
             data_subset = padded_data[
-                index_row:index_row + kernel_nrows,
-                index_col:index_col + kernel_ncols,
+                index_row:index_row + num_kernel_rows,
+                index_col:index_col + num_kernel_cols,
             ]
             output[index_row, index_col] = numpy.sum(data_subset * smoothing_kernel)
     return output

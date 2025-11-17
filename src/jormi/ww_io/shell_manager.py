@@ -6,11 +6,12 @@
 
 import shlex
 import subprocess
+
 from pathlib import Path
 from dataclasses import dataclass
 
 ##
-## === RESULT TYPE
+## === DATA STRUCTURE
 ##
 
 
@@ -28,7 +29,7 @@ class CommandOutcome:
 
 
 ##
-## === FUNCTION
+## === FUNCTIONS
 ##
 
 

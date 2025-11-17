@@ -5,8 +5,9 @@
 ##
 
 import numpy
-from jormi.utils import array_utils
-from jormi.ww_fields import farray_types, farray_operators, finite_difference, field_types
+
+from jormi.ww_types import array_types, farray_types, field_types
+from jormi.ww_fields import farray_operators, finite_difference
 
 ##
 ## === OPTIMISED OPERATORS WORKING ON FIELDS
@@ -93,7 +94,7 @@ def compute_vfield_dot_product(
     varray_b = vfield_b.data
     farray_types.ensure_varray(varray_a)
     farray_types.ensure_varray(varray_b)
-    array_utils.ensure_same_shape(
+    array_types.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )
@@ -121,7 +122,7 @@ def compute_vfield_cross_product(
     varray_b = vfield_b.data
     farray_types.ensure_varray(varray_a)
     farray_types.ensure_varray(varray_b)
-    array_utils.ensure_same_shape(
+    array_types.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )

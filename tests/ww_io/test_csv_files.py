@@ -7,7 +7,7 @@
 import unittest
 import os
 from pathlib import Path
-from jormi.ww_io import csv_files
+from jormi.ww_io import csv_io
 
 ##
 ## === FUNCTIONS WRAPPERS
@@ -16,12 +16,12 @@ from jormi.ww_io import csv_files
 
 def save_dict_to_csv_file_wrapper(*args, **kwargs):
     kwargs["verbose"] = False
-    csv_files.save_dict_to_csv_file(*args, **kwargs)
+    csv_io.save_dict_to_csv_file(*args, **kwargs)
 
 
 def read_csv_file_into_dict_wrapper(*args, **kwargs):
     kwargs["verbose"] = False
-    return csv_files.read_csv_file_into_dict(*args, **kwargs)
+    return csv_io.read_csv_file_into_dict(*args, **kwargs)
 
 
 ##

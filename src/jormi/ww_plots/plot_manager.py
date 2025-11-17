@@ -11,14 +11,17 @@ matplotlib.use("Agg", force=True)
 ##
 
 import numpy
+
 from typing import TypeAlias, Iterator, Literal
 from pathlib import Path
 from dataclasses import dataclass
 from numpy.typing import NDArray
+
 from matplotlib import rcParams
 from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
+
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
@@ -32,9 +35,8 @@ Axis: TypeAlias = mpl_Axes
 
 @dataclass(frozen=True)
 class _AxesBase:
-    """
-    Base wrapper around an object-dtype numpy array holding mpl Axes.
-    """
+    """Base wrapper around an object-dtype numpy array holding mpl Axes."""
+
     ndarray: NDArray[object]
 
     def __len__(
@@ -252,7 +254,7 @@ def _get_fig_shape(
     """
     Compute figure size (inches) from per-panel axis_shape = (height, width).
     """
-    if num_rows < 1 or num_cols < 1:
+    if (num_rows < 1) or (num_cols < 1):
         raise ValueError("num_rows and num_cols must both be >= 1.")
     fig_width = fig_scale * axis_shape[1] * num_cols
     fig_height = fig_scale * axis_shape[0] * num_rows
@@ -332,9 +334,12 @@ def add_inset_axis(
             f"`y_label_side` = `{y_label_side}` is invalid. Choose from: {list_utils.cast_to_string(valid_y_sides)}",
         )
     ax_inset = ax.inset_axes(bounds)
-    if fontsize is None: fontsize = rcParams["axes.labelsize"]
-    if x_label is not None: ax_inset.set_xlabel(x_label, fontsize=fontsize)
-    if y_label is not None: ax_inset.set_ylabel(y_label, fontsize=fontsize)
+    if fontsize is None:
+        fontsize = rcParams["axes.labelsize"]
+    if x_label is not None:
+        ax_inset.set_xlabel(x_label, fontsize=fontsize)
+    if y_label is not None:
+        ax_inset.set_ylabel(y_label, fontsize=fontsize)
     ax_inset.xaxis.set_label_position(x_label_side)
     ax_inset.yaxis.set_label_position(y_label_side)
     ax_inset.tick_params(
@@ -364,7 +369,8 @@ def save_figure(
         raise ValueError("Figures should end with .png or .pdf")
     try:
         fig.savefig(fig_path, dpi=dpi)
-        if verbose: print("Saved figure:", fig_path)
+        if verbose:
+            print("Saved figure:", fig_path)
     except FileNotFoundError as exception:
         print(f"FileNotFoundError: {exception}")
     except PermissionError as exception:

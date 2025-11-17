@@ -7,7 +7,9 @@
 import json
 import copy
 import numpy
+
 from pathlib import Path
+
 from jormi.ww_io import io_manager
 from jormi.utils import dict_utils
 
@@ -16,7 +18,9 @@ from jormi.utils import dict_utils
 ##
 
 
-def _ensure_path_is_valid(file_path: str | Path):
+def _ensure_path_is_valid(
+    file_path: str | Path,
+):
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".json":
         raise ValueError(f"File should end with a .json extension: {file_path}")
@@ -29,7 +33,8 @@ def read_json_file_into_dict(
 ):
     file_path = _ensure_path_is_valid(file_path)
     if io_manager.does_file_exist(file_path=file_path):
-        if verbose: print("Reading in json-file:", file_path)
+        if verbose:
+            print("Reading in json-file:", file_path)
         with open(file_path, "r") as file_pointer:
             return copy.deepcopy(json.load(file_pointer))
     else:
@@ -38,12 +43,16 @@ def read_json_file_into_dict(
 
 class NumpyEncoder(json.JSONEncoder):
 
-    def default(self, o):
-        if isinstance(o, numpy.integer): return int(o)
-        elif isinstance(o, numpy.floating): return float(o)
-        elif isinstance(o, numpy.bool_): return bool(o)
-        elif isinstance(o, numpy.ndarray): return o.tolist()
-        return super().default(o)
+    def default(self, param):  # type: ignore
+        if isinstance(param, numpy.integer):
+            return int(param)
+        elif isinstance(param, numpy.floating):
+            return float(param)
+        elif isinstance(param, numpy.bool_):
+            return bool(param)
+        elif isinstance(param, numpy.ndarray):
+            return param.tolist()
+        return super().default(param)
 
 
 def save_dict_to_json_file(
@@ -53,9 +62,17 @@ def save_dict_to_json_file(
     verbose: bool = True,
 ):
     if io_manager.does_file_exist(file_path) and not overwrite:
-        _add_dict_to_json_file(file_path, input_dict, verbose)
+        _add_dict_to_json_file(
+            file_path=file_path,
+            input_dict=input_dict,
+            verbose=verbose,
+        )
     else:
-        _create_json_file_from_dict(file_path, input_dict, verbose)
+        _create_json_file_from_dict(
+            file_path=file_path,
+            input_dict=input_dict,
+            verbose=verbose,
+        )
 
 
 def _dump_dict_to_json(
@@ -79,7 +96,8 @@ def _create_json_file_from_dict(
     verbose: bool = True,
 ):
     _dump_dict_to_json(file_path, input_dict)
-    if verbose: print("Saved json-file:", file_path)
+    if verbose:
+        print("Saved json-file:", file_path)
 
 
 def _add_dict_to_json_file(
@@ -90,7 +108,8 @@ def _add_dict_to_json_file(
     old_dict = read_json_file_into_dict(file_path=file_path, verbose=False)
     merged_dict = dict_utils.merge_dicts(old_dict, input_dict)
     _dump_dict_to_json(file_path, merged_dict)
-    if verbose: print("Updated json-file:", file_path)
+    if verbose:
+        print("Updated json-file:", file_path)
 
 
 ## } MODULE
