@@ -6,6 +6,7 @@
 
 from pathlib import Path
 from jormi.ww_io import io_manager
+
 from . import _job_validation
 
 ##
@@ -72,8 +73,10 @@ def create_pbs_job_script(
     except _job_validation.QueueValidationError as e:
         raise ValueError(f"Invalid job parameters: {e}")
     mail_options = "a"  # notify on failure
-    if email_on_start: mail_options += "b"
-    if email_on_finish: mail_options += "e"
+    if email_on_start:
+        mail_options += "b"
+    if email_on_finish:
+        mail_options += "e"
     ## validate + open file
     file_path = io_manager.combine_file_path_parts([directory, file_name])
     _ensure_path_is_valid(file_path)

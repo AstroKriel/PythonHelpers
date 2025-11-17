@@ -5,6 +5,7 @@
 ##
 
 from pathlib import Path
+
 from jormi.ww_io import io_manager, shell_manager
 
 ##
@@ -47,7 +48,8 @@ def is_job_already_in_queue(
         print(f"`#PBS -N` not found in job file: {file_name}")
         return False
     queued_jobs = get_list_of_queued_jobs()
-    if not queued_jobs: return False
+    if not queued_jobs:
+        return False
     queued_job_tags = [job_tag for _, job_tag in queued_jobs]
     return job_tag in queued_job_tags
 
@@ -71,7 +73,8 @@ def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
             timeout_seconds=60,
             capture_output=True,
         )
-        if not result.stdout: return []
+        if not result.stdout:
+            return []
         jobs: list[tuple[str, str]] = []
         job_id: str | None = None
         job_tag: str | None = None
