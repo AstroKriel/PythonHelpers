@@ -8,39 +8,7 @@ import numpy
 from jormi.utils import list_utils
 
 ##
-## === TYPES
-##
-
-
-class StringTypes:
-    STRING = (str, )
-
-
-class BooleanTypes:
-    BOOLEAN = (bool, numpy.bool_)
-
-
-class NumericTypes:
-    INT = (int, numpy.integer)
-    FLOAT = (float, numpy.floating)
-    NUMERIC = INT + FLOAT
-
-
-class ContainerTypes:
-    SET = (set, )
-    DICT = (dict, )
-    ARRAY = (numpy.ndarray, )
-    CONTAINER = SET + DICT + ARRAY
-
-
-class SequenceTypes(ContainerTypes):
-    LIST = (list, )
-    TUPLE = (tuple, )
-    SEQUENCE = LIST + TUPLE
-
-
-##
-## === FUNCTIONS
+## === HELPER FUNCTIONS
 ##
 
 
@@ -87,12 +55,12 @@ def ensure_type(
     valid_types = _types_to_tuple(valid_types)
     if not isinstance(param, valid_types):
         valid_type_names = [valid_type.__name__ for valid_type in valid_types]
-        valid_types_str = list_utils.cast_to_string(
+        valid_types_string = list_utils.as_string(
             elems=valid_type_names,
             wrap_in_quotes=True,
             conjunction="",
         )
-        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected {valid_types_str}.")
+        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected {valid_types_string}.")
 
 
 def ensure_not_none(
@@ -105,27 +73,16 @@ def ensure_not_none(
         raise ValueError(f"`{param_name}` must not be None.")
 
 
-def ensure_char(
-    *,
-    param,
-    param_name: str = "<param>",
-    allow_none: bool = False,
-) -> None:
-    """Ensure `param` is a single-character string."""
-    if (param is None) and allow_none:
-        return
-    ensure_str(
-        param=param,
-        param_name=param_name,
-        allow_none=False,
-    )
-    if len(param) != 1:
-        raise ValueError(
-            f"`{param_name}` must be a single-character string (got length {len(param)}).",
-        )
+##
+## === STRING TYPES
+##
 
 
-def ensure_str(
+class StringTypes:
+    STRING = (str, )
+
+
+def ensure_string(
     *,
     param,
     param_name: str = "<param>",
@@ -140,19 +97,48 @@ def ensure_str(
     )
 
 
-def ensure_nonempty_str(
+def ensure_nonempty_string(
     *,
     param: str,
     param_name: str = "<param>",
 ) -> None:
-    """Enforce a non-empty string."""
-    ensure_str(
+    """Ensure `param` is a non-empty string."""
+    ensure_string(
         param=param,
         param_name=param_name,
         allow_none=False,
     )
     if len(param) == 0:
         raise ValueError(f"`{param_name}` must be a non-empty string.")
+
+
+def ensure_char(
+    *,
+    param,
+    param_name: str = "<param>",
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a single-character string."""
+    if (param is None) and allow_none:
+        return
+    ensure_string(
+        param=param,
+        param_name=param_name,
+        allow_none=False,
+    )
+    if len(param) != 1:
+        raise ValueError(
+            f"`{param_name}` must be a single-character string, got length {len(param)}.",
+        )
+
+
+##
+## === BOOLEAN TYPES
+##
+
+
+class BooleanTypes:
+    BOOLEAN = (bool, numpy.bool_)
 
 
 def ensure_bool(
@@ -182,7 +168,7 @@ def ensure_true(
         allow_none=False,
     )
     if not bool(param):
-        raise ValueError(f"`{param_name}` must be True (got {param}).")
+        raise ValueError(f"`{param_name}` must be True, got {param}.")
 
 
 def ensure_false(
@@ -197,16 +183,28 @@ def ensure_false(
         allow_none=False,
     )
     if bool(param):
-        raise ValueError(f"`{param_name}` must be False (got {param}).")
+        raise ValueError(f"`{param_name}` must be False, got {param}.")
 
 
-def ensure_not_boolean(
+def ensure_not_bool(
     *,
     param,
     param_name: str = "<param>",
 ) -> None:
+    """Ensure `param` is not a boolean."""
     if isinstance(param, BooleanTypes.BOOLEAN):
         raise TypeError(f"`{param_name}` must not be a boolean.")
+
+
+##
+## === NUMERIC TYPES
+##
+
+
+class NumericTypes:
+    INT = (int, numpy.integer)
+    FLOAT = (float, numpy.floating)
+    NUMERIC = INT + FLOAT
 
 
 def ensure_numeric(
@@ -219,7 +217,7 @@ def ensure_numeric(
     if (param is None) and allow_none:
         return
     ## reject booleans explicitly (they are subclasses of int)
-    ensure_not_boolean(
+    ensure_not_bool(
         param=param,
         param_name=param_name,
     )
@@ -230,33 +228,33 @@ def ensure_numeric(
     )
 
 
-def ensure_finite_number(
+def ensure_finite_numeric(
     *,
     param,
-    param_name: str,
+    param_name: str = "<param>",
     valid_types: tuple[type, ...],
     allow_none: bool,
 ) -> None:
-    """Internal helper: ensure `param` is finite and of the given numeric types."""
+    """Ensure `param` is finite and of the given numeric types."""
     if param is None:
         if allow_none:
             return
         raise ValueError(f"`{param_name}` must not be None.")
     ## reject booleans explicitly (they are subclasses of int)
-    ensure_not_boolean(
+    ensure_not_bool(
         param=param,
         param_name=param_name,
     )
     if not isinstance(param, valid_types):
         valid_type_names = [valid_type.__name__ for valid_type in valid_types]
-        valid_types_str = list_utils.cast_to_string(
+        valid_types_string = list_utils.as_string(
             elems=valid_type_names,
             wrap_in_quotes=True,
             conjunction="",
         )
-        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected: {valid_types_str}.")
+        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.")
     if not numpy.isfinite(param):
-        raise ValueError(f"`{param_name}` must be finite (got {param}).")
+        raise ValueError(f"`{param_name}` must be finite, got {param}.")
 
 
 def ensure_finite_float(
@@ -266,7 +264,7 @@ def ensure_finite_float(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a finite float-like value."""
-    ensure_finite_number(
+    ensure_finite_numeric(
         param=param,
         param_name=param_name,
         valid_types=NumericTypes.FLOAT,
@@ -281,7 +279,7 @@ def ensure_finite_int(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a finite int-like value."""
-    ensure_finite_number(
+    ensure_finite_numeric(
         param=param,
         param_name=param_name,
         valid_types=NumericTypes.INT,
@@ -289,10 +287,48 @@ def ensure_finite_int(
     )
 
 
+##
+## === CONTAINER
+##
+
+
+class ContainerTypes:
+    SET = (set, )
+    DICT = (dict, )
+    ARRAY = (numpy.ndarray, )
+    CONTAINER = SET + DICT + ARRAY
+
+
+def ensure_container(
+    *,
+    param,
+    param_name: str = "<param>",
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is one of the supported container types."""
+    ensure_type(
+        param=param,
+        valid_types=ContainerTypes.CONTAINER,
+        param_name=param_name,
+        allow_none=allow_none,
+    )
+
+
+##
+## --- SEQUENCE
+##
+
+
+class SequenceTypes(ContainerTypes):
+    LIST = (list, )
+    TUPLE = (tuple, )
+    SEQUENCE = LIST + TUPLE
+
+
 def ensure_sequence(
     *,
     param,
-    param_name: str = "<seq>",
+    param_name: str = "<param>",
     seq_length: int | None = None,
     valid_seq_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
@@ -304,11 +340,11 @@ def ensure_sequence(
     ## enforce container type
     valid_seq_types = _types_to_tuple(valid_seq_types)
     if not isinstance(param, valid_seq_types):
-        valid_container_str = ", ".join(valid_container.__name__ for valid_container in valid_seq_types)
-        raise TypeError(f"`{param_name}` must be one of ({valid_container_str}).")
+        valid_container_string = ", ".join(valid_container.__name__ for valid_container in valid_seq_types)
+        raise TypeError(f"`{param_name}` must be one of ({valid_container_string}).")
     ## enforce number of elements
     if (seq_length is not None) and (len(param) != seq_length):
-        raise ValueError(f"`{param_name}` must have length {seq_length} (got {len(param)}).")
+        raise ValueError(f"`{param_name}` must have length {seq_length}, got {len(param)}.")
     ## enforce uniform element types
     if valid_elem_types is not None:
         valid_elem_types = _types_to_tuple(valid_elem_types)
@@ -316,26 +352,26 @@ def ensure_sequence(
             elem_index for elem_index, elem in enumerate(param) if not isinstance(elem, valid_elem_types)
         ]
         if bad_indices:
-            preview_bad_indices_str = list_utils.get_preview_string(
+            preview_bad_indices_string = list_utils.get_preview_string(
                 elems=bad_indices,
                 preview_length=5,
             )
             valid_type_names = [valid_elem_type.__name__ for valid_elem_type in valid_elem_types]
-            valid_elem_types_str = list_utils.cast_to_string(
+            valid_elem_types_string = list_utils.as_string(
                 elems=valid_type_names,
                 wrap_in_quotes=True,
                 conjunction="",
             )
             raise TypeError(
-                f"`{param_name}` elements must be of type(s) {valid_elem_types_str}; "
-                f"failed at indices: {preview_bad_indices_str}.",
+                f"`{param_name}` elements must be of type(s) {valid_elem_types_string}; "
+                f"failed at indices: {preview_bad_indices_string}.",
             )
 
 
 def ensure_nested_sequence(
     *,
     param,
-    param_name: str = "<seq>",
+    param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
     valid_outer_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
@@ -365,19 +401,103 @@ def ensure_nested_sequence(
         )
 
 
-def ensure_container(
+##
+## --- LIST
+##
+
+
+def ensure_flat_list(
     *,
     param,
     param_name: str = "<param>",
+    seq_length: int | None = None,
+    valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
     allow_none: bool = False,
 ) -> None:
-    """Ensure `param` is one of the supported container types."""
-    ensure_type(
+    """Ensure `param` is a flat list (no nested containers)."""
+    if (param is None) and allow_none:
+        return
+    ensure_sequence(
         param=param,
-        valid_types=ContainerTypes.CONTAINER,
         param_name=param_name,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.LIST,
+        valid_elem_types=valid_elem_types,
+        allow_none=False,
+    )
+    invalid_elem_types = SequenceTypes.SEQUENCE + ContainerTypes.CONTAINER
+    bad_indices: list[int] = []
+    for elem_index, elem in enumerate(param):
+        if isinstance(elem, invalid_elem_types):
+            bad_indices.append(elem_index)
+    if bad_indices:
+        preview_bad_indices_string = list_utils.get_preview_string(
+            elems=bad_indices,
+            preview_length=5,
+        )
+        raise TypeError(
+            f"`{param_name}` must be a flat list (no nested containers); "
+            f"found nested container elements at indices: {preview_bad_indices_string}.",
+        )
+
+
+def ensure_list_of_numbers(
+    *,
+    param,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of numeric scalars."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        valid_seq_types=SequenceTypes.LIST,
+        seq_length=seq_length,
+        valid_elem_types=NumericTypes.NUMERIC,
         allow_none=allow_none,
     )
+
+
+def ensure_list_of_strings(
+    *,
+    param,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of strings."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        valid_seq_types=SequenceTypes.LIST,
+        seq_length=seq_length,
+        valid_elem_types=StringTypes.STRING,
+        allow_none=allow_none,
+    )
+
+
+def ensure_list_of_bools(
+    *,
+    param,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of booleans."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        valid_seq_types=SequenceTypes.LIST,
+        seq_length=seq_length,
+        valid_elem_types=BooleanTypes.BOOLEAN,
+        allow_none=allow_none,
+    )
+
+
+##
+## --- DICT
+##
 
 
 def ensure_dict(
@@ -395,10 +515,15 @@ def ensure_dict(
     )
 
 
+##
+## --- ARRAY
+##
+
+
 def ensure_ndarray(
     *,
     param,
-    param_name: str = "<array>",
+    param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a NumPy array."""
@@ -414,7 +539,7 @@ def ensure_ndarray_ndim(
     *,
     param,
     ndim: int,
-    param_name: str = "<array>",
+    param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a NumPy array of fixed ndim."""
@@ -428,61 +553,7 @@ def ensure_ndarray_ndim(
         allow_none=False,
     )
     if param.ndim != ndim:
-        raise ValueError(f"`{param_name}` must have ndim={ndim} (got {param.ndim}).")
-
-
-def ensure_numeric_sequence(
-    *,
-    param,
-    param_name: str = "<seq>",
-    seq_length: int | None = None,
-    allow_none: bool = False,
-) -> None:
-    """Ensure `param` is a (list/tuple) of numeric scalars."""
-    ensure_sequence(
-        param=param,
-        param_name=param_name,
-        valid_seq_types=SequenceTypes.SEQUENCE,
-        seq_length=seq_length,
-        valid_elem_types=NumericTypes.NUMERIC,
-        allow_none=allow_none,
-    )
-
-
-def ensure_str_sequence(
-    *,
-    param,
-    param_name: str = "<seq>",
-    seq_length: int | None = None,
-    allow_none: bool = False,
-) -> None:
-    """Ensure `param` is a (list/tuple) of strings."""
-    ensure_sequence(
-        param=param,
-        param_name=param_name,
-        valid_seq_types=SequenceTypes.SEQUENCE,
-        seq_length=seq_length,
-        valid_elem_types=StringTypes.STRING,
-        allow_none=allow_none,
-    )
-
-
-def ensure_bool_sequence(
-    *,
-    param,
-    param_name: str = "<seq>",
-    seq_length: int | None = None,
-    allow_none: bool = False,
-) -> None:
-    """Ensure `param` is a (list/tuple) of booleans."""
-    ensure_sequence(
-        param=param,
-        param_name=param_name,
-        valid_seq_types=SequenceTypes.SEQUENCE,
-        seq_length=seq_length,
-        valid_elem_types=BooleanTypes.BOOLEAN,
-        allow_none=allow_none,
-    )
+        raise ValueError(f"`{param_name}` must have ndim={ndim}, got {param.ndim}.")
 
 
 ## } MODULE
