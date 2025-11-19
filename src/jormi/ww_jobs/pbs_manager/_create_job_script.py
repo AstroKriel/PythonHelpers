@@ -66,7 +66,7 @@ def create_pbs_job_script(
             f"Note: `compute_group_name` = {compute_group_name} and `storage_group_name` = {storage_group_name} are different.",
         )
     ## derived job parameters
-    wall_time_str = f"{wall_time_hours:02}:00:00"
+    wall_time_string = f"{wall_time_hours:02}:00:00"
     memory_limit = num_procs * 4
     try:
         _job_validation.validate_job_params(system_name, queue_name, num_procs, wall_time_hours)
@@ -85,7 +85,7 @@ def create_pbs_job_script(
         job_file.write("#!/bin/bash\n")
         job_file.write(f"#PBS -P {compute_group_name}\n")
         job_file.write(f"#PBS -q {queue_name}\n")
-        job_file.write(f"#PBS -l walltime={wall_time_str}\n")
+        job_file.write(f"#PBS -l walltime={wall_time_string}\n")
         job_file.write(f"#PBS -l ncpus={num_procs}\n")
         job_file.write(f"#PBS -l mem={memory_limit}GB\n")
         job_file.write(f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}\n")
@@ -129,7 +129,7 @@ def create_pbs_job_script(
         print(f"\t> Tagname  : {tag_name}")
         print(f"\t> CPUs     : {num_procs}")
         print(f"\t> Memory   : {memory_limit} GB")
-        print(f"\t> Walltime : {wall_time_str}")
+        print(f"\t> Walltime : {wall_time_string}")
     return file_path
 
 
