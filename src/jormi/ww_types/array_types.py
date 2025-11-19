@@ -15,81 +15,151 @@ from jormi.ww_types import type_manager
 
 def ensure_array(
     array: numpy.ndarray,
-):
+    *,
+    param_name: str = "array",
+) -> None:
+    """Ensure `array` is a NumPy ndarray."""
     type_manager.ensure_type(
         param=array,
-        valid_types=numpy.ndarray,
+        valid_types=type_manager.SequenceTypes.ARRAY,
+        param_name=param_name,
     )
 
 
 def ensure_nonempty(
     array: numpy.ndarray,
-):
-    ensure_array(array)
+    *,
+    param_name: str = "array",
+) -> None:
+    """Ensure `array` is a non-empty NumPy ndarray."""
+    ensure_array(
+        array=array,
+        param_name=param_name,
+    )
     if array.size == 0:
-        raise ValueError("Array is empty.")
+        raise ValueError(f"`{param_name}` is empty.")
 
 
 def ensure_finite(
     array: numpy.ndarray,
-):
-    ensure_array(array)
+    *,
+    param_name: str = "array",
+) -> None:
+    """Ensure `array` is a finite NumPy ndarray (no NaN/Inf)."""
+    ensure_array(
+        array=array,
+        param_name=param_name,
+    )
     if not numpy.isfinite(array).all():
-        raise ValueError("Array contains NaN or Inf.")
+        raise ValueError(f"`{param_name}` contains NaN or Inf.")
 
 
 def ensure_shape(
     array: numpy.ndarray,
     expected_shape: tuple[int, ...],
-):
-    ensure_array(array)
+    *,
+    param_name: str = "array",
+    shape_name: str = "expected_shape",
+) -> None:
+    """Ensure `array` has the given `expected_shape`."""
+    ensure_array(
+        array=array,
+        param_name=param_name,
+    )
+    type_manager.ensure_sequence(
+        param=expected_shape,
+        param_name=shape_name,
+        valid_seq_types=type_manager.SequenceTypes.TUPLE,
+        valid_elem_types=type_manager.NumericTypes.INT,
+    )
     if array.shape != expected_shape:
-        raise ValueError(f"Array should have shape {expected_shape}, got {array.shape}.")
+        raise ValueError(
+            f"`{param_name}` should have shape {expected_shape}, got {array.shape}.",
+        )
 
 
 def ensure_same_shape(
     array_a: numpy.ndarray,
     array_b: numpy.ndarray,
+    *,
+    param_name_a: str = "array_a",
+    param_name_b: str = "array_b",
 ) -> None:
-    ensure_array(array_a)
-    ensure_array(array_b)
+    """Ensure `array_a` and `array_b` are ndarrays with identical shape."""
+    ensure_array(
+        array=array_a,
+        param_name=param_name_a,
+    )
+    ensure_array(
+        array=array_b,
+        param_name=param_name_b,
+    )
     if array_a.shape != array_b.shape:
-        raise ValueError(f"Shape mismatch: {array_a.shape} vs {array_b.shape}")
+        raise ValueError(
+            f"Shape mismatch: `{param_name_a}` {array_a.shape} vs "
+            f"`{param_name_b}` {array_b.shape}.",
+        )
 
 
 def ensure_dim(
     array: numpy.ndarray,
     dim: int,
-):
-    ensure_array(array)
+    *,
+    param_name: str = "array",
+    dim_name: str = "dim",
+) -> None:
+    """Ensure `array` is a NumPy ndarray with ndim == dim."""
+    ensure_array(
+        array=array,
+        param_name=param_name,
+    )
     type_manager.ensure_finite_int(
         param=dim,
-        param_name="dim",
+        param_name=dim_name,
     )
     if dim < 1:
-        raise ValueError("Input `dim`-param must be a positive integer.")
+        raise ValueError(f"`{dim_name}` must be a positive integer; got {dim}.")
     if array.ndim != dim:
-        raise ValueError(f"Array is not {dim}D.")
+        raise ValueError(
+            f"`{param_name}` must be {dim}-dimensional; got ndim={array.ndim}.",
+        )
 
 
 def ensure_1d(
     array: numpy.ndarray,
-):
+    *,
+    param_name: str = "array",
+) -> None:
+    """Ensure `array` is a 1D NumPy ndarray."""
     ensure_dim(
         array=array,
         dim=1,
+        param_name=param_name,
+        dim_name="dim",
     )
 
 
 def as_1d(
     array_like: list | numpy.ndarray,
     check_finite: bool = True,
+    *,
+    param_name: str = "array_like",
 ) -> numpy.ndarray:
+    """Convert `array_like` to a 1D ndarray[float64]."""
     array = numpy.asarray(array_like, numpy.float64)
-    ensure_nonempty(array)
+    ensure_nonempty(
+        array=array,
+        param_name=param_name,
+    )
     if check_finite:
-        ensure_finite(array)
-    ensure_1d(array)
+        ensure_finite(
+            array=array,
+            param_name=param_name,
+        )
+    ensure_1d(
+        array=array,
+        param_name=param_name,
+    )
     return array.ravel()
 
 
