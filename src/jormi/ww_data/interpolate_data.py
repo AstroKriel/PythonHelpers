@@ -33,8 +33,13 @@ def interpolate_1d(
         raise ValueError("`x_values` should be monotonically increasing.")
     valid_kinds = ["linear", "quadratic", "cubic"]
     if kind not in valid_kinds:
+        valid_kinds_string = list_utils.as_string(
+            elems=valid_kinds,
+            wrap_in_quotes=True,
+            conjunction="",
+        )
         raise ValueError(
-            f"Invalid interpolation `kind`: {kind}. Valid options include: {list_utils.cast_to_string(valid_kinds)}",
+            f"Invalid interpolation `kind`: {kind}. Valid options include: {valid_kinds_string}",
         )
     x_min_data = x_values[0]
     x_max_values = x_values[-1]
