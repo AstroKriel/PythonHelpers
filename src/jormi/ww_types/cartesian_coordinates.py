@@ -59,7 +59,7 @@ DEFAULT_AXES_ORDER: AxisTuple = (
 def as_axis(
     *,
     axis: AxisLike,
-    param_name: str = "axis",
+    param_name: str = "<axis>",
 ) -> CartesianAxis:
     """Normalise a string ('x', 'y', 'z') or CartesianAxis into a CartesianAxis enum."""
     if isinstance(axis, CartesianAxis):
@@ -84,9 +84,15 @@ def get_axis_index(
 def get_axis_from_index(
     *,
     index: int,
-    param_name: str = "index",
+    param_name: str = "<index>",
 ) -> CartesianAxis:
     """Return the CartesianAxis corresponding to a default index (0, 1, 2)."""
+    type_manager.ensure_finite_int(
+        param=index,
+        param_name=param_name,
+        allow_none=False,
+        require_positive=False,
+    )
     if index == 0:
         return CartesianAxis.X
     if index == 1:
@@ -106,7 +112,7 @@ def get_axis_from_index(
 def as_axes_tuple(
     *,
     axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "axes",
+    param_name: str = "<axes>",
 ) -> AxisTuple:
     """
     Convert a length-3 tuple of AxisLike into a tuple of CartesianAxis.
@@ -117,7 +123,7 @@ def as_axes_tuple(
         param=axes,
         param_name=param_name,
         seq_length=3,
-        valid_seq_types=(tuple, ),
+        valid_seq_types=type_manager.SequenceTypes.TUPLE,
     )
     axes_enum_list: list[CartesianAxis] = []
     for axis_index, axis_like in enumerate(axes):
@@ -136,7 +142,7 @@ def as_axes_tuple(
 def ensure_valid_axes_permutation(
     *,
     axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "axes",
+    param_name: str = "<axes>",
 ) -> None:
     """Ensure `axes` is a permutation of the default axes (order not enforced)."""
     axes_tuple = as_axes_tuple(
@@ -156,7 +162,7 @@ def ensure_valid_axes_permutation(
 def ensure_default_axes_order(
     *,
     axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "axes",
+    param_name: str = "<axes>",
 ) -> None:
     """Ensure `axes` matches the default order exactly: (x, y, z)."""
     axes_tuple = as_axes_tuple(
@@ -184,7 +190,7 @@ def is_default_axes_order(
     try:
         axes_tuple = as_axes_tuple(
             axes=axes,
-            param_name="axes",
+            param_name="<axes>",
         )
     except ValueError:
         return False

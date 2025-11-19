@@ -16,12 +16,11 @@ from jormi.ww_types import type_manager
 def ensure_array(
     array: numpy.ndarray,
     *,
-    param_name: str = "array",
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray."""
-    type_manager.ensure_type(
+    type_manager.ensure_ndarray(
         param=array,
-        valid_types=type_manager.SequenceTypes.ARRAY,
         param_name=param_name,
     )
 
@@ -29,7 +28,7 @@ def ensure_array(
 def ensure_nonempty(
     array: numpy.ndarray,
     *,
-    param_name: str = "array",
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a non-empty NumPy ndarray."""
     ensure_array(
@@ -43,7 +42,7 @@ def ensure_nonempty(
 def ensure_finite(
     array: numpy.ndarray,
     *,
-    param_name: str = "array",
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a finite NumPy ndarray (no NaN/Inf)."""
     ensure_array(
@@ -56,21 +55,18 @@ def ensure_finite(
 
 def ensure_shape(
     array: numpy.ndarray,
-    expected_shape: tuple[int, ...],
     *,
-    param_name: str = "array",
-    shape_name: str = "expected_shape",
+    expected_shape: tuple[int, ...],
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` has the given `expected_shape`."""
     ensure_array(
         array=array,
         param_name=param_name,
     )
-    type_manager.ensure_sequence(
+    type_manager.ensure_tuple_of_ints(
         param=expected_shape,
-        param_name=shape_name,
-        valid_seq_types=type_manager.SequenceTypes.TUPLE,
-        valid_elem_types=type_manager.NumericTypes.INT,
+        param_name="expected_shape",
     )
     if array.shape != expected_shape:
         raise ValueError(
@@ -79,11 +75,11 @@ def ensure_shape(
 
 
 def ensure_same_shape(
+    *,
     array_a: numpy.ndarray,
     array_b: numpy.ndarray,
-    *,
-    param_name_a: str = "array_a",
-    param_name_b: str = "array_b",
+    param_name_a: str = "<array_a>",
+    param_name_b: str = "<array_b>",
 ) -> None:
     """Ensure `array_a` and `array_b` are ndarrays with identical shape."""
     ensure_array(
@@ -105,8 +101,7 @@ def ensure_dim(
     array: numpy.ndarray,
     dim: int,
     *,
-    param_name: str = "array",
-    dim_name: str = "dim",
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray with ndim == dim."""
     ensure_array(
@@ -115,37 +110,40 @@ def ensure_dim(
     )
     type_manager.ensure_finite_int(
         param=dim,
-        param_name=dim_name,
+        param_name="dim",
+        require_positive=True,
     )
-    if dim < 1:
-        raise ValueError(f"`{dim_name}` must be a positive integer; got {dim}.")
     if array.ndim != dim:
         raise ValueError(
             f"`{param_name}` must be {dim}-dimensional; got ndim={array.ndim}.",
         )
 
 
+
 def ensure_1d(
     array: numpy.ndarray,
     *,
-    param_name: str = "array",
+    param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a 1D NumPy ndarray."""
     ensure_dim(
         array=array,
         dim=1,
         param_name=param_name,
-        dim_name="dim",
     )
 
 
 def as_1d(
-    array_like: list | numpy.ndarray,
-    check_finite: bool = True,
+    array_like: tuple | list | numpy.ndarray,
     *,
-    param_name: str = "array_like",
+    param_name: str = "<array_like>",
+    check_finite: bool = True,
 ) -> numpy.ndarray:
     """Convert `array_like` to a 1D ndarray[float64]."""
+    type_manager.ensure_not_none(
+        param=array_like,
+        param_name=param_name,
+    )
     array = numpy.asarray(array_like, numpy.float64)
     ensure_nonempty(
         array=array,
