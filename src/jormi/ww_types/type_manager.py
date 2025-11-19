@@ -13,8 +13,8 @@ from jormi.utils import list_utils
 
 
 def as_tuple(
-    *,
     param,
+    *,
     param_name: str = "<param>",
 ) -> tuple:
     """Return `param` as a tuple."""
@@ -43,8 +43,8 @@ def _types_to_tuple(
 
 
 def ensure_type(
-    *,
     param,
+    *,
     valid_types: type | tuple[type, ...] | list[type],
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -64,8 +64,8 @@ def ensure_type(
 
 
 def ensure_not_none(
-    *,
     param,
+    *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure a variable is not None."""
@@ -83,8 +83,8 @@ class StringTypes:
 
 
 def ensure_string(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -98,8 +98,8 @@ def ensure_string(
 
 
 def ensure_nonempty_string(
-    *,
     param: str,
+    *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a non-empty string."""
@@ -113,8 +113,8 @@ def ensure_nonempty_string(
 
 
 def ensure_char(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -142,8 +142,8 @@ class BooleanTypes:
 
 
 def ensure_bool(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -157,8 +157,8 @@ def ensure_bool(
 
 
 def ensure_true(
-    *,
     param,
+    *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a boolean with value True."""
@@ -172,8 +172,8 @@ def ensure_true(
 
 
 def ensure_false(
-    *,
     param,
+    *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a boolean with value False."""
@@ -187,8 +187,8 @@ def ensure_false(
 
 
 def ensure_not_bool(
-    *,
     param,
+    *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is not a boolean."""
@@ -208,8 +208,8 @@ class NumericTypes:
 
 
 def ensure_numeric(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -229,13 +229,14 @@ def ensure_numeric(
 
 
 def ensure_finite_numeric(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     valid_types: tuple[type, ...],
     allow_none: bool,
+    require_positive: bool,
 ) -> None:
-    """Ensure `param` is finite and of the given numeric types."""
+    """Ensure `param` is finite, positive (optional), and of the given numeric types."""
     if param is None:
         if allow_none:
             return
@@ -255,13 +256,16 @@ def ensure_finite_numeric(
         raise TypeError(f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.")
     if not numpy.isfinite(param):
         raise ValueError(f"`{param_name}` must be finite, got {param}.")
+    if require_positive and not (param > 0):
+        raise ValueError(f"`{param_name}` must be positive (> 0), got {param}.")
 
 
 def ensure_finite_float(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
+    require_positive: bool = False,
 ) -> None:
     """Ensure `param` is a finite float-like value."""
     ensure_finite_numeric(
@@ -269,14 +273,16 @@ def ensure_finite_float(
         param_name=param_name,
         valid_types=NumericTypes.FLOAT,
         allow_none=allow_none,
+        require_positive=require_positive,
     )
 
 
 def ensure_finite_int(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
+    require_positive: bool = False,
 ) -> None:
     """Ensure `param` is a finite int-like value."""
     ensure_finite_numeric(
@@ -284,6 +290,7 @@ def ensure_finite_int(
         param_name=param_name,
         valid_types=NumericTypes.INT,
         allow_none=allow_none,
+        require_positive=require_positive,
     )
 
 
@@ -300,8 +307,8 @@ class ContainerTypes:
 
 
 def ensure_container(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -326,8 +333,8 @@ class SequenceTypes(ContainerTypes):
 
 
 def ensure_sequence(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     seq_length: int | None = None,
     valid_seq_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
@@ -369,8 +376,8 @@ def ensure_sequence(
 
 
 def ensure_nested_sequence(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
@@ -407,8 +414,8 @@ def ensure_nested_sequence(
 
 
 def ensure_flat_list(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     seq_length: int | None = None,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
@@ -442,8 +449,8 @@ def ensure_flat_list(
 
 
 def ensure_list_of_numbers(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     seq_length: int | None = None,
     allow_none: bool = False,
@@ -460,8 +467,8 @@ def ensure_list_of_numbers(
 
 
 def ensure_list_of_strings(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     seq_length: int | None = None,
     allow_none: bool = False,
@@ -478,8 +485,8 @@ def ensure_list_of_strings(
 
 
 def ensure_list_of_bools(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     seq_length: int | None = None,
     allow_none: bool = False,
@@ -501,8 +508,8 @@ def ensure_list_of_bools(
 
 
 def ensure_dict(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -521,8 +528,8 @@ def ensure_dict(
 
 
 def ensure_ndarray(
-    *,
     param,
+    *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
@@ -536,8 +543,8 @@ def ensure_ndarray(
 
 
 def ensure_ndarray_ndim(
-    *,
     param,
+    *,
     ndim: int,
     param_name: str = "<param>",
     allow_none: bool = False,
