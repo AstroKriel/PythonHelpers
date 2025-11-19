@@ -315,18 +315,12 @@ def log_outcome(
 def log_action(
     *,
     title: str,
-    succeeded: bool | None,
+    outcome: ActionOutcome,
     message: str = "",
     notes: Mapping[str, object] | None = None,
     show_time: bool = True,
     message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
-    if succeeded is None:
-        outcome = ActionOutcome.SKIPPED
-    elif succeeded:
-        outcome = ActionOutcome.SUCCESS
-    else:
-        outcome = ActionOutcome.FAILURE
     message_notes: dict[str, Any] = dict(notes) if notes else {}
     render_block(
         Message(

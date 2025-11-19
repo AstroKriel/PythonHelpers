@@ -8,7 +8,8 @@ import csv
 
 from pathlib import Path
 
-from jormi.ww_io import io_manager
+from jormi.ww_io import io_manager, log_manager
+from jormi.ww_types import type_manager
 
 ##
 ## === FUNCTIONS
@@ -17,7 +18,12 @@ from jormi.ww_io import io_manager
 
 def _ensure_path_is_valid(
     file_path: str | Path,
-):
+) -> Path:
+    """Ensure `file_path` is a valid .csv path and return it as an absolute Path."""
+    type_manager.ensure_not_none(
+        param=file_path,
+        param_name="file_path",
+    )
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".csv":
         raise ValueError(f"File should end with a .csv extension: {file_path}")
@@ -26,14 +32,21 @@ def _ensure_path_is_valid(
 
 def _validate_input_dict(
     input_dict: dict,
-):
-    if not isinstance(input_dict, dict):
-        raise TypeError("Expected a dictionary for `input_dict`.")
-    for key in input_dict:
-        if not isinstance(key, str):
-            raise TypeError(
-                f"All keys in `input_dict` must be strings. Found key of type {type(key).__name__}: {key}",
-            )
+) -> None:
+    """Validate that `input_dict` is a dict with string keys."""
+    type_manager.ensure_dict(
+        param=input_dict,
+        param_name="input_dict",
+        allow_none=False,
+    )
+    if not input_dict:
+        return
+    keys_as_list = list(input_dict.keys())
+    type_manager.ensure_list_of_strings(
+        param=keys_as_list,
+        param_name="input_dict keys",
+        allow_none=False,
+    )
 
 
 def read_csv_file_into_dict(
@@ -41,11 +54,21 @@ def read_csv_file_into_dict(
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
+    type_manager.ensure_bool(
+        param=verbose,
+        param_name="verbose",
+        allow_none=False,
+    )
+    type_manager.ensure_char(
+        param=delimiter,
+        param_name="delimiter",
+        allow_none=False,
+    )
     file_path = _ensure_path_is_valid(file_path)
     if not io_manager.does_file_exist(file_path):
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
-        print(f"Reading csv-file: {file_path}")
+        log_manager.log_task(f"Reading csv-file: {file_path}")
     with open(file_path, "r", newline="", encoding="utf-8") as file_pointer:
         csv_reader = csv.DictReader(
             file_pointer,
@@ -57,13 +80,15 @@ def read_csv_file_into_dict(
         for entry_index, entry in enumerate(csv_reader, start=2):  # header is line 1
             for key, value in entry.items():
                 if (value is None) or (value == ""):
-                    raise ValueError(f"Missing value in column `{key}` on line {entry_index}.")
+                    raise ValueError(
+                        f"Missing value in column `{key}` on line {entry_index}.",
+                    )
                 try:
                     dataset[key].append(float(value))
-                except ValueError as e:
+                except ValueError as error:
                     raise ValueError(
-                        f"Non-numeric value in column `{key}` on line {entry_index}: {value!r}",
-                    ) from e
+                        f"Non-numeric value in column `{key}` on line {entry_index}: {value!r}.",
+                    ) from error
     return dataset
 
 
@@ -72,38 +97,77 @@ def save_dict_to_csv_file(
     input_dict: dict,
     overwrite: bool = True,
     verbose: bool = True,
-):
+) -> None:
+    type_manager.ensure_bool(
+        param=overwrite,
+        param_name="overwrite",
+        allow_none=False,
+    )
+    type_manager.ensure_bool(
+        param=verbose,
+        param_name="verbose",
+        allow_none=False,
+    )
     file_path = _ensure_path_is_valid(file_path)
     _validate_input_dict(input_dict)
-    if io_manager.does_file_exist(file_path):
+    file_exists = io_manager.does_file_exist(file_path)
+    if file_exists:
         if overwrite:
             _write_csv(
                 file_path=file_path,
                 input_dict=input_dict,
             )
-            if verbose: print(f"Overwrote csv-file: {file_path}")
+            if verbose:
+                log_manager.log_action(
+                    title="Save CSV file",
+                    outcome=log_manager.ActionOutcome.SUCCESS,
+                    message="Overwrote csv-file.",
+                    notes={
+                        "file": str(file_path),
+                        "mode": "overwrite",
+                    },
+                )
         else:
             _update_csv(
                 file_path=file_path,
                 input_dict=input_dict,
             )
-            if verbose: print(f"Extended csv-file: {file_path}")
+            if verbose:
+                log_manager.log_action(
+                    title="Save CSV file",
+                    outcome=log_manager.ActionOutcome.SUCCESS,
+                    message="Extended csv-file.",
+                    notes={
+                        "file": str(file_path),
+                        "mode": "extend",
+                    },
+                )
     else:
         _write_csv(
             file_path=file_path,
             input_dict=input_dict,
         )
-        if verbose: print(f"Saved csv-file: {file_path}")
+        if verbose:
+            log_manager.log_action(
+                title="Save CSV file",
+                outcome=log_manager.ActionOutcome.SUCCESS,
+                message="Saved csv-file.",
+                notes={
+                    "file": str(file_path),
+                    "mode": "create",
+                },
+            )
 
 
 def _write_csv(
     file_path: Path,
     input_dict: dict,
-):
+) -> None:
     dataset_shape = [len(column) for column in input_dict.values()]
     if len(set(dataset_shape)) != 1:
         raise ValueError(
-            f"All dataset columns should be the same length. Provided `input_dict` shape: {dataset_shape}",
+            "All dataset columns should be the same length."
+            f" Provided `input_dict` shape: {dataset_shape}.",
         )
     with open(file_path, "w", newline="", encoding="utf-8") as file_pointer:
         writer = csv.writer(file_pointer, delimiter=",")
@@ -114,7 +178,7 @@ def _write_csv(
 def _update_csv(
     file_path: Path,
     input_dict: dict,
-):
+) -> None:
     existing_dataset = read_csv_file_into_dict(
         file_path=file_path,
         verbose=False,
@@ -132,7 +196,9 @@ def _update_csv(
                 growth_of_existing_columns = input_column_length
             elif input_column_length != growth_of_existing_columns:
                 raise ValueError(
-                    f"Inconsistent append lengths for existing keys: expected {growth_of_existing_columns}, got {input_column_length} for `{key}`",
+                    "Inconsistent append lengths for existing keys:"
+                    f" expected {growth_of_existing_columns},"
+                    f" got {input_column_length} for `{key}`.",
                 )
     if growth_of_existing_columns is None:
         growth_of_existing_columns = 0  # no existing columns are being extended
@@ -143,7 +209,9 @@ def _update_csv(
             input_column_length = len(input_dict[key])
             if input_column_length != expected_final_column_length:
                 raise ValueError(
-                    f"New column `{key}` must have length {expected_final_column_length} (existing rows + growth), but got {input_column_length}",
+                    "New column `{key}` must have length"
+                    f" {expected_final_column_length} (existing rows + growth),"
+                    f" but got {input_column_length}.",
                 )
     ## apply updates
     for key in input_dict:
@@ -154,7 +222,9 @@ def _update_csv(
     ## final sanity check before saving
     final_dataset_shape = [len(column) for column in existing_dataset.values()]
     if len(set(final_dataset_shape)) != 1:
-        raise ValueError(f"Final dataset has inconsistent column lengths: {final_dataset_shape}")
+        raise ValueError(
+            f"Final dataset has inconsistent column lengths: {final_dataset_shape}",
+        )
     _write_csv(file_path, existing_dataset)
 
 

@@ -8,10 +8,10 @@ import numpy
 import shutil
 import inspect
 
-from typing import List
 from pathlib import Path
 
 from jormi.utils import list_utils
+from jormi.ww_io import log_manager
 
 ##
 ## === FUNCTIONS
@@ -28,27 +28,34 @@ def get_caller_directory() -> Path:
 def combine_file_path_parts(
     file_path_parts: list[str | Path],
 ) -> Path:
-    return Path(*list_utils.flatten_list(list_utils.filter_out_nones(file_path_parts))).absolute()
+    return Path(
+        *list_utils.flatten_list(
+            list_utils.filter_out_nones(file_path_parts),
+        ),
+    ).absolute()
 
 
 def resolve_file_path(
     file_path: str | Path | None = None,
     directory: str | Path | None = None,
     file_name: str | None = None,
-):
+) -> Path:
     if file_path is None:
-        missing = []
-        if (directory is None):
-            missing.append("directory")
-        if (file_name is None):
-            missing.append("file_name")
-        if missing:
+        missing_params = []
+        if directory is None:
+            missing_params.append("directory")
+        if file_name is None:
+            missing_params.append("file_name")
+        if missing_params:
+            missing_params_string = list_utils.as_string(missing_params)
             raise ValueError(
-                "You have not provided enough information about the file and where it is. "
-                f"You are missing: {list_utils.cast_to_string(missing)}. "
-                "Alternatively, provide `file_path` directly.",
+                "You have not provided enough information about the file and where it is."
+                f" You are missing: {missing_params_string}."
+                " Alternatively, provide `file_path` directly.",
             )
-        file_path = combine_file_path_parts(list_utils.filter_out_nones([directory, file_name]))
+        file_path = combine_file_path_parts(
+            list_utils.filter_out_nones([directory, file_name]),
+        )
     else:
         file_path = Path(file_path).absolute()
     return file_path
@@ -60,7 +67,7 @@ def does_directory_exist(
 ) -> bool:
     directory = Path(directory).absolute()
     result = directory.is_dir()
-    if not (result) and raise_error:
+    if not result and raise_error:
         raise NotADirectoryError(f"Directory does not exist: {directory}")
     return result
 
@@ -68,14 +75,24 @@ def does_directory_exist(
 def init_directory(
     directory: str | Path,
     verbose: bool = True,
-):
+) -> None:
     directory = Path(directory).resolve(strict=False)
     if not does_directory_exist(directory):
         directory.mkdir(parents=True)
         if verbose:
-            print("Initialised directory:", directory)
+            log_manager.log_action(
+                title="Initialise directory",
+                outcome=log_manager.ActionOutcome.SUCCESS,
+                message="Created directory.",
+                notes={"directory": str(directory)},
+            )
     elif verbose:
-        print("Directory already exists:", directory)
+        log_manager.log_action(
+            title="Initialise directory",
+            outcome=log_manager.ActionOutcome.SKIPPED,
+            message="Directory already exists.",
+            notes={"directory": str(directory)},
+        )
 
 
 def does_file_exist(
@@ -84,9 +101,13 @@ def does_file_exist(
     file_name: str | None = None,
     raise_error: bool = False,
 ) -> bool:
-    file_path = resolve_file_path(file_path=file_path, directory=directory, file_name=file_name)
+    file_path = resolve_file_path(
+        file_path=file_path,
+        directory=directory,
+        file_name=file_name,
+    )
     file_path_exists = file_path.is_file()
-    if not (file_path_exists) and raise_error:
+    if not file_path_exists and raise_error:
         raise FileNotFoundError(f"File does not exist: {file_path}")
     return file_path_exists
 
@@ -98,31 +119,59 @@ def _resolve_and_validate_file_operation(
     overwrite: bool = False,
     dry_run: bool = False,
 ) -> tuple[Path, Path]:
-    does_directory_exist(directory=directory_from, raise_error=True)
+    does_directory_exist(
+        directory=directory_from,
+        raise_error=True,
+    )
     file_path_from = combine_file_path_parts([directory_from, file_name])
-    does_file_exist(file_path=file_path_from, raise_error=True)
+    does_file_exist(
+        file_path=file_path_from,
+        raise_error=True,
+    )
     if not does_directory_exist(directory=directory_to):
         if not dry_run:
-            init_directory(directory=directory_to, verbose=False)
+            init_directory(
+                directory=directory_to,
+                verbose=False,
+            )
         else:
-            print(f"Would create directory: {directory_to}")
+            log_manager.log_action(
+                title="Create directory",
+                outcome=log_manager.ActionOutcome.SKIPPED,
+                message="Dry-run: Would create directory.",
+                notes={"directory": str(directory_to)},
+            )
     file_path_to = combine_file_path_parts([directory_to, file_name])
-    if not (overwrite) and does_file_exist(file_path=file_path_to, raise_error=False):
+    file_exists = does_file_exist(
+        file_path=file_path_to,
+        raise_error=False,
+    )
+    if not overwrite and file_exists:
         raise FileExistsError(f"File already exists: {file_path_to}")
     return file_path_from, file_path_to
 
 
-def _print_file_action(
+def _log_file_action(
     action: str,
     file_name: str,
     directory_from: str | Path,
     directory_to: str | Path | None = None,
-):
-    print(f"[{action}]")
-    print(f"\t> File: {file_name}")
-    print(f"\t> From: {directory_from}")
+    *,
+    is_dry_run: bool,
+) -> None:
+    """Log a file operation using the log_manager API."""
+    notes: dict[str, str] = {
+        "file": file_name,
+        "source": str(directory_from),
+    }
     if directory_to is not None:
-        print(f"\t> To:   {directory_to}")
+        notes["target"] = str(directory_to)
+    log_manager.log_action(
+        title=action,
+        outcome=(log_manager.ActionOutcome.SKIPPED if is_dry_run else log_manager.ActionOutcome.SUCCESS),
+        message="",
+        notes=notes,
+    )
 
 
 def copy_file(
@@ -132,7 +181,7 @@ def copy_file(
     overwrite: bool = False,
     dry_run: bool = False,
     verbose: bool = True,
-):
+) -> None:
     file_path_from, file_path_to = _resolve_and_validate_file_operation(
         directory_from=directory_from,
         directory_to=directory_to,
@@ -141,14 +190,21 @@ def copy_file(
         dry_run=dry_run,
     )
     if not dry_run:
-        shutil.copy(file_path_from, file_path_to)
-        shutil.copymode(file_path_from, file_path_to)
+        shutil.copy(
+            src=file_path_from,
+            dst=file_path_to,
+        )
+        shutil.copymode(
+            src=file_path_from,
+            dst=file_path_to,
+        )
     if verbose or dry_run:
-        _print_file_action(
-            action="Copied File" if not dry_run else "Would Copy File",
+        _log_file_action(
+            action="Copy file",
             file_name=file_name,
             directory_from=directory_from,
             directory_to=directory_to,
+            is_dry_run=dry_run,
         )
 
 
@@ -159,7 +215,7 @@ def move_file(
     overwrite: bool = False,
     dry_run: bool = False,
     verbose: bool = True,
-):
+) -> None:
     file_path_from, file_path_to = _resolve_and_validate_file_operation(
         directory_from=directory_from,
         directory_to=directory_to,
@@ -167,13 +223,18 @@ def move_file(
         overwrite=overwrite,
         dry_run=dry_run,
     )
-    if not dry_run: shutil.move(file_path_from, file_path_to)
+    if not dry_run:
+        shutil.move(
+            src=file_path_from,
+            dst=file_path_to,
+        )
     if verbose or dry_run:
-        _print_file_action(
-            action="Moved" if not dry_run else "Would move",
+        _log_file_action(
+            action="Move file",
             file_name=file_name,
             directory_from=directory_from,
             directory_to=directory_to,
+            is_dry_run=dry_run,
         )
 
 
@@ -182,15 +243,20 @@ def delete_file(
     file_name: str,
     dry_run: bool = False,
     verbose: bool = True,
-):
-    does_directory_exist(directory=directory, raise_error=True)
+) -> None:
+    does_directory_exist(
+        directory=directory,
+        raise_error=True,
+    )
     file_path = combine_file_path_parts([directory, file_name])
-    if not dry_run: file_path.unlink()
+    if not dry_run:
+        file_path.unlink()
     if verbose or dry_run:
-        _print_file_action(
-            action="Deleted" if not dry_run else "Would delete",
+        _log_file_action(
+            action="Delete file",
             file_name=file_name,
             directory_from=directory,
+            is_dry_run=dry_run,
         )
 
 
@@ -199,8 +265,8 @@ class ItemFilter:
     def __init__(
         self,
         *,
-        req_include_words: str | List[str] | None = None,
-        req_exclude_words: str | List[str] | None = None,
+        req_include_words: str | list[str] | None = None,
+        req_exclude_words: str | list[str] | None = None,
         prefix: str | None = None,
         suffix: str | None = None,
         delimiter: str = "_",
@@ -224,7 +290,10 @@ class ItemFilter:
         self.include_folders = include_folders
         self._validate_inputs()
 
-    def _to_list(self, value):
+    def _to_list(
+        self,
+        value,
+    ):
         if value is None:
             return []
         if isinstance(value, str):
@@ -233,7 +302,9 @@ class ItemFilter:
             return value
         raise ValueError("Expected a string or list of strings.")
 
-    def _validate_inputs(self):
+    def _validate_inputs(
+        self,
+    ):
         if not (self.include_files or self.include_folders):
             raise ValueError(
                 "At least one of `include_files` or `include_folders` must be enabled.",
@@ -246,7 +317,10 @@ class ItemFilter:
         if self.min_value > self.max_value:
             raise ValueError("`min_value` cannot be greater than `max_value`.")
 
-    def _meets_criteria(self, item_path: Path) -> bool:
+    def _meets_criteria(
+        self,
+        item_path: Path,
+    ) -> bool:
         if item_path.is_file() and not self.include_files:
             return False
         if item_path.is_dir() and not self.include_folders:
@@ -280,7 +354,10 @@ class ItemFilter:
                 return False
         return True
 
-    def filter(self, directory: str | Path) -> List[Path]:
+    def filter(
+        self,
+        directory: str | Path,
+    ) -> list[Path]:
         """Filter item names in the given directory based on current criteria."""
         directory = Path(directory).absolute()
         does_directory_exist(directory, raise_error=True)
