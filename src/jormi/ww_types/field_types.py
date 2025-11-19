@@ -417,7 +417,6 @@ def ensure_domain_matches_sfield(
         array=sfield.data,
         expected_shape=uniform_domain.resolution,
         param_name=f"{sfield_name}.data",
-        shape_name=f"{domain_name}.resolution",
     )
 
 
@@ -442,9 +441,7 @@ def ensure_domain_matches_vfield(
         array=vfield.data,
         expected_shape=expected_shape,
         param_name=f"{vfield_name}.data",
-        shape_name=f"{domain_name}.resolution",
     )
-
 
 
 ## } MODULE

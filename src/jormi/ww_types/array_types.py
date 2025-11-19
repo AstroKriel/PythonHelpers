@@ -119,7 +119,6 @@ def ensure_dim(
         )
 
 
-
 def ensure_1d(
     array: numpy.ndarray,
     *,
