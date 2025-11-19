@@ -6,35 +6,12 @@
 
 import numpy
 
-from typing import Literal, Self
+from typing import Self
 from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_types, farray_types
+from jormi.ww_types import type_manager, array_types, farray_types, cartesian_coordinates
 from jormi.ww_fields import farray_operators
-
-##
-## === DATA TYPES
-##
-
-AxisName = Literal["x", "y", "z"]
-IndexNames = Literal["i", "j", "k"]
-IndexValue = Literal[0, 1, 2]
-
-AXES_NAMES: tuple[AxisName, AxisName, AxisName] = ("x", "y", "z")
-INDEX_NAMES: tuple[IndexNames, IndexNames, IndexNames] = ("i", "j", "k")
-AXIS_NAME_TO_INDEX_VALUE: dict[AxisName, IndexValue] = {"x": 0, "y": 1, "z": 2}
-
-
-def get_comp_index(
-    comp_axis: AxisName,
-) -> IndexValue:
-    """Map component axis (x,y,z) to index (0,1,2)."""
-    try:
-        return AXIS_NAME_TO_INDEX_VALUE[comp_axis]
-    except KeyError as error:
-        raise ValueError(f"`comp_axis` must be one of {AXES_NAMES}, got {comp_axis}.") from error
-
 
 ##
 ## === DATA STRUCTURES
@@ -65,8 +42,8 @@ class UniformDomain:
             param=self.periodicity,
             param_name="periodicity",
             seq_length=3,
-            valid_seq_types=(tuple, ),
-            valid_elem_types=(bool, numpy.bool_),
+            valid_seq_types=type_manager.SequenceTypes.TUPLE,
+            valid_elem_types=type_manager.BooleanTypes.BOOLEAN,
         )
 
     def _validate_resolution(
@@ -76,8 +53,8 @@ class UniformDomain:
             param=self.resolution,
             param_name="resolution",
             seq_length=3,
-            valid_seq_types=(tuple, ),
-            valid_elem_types=(int, numpy.integer),
+            valid_seq_types=type_manager.SequenceTypes.TUPLE,
+            valid_elem_types=type_manager.NumericTypes.INT,
         )
         num_cells_x, num_cells_y, num_cells_z = self.resolution
         if (num_cells_x <= 0) or (num_cells_y <= 0) or (num_cells_z <= 0):
@@ -90,26 +67,28 @@ class UniformDomain:
             param=self.domain_bounds,
             param_name="domain_bounds",
             seq_length=3,
-            valid_seq_types=(tuple, ),
-            valid_elem_types=(tuple, list),
+            valid_seq_types=type_manager.SequenceTypes.TUPLE,
+            valid_elem_types=type_manager.SequenceTypes.TUPLE,
         )
         for axis_index, bounds in enumerate(self.domain_bounds):
+            axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
             type_manager.ensure_sequence(
                 param=bounds,
-                param_name=f"domain_bounds[{AXES_NAMES[axis_index]}]",
+                param_name=f"domain_bounds[{axis_label}]",
                 seq_length=2,
-                valid_seq_types=(tuple, list),
+                valid_seq_types=type_manager.SequenceTypes.TUPLE,
+                valid_elem_types=type_manager.NumericTypes.NUMERIC,
             )
             lo_value, hi_value = bounds
             try:
                 lo_float = float(lo_value)
                 hi_float = float(hi_value)
             except Exception as error:
-                raise ValueError(f"{AXES_NAMES[axis_index]}-axis: bounds must be numeric floats.") from error
+                raise ValueError(f"{axis_label}-axis: bounds must be numeric floats.") from error
             if not (numpy.isfinite(lo_float) and numpy.isfinite(hi_float)):
-                raise ValueError(f"{AXES_NAMES[axis_index]}-axis: bounds must be finite.")
+                raise ValueError(f"{axis_label}-axis: bounds must be finite.")
             if not (hi_float > lo_float):
-                raise ValueError(f"{AXES_NAMES[axis_index]}-axis: max must be > min.")
+                raise ValueError(f"{axis_label}-axis: max must be > min.")
 
     @cached_property
     def cell_widths(
@@ -199,7 +178,7 @@ class ScalarField:
         farray_types.ensure_sarray(self.data)
 
     def _validate_label(self):
-        type_manager.ensure_nonempty_str(
+        type_manager.ensure_nonempty_string(
             param=self.field_label,
             param_name="field_label",
         )
@@ -209,7 +188,7 @@ class ScalarField:
 class VectorField:
     data: numpy.ndarray
     field_label: str
-    comp_axes: tuple[AxisName, AxisName, AxisName] = AXES_NAMES
+    comp_axes: cartesian_coordinates.AxisTuple = cartesian_coordinates.DEFAULT_AXES_ORDER
     sim_time: float | None = None
 
     def __post_init__(
@@ -236,18 +215,21 @@ class VectorField:
     def _validate_axes(
         self,
     ) -> None:
-        type_manager.ensure_nonempty_str(
+        type_manager.ensure_nonempty_string(
             param=self.field_label,
             param_name="field_label",
         )
-        ensure_default_comp_order(self.comp_axes)
+        cartesian_coordinates.ensure_default_axes_order(
+            axes=self.comp_axes,
+            param_name="comp_axes",
+        )
 
     def get_comp_data(
         self,
-        comp_axis: AxisName,
+        comp_axis: cartesian_coordinates.AxisLike,
     ) -> numpy.ndarray:
         """Return a (Nx, Ny, Nz) view of the requested component."""
-        comp_index = get_comp_index(comp_axis)
+        comp_index = cartesian_coordinates.get_axis_index(comp_axis)
         return self.data[comp_index, ...]
 
 
@@ -296,7 +278,7 @@ def as_unit_vfield(
     vfield: VectorField,
     tol: float = 1e-6,
 ) -> UnitVectorField:
-    ## zero-copy rewrap with validation
+    """Zero-copy rewrap with validation."""
     return UnitVectorField.from_vfield(vfield, tol=tol)
 
 
@@ -387,38 +369,6 @@ def ensure_domain_matches_vfield(
         raise ValueError(
             f"Domain resolution {uniform_domain.resolution} does not match vector grid {vfield.data.shape[1:]}",
         )
-
-
-def ensure_all_comp_labels_exist(
-    comp_axes: tuple[AxisName, AxisName, AxisName],
-) -> None:
-    """Ensure comp_axes is a permutation of AXES_NAMES (the order is not enforced)."""
-    type_manager.ensure_sequence(
-        param=comp_axes,
-        param_name="comp_axes",
-        seq_length=3,
-        valid_seq_types=(tuple, ),
-        valid_elem_types=str,
-    )
-    for comp_index, comp_label in enumerate(comp_axes):
-        type_manager.ensure_nonempty_str(
-            param=comp_label,
-            param_name=f"comp_axes[{comp_index}]",
-        )
-        if comp_label not in AXES_NAMES:
-            raise ValueError(f"`comp_axes` must contain only elements from {AXES_NAMES}, got {comp_axes}.")
-    if set(comp_axes) != set(AXES_NAMES):
-        raise ValueError(
-            f"`comp_axes` must be a permutation of {AXES_NAMES} (no repeats, none missing), got {comp_axes}.",
-        )
-
-
-def ensure_default_comp_order(
-    comp_axes: tuple[AxisName, AxisName, AxisName],
-) -> None:
-    ensure_all_comp_labels_exist(comp_axes)
-    if comp_axes != AXES_NAMES:
-        raise ValueError(f"`comp_axes` must be exactly {AXES_NAMES} in that order, got {comp_axes}.")
 
 
 ## } MODULE

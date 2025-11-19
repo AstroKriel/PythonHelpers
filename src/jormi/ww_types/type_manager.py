@@ -223,8 +223,8 @@ def ensure_numeric(
     )
     ensure_type(
         param=param,
-        valid_types=NumericTypes.NUMERIC,
         param_name=param_name,
+        valid_types=NumericTypes.NUMERIC,
     )
 
 
@@ -474,6 +474,24 @@ def ensure_nested_tuple(
     )
 
 
+def ensure_tuple_of_strings(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a tuple of strings."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=allow_none,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.TUPLE,
+        valid_elem_types=StringTypes.STRING,
+    )
+
+
 def ensure_tuple_of_numbers(
     param,
     *,
@@ -481,14 +499,65 @@ def ensure_tuple_of_numbers(
     seq_length: int | None = None,
     allow_none: bool = False,
 ) -> None:
-    """Ensure `param` is a tuple of numeric scalars."""
+    """Ensure `param` is a tuple of numbers (float or int, reject booleans)."""
+    if (param is None) and allow_none:
+        return
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=False,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.TUPLE,
+        valid_elem_types=NumericTypes.NUMERIC,
+    )
+    bad_indices: list[int] = []
+    for elem_index, elem in enumerate(param):
+        if isinstance(elem, BooleanTypes.BOOLEAN):
+            bad_indices.append(elem_index)
+    if bad_indices:
+        preview_bad_indices_string = list_utils.get_preview_string(
+            elems=bad_indices,
+            preview_length=5,
+        )
+        raise TypeError(
+            f"`{param_name}` elements must be numeric (int/float, not bool);"
+            f" found booleans at indices: {preview_bad_indices_string}.",
+        )
+
+
+def ensure_tuple_of_floats(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a tuple of floats."""
     ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
         valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=NumericTypes.NUMERIC,
+        valid_elem_types=NumericTypes.FLOAT,
+    )
+
+
+def ensure_tuple_of_ints(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a tuple of integers."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=allow_none,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.TUPLE,
+        valid_elem_types=NumericTypes.INT,
     )
 
 
@@ -550,24 +619,6 @@ def ensure_flat_list(
         )
 
 
-def ensure_list_of_numbers(
-    param,
-    *,
-    param_name: str = "<param>",
-    seq_length: int | None = None,
-    allow_none: bool = False,
-) -> None:
-    """Ensure `param` is a list of numeric scalars."""
-    ensure_sequence(
-        param=param,
-        param_name=param_name,
-        allow_none=allow_none,
-        seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=NumericTypes.NUMERIC,
-    )
-
-
 def ensure_list_of_strings(
     param,
     *,
@@ -583,6 +634,75 @@ def ensure_list_of_strings(
         seq_length=seq_length,
         valid_seq_types=SequenceTypes.LIST,
         valid_elem_types=StringTypes.STRING,
+    )
+
+
+def ensure_list_of_numbers(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of numbers (float or int, booleans rejected)."""
+    if (param is None) and allow_none:
+        return
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=False,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.LIST,
+        valid_elem_types=NumericTypes.NUMERIC,
+    )
+    bad_indices: list[int] = []
+    for elem_index, elem in enumerate(param):
+        if isinstance(elem, BooleanTypes.BOOLEAN):
+            bad_indices.append(elem_index)
+    if bad_indices:
+        preview_bad_indices_string = list_utils.get_preview_string(
+            elems=bad_indices,
+            preview_length=5,
+        )
+        raise TypeError(
+            f"`{param_name}` elements must be numeric (int/float, not bool);"
+            f" found boolean elements at indices: {preview_bad_indices_string}.",
+        )
+
+
+def ensure_list_of_floats(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of floats."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=allow_none,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.LIST,
+        valid_elem_types=NumericTypes.FLOAT,
+    )
+
+
+def ensure_list_of_ints(
+    param,
+    *,
+    param_name: str = "<param>",
+    seq_length: int | None = None,
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a list of integers."""
+    ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=allow_none,
+        seq_length=seq_length,
+        valid_seq_types=SequenceTypes.LIST,
+        valid_elem_types=NumericTypes.INT,
     )
 
 
@@ -619,8 +739,8 @@ def ensure_dict(
     ensure_type(
         param=param,
         allow_none=allow_none,
-        valid_types=ContainerTypes.DICT,
         param_name=param_name,
+        valid_types=ContainerTypes.DICT,
     )
 
 
@@ -639,8 +759,8 @@ def ensure_ndarray(
     ensure_type(
         param=param,
         allow_none=allow_none,
-        valid_types=ContainerTypes.ARRAY,
         param_name=param_name,
+        valid_types=ContainerTypes.ARRAY,
     )
 
 

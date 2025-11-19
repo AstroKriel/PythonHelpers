@@ -47,13 +47,13 @@ def as_compass_cardinal(
     direction: CompassCardinalLike,
 ) -> CompassCardinal:
     """
-  Convert a direction into a CompassCardinal.
+    Convert a direction into a CompassCardinal.
 
-  Accepts either:
-  - Enum members: CompassCardinal.NORTH
-  - Strings matching the Enum value (e.g. "n", "N")
-  - Strings matching the Enum name (e.g. "north", "NORTH")
-  """
+    Accepts either:
+    - Enum members: CompassCardinal.NORTH
+    - Strings matching the Enum value (e.g. "n", "N")
+    - Strings matching the Enum name (e.g. "north", "NORTH")
+    """
     if isinstance(direction, CompassCardinal):
         return direction
     direction_lower = direction.lower()
@@ -63,14 +63,14 @@ def as_compass_cardinal(
         if is_like_value or is_like_name:
             return compass_cardinal
     valid_values = [compass_direction.value for compass_direction in CompassCardinal]
-    valid_str = list_utils.cast_to_string(
+    valid_string = list_utils.as_string(
         elems=valid_values,
         wrap_in_quotes=True,
         conjunction="",
     )
     raise ValueError(
         f"Invalid compass cardinal direction: {direction!r}."
-        f" Expected one of {valid_str}.",
+        f" Expected one of {valid_string}.",
     )
 
 
@@ -78,13 +78,13 @@ def as_compass_ordinal(
     direction: CompassOrdinalLike,
 ) -> CompassOrdinal:
     """
-  Convert a direction into a CompassOrdinal.
+    Convert a direction into a CompassOrdinal.
 
-  Accepts either:
-  - Enum members: CompassOrdinal.NORTHEAST
-  - Strings matching the Enum value (e.g. "ne", "NE")
-  - Strings matching the Enum name (e.g. "northeast", "NORTHEAST")
-  """
+    Accepts either:
+    - Enum members: CompassOrdinal.NORTHEAST
+    - Strings matching the Enum value (e.g. "ne", "NE")
+    - Strings matching the Enum name (e.g. "northeast", "NORTHEAST")
+    """
     if isinstance(direction, CompassOrdinal):
         return direction
     direction_lower = direction.lower()
@@ -94,14 +94,14 @@ def as_compass_ordinal(
         if is_like_value or is_like_name:
             return compass_ordinal
     valid_values = [compass_direction.value for compass_direction in CompassOrdinal]
-    valid_str = list_utils.cast_to_string(
+    valid_string = list_utils.as_string(
         elems=valid_values,
         wrap_in_quotes=True,
         conjunction="",
     )
     raise ValueError(
         f"Invalid compass ordinal direction: {direction!r}."
-        f" Expected one of {valid_str}.",
+        f" Expected one of {valid_string}.",
     )
 
 
@@ -109,13 +109,13 @@ def as_compass_direction(
     direction: CompassDirectionLike,
 ) -> CompassDirection:
     """
-  Convert a direction into a CompassDirection.
+    Convert a direction into a CompassDirection.
 
-  Accepts either:
-  - Enum members: CompassCardinal / CompassOrdinal
-  - Strings matching any Enum value (e.g. "n", "ne")
-  - Strings matching any Enum name (e.g. "north", "northeast")
-  """
+    Accepts either:
+    - Enum members: CompassCardinal / CompassOrdinal
+    - Strings matching any Enum value (e.g. "n", "ne")
+    - Strings matching any Enum name (e.g. "north", "northeast")
+    """
     if isinstance(direction, (CompassCardinal, CompassOrdinal)):
         return direction
     try:
@@ -127,14 +127,14 @@ def as_compass_direction(
     except ValueError:
         pass
     valid_values = [compass_direction.value for compass_direction in (*CompassCardinal, *CompassOrdinal)]
-    valid_str = list_utils.cast_to_string(
+    valid_string = list_utils.as_string(
         elems=valid_values,
         wrap_in_quotes=True,
         conjunction="",
     )
     raise ValueError(
         f"Invalid compass direction: {direction!r}."
-        f" Expected one of {valid_str}.",
+        f" Expected one of {valid_string}.",
     )
 
 
