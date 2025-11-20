@@ -42,8 +42,8 @@ class UniformDomain:
             param=self.periodicity,
             param_name="<periodicity>",
             seq_length=3,
-            valid_seq_types=type_manager.SequenceTypes.TUPLE,
-            valid_elem_types=type_manager.BooleanTypes.BOOLEAN,
+            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_manager.RuntimeTypes.Booleans.BooleanLike,
         )
 
     def _validate_resolution(
@@ -53,8 +53,8 @@ class UniformDomain:
             param=self.resolution,
             param_name="<resolution>",
             seq_length=3,
-            valid_seq_types=type_manager.SequenceTypes.TUPLE,
-            valid_elem_types=type_manager.NumericTypes.INT,
+            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_manager.RuntimeTypes.Numerics.IntLike,
         )
         num_cells_x, num_cells_y, num_cells_z = self.resolution
         if (num_cells_x <= 0) or (num_cells_y <= 0) or (num_cells_z <= 0):
@@ -67,8 +67,8 @@ class UniformDomain:
             param=self.domain_bounds,
             param_name="<domain_bounds>",
             seq_length=3,
-            valid_seq_types=type_manager.SequenceTypes.TUPLE,
-            valid_elem_types=type_manager.SequenceTypes.TUPLE,
+            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_manager.RuntimeTypes.Sequences.TupleLike,
         )
         for axis_index, bounds in enumerate(self.domain_bounds):
             axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
@@ -77,8 +77,8 @@ class UniformDomain:
                 param=bounds,
                 param_name=axis_param_name,
                 seq_length=2,
-                valid_seq_types=type_manager.SequenceTypes.TUPLE,
-                valid_elem_types=type_manager.NumericTypes.NUMERIC,
+                valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+                valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
             )
             lo_value, hi_value = bounds
             type_manager.ensure_finite_float(

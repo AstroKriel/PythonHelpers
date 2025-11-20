@@ -123,7 +123,7 @@ def as_axes_tuple(
         param=axes,
         param_name=param_name,
         seq_length=3,
-        valid_seq_types=type_manager.SequenceTypes.TUPLE,
+        valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
     )
     axes_enum_list: list[CartesianAxis] = []
     for axis_index, axis_like in enumerate(axes):

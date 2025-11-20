@@ -5,7 +5,84 @@
 
 import numpy
 
-from jormi.utils import list_utils
+from typing import get_args
+
+##
+## === TYPE DEFINITIONS
+##
+## TypeHints defines conceptual categories for annotations.
+## RuntimeTypes converts those into tuples for isinstance checks.
+##
+
+
+class TypeHints:
+    """Type-hint groupings for common concepts."""
+
+    class Strings:
+        StringLike = str
+
+    class Booleans:
+        BooleanLike = bool | numpy.bool_
+
+    class Numerics:
+        IntLike = int | numpy.integer
+        FloatLike = float | numpy.floating
+        NumericLike = IntLike | FloatLike
+
+    class Containers:
+        SetLike = set
+        DictLike = dict
+        ArrayLike = numpy.ndarray
+        ContainerLike = SetLike | DictLike | ArrayLike
+
+    class Sequences:
+        ListLike = list
+        TupleLike = tuple
+        SequenceLike = ListLike | TupleLike
+
+
+def _as_runtime_type(
+    type_hint,
+) -> tuple[type, ...]:
+    """
+    Convert a type-hint alias (possibly a union) into a tuple of runtime
+    types suitable for isinstance checks.
+    """
+    args = get_args(type_hint)
+    if args:
+        if not all(isinstance(arg, type) for arg in args):
+            raise TypeError(f"Non-type argument(s) in hint: {type_hint!r}")
+        return tuple(args)
+    if isinstance(type_hint, type):
+        return (type_hint, )
+    raise TypeError(f"Unsupported type-hint: {type_hint!r}")
+
+
+class RuntimeTypes:
+    """Runtime type tuples derived from TypeHints for isinstance checks."""
+
+    class Strings:
+        StringLike = _as_runtime_type(TypeHints.Strings.StringLike)
+
+    class Booleans:
+        BooleanLike = _as_runtime_type(TypeHints.Booleans.BooleanLike)
+
+    class Numerics:
+        IntLike = _as_runtime_type(TypeHints.Numerics.IntLike)
+        FloatLike = _as_runtime_type(TypeHints.Numerics.FloatLike)
+        NumericLike = _as_runtime_type(TypeHints.Numerics.NumericLike)
+
+    class Containers:
+        SetLike = _as_runtime_type(TypeHints.Containers.SetLike)
+        DictLike = _as_runtime_type(TypeHints.Containers.DictLike)
+        ArrayLike = _as_runtime_type(TypeHints.Containers.ArrayLike)
+        ContainerLike = _as_runtime_type(TypeHints.Containers.ContainerLike)
+
+    class Sequences:
+        ListLike = _as_runtime_type(TypeHints.Sequences.ListLike)
+        TupleLike = _as_runtime_type(TypeHints.Sequences.TupleLike)
+        SequenceLike = _as_runtime_type(TypeHints.Sequences.SequenceLike)
+
 
 ##
 ## === HELPER FUNCTIONS
@@ -54,13 +131,10 @@ def ensure_type(
         return
     valid_types = _types_to_tuple(valid_types)
     if not isinstance(param, valid_types):
-        valid_type_names = [valid_type.__name__ for valid_type in valid_types]
-        valid_types_string = list_utils.as_string(
-            elems=valid_type_names,
-            wrap_in_quotes=True,
-            conjunction="",
+        valid_types_string = ", ".join(valid_type.__name__ for valid_type in valid_types)
+        raise TypeError(
+            f"`{param_name}` is {type(param).__name__}; expected one of: {valid_types_string}.",
         )
-        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected {valid_types_string}.")
 
 
 def ensure_not_none(
@@ -74,12 +148,27 @@ def ensure_not_none(
 
 
 ##
-## === STRING TYPES
+## === INTERNAL HELPER
 ##
 
 
-class StringTypes:
-    STRING = (str, )
+def _preview_indices(
+    indices: list[int],
+    *,
+    preview_length: int = 5,
+) -> str:
+    """Return a short, human-readable preview of index positions."""
+    if not indices:
+        return "[]"
+    preview = [str(index) for index in indices[:preview_length]]
+    if len(indices) > preview_length:
+        preview.append("...")
+    return "[" + ", ".join(preview) + "]"
+
+
+##
+## === STRING LIKE
+##
 
 
 def ensure_string(
@@ -93,12 +182,12 @@ def ensure_string(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
-        valid_types=StringTypes.STRING,
+        valid_types=RuntimeTypes.Strings.StringLike,
     )
 
 
 def ensure_nonempty_string(
-    param: str,
+    param: TypeHints.Strings.StringLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -133,12 +222,8 @@ def ensure_char(
 
 
 ##
-## === BOOLEAN TYPES
+## === BOOLEAN LIKE
 ##
-
-
-class BooleanTypes:
-    BOOLEAN = (bool, numpy.bool_)
 
 
 def ensure_bool(
@@ -152,7 +237,7 @@ def ensure_bool(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
-        valid_types=BooleanTypes.BOOLEAN,
+        valid_types=RuntimeTypes.Booleans.BooleanLike,
     )
 
 
@@ -192,19 +277,13 @@ def ensure_not_bool(
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is not a boolean."""
-    if isinstance(param, BooleanTypes.BOOLEAN):
+    if isinstance(param, RuntimeTypes.Booleans.BooleanLike):
         raise TypeError(f"`{param_name}` must not be a boolean.")
 
 
 ##
-## === NUMERIC TYPES
+## === NUMERIC LIKE
 ##
-
-
-class NumericTypes:
-    INT = (int, numpy.integer)
-    FLOAT = (float, numpy.floating)
-    NUMERIC = INT + FLOAT
 
 
 def ensure_numeric(
@@ -224,7 +303,7 @@ def ensure_numeric(
     ensure_type(
         param=param,
         param_name=param_name,
-        valid_types=NumericTypes.NUMERIC,
+        valid_types=RuntimeTypes.Numerics.NumericLike,
     )
 
 
@@ -247,13 +326,10 @@ def ensure_finite_numeric(
         param_name=param_name,
     )
     if not isinstance(param, valid_types):
-        valid_type_names = [valid_type.__name__ for valid_type in valid_types]
-        valid_types_string = list_utils.as_string(
-            elems=valid_type_names,
-            wrap_in_quotes=True,
-            conjunction="",
+        valid_types_string = ", ".join(valid_type.__name__ for valid_type in valid_types)
+        raise TypeError(
+            f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.",
         )
-        raise TypeError(f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.")
     if not numpy.isfinite(param):
         raise ValueError(f"`{param_name}` must be finite, got {param}.")
     if require_positive and not (param > 0):
@@ -272,7 +348,7 @@ def ensure_finite_float(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
-        valid_types=NumericTypes.FLOAT,
+        valid_types=RuntimeTypes.Numerics.FloatLike,
         require_positive=require_positive,
     )
 
@@ -289,21 +365,14 @@ def ensure_finite_int(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
-        valid_types=NumericTypes.INT,
+        valid_types=RuntimeTypes.Numerics.IntLike,
         require_positive=require_positive,
     )
 
 
 ##
-## === CONTAINER
+## === CONTAINER LIKE
 ##
-
-
-class ContainerTypes:
-    SET = (set, )
-    DICT = (dict, )
-    ARRAY = (numpy.ndarray, )
-    CONTAINER = SET + DICT + ARRAY
 
 
 def ensure_container(
@@ -317,19 +386,13 @@ def ensure_container(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
-        valid_types=ContainerTypes.CONTAINER,
+        valid_types=RuntimeTypes.Containers.ContainerLike,
     )
 
 
 ##
-## --- SEQUENCE
+## --- SEQUENCE LIKE
 ##
-
-
-class SequenceTypes(ContainerTypes):
-    LIST = (list, )
-    TUPLE = (tuple, )
-    SEQUENCE = LIST + TUPLE
 
 
 def ensure_sequence(
@@ -338,7 +401,7 @@ def ensure_sequence(
     param_name: str = "<param>",
     allow_none: bool = False,
     seq_length: int | None = None,
-    valid_seq_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
+    valid_seq_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
 ) -> None:
     """Ensure `param` is a valid sequence container, with optional fixed length and uniform element types."""
@@ -359,16 +422,8 @@ def ensure_sequence(
             elem_index for elem_index, elem in enumerate(param) if not isinstance(elem, valid_elem_types)
         ]
         if bad_indices:
-            preview_bad_indices_string = list_utils.get_preview_string(
-                elems=bad_indices,
-                preview_length=5,
-            )
-            valid_type_names = [valid_elem_type.__name__ for valid_elem_type in valid_elem_types]
-            valid_elem_types_string = list_utils.as_string(
-                elems=valid_type_names,
-                wrap_in_quotes=True,
-                conjunction="",
-            )
+            valid_elem_types_string = ", ".join(valid_type.__name__ for valid_type in valid_elem_types)
+            preview_bad_indices_string = _preview_indices(indices=bad_indices)
             raise TypeError(
                 f"`{param_name}` elements must be of type(s) {valid_elem_types_string};"
                 f" failed at indices: {preview_bad_indices_string}.",
@@ -381,8 +436,8 @@ def ensure_nested_sequence(
     param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
-    valid_outer_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
-    valid_inner_types: type | tuple[type, ...] | list[type] = SequenceTypes.SEQUENCE,
+    valid_outer_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
+    valid_inner_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
     allow_none: bool = False,
 ) -> None:
@@ -409,7 +464,7 @@ def ensure_nested_sequence(
 
 
 ##
-## --- TUPLE
+## --- TUPLE LIKE
 ##
 
 
@@ -429,19 +484,15 @@ def ensure_flat_tuple(
         param_name=param_name,
         allow_none=False,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
         valid_elem_types=valid_elem_types,
     )
-    invalid_elem_types = SequenceTypes.SEQUENCE + ContainerTypes.CONTAINER
-    bad_indices: list[int] = []
-    for elem_index, elem in enumerate(param):
-        if isinstance(elem, invalid_elem_types):
-            bad_indices.append(elem_index)
+    invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
+    bad_indices = [
+        elem_index for elem_index, elem in enumerate(param) if isinstance(elem, invalid_elem_types)
+    ]
     if bad_indices:
-        preview_bad_indices_string = list_utils.get_preview_string(
-            elems=bad_indices,
-            preview_length=5,
-        )
+        preview_bad_indices_string = _preview_indices(indices=bad_indices)
         raise TypeError(
             f"`{param_name}` must be a flat tuple (no nested containers);"
             f" found nested container elements at indices: {preview_bad_indices_string}.",
@@ -454,8 +505,8 @@ def ensure_nested_tuple(
     param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
-    valid_outer_types: type | tuple[type, ...] | list[type] = SequenceTypes.TUPLE,
-    valid_inner_types: type | tuple[type, ...] | list[type] = SequenceTypes.TUPLE,
+    valid_outer_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.TupleLike,
+    valid_inner_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.TupleLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
     allow_none: bool = False,
 ) -> None:
@@ -487,8 +538,8 @@ def ensure_tuple_of_strings(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=StringTypes.STRING,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
+        valid_elem_types=RuntimeTypes.Strings.StringLike,
     )
 
 
@@ -507,18 +558,15 @@ def ensure_tuple_of_numbers(
         param_name=param_name,
         allow_none=False,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=NumericTypes.NUMERIC,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
+        valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
-    bad_indices: list[int] = []
-    for elem_index, elem in enumerate(param):
-        if isinstance(elem, BooleanTypes.BOOLEAN):
-            bad_indices.append(elem_index)
+    bad_indices = [
+        elem_index for elem_index, elem in enumerate(param)
+        if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
+    ]
     if bad_indices:
-        preview_bad_indices_string = list_utils.get_preview_string(
-            elems=bad_indices,
-            preview_length=5,
-        )
+        preview_bad_indices_string = _preview_indices(indices=bad_indices)
         raise TypeError(
             f"`{param_name}` elements must be numeric (int/float, not bool);"
             f" found booleans at indices: {preview_bad_indices_string}.",
@@ -538,8 +586,8 @@ def ensure_tuple_of_floats(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=NumericTypes.FLOAT,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
+        valid_elem_types=RuntimeTypes.Numerics.FloatLike,
     )
 
 
@@ -556,8 +604,8 @@ def ensure_tuple_of_ints(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=NumericTypes.INT,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
+        valid_elem_types=RuntimeTypes.Numerics.IntLike,
     )
 
 
@@ -574,13 +622,13 @@ def ensure_tuple_of_bools(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.TUPLE,
-        valid_elem_types=BooleanTypes.BOOLEAN,
+        valid_seq_types=RuntimeTypes.Sequences.TupleLike,
+        valid_elem_types=RuntimeTypes.Booleans.BooleanLike,
     )
 
 
 ##
-## --- LIST
+## --- LIST LIKE
 ##
 
 
@@ -600,19 +648,15 @@ def ensure_flat_list(
         param_name=param_name,
         allow_none=False,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
         valid_elem_types=valid_elem_types,
     )
-    invalid_elem_types = SequenceTypes.SEQUENCE + ContainerTypes.CONTAINER
-    bad_indices: list[int] = []
-    for elem_index, elem in enumerate(param):
-        if isinstance(elem, invalid_elem_types):
-            bad_indices.append(elem_index)
+    invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
+    bad_indices = [
+        elem_index for elem_index, elem in enumerate(param) if isinstance(elem, invalid_elem_types)
+    ]
     if bad_indices:
-        preview_bad_indices_string = list_utils.get_preview_string(
-            elems=bad_indices,
-            preview_length=5,
-        )
+        preview_bad_indices_string = _preview_indices(indices=bad_indices)
         raise TypeError(
             f"`{param_name}` must be a flat list (no nested containers);"
             f" found nested container elements at indices: {preview_bad_indices_string}.",
@@ -632,8 +676,8 @@ def ensure_list_of_strings(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=StringTypes.STRING,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=RuntimeTypes.Strings.StringLike,
     )
 
 
@@ -652,18 +696,15 @@ def ensure_list_of_numbers(
         param_name=param_name,
         allow_none=False,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=NumericTypes.NUMERIC,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
-    bad_indices: list[int] = []
-    for elem_index, elem in enumerate(param):
-        if isinstance(elem, BooleanTypes.BOOLEAN):
-            bad_indices.append(elem_index)
+    bad_indices = [
+        elem_index for elem_index, elem in enumerate(param)
+        if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
+    ]
     if bad_indices:
-        preview_bad_indices_string = list_utils.get_preview_string(
-            elems=bad_indices,
-            preview_length=5,
-        )
+        preview_bad_indices_string = _preview_indices(indices=bad_indices)
         raise TypeError(
             f"`{param_name}` elements must be numeric (int/float, not bool);"
             f" found boolean elements at indices: {preview_bad_indices_string}.",
@@ -683,8 +724,8 @@ def ensure_list_of_floats(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=NumericTypes.FLOAT,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=RuntimeTypes.Numerics.FloatLike,
     )
 
 
@@ -701,8 +742,8 @@ def ensure_list_of_ints(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=NumericTypes.INT,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=RuntimeTypes.Numerics.IntLike,
     )
 
 
@@ -719,13 +760,13 @@ def ensure_list_of_bools(
         param_name=param_name,
         allow_none=allow_none,
         seq_length=seq_length,
-        valid_seq_types=SequenceTypes.LIST,
-        valid_elem_types=BooleanTypes.BOOLEAN,
+        valid_seq_types=RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=RuntimeTypes.Booleans.BooleanLike,
     )
 
 
 ##
-## --- DICT
+## --- DICT LIKE
 ##
 
 
@@ -740,12 +781,12 @@ def ensure_dict(
         param=param,
         allow_none=allow_none,
         param_name=param_name,
-        valid_types=ContainerTypes.DICT,
+        valid_types=RuntimeTypes.Containers.DictLike,
     )
 
 
 ##
-## --- ARRAY
+## --- ARRAY LIKE
 ##
 
 
@@ -760,7 +801,7 @@ def ensure_ndarray(
         param=param,
         allow_none=allow_none,
         param_name=param_name,
-        valid_types=ContainerTypes.ARRAY,
+        valid_types=RuntimeTypes.Containers.ArrayLike,
     )
 
 

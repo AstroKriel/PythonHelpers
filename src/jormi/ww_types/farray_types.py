@@ -75,8 +75,8 @@ def ensure_valid_cell_widths(
         param_name=param_name,
         allow_none=False,
         seq_length=3,
-        valid_seq_types=type_manager.SequenceTypes.SEQUENCE,
-        valid_elem_types=type_manager.NumericTypes.NUMERIC,
+        valid_seq_types=type_manager.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
     )
     for width_index, width_value in enumerate(cell_widths):
         try:
