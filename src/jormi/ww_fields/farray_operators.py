@@ -8,7 +8,7 @@ import numpy
 
 from numpy.typing import DTypeLike
 
-from jormi.ww_types import array_types, farray_types
+from jormi.ww_types import array_checks, farray_types
 from jormi.ww_fields import finite_difference
 
 ##
@@ -128,7 +128,7 @@ def dot_over_components(
 ) -> numpy.ndarray:
     farray_types.ensure_varray(varray_a)
     farray_types.ensure_varray(varray_b)
-    array_types.ensure_same_shape(
+    array_checks.ensure_same_shape(
         array_a=varray_a,
         array_b=varray_b,
     )
