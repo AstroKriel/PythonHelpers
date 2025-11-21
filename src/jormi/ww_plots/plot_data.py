@@ -26,7 +26,7 @@ def as_plot_view(
     data_format: DataFormat,
 ) -> numpy.ndarray:
     """
-    Convert a 2D array to be plot-ready: [rows, cols].
+    Convert a 2D array to a plot-ready array[rows, cols].
         - layout="xy": is indexed [x, y]
         - layout="ij": is indexed [i:rows, j:cols]
     """
@@ -40,7 +40,7 @@ def as_plot_view(
 
 
 def plot_2d_sarray(
-    ax: plot_manager.Axis,
+    ax: plot_manager.PlotAxis,
     sarray_in: numpy.ndarray,
     data_format: DataFormat,
     axis_aspect_ratio: Literal["equal", "auto"] = "equal",
@@ -79,8 +79,8 @@ def plot_2d_sarray(
         norm=norm,
     )
     if axis_bounds is not None:
-        ax.set_xlim([axis_bounds[0], axis_bounds[1]])
-        ax.set_ylim([axis_bounds[2], axis_bounds[3]])
+        ax.set_xlim((axis_bounds[0], axis_bounds[1]))
+        ax.set_ylim((axis_bounds[2], axis_bounds[3]))
     if add_cbar:
         add_color.add_cbar_from_cmap(
             ax=ax,
@@ -107,8 +107,8 @@ def _generate_grid(
     return grid_x, grid_y
 
 
-def plot_vfield_slice_quiver(
-    ax: plot_manager.Axis,
+def plot_2d_vfield_quiver(
+    ax: plot_manager.PlotAxis,
     field_slice_rows: numpy.ndarray,
     field_slice_cols: numpy.ndarray,
     axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
@@ -134,19 +134,18 @@ def plot_vfield_slice_quiver(
         width=quiver_width,
         color=field_color,
     )
-    ax.set_xlim([axis_bounds[0], axis_bounds[1]])
-    ax.set_ylim([axis_bounds[2], axis_bounds[3]])
+    ax.set_xlim((axis_bounds[0], axis_bounds[1]))
+    ax.set_ylim((axis_bounds[2], axis_bounds[3]))
 
 
-def plot_vfield_slice_streamplot(
-    ax: plot_manager.Axis,
+def plot_2d_vfield_streamlines(
+    ax: plot_manager.PlotAxis,
     field_slice_rows: numpy.ndarray,
     field_slice_cols: numpy.ndarray,
     axis_bounds: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
     streamline_weights: numpy.ndarray | None = None,
     streamline_width: float | None = None,
     streamline_scale: float = 1.5,
-    streamline_linestyle: str = "-",
     field_color: str = "white",
 ):
     if field_slice_rows.shape != field_slice_cols.shape:
@@ -170,10 +169,9 @@ def plot_vfield_slice_streamplot(
         linewidth=streamline_width,
         density=2.0,
         arrowsize=1.0,
-        linestyle=streamline_linestyle,
     )
-    ax.set_xlim([axis_bounds[0], axis_bounds[1]])
-    ax.set_ylim([axis_bounds[2], axis_bounds[3]])
+    ax.set_xlim((axis_bounds[0], axis_bounds[1]))
+    ax.set_ylim((axis_bounds[2], axis_bounds[3]))
 
 
 ## } MODULE

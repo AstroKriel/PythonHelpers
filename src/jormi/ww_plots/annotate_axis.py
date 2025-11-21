@@ -9,7 +9,7 @@ import numpy
 from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.collections import LineCollection
 
-from jormi.utils import list_utils
+from jormi.ww_types import anchor_points, array_types
 
 ##
 ## === FUNCTIONS
@@ -21,8 +21,8 @@ def add_text(
     x_pos: float,
     y_pos: float,
     label: str,
-    x_alignment: str = "center",
-    y_alignment: str = "center",
+    x_alignment: anchor_points.HorizontalAnchorLike = anchor_points.HorizontalAnchor.Center,
+    y_alignment: anchor_points.VerticalAnchorLike = anchor_points.VerticalAnchor.Center,
     fontsize: float = 20,
     font_color: str = "black",
     add_box: bool = False,
@@ -31,16 +31,8 @@ def add_text(
     edge_color: str = "black",
     rotate_deg: float | None = None,
 ):
-    valid_x_alignments = ["left", "center", "right"]
-    valid_y_alignments = ["top", "center", "bottom"]
-    if x_alignment not in valid_x_alignments:
-        raise ValueError(
-            f"`x_alignment` = `{x_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_x_alignments)}",
-        )
-    if y_alignment not in valid_y_alignments:
-        raise ValueError(
-            f"`y_alignment` = `{y_alignment}` is not valid. Choose from: {list_utils.cast_to_string(valid_y_alignments)}",
-        )
+    x_anchor = anchor_points.as_horizontal_anchor(x_alignment)
+    y_anchor = anchor_points.as_vertical_anchor(y_alignment)
     box_params = dict(
         facecolor=face_color,
         edgecolor=edge_color,
@@ -51,8 +43,8 @@ def add_text(
         x_pos,
         y_pos,
         label,
-        ha=x_alignment,
-        va=y_alignment,
+        ha=x_anchor.value,
+        va=y_anchor.value,
         color=font_color,
         fontsize=fontsize,
         rotation=rotate_deg,
@@ -146,20 +138,24 @@ def overlay_curve(
     alpha: float = 1.0,
     zorder: float = 1.0,
 ):
-    x_values = numpy.asarray(x_values).squeeze()
-    y_values = numpy.asarray(y_values).squeeze()
-    if x_values.ndim != 1:
-        raise ValueError(f"`x_values` must be 1D. Got shape {x_values.shape}.")
-    if y_values.ndim != 1:
-        raise ValueError(f"`y_values` must be 1D. Got shape {y_values.shape}.")
-    if x_values.shape != y_values.shape:
-        raise ValueError(
-            f"`x_values` and `y_values` must have the same shape. {x_values.shape} != {y_values.shape}.",
-        )
-    if x_values.size < 2:
+    x_array = array_types.as_1d(
+        array_like=x_values,
+        param_name="x_values",
+    )
+    y_array = array_types.as_1d(
+        array_like=y_values,
+        param_name="y_values",
+    )
+    array_types.ensure_same_shape(
+        array_a=x_array,
+        array_b=y_array,
+        param_name_a="x_values",
+        param_name_b="y_values",
+    )
+    if x_array.size < 2:
         raise ValueError("There needs to be at least two points to plot a curve.")
     collection = LineCollection(
-        [numpy.column_stack((x_values, y_values))],
+        [numpy.column_stack((x_array, y_array))],
         colors=color,
         linestyles=linestyle,
         linewidths=linewidth,
