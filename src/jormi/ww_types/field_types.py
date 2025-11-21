@@ -10,7 +10,7 @@ from typing import Self
 from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_types, farray_types, cartesian_coordinates
+from jormi.ww_types import type_manager, array_checks, farray_types, cartesian_coordinates
 from jormi.ww_fields import farray_operators
 
 ##
@@ -365,7 +365,7 @@ def ensure_same_sfield_shape(
         sfield=sfield_b,
         param_name=param_name_b,
     )
-    array_types.ensure_same_shape(
+    array_checks.ensure_same_shape(
         array_a=sfield_a.data,
         array_b=sfield_b.data,
         param_name_a=f"{param_name_a}.data",
@@ -389,7 +389,7 @@ def ensure_same_vfield_shape(
         vfield=vfield_b,
         param_name=param_name_b,
     )
-    array_types.ensure_same_shape(
+    array_checks.ensure_same_shape(
         array_a=vfield_a.data,
         array_b=vfield_b.data,
         param_name_a=f"{param_name_a}.data",
@@ -413,7 +413,7 @@ def ensure_domain_matches_sfield(
         sfield=sfield,
         param_name=sfield_name,
     )
-    array_types.ensure_shape(
+    array_checks.ensure_shape(
         array=sfield.data,
         expected_shape=uniform_domain.resolution,
         param_name=f"{sfield_name}.data",
@@ -437,7 +437,7 @@ def ensure_domain_matches_vfield(
         param_name=vfield_name,
     )
     expected_shape = (3, *uniform_domain.resolution)
-    array_types.ensure_shape(
+    array_checks.ensure_shape(
         array=vfield.data,
         expected_shape=expected_shape,
         param_name=f"{vfield_name}.data",

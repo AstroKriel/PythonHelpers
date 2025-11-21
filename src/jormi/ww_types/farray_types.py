@@ -6,7 +6,7 @@
 
 import numpy
 
-from jormi.ww_types import type_manager, array_types
+from jormi.ww_types import type_manager, array_checks
 
 ##
 ## === DATA TYPE VALIDATION
@@ -19,7 +19,7 @@ def ensure_sarray(
     param_name: str = "<sarray>",
 ) -> None:
     """Ensure `sarray` is a 3D scalar array with shape (Nx, Ny, Nz)."""
-    array_types.ensure_dim(
+    array_checks.ensure_dim(
         array=sarray,
         param_name=param_name,
         dim=3,
@@ -32,7 +32,7 @@ def ensure_varray(
     param_name: str = "<varray>",
 ) -> None:
     """Ensure `varray` is a 4D vector array with leading component axis of length 3."""
-    array_types.ensure_dim(
+    array_checks.ensure_dim(
         array=varray,
         param_name=param_name,
         dim=4,
@@ -51,7 +51,7 @@ def ensure_r2tarray(
     param_name: str = "<r2tarray>",
 ) -> None:
     """Ensure `r2tarray` is a 5D rank-2 tensor array with two leading axes of length 3."""
-    array_types.ensure_dim(
+    array_checks.ensure_dim(
         array=r2tarray,
         param_name=param_name,
         dim=5,
