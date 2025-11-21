@@ -7,7 +7,7 @@
 import numpy
 from typing import Literal
 
-from jormi.ww_types import array_types
+from jormi.ww_types import array_checks
 from jormi.ww_plots import plot_manager, add_color
 
 ##
@@ -51,7 +51,7 @@ def plot_2d_sarray(
     cbar_label: str | None = None,
     cbar_side: str = "right",
 ):
-    array_types.ensure_dim(
+    array_checks.ensure_dim(
         array=sarray_in,
         dim=2,
     )

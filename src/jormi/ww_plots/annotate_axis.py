@@ -9,7 +9,8 @@ import numpy
 from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.collections import LineCollection
 
-from jormi.ww_types import anchor_points, array_types
+from jormi.ww_types import cardinal_anchors, ordinal_anchors, array_checks, type_manager
+from jormi.ww_plots import plot_manager
 
 ##
 ## === FUNCTIONS
@@ -17,12 +18,12 @@ from jormi.ww_types import anchor_points, array_types
 
 
 def add_text(
-    ax,
+    ax: plot_manager.PlotAxis,
     x_pos: float,
     y_pos: float,
     label: str,
-    x_alignment: anchor_points.HorizontalAnchorLike = anchor_points.HorizontalAnchor.Center,
-    y_alignment: anchor_points.VerticalAnchorLike = anchor_points.VerticalAnchor.Center,
+    x_alignment: cardinal_anchors.HorizontalAnchorLike = cardinal_anchors.HorizontalAnchor.Center,
+    y_alignment: cardinal_anchors.VerticalAnchorLike = cardinal_anchors.VerticalAnchor.Center,
     fontsize: float = 20,
     font_color: str = "black",
     add_box: bool = False,
@@ -31,8 +32,8 @@ def add_text(
     edge_color: str = "black",
     rotate_deg: float | None = None,
 ):
-    x_anchor = anchor_points.as_horizontal_anchor(x_alignment)
-    y_anchor = anchor_points.as_vertical_anchor(y_alignment)
+    x_anchor = cardinal_anchors.as_horizontal_anchor(x_alignment)
+    y_anchor = cardinal_anchors.as_vertical_anchor(y_alignment)
     box_params = dict(
         facecolor=face_color,
         edgecolor=edge_color,
@@ -40,9 +41,9 @@ def add_text(
         boxstyle="round,pad=0.3",
     )
     ax.text(
-        x_pos,
-        y_pos,
-        label,
+        x=x_pos,
+        y=y_pos,
+        s=label,
         ha=x_anchor.value,
         va=y_anchor.value,
         color=font_color,
@@ -54,7 +55,7 @@ def add_text(
 
 
 def add_custom_legend(
-    ax,
+    ax: plot_manager.PlotAxis,
     artists: list[str],
     labels: list[str],
     colors: list[str],
@@ -62,8 +63,8 @@ def add_custom_legend(
     line_width: float = 1.5,
     fontsize: float = 16,
     text_color: str = "black",
-    position: str = "upper right",
-    anchor: tuple[float, float] = (1.0, 1.0),
+    anchor_corner: ordinal_anchors.CornerAnchorLike = ordinal_anchors.CornerAnchor.TopRight,
+    anchor_point: tuple[float, float] = (1.0, 1.0),
     enable_frame: bool = False,
     frame_alpha: float = 0.5,
     face_color: str = "white",
@@ -74,11 +75,29 @@ def add_custom_legend(
     column_spacing: float = 0.5,
     put_label_first: bool = False,
 ):
+    type_manager.ensure_list_of_strings(
+        param=artists,
+        param_name="artists",
+    )
+    type_manager.ensure_list_of_strings(
+        param=labels,
+        param_name="labels",
+    )
+    type_manager.ensure_list_of_strings(
+        param=colors,
+        param_name="colors",
+    )
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("artists, labels, and colors must have the same length.")
+    type_manager.ensure_tuple_of_numbers(
+        param=anchor_point,
+        param_name="anchor_point",
+        seq_length=2,
+    )
+    anchor_corner = ordinal_anchors.as_corner_anchor(anchor_corner)
     artists_to_draw = []
     valid_markers = [".", "o", "s", "D", "^", "v"]
-    valid_lines = ["-", "--", "-.", ":", (10, (10, 3, 1, 3, 1, 3))]
+    valid_lines = ["-", "--", "-.", ":"]
     for artist, color in zip(artists, colors):
         if artist in valid_markers:
             artist_to_draw = mpl_line2d(
@@ -108,8 +127,8 @@ def add_custom_legend(
     legend = ax.legend(
         handles=artists_to_draw,
         labels=labels,
-        bbox_to_anchor=anchor,
-        loc=position,
+        bbox_to_anchor=anchor_point,
+        loc=anchor_corner.value,
         fontsize=fontsize,
         labelcolor=text_color,
         frameon=enable_frame,
@@ -128,7 +147,7 @@ def add_custom_legend(
 
 
 def overlay_curve(
-    ax,
+    ax: plot_manager.PlotAxis,
     x_values: list[float] | numpy.ndarray,
     y_values: list[float] | numpy.ndarray,
     color: str = "black",
@@ -138,15 +157,15 @@ def overlay_curve(
     alpha: float = 1.0,
     zorder: float = 1.0,
 ):
-    x_array = array_types.as_1d(
+    x_array = array_checks.as_1d(
         array_like=x_values,
         param_name="x_values",
     )
-    y_array = array_types.as_1d(
+    y_array = array_checks.as_1d(
         array_like=y_values,
         param_name="y_values",
     )
-    array_types.ensure_same_shape(
+    array_checks.ensure_same_shape(
         array_a=x_array,
         array_b=y_array,
         param_name_a="x_values",

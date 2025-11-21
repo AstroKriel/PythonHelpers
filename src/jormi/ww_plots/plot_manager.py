@@ -23,7 +23,7 @@ from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
 
-from jormi.ww_types import type_manager, anchor_points
+from jormi.ww_types import type_manager, cardinal_anchors
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
 
@@ -191,17 +191,17 @@ def add_inset_axis(
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
-    x_label_alignment: anchor_points.VerticalAnchorLike = anchor_points.VerticalAnchor.Top,
-    y_label_alignment: anchor_points.HorizontalAnchorLike = anchor_points.HorizontalAnchor.Right,
+    x_label_alignment: cardinal_anchors.VerticalAnchorLike = cardinal_anchors.VerticalAnchor.Top,
+    y_label_alignment: cardinal_anchors.HorizontalAnchorLike = cardinal_anchors.HorizontalAnchor.Right,
 ) -> PlotAxis:
     """Add an inset Axis to `ax`."""
-    x_label_anchor = anchor_points.as_vertical_anchor(x_label_alignment)
-    y_label_anchor = anchor_points.as_horizontal_anchor(y_label_alignment)
-    anchor_points.ensure_vertical_edge_anchor(
+    x_label_anchor = cardinal_anchors.as_vertical_anchor(x_label_alignment)
+    y_label_anchor = cardinal_anchors.as_horizontal_anchor(y_label_alignment)
+    cardinal_anchors.ensure_vertical_edge_anchor(
         anchor=x_label_anchor,
         param_name="x_label_anchor",
     )
-    anchor_points.ensure_horizontal_edge_anchor(
+    cardinal_anchors.ensure_horizontal_edge_anchor(
         anchor=y_label_anchor,
         param_name="y_label_anchor",
     )
@@ -227,15 +227,15 @@ def add_inset_axis(
         ax_inset.yaxis.set_label_position(y_label_anchor_value)
     ax_inset.tick_params(
         axis="x",
-        labeltop=anchor_points.is_top_edge(x_label_anchor),
-        labelbottom=anchor_points.is_bottom_edge(x_label_anchor),
+        labeltop=cardinal_anchors.is_top_edge(x_label_anchor),
+        labelbottom=cardinal_anchors.is_bottom_edge(x_label_anchor),
         top=True,
         bottom=True,
     )
     ax_inset.tick_params(
         axis="y",
-        labelleft=anchor_points.is_left_edge(y_label_anchor),
-        labelright=anchor_points.is_right_edge(y_label_anchor),
+        labelleft=cardinal_anchors.is_left_edge(y_label_anchor),
+        labelright=cardinal_anchors.is_right_edge(y_label_anchor),
         left=True,
         right=True,
     )
