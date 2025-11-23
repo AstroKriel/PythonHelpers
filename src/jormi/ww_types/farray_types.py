@@ -6,89 +6,252 @@
 
 import numpy
 
+from dataclasses import dataclass
+from typing import TypeAlias
+
 from jormi.ww_types import type_manager, array_checks
 
+
 ##
-## === DATA TYPE VALIDATION
+## === TYPE ALIASES
+##
+
+FieldArrayData: TypeAlias = numpy.ndarray
+
+
+##
+## === DATA CLASSES
 ##
 
 
-def ensure_sarray(
-    sarray: numpy.ndarray,
-    *,
-    param_name: str = "<sarray>",
-) -> None:
-    """Ensure `sarray` is a 3D scalar array with shape (Nx, Ny, Nz)."""
-    array_checks.ensure_dim(
-        array=sarray,
-        param_name=param_name,
-        dim=3,
-    )
+@dataclass(frozen=True)
+class FieldArray:
+    """
+    Generic field array with component and spatial dimension metadata.
 
+    Conventions
+    ----------
+    - `num_ranks`:
+        Number of component axes:
+          * 0 -> scalar (no component axis)
+          * 1 -> vector (one component axis)
+          * 2 -> rank-2 tensor (two component axes)
+          * ...
+    - `num_comps`:
+        Total number of components at each spatial location.
+        A scalar field has `num_comps == 1` and a vector has `num_comps > 1`.
+    - `num_sdims`:
+        Number of spatial dimensions.
 
-def ensure_varray(
-    varray: numpy.ndarray,
-    *,
-    param_name: str = "<varray>",
-) -> None:
-    """Ensure `varray` is a 4D vector array with leading component axis of length 3."""
-    array_checks.ensure_dim(
-        array=varray,
-        param_name=param_name,
-        dim=4,
-    )
-    if varray.shape[0] != 3:
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (num_comps=3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={varray.shape}.",
-        )
+    The first `num_ranks` axes are component axes; the trailing `num_sdims`
+    axes are spatial.
+    """
 
+    data: FieldArrayData
+    num_ranks: int
+    num_comps: int
+    num_sdims: int
+    param_name: str = "<field_array>"
 
-def ensure_r2tarray(
-    r2tarray: numpy.ndarray,
-    *,
-    param_name: str = "<r2tarray>",
-) -> None:
-    """Ensure `r2tarray` is a 5D rank-2 tensor array with two leading axes of length 3."""
-    array_checks.ensure_dim(
-        array=r2tarray,
-        param_name=param_name,
-        dim=5,
-    )
-    if (r2tarray.shape[0] != 3) or (r2tarray.shape[1] != 3):
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (num_comps=3, num_dims=3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={r2tarray.shape}.",
-        )
-
-
-def ensure_valid_cell_widths(
-    cell_widths: tuple[float, float, float] | list[float],
-    *,
-    param_name: str = "<cell_widths>",
-) -> None:
-    """Ensure `cell_widths` is a length-3 sequence of positive, finite values."""
-    type_manager.ensure_sequence(
-        param=cell_widths,
-        param_name=param_name,
-        allow_none=False,
-        seq_length=3,
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
-    )
-    for width_index, width_value in enumerate(cell_widths):
-        try:
-            width_float = float(width_value)
-        except Exception as error:
-            raise ValueError(f"`{param_name}[{width_index}]` must be numeric.") from error
-        type_manager.ensure_finite_float(
-            param=width_float,
-            param_name=f"{param_name}[{width_index}]",
+    def __post_init__(
+        self,
+    ) -> None:
+        type_manager.ensure_finite_int(
+            param=self.num_comps,
+            param_name=f"{self.param_name}.num_comps",
             allow_none=False,
             require_positive=True,
         )
+        type_manager.ensure_finite_int(
+            param=self.num_sdims,
+            param_name=f"{self.param_name}.num_sdims",
+            allow_none=False,
+            require_positive=True,
+        )
+        type_manager.ensure_finite_int(
+            param=self.num_ranks+1,
+            param_name=f"{self.param_name}.num_ranks",
+            allow_none=False,
+            require_positive=True,
+        )
+        if (self.num_ranks == 0) and (self.num_comps != 1):
+            raise ValueError(
+                f"`{self.param_name}` has num_ranks=0 (scalar) but num_comps={self.num_comps};"
+                f" expected num_comps == 1.",
+            )
+        array_checks.ensure_ndim(
+            array=self.data,
+            param_name=self.param_name,
+            num_dims=self._total_num_of_dims(),
+        )
+        self._ensure_shape_matches_metadata()
+
+    @property
+    def shape(
+        self,
+    ) -> tuple[int, ...]:
+        return tuple(self.data.shape)
+
+    @property
+    def is_scalar(
+        self,
+    ) -> bool:
+        return self.num_ranks == 0
+
+    @property
+    def is_vector(
+        self,
+    ) -> bool:
+        return (self.num_ranks == 1) and (self.num_comps > 1)
+
+    @property
+    def is_tensor(
+        self,
+    ) -> bool:
+        return self.num_ranks >= 2
+
+    @property
+    def dims_shape(
+        self,
+    ) -> tuple[int, ...]:
+        """Return the spatial part of the shape."""
+        if self.num_ranks == 0:
+            return self.shape
+        return self.shape[self.num_ranks :]
+
+    @property
+    def comps_shape(
+        self,
+    ) -> tuple[int, ...]:
+        """Return the component part of the shape."""
+        if self.num_ranks == 0:
+            return ()
+        return self.shape[: self.num_ranks]
+
+    def _total_num_of_dims(
+        self,
+    ) -> int:
+        return self.num_ranks + self.num_sdims
+
+    def _ensure_shape_matches_metadata(
+        self,
+    ) -> None:
+        if self.data.ndim != self._total_num_of_dims():
+            raise ValueError(
+                f"`{self.param_name}` must have ndim == num_ranks + num_sdims:"
+                f" ({self.num_ranks} + {self.num_sdims} = {self._total_num_of_dims()}),"
+                f" but got shape={self.data.shape}.",
+            )
+        if self.num_ranks == 0:
+            ## already ensured ndim == num_sdims; nothing more to check
+            return
+        ## for num_ranks > 0, ensure product of component-axis sizes matches num_comps
+        comps_shape = self.comps_shape
+        num_comps_from_shape = 1
+        for axis_size in comps_shape:
+            num_comps_from_shape *= axis_size
+        if num_comps_from_shape != self.num_comps:
+            raise ValueError(
+                f"`{self.param_name}` has num_comps={self.num_comps}, but component axes"
+                f" {comps_shape} imply num_comps={num_comps_from_shape}.",
+            )
+
+
+##
+## === TYPE VALIDATION HELPERS
+##
+
+
+def ensure_field_array(
+    field_array: FieldArray,
+    *,
+    param_name: str = "<field_array>",
+) -> None:
+    """Ensure `field_array` is a `FieldArray` instance."""
+    if not isinstance(field_array, FieldArray):
+        raise TypeError(
+            f"`{param_name}` must be a `FieldArray` instance; got type={type(field_array)}.",
+        )
+
+
+def ensure_field_array_metadata(
+    field_array: FieldArray,
+    *,
+    num_comps: int | None = None,
+    num_sdims: int | None = None,
+    num_ranks: int | None = None,
+    param_name: str = "<field_array>",
+) -> None:
+    """
+    Ensure `field_array` matches the requested metadata.
+
+    Any of `num_comps`, `num_sdims`, or `num_ranks` can be left as `None`
+    to skip that check.
+    """
+    ensure_field_array(
+        field_array=field_array,
+        param_name=param_name,
+    )
+    if (num_comps is not None) and (field_array.num_comps != num_comps):
+        raise ValueError(
+            f"`{param_name}` must have num_comps={num_comps},"
+            f" but got num_comps={field_array.num_comps}.",
+        )
+    if (num_sdims is not None) and (field_array.num_sdims != num_sdims):
+        raise ValueError(
+            f"`{param_name}` must have num_sdims={num_sdims},"
+            f" but got num_sdims={field_array.num_sdims}.",
+        )
+    if (num_ranks is not None) and (field_array.num_ranks != num_ranks):
+        raise ValueError(
+            f"`{param_name}` must have num_ranks={num_ranks},"
+            f" but got num_ranks={field_array.num_ranks}.",
+        )
+
+
+def ensure_sarray_3d(
+    field_array: FieldArray,
+    *,
+    param_name: str = "<field_array>",
+) -> None:
+    """Ensure `field_array` is a 3D scalar field array."""
+    ensure_field_array_metadata(
+        field_array=field_array,
+        num_comps=1,
+        num_sdims=3,
+        num_ranks=0,
+        param_name=param_name,
+    )
+
+
+def ensure_varray_3d(
+    field_array: FieldArray,
+    *,
+    param_name: str = "<field_array>",
+) -> None:
+    """Ensure `field_array` is a 3D vector field array with 3 components."""
+    ensure_field_array_metadata(
+        field_array=field_array,
+        num_comps=3,
+        num_sdims=3,
+        num_ranks=1,
+        param_name=param_name,
+    )
+
+
+def ensure_r2tarray_3d(
+    field_array: FieldArray,
+    *,
+    param_name: str = "<field_array>",
+) -> None:
+    """Ensure `field_array` is a 3D rank-2 tensor field array with 3x3 components."""
+    ensure_field_array_metadata(
+        field_array=field_array,
+        num_comps=9,
+        num_sdims=3,
+        num_ranks=2,
+        param_name=param_name,
+    )
 
 
 ## } MODULE
