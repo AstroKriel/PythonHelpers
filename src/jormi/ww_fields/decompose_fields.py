@@ -8,8 +8,8 @@ import numpy
 
 from dataclasses import dataclass
 
-from jormi.ww_types import array_checks, field_types
-from jormi.ww_fields import farray_operators, field_operators
+from jormi.ww_types import fdata_types, domain_types, field_types
+from jormi.ww_fields import fdata_operators, field_operators
 
 ##
 ## === DATA STRUCTURES
@@ -25,17 +25,35 @@ class HelmholtzDecomposition:
     def __post_init__(
         self,
     ):
-        field_types.ensure_vfield(self.div_vfield)
-        field_types.ensure_vfield(self.sol_vfield)
-        field_types.ensure_vfield(self.bulk_vfield)
-        field_types.ensure_same_vfield_shape(
-            vfield_a=self.div_vfield,
-            vfield_b=self.sol_vfield,
+        field_types.ensure_vfield(
+            vfield=self.div_vfield,
+            param_name="<div_vfield>",
         )
-        field_types.ensure_same_vfield_shape(
-            vfield_a=self.div_vfield,
-            vfield_b=self.bulk_vfield,
+        field_types.ensure_vfield(
+            vfield=self.sol_vfield,
+            param_name="<sol_vfield>",
         )
+        field_types.ensure_vfield(
+            vfield=self.bulk_vfield,
+            param_name="<bulk_vfield>",
+        )
+        field_types.ensure_same_field_shape(
+            field_a=self.div_vfield,
+            field_b=self.sol_vfield,
+            field_name_a="<div_vfield>",
+            field_name_b="<sol_vfield>",
+        )
+        field_types.ensure_same_field_shape(
+            field_a=self.div_vfield,
+            field_b=self.bulk_vfield,
+            field_name_a="<div_vfield>",
+            field_name_b="<bulk_vfield>",
+        )
+        if any([
+                self.div_vfield.udomain != self.sol_vfield.udomain,
+                self.div_vfield.udomain != self.bulk_vfield.udomain,
+        ]):
+            raise ValueError("HelmholtzDecomposition fields must share the same UniformDomain.")
 
 
 @dataclass(frozen=True)
@@ -48,26 +66,40 @@ class TNBTerms:
     def __post_init__(
         self,
     ):
-        field_types.ensure_uvfield(self.tangent_uvfield)
-        field_types.ensure_uvfield(self.normal_uvfield)
-        field_types.ensure_uvfield(self.binormal_uvfield)
-        field_types.ensure_sfield(self.curvature_sfield)
-        array_checks.ensure_same_shape(
-            array_a=self.tangent_uvfield.data,
-            array_b=self.normal_uvfield.data,
+        field_types.ensure_uvfield(
+            uvfield=self.tangent_uvfield,
+            param_name="<tangent_uvfield>",
         )
-        array_checks.ensure_same_shape(
-            array_a=self.tangent_uvfield.data,
-            array_b=self.normal_uvfield.data,
+        field_types.ensure_uvfield(
+            uvfield=self.normal_uvfield,
+            param_name="<normal_uvfield>",
         )
-        array_checks.ensure_same_shape(
-            array_a=self.tangent_uvfield.data,
-            array_b=self.binormal_uvfield.data,
+        field_types.ensure_uvfield(
+            uvfield=self.binormal_uvfield,
+            param_name="<binormal_uvfield>",
         )
-        array_checks.ensure_same_shape(
-            array_a=self.tangent_uvfield.data,
-            array_b=self.curvature_sfield.data,
+        field_types.ensure_sfield(
+            sfield=self.curvature_sfield,
+            param_name="<curvature_sfield>",
         )
+        field_types.ensure_same_field_shape(
+            field_a=self.tangent_uvfield,
+            field_b=self.normal_uvfield,
+            field_name_a="<tangent_uvfield>",
+            field_name_b="<normal_uvfield>",
+        )
+        field_types.ensure_same_field_shape(
+            field_a=self.tangent_uvfield,
+            field_b=self.binormal_uvfield,
+            field_name_a="<tangent_uvfield>",
+            field_name_b="<binormal_uvfield>",
+        )
+        if any([
+                self.tangent_uvfield.udomain != self.normal_uvfield.udomain,
+                self.tangent_uvfield.udomain != self.binormal_uvfield.udomain,
+                self.tangent_uvfield.udomain != self.curvature_sfield.udomain,
+        ]):
+            raise ValueError("TNBTerms fields must share the same UniformDomain.")
 
 
 ##
@@ -78,22 +110,28 @@ class TNBTerms:
 # @fn_utils.time_fn
 def compute_helmholtz_decomposition(
     vfield: field_types.VectorField,
-    uniform_domain: field_types.UniformDomain,
+    udomain: domain_types.UniformDomain,
 ) -> HelmholtzDecomposition:
     """
     Compute the Helmholtz decomposition of a three-dimensional vector field into
     its divergence-free (solenoidal), curl-free (irrotational), and bulk (k=0) components.
     """
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(uniform_domain)
-    field_types.ensure_domain_matches_vfield(uniform_domain, vfield)
-    if not all(uniform_domain.periodicity):
+    domain_types.ensure_udomain(
+        udomain=udomain,
+        param_name="<udomain>",
+    )
+    field_types.ensure_udomain_matches_vfield(
+        vfield=vfield,
+        udomain=udomain,
+    )
+    if not all(udomain.periodicity):
         raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
     sim_time = vfield.sim_time
-    dtype = vfield.data.dtype
+    dtype = vfield.fdata.farray.dtype
     ## --- Build Fourier wavenumbers on the uniform grid
-    num_cells_x, num_cells_y, num_cells_z = uniform_domain.resolution
-    cell_width_x, cell_width_y, cell_width_z = uniform_domain.cell_widths
+    num_cells_x, num_cells_y, num_cells_z = udomain.resolution
+    cell_width_x, cell_width_y, cell_width_z = udomain.cell_widths
     kx_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_x, d=cell_width_x)
     ky_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_y, d=cell_width_y)
     kz_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_z, d=cell_width_z)
@@ -103,7 +141,11 @@ def compute_helmholtz_decomposition(
     k_magn_grid[0, 0, 0] = 1.0
     ## --- Transform into Fourier space
     ## with norm="forward", the k=0 coefficient is the spatial mean of the field
-    fft_varray = numpy.fft.fftn(vfield.data, axes=(1, 2, 3), norm="forward")
+    fft_varray = numpy.fft.fftn(
+        vfield.fdata.farray,
+        axes=(1, 2, 3),
+        norm="forward",
+    )
     ## --- Compute bulk term
     ## only keep the k=0 coefficient (spatial mean; constant in space)
     bulk_fft_varray = numpy.zeros_like(fft_varray)
@@ -167,20 +209,35 @@ def compute_helmholtz_decomposition(
         bulk_fft_varray,
     )
     ## package-up fields
+    div_vdata = fdata_types.VectorFieldData(
+        farray=div_varray,
+        param_name="<helmholtz.div_vfield.fdata>",
+    )
+    sol_vdata = fdata_types.VectorFieldData(
+        farray=sol_varray,
+        param_name="<helmholtz.sol_vfield.fdata>",
+    )
+    bulk_vdata = fdata_types.VectorFieldData(
+        farray=bulk_varray,
+        param_name="<helmholtz.bulk_vfield.fdata>",
+    )
     div_vfield = field_types.VectorField(
-        sim_time=sim_time,
-        data=div_varray,
+        fdata=div_vdata,
+        udomain=udomain,
         field_label=r"$\vec{f}_\parallel$",
+        sim_time=sim_time,
     )
     sol_vfield = field_types.VectorField(
-        sim_time=sim_time,
-        data=sol_varray,
+        fdata=sol_vdata,
+        udomain=udomain,
         field_label=r"$\vec{f}_\perp$",
+        sim_time=sim_time,
     )
     bulk_vfield = field_types.VectorField(
-        sim_time=sim_time,
-        data=bulk_varray,
+        fdata=bulk_vdata,
+        udomain=udomain,
         field_label=r"$\vec{f}_\mathrm{bulk}$",
+        sim_time=sim_time,
     )
     return HelmholtzDecomposition(
         div_vfield=div_vfield,
@@ -192,7 +249,7 @@ def compute_helmholtz_decomposition(
 # @fn_utils.time_fn
 def compute_tnb_terms(
     vfield: field_types.VectorField,
-    uniform_domain: field_types.UniformDomain,
+    udomain: domain_types.UniformDomain,
     grad_order: int = 2,
 ) -> TNBTerms:
     """
@@ -200,13 +257,20 @@ def compute_tnb_terms(
     for a three-dimensional vector field on a uniform grid.
     """
     field_types.ensure_vfield(vfield)
-    field_types.ensure_uniform_domain(uniform_domain)
-    field_types.ensure_domain_matches_vfield(uniform_domain, vfield)
+    domain_types.ensure_udomain(
+        udomain=udomain,
+        param_name="<udomain>",
+    )
+    field_types.ensure_udomain_matches_vfield(
+        vfield=vfield,
+        udomain=udomain,
+    )
     sim_time = vfield.sim_time
-    varray = vfield.data
+    varray = vfield.fdata.farray
     ## --- COMPUTE TANGENT BASIS
     ## field magnitude: |f| = (f_k f_k)^(1/2)
-    f_magn_sarray = field_operators.compute_vfield_magnitude(vfield).data
+    f_magn_sfield = field_operators.compute_vfield_magnitude(vfield=vfield)
+    f_magn_sarray = f_magn_sfield.fdata.farray
     ## T_i = f_i / |f|
     tangent_uvarray = numpy.zeros_like(varray)
     numpy.divide(
@@ -215,16 +279,21 @@ def compute_tnb_terms(
         out=tangent_uvarray,
         where=(f_magn_sarray > 0),  # guard from zero magnitude
     )
+    tangent_uvdata = fdata_types.VectorFieldData(
+        farray=tangent_uvarray,
+        param_name="<tnb.tangent.fdata>",
+    )
     tangent_uvfield = field_types.UnitVectorField(
-        sim_time=sim_time,
-        data=tangent_uvarray,
+        fdata=tangent_uvdata,
+        udomain=udomain,
         field_label=r"$\hat{t}$",
+        sim_time=sim_time,
     )
     ## --- COMPUTE NORMAL BASIS
     ## gradient tensor: d_i f_j with layout (j, i, x, y, z)
-    grad_r2tarray = farray_operators.compute_varray_grad(
-        varray=varray,
-        cell_widths=uniform_domain.cell_widths,
+    grad_r2tarray = fdata_operators.compute_varray_grad(
+        vdata=vfield.fdata,
+        cell_widths=udomain.cell_widths,
         grad_order=grad_order,
     )
     ## term1_j = f_i * (d_i f_j) = (f dot grad) f
@@ -245,16 +314,28 @@ def compute_tnb_terms(
     )
     ## curvature vector: kappa_j = term1_j / |f|^2 - term2_j / |f|^4
     inv_magn2_sarray = numpy.zeros_like(f_magn_sarray)
-    numpy.divide(1.0, f_magn_sarray, out=inv_magn2_sarray, where=(f_magn_sarray > 0))
+    numpy.divide(
+        1.0,
+        f_magn_sarray,
+        out=inv_magn2_sarray,
+        where=(f_magn_sarray > 0),
+    )
     inv_magn2_sarray **= 2  # 1/|f|^2
     inv_magn4_sarray = inv_magn2_sarray**2  # 1/|f|^4
     kappa_varray = normal_term1_varray * inv_magn2_sarray - normal_term2_varray * inv_magn4_sarray
-    curvature_sarray = farray_operators.sum_of_squared_components(varray=kappa_varray)
+    curvature_sarray = fdata_operators.sum_of_squared_components(
+        vdata=kappa_varray,
+    )
     numpy.sqrt(curvature_sarray, out=curvature_sarray)
+    curvature_sdata = fdata_types.ScalarFieldData(
+        farray=curvature_sarray,
+        param_name="<tnb.curvature.fdata>",
+    )
     curvature_sfield = field_types.ScalarField(
-        sim_time=sim_time,
-        data=curvature_sarray,
+        fdata=curvature_sdata,
+        udomain=udomain,
         field_label=r"$|\vec{\kappa}|$",
+        sim_time=sim_time,
     )
     ## N_i = kappa_i / |kappa|
     normal_uvarray = numpy.zeros_like(kappa_varray)
@@ -264,10 +345,15 @@ def compute_tnb_terms(
         out=normal_uvarray,
         where=(curvature_sarray > 0.0),  # guard against zero curvature
     )
+    normal_uvdata = fdata_types.VectorFieldData(
+        farray=normal_uvarray,
+        param_name="<tnb.normal.fdata>",
+    )
     normal_uvfield = field_types.UnitVectorField(
-        sim_time=sim_time,
-        data=normal_uvarray,
+        fdata=normal_uvdata,
+        udomain=udomain,
         field_label=r"$\hat{n}$",
+        sim_time=sim_time,
     )
     ## --- COMPUTE BINORMAL BASIS
     ## B = T x N  (orthogonal to both T and N)
@@ -276,7 +362,9 @@ def compute_tnb_terms(
         vfield_b=normal_uvfield,
         field_label=r"$\hat{b}$",
     )
-    binormal_uvfield = field_types.as_unit_vfield(vfield=binormal_vfield)
+    binormal_uvfield = field_types.as_uvfield(
+        vfield=binormal_vfield,
+    )
     del normal_term1_varray, normal_term2_varray, inv_magn2_sarray, inv_magn4_sarray
     return TNBTerms(
         tangent_uvfield=tangent_uvfield,

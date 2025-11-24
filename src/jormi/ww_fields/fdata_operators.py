@@ -177,9 +177,9 @@ def sum_of_squared_components(
     )
     numpy.multiply(varray[0], varray[0], out=out_sarray)  # out = v_x^2
     numpy.multiply(varray[1], varray[1], out=tmp_sarray)  # tmp = v_y^2
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)     # out = v_x^2 + v_y^2
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = v_x^2 + v_y^2
     numpy.multiply(varray[2], varray[2], out=tmp_sarray)  # tmp = v_z^2
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)     # out = v_x^2 + v_y^2 + v_z^2
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = v_x^2 + v_y^2 + v_z^2
     return out_sarray
 
 
@@ -232,9 +232,9 @@ def dot_over_components(
     )
     numpy.multiply(varray_a[0], varray_b[0], out=out_sarray)  # out = a_x b_x
     numpy.multiply(varray_a[1], varray_b[1], out=tmp_sarray)  # tmp = a_y b_y
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)         # out = a_x b_x + a_y b_y
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = a_x b_x + a_y b_y
     numpy.multiply(varray_a[2], varray_b[2], out=tmp_sarray)  # tmp = a_z b_z
-    numpy.add(out_sarray, tmp_sarray, out=out_sarray)         # out = a_x b_x + a_y b_y + a_z b_z
+    numpy.add(out_sarray, tmp_sarray, out=out_sarray)  # out = a_x b_x + a_y b_y + a_z b_z
     return out_sarray
 
 
