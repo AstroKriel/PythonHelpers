@@ -10,7 +10,6 @@ from typing import Literal
 
 from jormi.ww_types import type_manager
 
-
 ##
 ## === FUNCTIONS
 ##
