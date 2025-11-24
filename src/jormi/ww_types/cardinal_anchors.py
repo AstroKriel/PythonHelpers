@@ -34,7 +34,7 @@ VerticalAnchorLike: TypeAlias = VerticalAnchor | str
 HorizontalAnchorLike: TypeAlias = HorizontalAnchor | str
 
 ##
-## === CONVERTERS (COERCING)
+## === TYPE CONVERTERS
 ##
 
 

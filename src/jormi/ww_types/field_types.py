@@ -165,6 +165,8 @@ class UnitVectorField(VectorField):
     def _validate_unit_magnitude(
         self,
     ) -> None:
+        ## validate here, rather than in the fdata-module, since
+        ## `fdata_operators.sum_of_squared_components` would yield a circular import there
         q_magn_sq_sarray = fdata_operators.sum_of_squared_components(
             vdata=self.fdata,
         )
@@ -196,7 +198,7 @@ class UnitVectorField(VectorField):
         )
 
 
-def as_unit_vfield(
+def as_uvfield(
     vfield: VectorField,
     tol: float = 1e-6,
 ) -> UnitVectorField:

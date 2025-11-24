@@ -4,7 +4,6 @@
 ## === DEPENDENCIES
 ##
 
-
 from enum import Enum
 from typing import TypeAlias
 
@@ -36,7 +35,7 @@ class CornerAnchor(str, Enum):
 CornerAnchorLike: TypeAlias = CornerAnchor | str
 
 ##
-## === CONVERTERS (COERCING)
+## === TYPE CONVERTER
 ##
 
 

@@ -160,10 +160,10 @@ class UniformDomain:
         )
 
 
-
 ##
 ## === TYPE VALIDATION
 ##
+
 
 def ensure_udomain(
     udomain: UniformDomain,
@@ -175,5 +175,6 @@ def ensure_udomain(
         param_name=param_name,
         valid_types=UniformDomain,
     )
+
 
 ## } MODULE

@@ -11,13 +11,11 @@ from typing import TypeAlias
 
 from jormi.ww_types import type_manager, array_checks
 
-
 ##
 ## === TYPE ALIASES
 ##
 
 FieldArray: TypeAlias = numpy.ndarray
-
 
 ##
 ## === DATA CLASSES
@@ -118,7 +116,7 @@ class FieldData:
         """Return the spatial part of the shape."""
         if self.num_ranks == 0:
             return self.shape
-        return self.shape[self.num_ranks :]
+        return self.shape[self.num_ranks:]
 
     @property
     def comps_shape(
@@ -127,7 +125,7 @@ class FieldData:
         """Return the component part of the shape."""
         if self.num_ranks == 0:
             return ()
-        return self.shape[: self.num_ranks]
+        return self.shape[:self.num_ranks]
 
     def _total_num_dims(
         self,
