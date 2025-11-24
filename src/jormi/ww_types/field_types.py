@@ -7,187 +7,59 @@
 import numpy
 
 from typing import Self
-from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_checks, farray_types, cartesian_coordinates
-from jormi.ww_fields import farray_operators
+from jormi.ww_types import type_manager, array_checks, fdata_types, cartesian_coordinates, domain_types
+from jormi.ww_fields import fdata_operators
 
 ##
-## === DATA STRUCTURES
+## === BASE FIELD TYPE
 ##
 
 
 @dataclass(frozen=True)
-class UniformDomain:
-    periodicity: tuple[bool, bool, bool]
-    resolution: tuple[int, int, int]
-    domain_bounds: tuple[
-        tuple[float, float],
-        tuple[float, float],
-        tuple[float, float],
-    ]
+class Field:
+    """
+    Generic field: `FieldData` + `UniformDomain` + label + (optional) simulation time.
 
-    def __post_init__(
-        self,
-    ) -> None:
-        self._validate_periodicity()
-        self._validate_resolution()
-        self._validate_domain_bounds()
+    Specialised field types (e.g. ScalarField, VectorField) build on this and
+    add additional constraints on the underlying `FieldData` and metadata.
+    """
 
-    def _validate_periodicity(
-        self,
-    ) -> None:
-        type_manager.ensure_sequence(
-            param=self.periodicity,
-            param_name="<periodicity>",
-            seq_length=3,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Booleans.BooleanLike,
-        )
-
-    def _validate_resolution(
-        self,
-    ) -> None:
-        type_manager.ensure_sequence(
-            param=self.resolution,
-            param_name="<resolution>",
-            seq_length=3,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Numerics.IntLike,
-        )
-        num_cells_x, num_cells_y, num_cells_z = self.resolution
-        if (num_cells_x <= 0) or (num_cells_y <= 0) or (num_cells_z <= 0):
-            raise ValueError("All `<resolution>` entries must be positive.")
-
-    def _validate_domain_bounds(
-        self,
-    ) -> None:
-        type_manager.ensure_sequence(
-            param=self.domain_bounds,
-            param_name="<domain_bounds>",
-            seq_length=3,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-        )
-        for axis_index, bounds in enumerate(self.domain_bounds):
-            axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
-            axis_param_name = f"<domain_bounds[{axis_label}]>"
-            type_manager.ensure_sequence(
-                param=bounds,
-                param_name=axis_param_name,
-                seq_length=2,
-                valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-                valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
-            )
-            lo_value, hi_value = bounds
-            type_manager.ensure_finite_float(
-                param=lo_value,
-                param_name=f"{axis_param_name}[0]",
-                allow_none=False,
-                require_positive=False,
-            )
-            type_manager.ensure_finite_float(
-                param=hi_value,
-                param_name=f"{axis_param_name}[1]",
-                allow_none=False,
-                require_positive=False,
-            )
-            if not (hi_value > lo_value):
-                raise ValueError(f"{axis_label}-axis: max bound must be > min bound.")
-
-    @cached_property
-    def cell_widths(
-        self,
-    ) -> tuple[float, float, float]:
-        (x_min, x_max), (y_min, y_max), (z_min, z_max) = self.domain_bounds
-        num_cells_x, num_cells_y, num_cells_z = self.resolution
-        return (
-            (x_max - x_min) / num_cells_x,
-            (y_max - y_min) / num_cells_y,
-            (z_max - z_min) / num_cells_z,
-        )
-
-    @cached_property
-    def cell_volume(
-        self,
-    ) -> float:
-        return float(numpy.prod(self.cell_widths))
-
-    @cached_property
-    def domain_lengths(
-        self,
-    ) -> tuple[float, float, float]:
-        (x_min, x_max), (y_min, y_max), (z_min, z_max) = self.domain_bounds
-        return (
-            x_max - x_min,
-            y_max - y_min,
-            z_max - z_min,
-        )
-
-    @cached_property
-    def num_cells(
-        self,
-    ) -> int:
-        return int(numpy.prod(self.resolution))
-
-    @cached_property
-    def total_volume(
-        self,
-    ) -> float:
-        return float(numpy.prod(self.domain_lengths))
-
-    @cached_property
-    def cell_centers(
-        self,
-    ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
-
-        def _get_bin_centers(
-            axis_min: float,
-            cell_width: float,
-            num_cells: int,
-        ) -> numpy.ndarray:
-            return axis_min + (numpy.arange(num_cells, dtype=float) + 0.5) * cell_width
-
-        (x_min, _), (y_min, _), (z_min, _) = self.domain_bounds
-        num_cells_x, num_cells_y, num_cells_z = self.resolution
-        cell_width_x, cell_width_y, cell_width_z = self.cell_widths
-        x_centers = _get_bin_centers(x_min, cell_width_x, num_cells_x)
-        y_centers = _get_bin_centers(y_min, cell_width_y, num_cells_y)
-        z_centers = _get_bin_centers(z_min, cell_width_z, num_cells_z)
-        return (
-            x_centers,
-            y_centers,
-            z_centers,
-        )
-
-
-@dataclass(frozen=True)
-class ScalarField:
-    data: numpy.ndarray
+    fdata: fdata_types.FieldData
+    udomain: domain_types.UniformDomain
     field_label: str
     sim_time: float | None = None
 
     def __post_init__(
         self,
     ) -> None:
-        self._validate_sim_time()
-        self._validate_data()
+        self._validate_fdata()
+        self._validate_udomain()
         self._validate_label()
+        self._validate_sim_time()
 
-    def _validate_sim_time(
+    def _validate_fdata(
         self,
     ) -> None:
-        type_manager.ensure_finite_float(
-            param=self.sim_time,
-            param_name="<sim_time>",
-            allow_none=True,
+        fdata_types.ensure_fdata(
+            fdata=self.fdata,
+            param_name="<field.fdata>",
         )
 
-    def _validate_data(
+    def _validate_udomain(
         self,
     ) -> None:
-        farray_types.ensure_sarray(self.data)
+        domain_types.ensure_udomain(
+            udomain=self.udomain,
+            param_name="<field.udomain>",
+        )
+        if self.fdata.sdims_shape != self.udomain.resolution:
+            raise ValueError(
+                "`Field` data-array shape does not match domain resolution:"
+                f" sdims_shape={self.fdata.sdims_shape},"
+                f" resolution={self.udomain.resolution}.",
+            )
 
     def _validate_label(
         self,
@@ -197,21 +69,6 @@ class ScalarField:
             param_name="<field_label>",
         )
 
-
-@dataclass(frozen=True)
-class VectorField:
-    data: numpy.ndarray
-    field_label: str
-    comp_axes: cartesian_coordinates.AxisTuple = cartesian_coordinates.DEFAULT_AXES_ORDER
-    sim_time: float | None = None
-
-    def __post_init__(
-        self,
-    ) -> None:
-        self._validate_sim_time()
-        self._validate_data()
-        self._validate_axes()
-
     def _validate_sim_time(
         self,
     ) -> None:
@@ -221,22 +78,68 @@ class VectorField:
             allow_none=True,
         )
 
-    def _validate_data(
+
+##
+## === SPECIALISED FIELD TYPES
+##
+
+
+@dataclass(frozen=True)
+class ScalarField(Field):
+    """3D scalar field: num_ranks=0, num_comps=1, num_sdims=3."""
+
+    fdata: fdata_types.ScalarFieldData
+
+    def __post_init__(
         self,
     ) -> None:
-        farray_types.ensure_varray(self.data)
+        super().__post_init__()
+        self._validate_sdata()
+
+    def _validate_sdata(
+        self,
+    ) -> None:
+        fdata_types.ensure_3d_sdata(
+            sdata=self.fdata,
+            param_name="<sfield.fdata>",
+        )
+
+
+@dataclass(frozen=True)
+class VectorField(Field):
+    """3D vector field: num_ranks=1, num_comps=3, num_sdims=3."""
+
+    fdata: fdata_types.VectorFieldData
+    comp_axes: cartesian_coordinates.AxisTuple = cartesian_coordinates.DEFAULT_AXES_ORDER
+
+    def __post_init__(
+        self,
+    ) -> None:
+        super().__post_init__()
+        self._validate_vdata()
+        self._validate_axes()
+
+    def _validate_vdata(
+        self,
+    ) -> None:
+        fdata_types.ensure_3d_vdata(
+            vdata=self.fdata,
+            param_name="<vfield.fdata>",
+        )
 
     def _validate_axes(
         self,
     ) -> None:
-        type_manager.ensure_nonempty_string(
-            param=self.field_label,
-            param_name="<field_label>",
-        )
         cartesian_coordinates.ensure_default_axes_order(
             axes=self.comp_axes,
             param_name="<comp_axes>",
         )
+        if self.fdata.num_comps != len(self.comp_axes):
+            raise ValueError(
+                "VectorField component axes must match number of components:"
+                f" num_comps={self.fdata.num_comps},"
+                f" len(comp_axes)={len(self.comp_axes)}.",
+            )
 
     def get_comp_data(
         self,
@@ -244,11 +147,13 @@ class VectorField:
     ) -> numpy.ndarray:
         """Return a (Nx, Ny, Nz) view of the requested component."""
         comp_index = cartesian_coordinates.get_axis_index(comp_axis)
-        return self.data[comp_index, ...]
+        return self.fdata.farray[comp_index, ...]
 
 
 @dataclass(frozen=True)
 class UnitVectorField(VectorField):
+    """3D vector field with unit-magnitude vectors at each cell."""
+
     tol: float = 1e-6
 
     def __post_init__(
@@ -260,8 +165,9 @@ class UnitVectorField(VectorField):
     def _validate_unit_magnitude(
         self,
     ) -> None:
-        q_uvarray = self.data
-        q_magn_sq_sarray = farray_operators.sum_of_squared_components(q_uvarray)
+        q_magn_sq_sarray = fdata_operators.sum_of_squared_components(
+            vdata=self.fdata,
+        )
         if not numpy.all(numpy.isfinite(q_magn_sq_sarray)):
             raise ValueError("UnitVectorField should not contain any NaN/Inf magnitudes.")
         if numpy.any(q_magn_sq_sarray <= 1e-300):
@@ -269,7 +175,8 @@ class UnitVectorField(VectorField):
         max_error = float(numpy.max(numpy.abs(q_magn_sq_sarray - 1.0)))
         if max_error > self.tol:
             raise ValueError(
-                f"Vector magnitude deviates from unit-magnitude=1.0 by max(error)={max_error:.3e} (tol={self.tol}).",
+                f"Vector magnitude deviates from unit-magnitude=1.0 by"
+                f" max(error)={max_error:.3e} (tol={self.tol}).",
             )
 
     @classmethod
@@ -280,7 +187,8 @@ class UnitVectorField(VectorField):
         tol: float = 1e-6,
     ) -> Self:
         return cls(
-            data=vfield.data,
+            fdata=vfield.fdata,
+            udomain=vfield.udomain,
             field_label=vfield.field_label,
             comp_axes=vfield.comp_axes,
             sim_time=vfield.sim_time,
@@ -299,6 +207,45 @@ def as_unit_vfield(
 ##
 ## === TYPE VALIDATION
 ##
+
+
+def _ensure_field(
+    field: Field,
+    *,
+    param_name: str = "<field>",
+) -> None:
+    type_manager.ensure_type(
+        param=field,
+        param_name=param_name,
+        valid_types=Field,
+    )
+
+
+def ensure_field_metadata(
+    field: Field,
+    *,
+    num_comps: int | None = None,
+    num_sdims: int | None = None,
+    num_ranks: int | None = None,
+    param_name: str = "<field>",
+) -> None:
+    """
+    Ensure the `field` metadata matches the requested properties.
+
+    Any of `num_comps`, `num_sdims`, or `num_ranks` can be left as `None`
+    to skip that check.
+    """
+    _ensure_field(
+        field=field,
+        param_name=param_name,
+    )
+    fdata_types.ensure_fdata_metadata(
+        fdata=field.fdata,
+        num_comps=num_comps,
+        num_sdims=num_sdims,
+        num_ranks=num_ranks,
+        param_name=f"{param_name}.fdata",
+    )
 
 
 def ensure_sfield(
@@ -337,110 +284,99 @@ def ensure_uvfield(
     )
 
 
-def ensure_uniform_domain(
-    uniform_domain: UniformDomain,
+def _ensure_udomain_matches_field(
     *,
-    param_name: str = "<uniform_domain>",
+    field: Field,
+    udomain: domain_types.UniformDomain,
+    domain_name: str = "<udomain>",
+    field_name: str = "<field>",
 ) -> None:
-    type_manager.ensure_type(
-        param=uniform_domain,
-        param_name=param_name,
-        valid_types=UniformDomain,
-    )
-
-
-def ensure_same_sfield_shape(
-    *,
-    sfield_a: ScalarField,
-    sfield_b: ScalarField,
-    param_name_a: str = "<sfield_a>",
-    param_name_b: str = "<sfield_b>",
-) -> None:
-    """Ensure two scalar fields have identical data shape."""
-    ensure_sfield(
-        sfield=sfield_a,
-        param_name=param_name_a,
-    )
-    ensure_sfield(
-        sfield=sfield_b,
-        param_name=param_name_b,
-    )
-    array_checks.ensure_same_shape(
-        array_a=sfield_a.data,
-        array_b=sfield_b.data,
-        param_name_a=f"{param_name_a}.data",
-        param_name_b=f"{param_name_b}.data",
-    )
-
-
-def ensure_same_vfield_shape(
-    *,
-    vfield_a: VectorField,
-    vfield_b: VectorField,
-    param_name_a: str = "<vfield_a>",
-    param_name_b: str = "<vfield_b>",
-) -> None:
-    """Ensure two vector fields have identical data shape."""
-    ensure_vfield(
-        vfield=vfield_a,
-        param_name=param_name_a,
-    )
-    ensure_vfield(
-        vfield=vfield_b,
-        param_name=param_name_b,
-    )
-    array_checks.ensure_same_shape(
-        array_a=vfield_a.data,
-        array_b=vfield_b.data,
-        param_name_a=f"{param_name_a}.data",
-        param_name_b=f"{param_name_b}.data",
-    )
-
-
-def ensure_domain_matches_sfield(
-    uniform_domain: UniformDomain,
-    sfield: ScalarField,
-    *,
-    domain_name: str = "<uniform_domain>",
-    sfield_name: str = "<sfield>",
-) -> None:
-    """Ensure UniformDomain resolution matches ScalarField data shape."""
-    ensure_uniform_domain(
-        uniform_domain=uniform_domain,
+    """Ensure UniformDomain matches Field."""
+    domain_types.ensure_udomain(
+        udomain=udomain,
         param_name=domain_name,
     )
+    _ensure_field(
+        field=field,
+        param_name=field_name,
+    )
+    if field.udomain != udomain:
+        raise ValueError(
+            f"{field_name}.udomain does not match {domain_name}.",
+        )
+    if field.fdata.sdims_shape != udomain.resolution:
+        raise ValueError(
+            f"{field_name}.fdata.sdims_shape={field.fdata.sdims_shape}"
+            f" does not match {domain_name}.resolution={udomain.resolution}.",
+        )
+
+
+def ensure_udomain_matches_sfield(
+    *,
+    sfield: ScalarField,
+    udomain: domain_types.UniformDomain,
+    domain_name: str = "<udomain>",
+    sfield_name: str = "<sfield>",
+) -> None:
+    """Ensure UniformDomain matches ScalarField."""
     ensure_sfield(
         sfield=sfield,
         param_name=sfield_name,
     )
-    array_checks.ensure_shape(
-        array=sfield.data,
-        expected_shape=uniform_domain.resolution,
-        param_name=f"{sfield_name}.data",
+    _ensure_udomain_matches_field(
+        udomain=udomain,
+        field=sfield,
+        domain_name=domain_name,
+        field_name=sfield_name,
     )
 
 
-def ensure_domain_matches_vfield(
-    uniform_domain: UniformDomain,
-    vfield: VectorField,
+def ensure_udomain_matches_vfield(
     *,
-    domain_name: str = "<uniform_domain>",
+    vfield: VectorField,
+    udomain: domain_types.UniformDomain,
+    domain_name: str = "<udomain>",
     vfield_name: str = "<vfield>",
 ) -> None:
-    """Ensure UniformDomain resolution matches VectorField data shape."""
-    ensure_uniform_domain(
-        uniform_domain=uniform_domain,
-        param_name=domain_name,
-    )
+    """Ensure UniformDomain matches VectorField."""
     ensure_vfield(
-        vfield=vfield,  # also accepts subclasses (e.g. UnitVectorField)
+        vfield=vfield,
         param_name=vfield_name,
     )
-    expected_shape = (3, *uniform_domain.resolution)
-    array_checks.ensure_shape(
-        array=vfield.data,
-        expected_shape=expected_shape,
-        param_name=f"{vfield_name}.data",
+    _ensure_udomain_matches_field(
+        udomain=udomain,
+        field=vfield,
+        domain_name=domain_name,
+        field_name=vfield_name,
+    )
+
+
+def ensure_same_field_shape(
+    *,
+    field_a: Field,
+    field_b: Field,
+    field_name_a: str = "<field_a>",
+    field_name_b: str = "<field_b>",
+) -> None:
+    """
+    Ensure two Field instances have shape-compatible data arrays.
+
+    This checks that `field_a.fdata.farray` and `field_b.fdata.farray` have
+    the same shape.
+    """
+    _ensure_field(
+        field=field_a,
+        param_name=field_name_a,
+    )
+    _ensure_field(
+        field=field_b,
+        param_name=field_name_b,
+    )
+    array_checks.ensure_same_shape(
+        array_a=field_a.fdata.farray,
+        array_b=field_b.fdata.farray,
+        param_name_a=f"{field_name_a}.fdata.farray",
+        param_name_b=f"{field_name_b}.fdata.farray",
     )
 
 

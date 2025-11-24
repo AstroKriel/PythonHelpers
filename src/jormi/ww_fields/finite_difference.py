@@ -6,6 +6,8 @@
 
 import numpy
 
+from jormi.ww_types import fdata_types
+
 ##
 ## === FUNCTIONS
 ##
@@ -26,11 +28,14 @@ def get_grad_fn(
 
 def second_order_centered_difference(
     sarray: numpy.ndarray,
+    *,
     cell_width: float,
     grad_axis: int,
 ) -> numpy.ndarray:
+    """Second-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
+    fdata_types.ensure_3d_sarray(sarray)
     s_f = numpy.roll(sarray, int(1 * forward), axis=grad_axis)
     s_b = numpy.roll(sarray, int(1 * backward), axis=grad_axis)
     return (s_f - s_b) / (2.0 * cell_width)
@@ -38,11 +43,14 @@ def second_order_centered_difference(
 
 def fourth_order_centered_difference(
     sarray: numpy.ndarray,
+    *,
     cell_width: float,
     grad_axis: int,
 ) -> numpy.ndarray:
+    """Fourth-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
+    fdata_types.ensure_3d_sarray(sarray)
     s_f1 = numpy.roll(sarray, int(1 * forward), axis=grad_axis)
     s_f2 = numpy.roll(sarray, int(2 * forward), axis=grad_axis)
     s_b1 = numpy.roll(sarray, int(1 * backward), axis=grad_axis)
@@ -52,11 +60,14 @@ def fourth_order_centered_difference(
 
 def sixth_order_centered_difference(
     sarray: numpy.ndarray,
+    *,
     cell_width: float,
     grad_axis: int,
 ) -> numpy.ndarray:
+    """Sixth-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
+    fdata_types.ensure_3d_sarray(sarray)
     s_f1 = numpy.roll(sarray, int(1 * forward), axis=grad_axis)
     s_f2 = numpy.roll(sarray, int(2 * forward), axis=grad_axis)
     s_f3 = numpy.roll(sarray, int(3 * forward), axis=grad_axis)

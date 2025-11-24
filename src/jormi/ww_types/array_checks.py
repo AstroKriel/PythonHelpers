@@ -97,25 +97,25 @@ def ensure_same_shape(
         )
 
 
-def ensure_dim(
+def ensure_dims(
     array: numpy.ndarray,
-    dim: int,
+    num_dims: int,
     *,
     param_name: str = "<array>",
 ) -> None:
-    """Ensure `array` is a NumPy ndarray with ndim == dim."""
+    """Ensure `array` is a NumPy ndarray with array.ndim == num_dims."""
     ensure_array(
         array=array,
         param_name=param_name,
     )
     type_manager.ensure_finite_int(
-        param=dim,
-        param_name="dim",
+        param=num_dims,
+        param_name="num_dims",
         require_positive=True,
     )
-    if array.ndim != dim:
+    if array.ndim != num_dims:
         raise ValueError(
-            f"`{param_name}` must be {dim}-dimensional; got ndim={array.ndim}.",
+            f"`{param_name}` must be {num_dims}-dimensional; got ndim={array.ndim}.",
         )
 
 
@@ -125,9 +125,9 @@ def ensure_1d(
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a 1D NumPy ndarray."""
-    ensure_dim(
+    ensure_dims(
         array=array,
-        dim=1,
+        num_dims=1,
         param_name=param_name,
     )
 
