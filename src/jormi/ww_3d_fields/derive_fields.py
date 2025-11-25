@@ -8,8 +8,15 @@ import numpy
 
 from dataclasses import dataclass
 
-from jormi.ww_types import fdata_types, field_types, domain_types
-from jormi.ww_fields import fdata_operators, finite_difference, decompose_fields
+from jormi.ww_3d_fields import (
+    fdata_types,
+    finite_difference,
+    fdata_operators,
+    domain_types,
+    field_types,
+    decompose_fields,
+)
+
 
 ##
 ## === DATA STRUCTURES
@@ -49,10 +56,12 @@ class MagneticCurvatureTerms:
             field_name_a="<curvature_sfield>",
             field_name_b="<compression_sfield>",
         )
-        if any([
+        if any(
+            [
                 self.curvature_sfield.udomain != self.stretching_sfield.udomain,
                 self.curvature_sfield.udomain != self.compression_sfield.udomain,
-        ], ):
+            ],
+        ):
             raise ValueError("MagneticCurvatureTerms fields must share the same UniformDomain.")
 
 
@@ -89,10 +98,12 @@ class LorentzForceTerms:
             field_name_a="<lorentz_vfield>",
             field_name_b="<gradP_perp_vfield>",
         )
-        if any([
+        if any(
+            [
                 self.lorentz_vfield.udomain != self.tension_vfield.udomain,
                 self.lorentz_vfield.udomain != self.gradP_perp_vfield.udomain,
-        ], ):
+            ],
+        ):
             raise ValueError("LorentzForceTerms fields must share the same UniformDomain.")
 
 
@@ -111,37 +122,43 @@ def compute_magnetic_curvature_terms(
     grad_order: int = 2,
 ) -> MagneticCurvatureTerms:
     """
-    Compute curvature, stretching, and compression terms for a velocity field.
+    Compute curvature, stretching, and compression terms for a 3D velocity field.
 
-    Index notation:
-        curvature   = n_i n_j (du_j/dx_i)
-        stretching  = t_i t_j (du_j/dx_i)
+    Index notation (Einstein summation):
+        curvature   = n_i n_j d_i u_j
+        stretching  = t_i t_j d_i u_j
         compression = d_i u_i
     """
-    field_types.ensure_vfield(u_vfield)
-    field_types.ensure_uvfield(tangent_uvfield)
-    field_types.ensure_uvfield(normal_uvfield)
+    field_types.ensure_vfield(
+        vfield=u_vfield,
+        param_name="<u_vfield>",
+    )
+    field_types.ensure_uvfield(
+        uvfield=tangent_uvfield,
+        param_name="<tangent_uvfield>",
+    )
+    field_types.ensure_uvfield(
+        uvfield=normal_uvfield,
+        param_name="<normal_uvfield>",
+    )
     domain_types.ensure_udomain(
         udomain=udomain,
         param_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
+        udomain=udomain,
         vfield=u_vfield,
-        udomain=udomain,
         vfield_name="<u_vfield>",
-        domain_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
+        udomain=udomain,
         vfield=tangent_uvfield,
-        udomain=udomain,
         vfield_name="<tangent_uvfield>",
-        domain_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
-        vfield=normal_uvfield,
         udomain=udomain,
+        vfield=normal_uvfield,
         vfield_name="<normal_uvfield>",
-        domain_name="<udomain>",
     )
     sim_time = u_vfield.sim_time
     tangent_uvarray = tangent_uvfield.fdata.farray
@@ -153,7 +170,7 @@ def compute_magnetic_curvature_terms(
         out_r2tarray=out_grad_r2tarray,
         grad_order=grad_order,
     )
-    fdata_types.ensure_3d_r2tarray(
+    fdata_types.ensure_r2tarray(
         r2tarray=gradu_r2tarray,
         param_name="<gradu_r2tarray>",
     )
@@ -170,7 +187,7 @@ def compute_magnetic_curvature_terms(
     )
     curvature_sfield = field_types.ScalarField(
         fdata=curvature_sdata,
-        field_label=r"$n_i n_j \,\partial_i u_j$",
+        field_label=r"$n_i n_j d_i u_j$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -187,7 +204,7 @@ def compute_magnetic_curvature_terms(
     )
     stretching_sfield = field_types.ScalarField(
         fdata=stretching_sdata,
-        field_label=r"$t_i t_j \,\partial_i u_j$",
+        field_label=r"$t_i t_j d_i u_j$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -203,7 +220,7 @@ def compute_magnetic_curvature_terms(
     )
     compression_sfield = field_types.ScalarField(
         fdata=compression_sdata,
-        field_label=r"$\partial_i u_i$",
+        field_label=r"$d_i u_i$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -221,21 +238,25 @@ def compute_lorentz_force_terms(
     grad_order: int = 2,
 ) -> LorentzForceTerms:
     """
-    Lorentz force decomposition:
-        tension_i    = |b|^2 * kappa_i
-        gradP_perp_i = 0.5 * d_i |b|^2 - 0.5 * t_i t_j d_j |b|^2
+    Lorentz force decomposition in index notation:
+
+        tension_i    = (b_k b_k) kappa_i
+        gradP_perp_i = d_i (b_k b_k / 2) - t_i t_j d_j (b_k b_k / 2)
         lorentz_i    = tension_i - gradP_perp_i
     """
-    field_types.ensure_vfield(b_vfield)
+    field_types.ensure_vfield(
+        vfield=b_vfield,
+        param_name="<b_vfield>",
+    )
     domain_types.ensure_udomain(
         udomain=udomain,
         param_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
-        vfield=b_vfield,
         udomain=udomain,
-        vfield_name="<b_vfield>",
+        vfield=b_vfield,
         domain_name="<udomain>",
+        vfield_name="<b_vfield>",
     )
     sim_time = b_vfield.sim_time
     tnb_terms = decompose_fields.compute_tnb_terms(
@@ -247,7 +268,7 @@ def compute_lorentz_force_terms(
     normal_uvarray = tnb_terms.normal_uvfield.fdata.farray
     curvature_sarray = tnb_terms.curvature_sfield.fdata.farray
     del tnb_terms
-    b_magn_sq_sarray = fdata_operators.sum_of_squared_components(
+    b_magn_sq_sarray = fdata_operators.sum_of_varray_comps_squared(
         vdata=b_vfield.fdata,
     )
     ## d_i P where P = 0.5 * |b|^2; first compute d_i |b|^2 then scale
@@ -257,7 +278,7 @@ def compute_lorentz_force_terms(
         grad_order=grad_order,
     )
     gradP_varray *= 0.5  # scale in-place
-    ## pressure aligned with vec(b): t_i t_j d_j P
+    ## pressure aligned with b: t_i t_j d_j P
     gradP_aligned_varray = numpy.einsum(
         "ixyz,jxyz,jxyz->ixyz",
         tangent_uvarray,
@@ -267,7 +288,9 @@ def compute_lorentz_force_terms(
     )
     ## |b|^2 * kappa_i
     tension_varray = (
-        b_magn_sq_sarray[numpy.newaxis, ...] * curvature_sarray[numpy.newaxis, ...] * normal_uvarray
+        b_magn_sq_sarray[numpy.newaxis, ...]
+        * curvature_sarray[numpy.newaxis, ...]
+        * normal_uvarray
     )
     ## d_i P - t_i t_j d_j P
     gradP_perp_varray = gradP_varray - gradP_aligned_varray
@@ -280,7 +303,7 @@ def compute_lorentz_force_terms(
     )
     gradP_perp_vfield = field_types.VectorField(
         fdata=gradP_perp_vdata,
-        field_label=r"$(\nabla (b^2/2))_\perp$",
+        field_label=r"$[d_i (b_k b_k / 2)]_\perp$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -290,7 +313,7 @@ def compute_lorentz_force_terms(
     )
     tension_vfield = field_types.VectorField(
         fdata=tension_vdata,
-        field_label=r"$b^2 \,\vec{\kappa}$",
+        field_label=r"$b_k b_k \kappa_i$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -300,7 +323,7 @@ def compute_lorentz_force_terms(
     )
     lorentz_vfield = field_types.VectorField(
         fdata=lorentz_vdata,
-        field_label=r"$(\nabla\times\vec{b})\times\vec{b}$",
+        field_label=r"$L_i$",
         udomain=udomain,
         sim_time=sim_time,
     )
@@ -319,18 +342,18 @@ def compute_dissipation_fntion(  # sic: keep name as-is
 ) -> field_types.VectorField:
     """
     Compute d_j S_ji, where
-        S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) * delta_ij * (d_k u_k)
+
+        S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    field_types.ensure_vfield(u_vfield)
-    domain_types.ensure_udomain(
-        udomain=udomain,
-        param_name="<udomain>",
-    )
-    field_types.ensure_udomain_matches_vfield(
+    field_types.ensure_vfield(
         vfield=u_vfield,
+        param_name="<u_vfield>",
+    )
+    domain_types.ensure_udomain(udomain=udomain)
+    field_types.ensure_udomain_matches_vfield(
         udomain=udomain,
+        vfield=u_vfield,
         vfield_name="<u_vfield>",
-        domain_name="<udomain>",
     )
     sim_time = u_vfield.sim_time
     u_varray = u_vfield.fdata.farray
@@ -368,7 +391,7 @@ def compute_dissipation_fntion(  # sic: keep name as-is
         farray=None,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_varray(
+    fdata_types.ensure_varray(
         varray=df_varray,
         param_name="<df_varray>",
     )
@@ -405,7 +428,7 @@ def compute_dissipation_fntion(  # sic: keep name as-is
     )
     return field_types.VectorField(
         fdata=df_vdata,
-        field_label=r"$\partial_j \mathcal{S}_{j i}$",
+        field_label=r"$d_j \mathcal{S}_{j i}$",
         udomain=udomain,
         sim_time=sim_time,
     )

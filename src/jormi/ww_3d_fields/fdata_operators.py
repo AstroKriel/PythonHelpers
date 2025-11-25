@@ -8,8 +8,11 @@ import numpy
 
 from numpy.typing import DTypeLike
 
-from jormi.ww_types import array_checks, fdata_types
-from jormi.ww_fields import finite_difference
+from jormi.ww_types import array_checks
+from jormi.ww_3d_fields import (
+    fdata_types,
+    finite_difference,
+)
 
 ##
 ## === WORKSPACE UTILITIES
@@ -55,13 +58,13 @@ def compute_sdata_rms(
     sdata: fdata_types.ScalarFieldData | numpy.ndarray,
 ) -> float:
     """
-    Compute the RMS of scalar-field array.
+    Compute the RMS of a 3D scalar-field array.
 
     Accepts:
       - ScalarFieldData (3D, (Nx, Ny, Nz)), or
       - raw 3D ndarray with shape (Nx, Ny, Nz).
     """
-    sarray = fdata_types.as_3d_sarray(
+    sarray = fdata_types.as_sarray(
         sdata=sdata,
         param_name="<sdata>",
     )
@@ -74,13 +77,13 @@ def compute_sdata_volume_integral(
     cell_volume: float,
 ) -> float:
     """
-    Compute the volume integral of scalar-field array.
+    Compute the volume integral of a 3D scalar-field array.
 
     Accepts:
       - ScalarFieldData (3D, (Nx, Ny, Nz)), or
       - raw 3D ndarray with shape (Nx, Ny, Nz).
     """
-    sarray = fdata_types.as_3d_sarray(
+    sarray = fdata_types.as_sarray(
         sdata=sdata,
         param_name="<sdata>",
     )
@@ -96,11 +99,11 @@ def compute_sdata_grad(
     grad_order: int = 2,
 ) -> numpy.ndarray:
     """
-    Compute the gradient of a scalar-field array.
+    Compute the gradient of a 3D scalar-field array.
 
     Returns a 4D ndarray with shape (3, Nx, Ny, Nz).
     """
-    sarray = fdata_types.as_3d_sarray(
+    sarray = fdata_types.as_sarray(
         sdata=sdata,
         param_name="<sdata>",
     )
@@ -112,7 +115,7 @@ def compute_sdata_grad(
         farray=out_varray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_varray(
+    fdata_types.ensure_varray(
         varray=grad_varray,
         param_name="<grad_varray>",
     )
@@ -136,14 +139,14 @@ def compute_sdata_grad(
     return grad_varray
 
 
-def sum_of_squared_components(
+def sum_of_varray_comps_squared(
     *,
     vdata: fdata_types.VectorFieldData | numpy.ndarray,
     out_sarray: numpy.ndarray | None = None,
     tmp_sarray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
     """
-    Compute sum_i v_i^2 per cell.
+    Compute sum_i (v_i v_i) per cell for a 3D vector field.
 
     Accepts:
       - VectorFieldData (3, Nx, Ny, Nz), or
@@ -151,7 +154,7 @@ def sum_of_squared_components(
 
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    varray = fdata_types.as_3d_varray(
+    varray = fdata_types.as_varray(
         vdata=vdata,
         param_name="<vdata>",
     )
@@ -162,7 +165,7 @@ def sum_of_squared_components(
         farray=out_sarray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_sarray(
+    fdata_types.ensure_sarray(
         sarray=out_sarray,
         param_name="<out_sarray>",
     )
@@ -171,7 +174,7 @@ def sum_of_squared_components(
         farray=tmp_sarray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_sarray(
+    fdata_types.ensure_sarray(
         sarray=tmp_sarray,
         param_name="<tmp_sarray>",
     )
@@ -183,7 +186,7 @@ def sum_of_squared_components(
     return out_sarray
 
 
-def dot_over_components(
+def dot_over_varray_comps(
     *,
     vdata_a: fdata_types.VectorFieldData | numpy.ndarray,
     vdata_b: fdata_types.VectorFieldData | numpy.ndarray,
@@ -191,16 +194,16 @@ def dot_over_components(
     tmp_sarray: numpy.ndarray | None = None,
 ) -> numpy.ndarray:
     """
-    Compute vec(a) dot vec(b) per cell.
+    Compute vec(a) dot vec(b) per cell for 3D vector fields.
 
     Accepts:
       - VectorFieldData or ndarray for each input, each with shape (3, Nx, Ny, Nz).
     """
-    varray_a = fdata_types.as_3d_varray(
+    varray_a = fdata_types.as_varray(
         vdata=vdata_a,
         param_name="<vdata_a>",
     )
-    varray_b = fdata_types.as_3d_varray(
+    varray_b = fdata_types.as_varray(
         vdata=vdata_b,
         param_name="<vdata_b>",
     )
@@ -217,7 +220,7 @@ def dot_over_components(
         farray=out_sarray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_sarray(
+    fdata_types.ensure_sarray(
         sarray=out_sarray,
         param_name="<out_sarray>",
     )
@@ -226,7 +229,7 @@ def dot_over_components(
         farray=tmp_sarray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_sarray(
+    fdata_types.ensure_sarray(
         sarray=tmp_sarray,
         param_name="<tmp_sarray>",
     )
@@ -246,7 +249,7 @@ def compute_varray_grad(
     grad_order: int = 2,
 ) -> numpy.ndarray:
     """
-    Compute gradient of a vector field.
+    Compute gradient of a 3D vector field.
 
     Accepts:
       - VectorFieldData or ndarray with shape (3, Nx, Ny, Nz).
@@ -255,7 +258,7 @@ def compute_varray_grad(
       - r2tarray with shape (3, 3, Nx, Ny, Nz),
         where grad[comp_j, grad_i, ...] = d_i v_j.
     """
-    varray = fdata_types.as_3d_varray(
+    varray = fdata_types.as_varray(
         vdata=vdata,
         param_name="<vdata>",
     )
@@ -267,7 +270,7 @@ def compute_varray_grad(
         farray=out_r2tarray,
         dtype=dtype,
     )
-    fdata_types.ensure_3d_r2tarray(
+    fdata_types.ensure_r2tarray(
         r2tarray=grad_r2tarray,
         param_name="<grad_r2tarray>",
     )

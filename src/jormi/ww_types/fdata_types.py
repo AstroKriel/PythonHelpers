@@ -1,5 +1,4 @@
 ## { MODULE
-
 ##
 ## === DEPENDENCIES
 ##
@@ -11,11 +10,13 @@ from typing import TypeAlias
 
 from jormi.ww_types import type_manager, array_checks
 
+
 ##
 ## === TYPE ALIASES
 ##
 
 FieldArray: TypeAlias = numpy.ndarray
+
 
 ##
 ## === DATA CLASSES
@@ -156,63 +157,6 @@ class FieldData:
             )
 
 
-@dataclass(frozen=True, init=False)
-class ScalarFieldData(FieldData):
-    """3D scalar field data: shape (Nx, Ny, Nz)."""
-
-    def __init__(
-        self,
-        *,
-        farray: FieldArray,
-        param_name: str = "<sdata>",
-    ) -> None:
-        super().__init__(
-            farray=farray,
-            num_ranks=0,
-            num_comps=1,
-            num_sdims=3,
-            param_name=param_name,
-        )
-
-
-@dataclass(frozen=True, init=False)
-class VectorFieldData(FieldData):
-    """3D vector field data: shape (3, Nx, Ny, Nz)."""
-
-    def __init__(
-        self,
-        *,
-        farray: FieldArray,
-        param_name: str = "<vdata>",
-    ) -> None:
-        super().__init__(
-            farray=farray,
-            num_ranks=1,
-            num_comps=3,
-            num_sdims=3,
-            param_name=param_name,
-        )
-
-
-@dataclass(frozen=True, init=False)
-class Rank2TensorData(FieldData):
-    """3D rank-2 tensor field data: shape (3, 3, Nx, Ny, Nz)."""
-
-    def __init__(
-        self,
-        *,
-        farray: FieldArray,
-        param_name: str = "<r2tdata>",
-    ) -> None:
-        super().__init__(
-            farray=farray,
-            num_ranks=2,
-            num_comps=9,
-            num_sdims=3,
-            param_name=param_name,
-        )
-
-
 ##
 ## === TYPE VALIDATION
 ##
@@ -263,202 +207,6 @@ def ensure_fdata_metadata(
             f"`{param_name}` must have num_ranks={num_ranks},"
             f" but got num_ranks={fdata.num_ranks}.",
         )
-
-
-def ensure_3d_sdata(
-    sdata: FieldData,
-    *,
-    param_name: str = "<sdata>",
-) -> None:
-    """Ensure `sdata` is *specifically* ScalarFieldData with 3D scalar layout."""
-    if not isinstance(sdata, ScalarFieldData):
-        raise TypeError(
-            f"`{param_name}` must be ScalarFieldData; got type={type(sdata)}.",
-        )
-    ensure_fdata_metadata(
-        fdata=sdata,
-        num_comps=1,
-        num_sdims=3,
-        num_ranks=0,
-        param_name=param_name,
-    )
-
-
-def ensure_3d_vdata(
-    vdata: FieldData,
-    *,
-    param_name: str = "<vdata>",
-) -> None:
-    """Ensure `vdata` is *specifically* VectorFieldData with 3 components in 3D."""
-    if not isinstance(vdata, VectorFieldData):
-        raise TypeError(
-            f"`{param_name}` must be VectorFieldData; got type={type(vdata)}.",
-        )
-    ensure_fdata_metadata(
-        fdata=vdata,
-        num_comps=3,
-        num_sdims=3,
-        num_ranks=1,
-        param_name=param_name,
-    )
-
-
-def ensure_3d_r2tdata(
-    r2tdata: FieldData,
-    *,
-    param_name: str = "<r2tdata>",
-) -> None:
-    """Ensure `r2tdata` is *specifically* Rank2TensorData with 3x3 components in 3D."""
-    if not isinstance(r2tdata, Rank2TensorData):
-        raise TypeError(
-            f"`{param_name}` must be Rank2TensorData; got type={type(r2tdata)}.",
-        )
-    ensure_fdata_metadata(
-        fdata=r2tdata,
-        num_comps=9,
-        num_sdims=3,
-        num_ranks=2,
-        param_name=param_name,
-    )
-
-
-##
-## === NDARRAY VALIDATION
-##
-
-
-def ensure_3d_sarray(
-    sarray: numpy.ndarray,
-    *,
-    param_name: str = "<sarray>",
-) -> None:
-    """Ensure `sarray` is a 3D scalar ndarray with shape (Nx, Ny, Nz)."""
-    array_checks.ensure_dims(
-        array=sarray,
-        param_name=param_name,
-        num_dims=3,
-    )
-
-
-def ensure_3d_varray(
-    varray: numpy.ndarray,
-    *,
-    param_name: str = "<varray>",
-) -> None:
-    """Ensure `varray` is a 4D vector ndarray with leading axis of length 3."""
-    array_checks.ensure_dims(
-        array=varray,
-        param_name=param_name,
-        num_dims=4,
-    )
-    if varray.shape[0] != 3:
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={varray.shape}.",
-        )
-
-
-def ensure_3d_r2tarray(
-    r2tarray: numpy.ndarray,
-    *,
-    param_name: str = "<r2tarray>",
-) -> None:
-    """Ensure `r2tarray` is a 5D rank-2 tensor ndarray with two leading axes of length 3."""
-    array_checks.ensure_dims(
-        array=r2tarray,
-        param_name=param_name,
-        num_dims=5,
-    )
-    if (r2tarray.shape[0] != 3) or (r2tarray.shape[1] != 3):
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (3, 3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={r2tarray.shape}.",
-        )
-
-
-##
-## === NDARRAY NORMALISERS
-##
-
-
-def as_3d_sarray(
-    sdata: ScalarFieldData | numpy.ndarray,
-    *,
-    param_name: str = "<sdata>",
-) -> numpy.ndarray:
-    """
-    Normalise `sdata` to a 3D scalar ndarray and validate its structure.
-
-    Accepts either:
-      - raw ndarray of shape (Nx, Ny, Nz), or
-      - ScalarFieldData (3D scalar field data).
-    """
-    if isinstance(sdata, ScalarFieldData):
-        farray = sdata.farray
-        ensure_3d_sarray(
-            sarray=farray,
-            param_name="<sdata.farray>",
-        )
-        return farray
-    ensure_3d_sarray(
-        sarray=sdata,
-        param_name=param_name,
-    )
-    return sdata
-
-
-def as_3d_varray(
-    vdata: VectorFieldData | numpy.ndarray,
-    *,
-    param_name: str = "<vdata>",
-) -> numpy.ndarray:
-    """
-    Normalise `vdata` to a 3D vector ndarray and validate its structure.
-
-    Accepts either:
-      - raw ndarray of shape (3, Nx, Ny, Nz), or
-      - VectorFieldData (3D vector field data).
-    """
-    if isinstance(vdata, VectorFieldData):
-        farray = vdata.farray
-        ensure_3d_varray(
-            varray=farray,
-            param_name="<vdata.farray>",
-        )
-        return farray
-    ensure_3d_varray(
-        varray=vdata,
-        param_name=param_name,
-    )
-    return vdata
-
-
-def as_3d_r2tarray(
-    r2tdata: Rank2TensorData | numpy.ndarray,
-    *,
-    param_name: str = "<r2tdata>",
-) -> numpy.ndarray:
-    """
-    Normalise `r2tdata` to a 3D rank-2 tensor ndarray and validate its structure.
-
-    Accepts either:
-      - raw ndarray of shape (3, 3, Nx, Ny, Nz), or
-      - Rank2TensorData (3D rank-2 tensor field data).
-    """
-    if isinstance(r2tdata, Rank2TensorData):
-        farray = r2tdata.farray
-        ensure_3d_r2tarray(
-            r2tarray=farray,
-            param_name="<r2tdata.farray>",
-        )
-        return farray
-    ensure_3d_r2tarray(
-        r2tarray=r2tdata,
-        param_name=param_name,
-    )
-    return r2tdata
 
 
 ## } MODULE

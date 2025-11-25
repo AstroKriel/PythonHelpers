@@ -9,7 +9,9 @@ import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_checks, fdata_types, field_types
+from jormi.ww_types import type_manager, array_checks
+from jormi.ww_3d_fields import fdata_types, field_types
+
 
 ##
 ## === DATA STRUCTURES
@@ -75,7 +77,7 @@ def _compute_radial_grid(
     return numpy.sqrt(dx * dx + dy * dy + dz * dz)
 
 
-def _compute_3d_power_spectrum(
+def _compute_power_spectrum(
     sdata: fdata_types.ScalarFieldData | numpy.ndarray,
 ) -> numpy.ndarray:
     """
@@ -85,7 +87,7 @@ def _compute_3d_power_spectrum(
       - ScalarFieldData with shape (Nx, Ny, Nz), or
       - raw 3D ndarray with shape (Nx, Ny, Nz).
     """
-    sarray = fdata_types.as_3d_sarray(
+    sarray = fdata_types.as_sarray(
         sdata=sdata,
         param_name="<sdata>",
     )
@@ -147,7 +149,7 @@ def compute_1d_power_spectrum(
     sfield: field_types.ScalarField,
 ) -> PowerSpectrum1D:
     """
-    Compute the 1D (shell-integrated) power spectrum of a ScalarField.
+    Compute the 1D (shell-integrated) power spectrum of a 3D scalar field.
 
     Parameters
     ----------
@@ -163,7 +165,7 @@ def compute_1d_power_spectrum(
         sfield=sfield,
         param_name="<sfield>",
     )
-    spectrum_3d = _compute_3d_power_spectrum(
+    spectrum_3d = _compute_power_spectrum(
         sdata=sfield.fdata,
     )
     return _compute_spherical_integration(

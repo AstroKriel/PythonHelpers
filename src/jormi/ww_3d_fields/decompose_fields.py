@@ -8,8 +8,14 @@ import numpy
 
 from dataclasses import dataclass
 
-from jormi.ww_types import fdata_types, domain_types, field_types
-from jormi.ww_fields import fdata_operators, field_operators
+from jormi.ww_3d_fields import (
+    fdata_types,
+    fdata_operators,
+    domain_types,
+    field_types,
+    field_operators,
+)
+
 
 ##
 ## === DATA STRUCTURES
@@ -122,8 +128,8 @@ def compute_helmholtz_decomposition(
         param_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
-        vfield=vfield,
         udomain=udomain,
+        vfield=vfield,
     )
     if not all(udomain.periodicity):
         raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
@@ -154,8 +160,8 @@ def compute_helmholtz_decomposition(
     fft_varray[:, 0, 0, 0] = 0.0
     ## --- Compute projections in Fourier space
     ## with fft_varray[i] = F_i(k) and k = (kx, ky, kz)
-    ## the divergence (curl-free) part is: div_fft_varray[i] = (k_i / k^2) * (k_j * F_j(k))
-    ## the solenoidal (div-free) part is: sol_fft_varray[i] = F_i(k) - div_fft_varray[i]
+    ## the divergence (curl-free) part is: F_i,div = (k_i / k^2) * (k_j * F_j(k))
+    ## the solenoidal (div-free) part is: F_i,sol = F_i - F_i,div
     k_dot_fft_sfield = (kx_grid * fft_varray[0] + ky_grid * fft_varray[1] + kz_grid * fft_varray[2])
     with numpy.errstate(divide="ignore", invalid="ignore"):
         div_fft_varray = numpy.stack(
@@ -224,19 +230,19 @@ def compute_helmholtz_decomposition(
     div_vfield = field_types.VectorField(
         fdata=div_vdata,
         udomain=udomain,
-        field_label=r"$\vec{f}_\parallel$",
+        field_label="f_{i,div}",
         sim_time=sim_time,
     )
     sol_vfield = field_types.VectorField(
         fdata=sol_vdata,
         udomain=udomain,
-        field_label=r"$\vec{f}_\perp$",
+        field_label="f_{i,sol}",
         sim_time=sim_time,
     )
     bulk_vfield = field_types.VectorField(
         fdata=bulk_vdata,
         udomain=udomain,
-        field_label=r"$\vec{f}_\mathrm{bulk}$",
+        field_label="f_{i,bulk}",
         sim_time=sim_time,
     )
     return HelmholtzDecomposition(
@@ -253,8 +259,8 @@ def compute_tnb_terms(
     grad_order: int = 2,
 ) -> TNBTerms:
     """
-    Compute the Frenet-Serret-like tangent (T), normal (N), and binormal (B) bases
-    for a three-dimensional vector field on a uniform grid.
+    Compute tangent T_i, normal N_i, and binormal B_i bases for a 3D vector field
+    on a uniform grid, together with the curvature magnitude sqrt(kappa_i kappa_i).
     """
     field_types.ensure_vfield(vfield)
     domain_types.ensure_udomain(
@@ -262,14 +268,16 @@ def compute_tnb_terms(
         param_name="<udomain>",
     )
     field_types.ensure_udomain_matches_vfield(
-        vfield=vfield,
         udomain=udomain,
+        vfield=vfield,
     )
     sim_time = vfield.sim_time
     varray = vfield.fdata.farray
     ## --- COMPUTE TANGENT BASIS
     ## field magnitude: |f| = (f_k f_k)^(1/2)
-    f_magn_sfield = field_operators.compute_vfield_magnitude(vfield=vfield)
+    f_magn_sfield = field_operators.compute_vfield_magnitude(
+        vfield=vfield,
+    )
     f_magn_sarray = f_magn_sfield.fdata.farray
     ## T_i = f_i / |f|
     tangent_uvarray = numpy.zeros_like(varray)
@@ -286,7 +294,7 @@ def compute_tnb_terms(
     tangent_uvfield = field_types.UnitVectorField(
         fdata=tangent_uvdata,
         udomain=udomain,
-        field_label=r"$\hat{t}$",
+        field_label="t_i",
         sim_time=sim_time,
     )
     ## --- COMPUTE NORMAL BASIS
@@ -323,7 +331,7 @@ def compute_tnb_terms(
     inv_magn2_sarray **= 2  # 1/|f|^2
     inv_magn4_sarray = inv_magn2_sarray**2  # 1/|f|^4
     kappa_varray = normal_term1_varray * inv_magn2_sarray - normal_term2_varray * inv_magn4_sarray
-    curvature_sarray = fdata_operators.sum_of_squared_components(
+    curvature_sarray = fdata_operators.sum_of_varray_comps_squared(
         vdata=kappa_varray,
     )
     numpy.sqrt(curvature_sarray, out=curvature_sarray)
@@ -334,7 +342,7 @@ def compute_tnb_terms(
     curvature_sfield = field_types.ScalarField(
         fdata=curvature_sdata,
         udomain=udomain,
-        field_label=r"$|\vec{\kappa}|$",
+        field_label="sqrt(kappa_i kappa_i)",
         sim_time=sim_time,
     )
     ## N_i = kappa_i / |kappa|
@@ -352,15 +360,15 @@ def compute_tnb_terms(
     normal_uvfield = field_types.UnitVectorField(
         fdata=normal_uvdata,
         udomain=udomain,
-        field_label=r"$\hat{n}$",
+        field_label="n_i",
         sim_time=sim_time,
     )
     ## --- COMPUTE BINORMAL BASIS
-    ## B = T x N  (orthogonal to both T and N)
+    ## B_i = (T x N)_i  (orthogonal to both T and N)
     binormal_vfield = field_operators.compute_vfield_cross_product(
         vfield_a=tangent_uvfield,
         vfield_b=normal_uvfield,
-        field_label=r"$\hat{b}$",
+        field_label="b_i",
     )
     binormal_uvfield = field_types.as_uvfield(
         vfield=binormal_vfield,
