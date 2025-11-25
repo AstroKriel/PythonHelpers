@@ -6,7 +6,8 @@
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_checks, fdata_types, domain_types
+from jormi.ww_types import type_manager, array_checks
+from jormi.ww_fields import _fdata_types, _domain_types
 
 
 ##
@@ -23,8 +24,8 @@ class Field:
     add additional constraints on the underlying `FieldData` and metadata.
     """
 
-    fdata: fdata_types.FieldData
-    udomain: domain_types.UniformDomain
+    fdata: _fdata_types.FieldData
+    udomain: _domain_types.UniformDomain
     field_label: str
     sim_time: float | None = None
 
@@ -39,7 +40,7 @@ class Field:
     def _validate_fdata(
         self,
     ) -> None:
-        fdata_types.ensure_fdata(
+        _fdata_types.ensure_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
@@ -47,7 +48,7 @@ class Field:
     def _validate_udomain(
         self,
     ) -> None:
-        domain_types.ensure_udomain(
+        _domain_types.ensure_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -111,7 +112,7 @@ def ensure_field_metadata(
         field=field,
         param_name=param_name,
     )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,
@@ -120,15 +121,15 @@ def ensure_field_metadata(
     )
 
 
-def _ensure_udomain_matches_field(
+def ensure_udomain_matches_field(
     *,
     field: Field,
-    udomain: domain_types.UniformDomain,
+    udomain: _domain_types.UniformDomain,
     domain_name: str = "<udomain>",
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    domain_types.ensure_udomain(
+    _domain_types.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
     )
