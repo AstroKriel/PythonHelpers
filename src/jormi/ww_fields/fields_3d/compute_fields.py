@@ -32,10 +32,19 @@ def compute_magnetic_energy_density_sfield(
         param_name="<energy_prefactor>",
         allow_none=False,
     )
-    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
+    )
+    varray_3d_b = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
+    )
     udomain_3d = vfield_3d_b.udomain
     sim_time = vfield_3d_b.sim_time
-    sarray_3d_b2 = _farray_operators.sum_of_varray_comps_squared(varray_3d_b)
+    sarray_3d_b2 = _farray_operators.sum_of_varray_comps_squared(
+        varray_3d=varray_3d_b,
+    )
     _farray_operators.scale_sarray_inplace(
         sarray_3d=sarray_3d_b2,
         scale=energy_prefactor,
@@ -79,22 +88,12 @@ def _compute_kinetic_dissipation_varray(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    _fdata_types.ensure_3d_varray(varray_3d_u)
-    if varray_3d_u.shape[0] != 3:
-        raise ValueError(
-            "`<varray_3d_u>` must have shape (3, Nx, Ny, Nz);"
-            f" got shape={varray_3d_u.shape}.",
-        )
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_u,
+        param_name="<varray_3d_u>",
+    )
     num_cells_x, num_cells_y, num_cells_z = varray_3d_u.shape[1:]
     dtype = varray_3d_u.dtype
-    _farray_operators._validate_3d_cell_widths(cell_widths_3d)
-    type_manager.ensure_finite_int(
-        param=grad_order,
-        param_name="<grad_order>",
-        allow_none=False,
-        require_positive=True,
-    )
-    ## d_i u_j
     r2tarray_3d_gradu = _farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,
@@ -106,7 +105,6 @@ def _compute_kinetic_dissipation_varray(
         axis1=0,
         axis2=1,
     )
-    ## S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     r2tarray_3d_sym = 0.5 * r2tarray_3d_gradu + numpy.transpose(
         r2tarray_3d_gradu,
         axes=(1, 0, 2, 3, 4),
@@ -119,7 +117,6 @@ def _compute_kinetic_dissipation_varray(
         optimize=True,
     )
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
-    ## d_j S_ji
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     varray_3d_df = _fdata_types.ensure_farray_metadata(
@@ -164,7 +161,20 @@ def compute_kinetic_dissipation_vfield(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    varray_3d_u = field_types.extract_3d_varray(vfield_3d_u)
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d_u,
+        param_name="<vfield_3d_u>",
+    )
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    varray_3d_u = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_u,
+        param_name="<vfield_3d_u>",
+    )
     udomain_3d = vfield_3d_u.udomain
     sim_time = vfield_3d_u.sim_time
     varray_3d_df = _compute_kinetic_dissipation_varray(

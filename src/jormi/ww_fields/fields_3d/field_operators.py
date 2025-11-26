@@ -6,6 +6,7 @@
 
 import numpy
 
+from jormi.ww_types import type_manager
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     field_types,
@@ -20,15 +21,23 @@ def compute_sfield_rms(
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the RMS of a 3D scalar field."""
-    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
-    return _farray_operators.compute_sarray_rms(sarray_3d)
+    sarray_3d = field_types.extract_3d_sarray(
+        sfield_3d=sfield_3d,
+        param_name="<sfield_3d>",
+    )
+    return _farray_operators.compute_sarray_rms(
+        sarray_3d=sarray_3d,
+    )
 
 
 def compute_sfield_volume_integral(
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the volume integral of a 3D scalar field."""
-    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
+    sarray_3d = field_types.extract_3d_sarray(
+        sfield_3d=sfield_3d,
+        param_name="<sfield_3d>",
+    )
     udomain_3d = sfield_3d.udomain
     return _farray_operators.compute_sarray_volume_integral(
         sarray_3d=sarray_3d,
@@ -44,7 +53,16 @@ def compute_sfield_gradient(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the gradient d_i f of a 3D scalar field."""
-    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    sarray_3d = field_types.extract_3d_sarray(
+        sfield_3d=sfield_3d,
+        param_name="<sfield_3d>",
+    )
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
     varray_3d_gradf = _farray_operators.compute_sarray_grad(
@@ -67,7 +85,10 @@ def compute_vfield_magnitude(
     field_label: str = "sqrt(f_i f_i)",
 ) -> field_types.ScalarField_3D:
     """Compute the magnitude sqrt(f_i f_i) of a 3D vector field."""
-    varray_3d = field_types.extract_3d_varray(vfield_3d)
+    varray_3d = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     sarray_3d_vmagn = _farray_operators.compute_varray_magnitude(
@@ -88,13 +109,19 @@ def compute_vfield_dot_product(
     field_label: str = "a_i b_i",
 ) -> field_types.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector fields."""
-    varray_3d_a = field_types.extract_3d_varray(vfield_3d_a)
-    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
     field_types.ensure_same_3d_field_udomains(
         field_3d_a=vfield_3d_a,
         field_3d_b=vfield_3d_b,
         field_name_a="<vfield_3d_a>",
         field_name_b="<vfield_3d_b>",
+    )
+    varray_3d_a = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_a,
+        param_name="<vfield_3d_a>",
+    )
+    varray_3d_b = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
     )
     sarray_3d_adotb = _farray_operators.dot_over_varray_comps(
         varray_3d_a=varray_3d_a,
@@ -123,8 +150,14 @@ def compute_vfield_cross_product(
         field_name_a="<vfield_3d_a>",
         field_name_b="<vfield_3d_b>",
     )
-    varray_3d_a = field_types.extract_3d_varray(vfield_3d_a)
-    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
+    varray_3d_a = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_a,
+        param_name="<vfield_3d_a>",
+    )
+    varray_3d_b = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
+    )
     varray_3d_axb = _farray_operators.compute_varray_cross_product(
         varray_3d_a=varray_3d_a,
         varray_3d_b=varray_3d_b,
@@ -147,7 +180,16 @@ def compute_vfield_curl(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the curl epsilon_ijk d_j f_k of a 3D vector field."""
-    varray_3d = field_types.extract_3d_varray(vfield_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    varray_3d = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     varray_3d_curl = _farray_operators.compute_varray_curl(
@@ -172,7 +214,16 @@ def compute_vfield_divergence(
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:
     """Compute the divergence d_i f_i of a 3D vector field."""
-    varray_3d = field_types.extract_3d_varray(vfield_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    varray_3d = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     sarray_3d_div = _farray_operators.compute_varray_divergence(

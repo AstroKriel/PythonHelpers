@@ -10,7 +10,10 @@ import functools
 from dataclasses import dataclass
 
 from jormi.ww_types import array_checks, type_manager
-from jormi.ww_fields.fields_3d import field_types
+from jormi.ww_fields.fields_3d import (
+    _fdata_types,
+    field_types,
+)
 
 ##
 ## === DATA STRUCTURE
@@ -89,10 +92,9 @@ def _compute_3d_power_spectrum_sarray(
     resolution_3d: tuple[int, int, int],
 ) -> numpy.ndarray:
     """Compute the 3D power spectrum |F(k)|^2 of a scalar array (Nx, Ny, Nz)."""
-    array_checks.ensure_dims(
-        array=sarray_3d_q,
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
-        num_dims=3,
     )
     type_manager.ensure_tuple_of_ints(
         param=resolution_3d,
@@ -130,10 +132,9 @@ def _integrate_spectrum_over_spherical_shells(
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Integrate a 3D power spectrum over spherical shells in index-space."""
-    array_checks.ensure_dims(
-        array=centered_3d_spectrum,
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=centered_3d_spectrum,
         param_name="<centered_3d_spectrum>",
-        num_dims=3,
     )
     if centered_3d_spectrum.shape != resolution_3d:
         raise ValueError(

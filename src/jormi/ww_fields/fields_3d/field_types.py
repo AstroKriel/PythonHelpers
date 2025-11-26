@@ -142,8 +142,9 @@ class VectorField_3D(_field_types.Field):
     ) -> numpy.ndarray:
         """Return a (Nx, Ny, Nz) view of the requested component."""
         comp_index = cartesian_coordinates.get_axis_index(comp_axis)
-        varray_3d = _fdata_types.extract_3d_varray(
-            vdata_3d=self.fdata,
+        varray_3d = extract_3d_varray(
+            vfield_3d=self,
+            param_name="<vfield_3d>",
         )
         return varray_3d[comp_index, ...]
 
@@ -163,8 +164,9 @@ class UnitVectorField_3D(VectorField_3D):
     def _validate_unit_magnitude(
         self,
     ) -> None:
-        varray_3d = _fdata_types.extract_3d_varray(
-            vdata_3d=self.fdata,
+        varray_3d = extract_3d_varray(
+            vfield_3d=self,
+            param_name="<uvfield_3d>",
         )
         ## validate here, rather than in the _fdata_types module, since the following
         ## fn-call would yield a circular import there
@@ -422,7 +424,6 @@ def extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
-
 
 
 ## } MODULE

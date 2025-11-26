@@ -8,6 +8,7 @@ import numpy
 
 from dataclasses import dataclass
 
+from jormi.ww_types import type_manager
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _finite_difference_sarrays,
@@ -81,13 +82,25 @@ def compute_helmholtz_decomposed_farrays(
         varray_3d=varray_3d_q,
         param_name="<varray_3d_q>",
     )
+    if varray_3d_q.shape[1:] != resolution:
+        raise ValueError(
+            "`<resolution>` must match the spatial shape of `<varray_3d_q>`:"
+            f" resolution={resolution},"
+            f" varray_3d_q.shape[1:]={varray_3d_q.shape[1:]}.",
+        )
+    _farray_operators._validate_3d_cell_widths(cell_widths_3d)
     num_cells_x, num_cells_y, num_cells_z = resolution
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     dtype = varray_3d_q.dtype
     kx_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_x, d=cell_width_x)
     ky_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_y, d=cell_width_y)
     kz_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_z, d=cell_width_z)
-    kx_grid, ky_grid, kz_grid = numpy.meshgrid(kx_values, ky_values, kz_values, indexing="ij")
+    kx_grid, ky_grid, kz_grid = numpy.meshgrid(
+        kx_values,
+        ky_values,
+        kz_values,
+        indexing="ij",
+    )
     k_magn_grid = kx_grid**2 + ky_grid**2 + kz_grid**2
     k_magn_grid[0, 0, 0] = 1.0  ## avoid division by zero at k=0
     varray_3d_fft_q = numpy.fft.fftn(
@@ -225,6 +238,13 @@ def compute_tnb_farrays(
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
+    )
+    _farray_operators._validate_3d_cell_widths(cell_widths_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
     )
     ## |f|^2 = f_i f_i
     sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
@@ -386,6 +406,13 @@ def compute_magnetic_curvature_farrays(
             f" tangent={uvarray_3d_tangent.shape},"
             f" normal={uvarray_3d_normal.shape}.",
         )
+    _farray_operators._validate_3d_cell_widths(cell_widths_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
     ## d_i u_j: (j, i, x, y, z)
     r2tarray_3d_gradu = _farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
@@ -476,6 +503,13 @@ def compute_lorentz_force_farrays(
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
+    )
+    _farray_operators._validate_3d_cell_widths(cell_widths_3d)
+    type_manager.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
     )
     ## TNB + curvature for B
     tnb_farrays = compute_tnb_farrays(

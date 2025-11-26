@@ -57,14 +57,19 @@ def compute_helmholtz_decomposed_fields(
     vfield_3d_q: field_types.VectorField_3D,
 ) -> HelmholtzDecomposedFields_3D:
     """Field-level Helmholtz decomposition wrapper."""
-    varray_3d_q = field_types.extract_3d_varray(vfield_3d_q)
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d_q,
+        param_name="<vfield_3d_q>",
+    )
     udomain_3d = vfield_3d_q.udomain
-    domain_types.ensure_3d_udomain(
+    domain_types.ensure_3d_periodic_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    if not all(udomain_3d.periodicity):
-        raise ValueError("Helmholtz (FFT) assumes periodic BCs in all directions.")
+    varray_3d_q = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_q,
+        param_name="<vfield_3d_q>",
+    )
     sim_time = vfield_3d_q.sim_time
     hd_3d_farrays = _decompose_farrays.compute_helmholtz_decomposed_farrays(
         varray_3d_q=varray_3d_q,
@@ -153,7 +158,10 @@ def compute_tnb_decomposed_fields(
     grad_order: int = 2,
 ) -> TNBDecomposedFields_3D:
     """Field-level TNB decomposition wrapper."""
-    varray_3d = field_types.extract_3d_varray(vfield_3d)
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
     type_manager.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -161,6 +169,10 @@ def compute_tnb_decomposed_fields(
         require_positive=True,
     )
     udomain_3d = vfield_3d.udomain
+    varray_3d = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
     sim_time = vfield_3d.sim_time
     tnb_3d_farrays = _decompose_farrays.compute_tnb_farrays(
         varray_3d=varray_3d,
@@ -191,9 +203,15 @@ def compute_tnb_decomposed_fields(
         field_label="sqrt(kappa_i kappa_i)",
         sim_time=sim_time,
     )
-    uvfield_3d_tangent = field_types.as_3d_uvfield(vfield_3d_tangent)
-    uvfield_3d_normal = field_types.as_3d_uvfield(vfield_3d_normal)
-    uvfield_3d_binormal = field_types.as_3d_uvfield(vfield_3d_binormal)
+    uvfield_3d_tangent = field_types.as_3d_uvfield(
+        vfield_3d=vfield_3d_tangent,
+    )
+    uvfield_3d_normal = field_types.as_3d_uvfield(
+        vfield_3d=vfield_3d_normal,
+    )
+    uvfield_3d_binormal = field_types.as_3d_uvfield(
+        vfield_3d=vfield_3d_binormal,
+    )
     return TNBDecomposedFields_3D(
         uvfield_3d_tangent=uvfield_3d_tangent,
         uvfield_3d_normal=uvfield_3d_normal,
@@ -287,9 +305,18 @@ def compute_magnetic_curvature_decomposed_fields(
         allow_none=False,
         require_positive=True,
     )
-    varray_3d_u = field_types.extract_3d_varray(vfield_3d_u)
-    uvarray_3d_tangent = field_types.extract_3d_varray(uvfield_3d_tangent)
-    uvarray_3d_normal = field_types.extract_3d_varray(uvfield_3d_normal)
+    varray_3d_u = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_u,
+        param_name="<vfield_3d_u>",
+    )
+    uvarray_3d_tangent = field_types.extract_3d_varray(
+        vfield_3d=uvfield_3d_tangent,
+        param_name="<uvfield_3d_tangent>",
+    )
+    uvarray_3d_normal = field_types.extract_3d_varray(
+        vfield_3d=uvfield_3d_normal,
+        param_name="<uvfield_3d_normal>",
+    )
     udomain_3d = vfield_3d_u.udomain
     sim_time = vfield_3d_u.sim_time
     mc_3d_farrays = _decompose_farrays.compute_magnetic_curvature_farrays(
@@ -372,7 +399,10 @@ def compute_lorentz_force_decomposed_fields(
     """
     Field-level Lorentz force decomposition wrapper.
     """
-    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
+    )
     type_manager.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -383,6 +413,10 @@ def compute_lorentz_force_decomposed_fields(
     domain_types.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
+    )
+    varray_3d_b = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d_b,
+        param_name="<vfield_3d_b>",
     )
     sim_time = vfield_3d_b.sim_time
     lf_3d_farrays = _decompose_farrays.compute_lorentz_force_farrays(

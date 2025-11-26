@@ -232,7 +232,7 @@ def extract_3d_sarray(
     sarray_3d = sdata_3d.farray
     ensure_3d_sarray(
         sarray_3d=sarray_3d,
-        param_name="<sdata_3d.farray>",
+        param_name=f"{param_name}.farray",
     )
     return sarray_3d
 
@@ -250,7 +250,7 @@ def extract_3d_varray(
     varray_3d = vdata_3d.farray
     ensure_3d_varray(
         varray_3d=varray_3d,
-        param_name="<vdata_3d.farray>",
+        param_name=f"{param_name}.farray",
     )
     return varray_3d
 
@@ -268,7 +268,7 @@ def extract_3d_r2tarray(
     r2tarray_3d = r2tdata_3d.farray
     ensure_3d_r2tarray(
         r2tarray_3d=r2tarray_3d,
-        param_name="<r2tdata_3d.farray>",
+        param_name=f"{param_name}.farray",
     )
     return r2tarray_3d
 

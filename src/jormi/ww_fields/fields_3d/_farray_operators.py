@@ -21,7 +21,10 @@ def _as_float_view(
     farray: numpy.ndarray,
 ) -> numpy.ndarray:
     """Promote from integers/low-precision to float64 for safe reductions."""
-    array_checks.ensure_array(farray)
+    array_checks.ensure_array(
+        array=farray,
+        param_name="<farray>",
+    )
     dtype = numpy.result_type(farray.dtype, numpy.float64)
     return farray.astype(dtype, copy=False)
 
@@ -62,7 +65,10 @@ def compute_sarray_rms(
     sarray_3d: numpy.ndarray,
 ) -> float:
     """Compute the RMS of a 3D scalar array."""
-    _fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
+    )
     sarray_3d_float = _as_float_view(sarray_3d)
     return float(numpy.sqrt(numpy.mean(numpy.square(sarray_3d_float))))
 
@@ -73,7 +79,10 @@ def compute_sarray_volume_integral(
     cell_volume: float,
 ) -> float:
     """Compute the volume integral of a 3D scalar array."""
-    _fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
+    )
     type_manager.ensure_finite_float(
         param=cell_volume,
         param_name="<cell_volume>",
@@ -96,7 +105,10 @@ def compute_sarray_grad(
 
     Returns a 4D ndarray with shape (3, Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
+    )
     _validate_3d_cell_widths(cell_widths_3d)
     type_manager.ensure_finite_int(
         param=grad_order,
@@ -138,7 +150,10 @@ def scale_sarray_inplace(
     scale: float,
 ) -> None:
     """Scale a 3D scalar array in-place by a scalar factor."""
-    _fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
+    )
     sarray_3d *= numpy.asarray(scale, dtype=sarray_3d.dtype)
 
 
@@ -146,7 +161,10 @@ def sqrt_sarray_inplace(
     sarray_3d: numpy.ndarray,
 ) -> None:
     """Take the square-root of a 3D scalar array in-place."""
-    _fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
+    )
     numpy.sqrt(sarray_3d, out=sarray_3d)
 
 
@@ -167,7 +185,10 @@ def sum_of_varray_comps_squared(
     varray_3d has shape (3, Nx, Ny, Nz).
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
     domain_shape = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
     sarray_3d_out = _fdata_types.ensure_farray_metadata(
@@ -201,8 +222,14 @@ def dot_over_varray_comps(
     Each input has shape (3, Nx, Ny, Nz).
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d_a)
-    _fdata_types.ensure_3d_varray(varray_3d_b)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_a,
+        param_name="<varray_3d_a>",
+    )
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_b,
+        param_name="<varray_3d_b>",
+    )
     array_checks.ensure_same_shape(
         array_a=varray_3d_a,
         array_b=varray_3d_b,
@@ -245,7 +272,10 @@ def compute_varray_grad(
       - r2tarray_3d with shape (3, 3, Nx, Ny, Nz),
         where grad[comp_j, grad_i, ...] = d_i v_j.
     """
-    _fdata_types.ensure_3d_varray(varray_3d)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
     _validate_3d_cell_widths(cell_widths_3d)
     type_manager.ensure_finite_int(
         param=grad_order,
@@ -294,8 +324,14 @@ def compute_varray_cross_product(
 
     All arrays have shape (3, Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d_a)
-    _fdata_types.ensure_3d_varray(varray_3d_b)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_a,
+        param_name="<varray_3d_a>",
+    )
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_b,
+        param_name="<varray_3d_b>",
+    )
     array_checks.ensure_same_shape(
         array_a=varray_3d_a,
         array_b=varray_3d_b,
@@ -341,7 +377,10 @@ def compute_varray_curl(
 
     varray_3d and varray_3d_out have shape (3, Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
     _validate_3d_cell_widths(cell_widths_3d)
     type_manager.ensure_finite_int(
         param=grad_order,
@@ -413,7 +452,10 @@ def compute_varray_divergence(
 
     varray_3d has shape (3, Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
     _validate_3d_cell_widths(cell_widths_3d)
     type_manager.ensure_finite_int(
         param=grad_order,
@@ -467,7 +509,10 @@ def compute_varray_magnitude(
 
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata_types.ensure_3d_varray(varray_3d)
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
     sarray_3d_vmagn_sq = sum_of_varray_comps_squared(
         varray_3d=varray_3d,
         sarray_3d_out=sarray_3d_out,
