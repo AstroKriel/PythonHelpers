@@ -5,10 +5,10 @@
 ##
 
 from dataclasses import dataclass
+from typing import Self, Callable
 
 from jormi.ww_types import type_manager, array_checks
 from jormi.ww_fields import _fdata_types, _domain_types
-
 
 ##
 ## === BASE FIELD TYPE
@@ -74,6 +74,55 @@ class Field:
             param=self.sim_time,
             param_name="<sim_time>",
             allow_none=True,
+        )
+
+    @classmethod
+    def _from_farray(
+        cls,
+        *,
+        farray,
+        udomain: _domain_types.UniformDomain,
+        field_label: str,
+        sim_time: float | None = None,
+        fdata_fn: Callable[..., _fdata_types.FieldData],
+        fdata_param_name: str = "<farray>",
+        **fdata_kwargs,
+    ) -> Self:
+        """
+        Construct a Field (or subclass) from a raw data-array and a UniformDomain.
+
+        Parameters
+        ----------
+        farray :
+            Underlying data array to wrap in a FieldData instance.
+        udomain : UniformDomain
+            Domain describing the spatial grid.
+        field_label : str
+            Label for the field (used in plots, logs, etc.).
+        sim_time : float, optional
+            Optional simulation time.
+        fdata_fn : callable
+            Function used to construct the appropriate FieldData subclass.
+        fdata_param_name : str, optional
+            Name used in validation messages for the farray argument.
+        **fdata_kwargs :
+            Additional keyword arguments forwarded to `fdata_fn`.
+
+        Returns
+        -------
+        Field (or subclass)
+            A new field instance wrapping the constructed FieldData and domain.
+        """
+        fdata = fdata_fn(
+            farray=farray,
+            param_name=fdata_param_name,
+            **fdata_kwargs,
+        )
+        return cls(
+            fdata=fdata,
+            udomain=udomain,
+            field_label=field_label,
+            sim_time=sim_time,
         )
 
 

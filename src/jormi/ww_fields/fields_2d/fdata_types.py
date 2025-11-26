@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from jormi.ww_types import array_checks
 from jormi.ww_fields import _fdata_types
 
-
 ##
 ## --- 2D SPECIALISATIONS (SCALAR / VECTOR)
 ##

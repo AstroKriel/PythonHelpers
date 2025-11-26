@@ -13,7 +13,6 @@ from typing import cast
 from jormi.ww_types import type_manager
 from jormi.ww_fields import _domain_types
 
-
 ##
 ## === 2D DOMAIN
 ##

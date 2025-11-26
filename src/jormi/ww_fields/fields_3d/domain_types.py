@@ -6,9 +6,9 @@
 
 import numpy
 
+from typing import cast
 from functools import cached_property
 from dataclasses import dataclass
-from typing import cast
 
 from jormi.ww_types import type_manager
 from jormi.ww_fields import _domain_types
@@ -97,5 +97,6 @@ def ensure_3d_udomain(
         param_name=param_name,
         valid_types=UniformDomain_3D,
     )
+
 
 ## } MODULE

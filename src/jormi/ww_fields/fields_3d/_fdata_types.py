@@ -7,13 +7,13 @@
 import numpy
 
 from dataclasses import dataclass
+from numpy.typing import DTypeLike
 
 from jormi.ww_types import array_checks
 from jormi.ww_fields import _fdata_types
 
-
 ##
-## --- 3D SPECIALISATIONS (SCALAR / VECTOR / RANK-2 TENSOR)
+## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY
 ##
 
 
@@ -75,8 +75,30 @@ class Rank2TensorData_3D(_fdata_types.FieldData):
 
 
 ##
-## --- 3D FIELD DATA VALIDATION
+## --- 3D NDARRAY VALIDATION
 ##
+
+
+def ensure_farray_metadata(
+    *,
+    farray_shape: tuple[int, ...],
+    farray: numpy.ndarray | None = None,
+    dtype: DTypeLike | None = None,
+) -> numpy.ndarray:
+    """
+    Return a farray with the requested shape/dtype, reusing the provided farray
+    if compatible, otherwise allocate a new farray.
+    """
+    if dtype is None:
+        if farray is not None:
+            dtype = farray.dtype
+        else:
+            dtype = numpy.float64
+    else:
+        dtype = numpy.dtype(dtype)
+    if (farray is None) or (farray.shape != farray_shape) or (farray.dtype != dtype):
+        return numpy.empty(farray_shape, dtype=dtype)
+    return farray
 
 
 def ensure_3d_sdata(
@@ -197,7 +219,7 @@ def ensure_3d_r2tarray(
 ##
 
 
-def as_3d_sarray(
+def extract_3d_sarray(
     sdata_3d: ScalarFieldData_3D,
     *,
     param_name: str = "<sdata_3d>",
@@ -215,7 +237,7 @@ def as_3d_sarray(
     return sarray_3d
 
 
-def as_3d_varray(
+def extract_3d_varray(
     vdata_3d: VectorFieldData_3D,
     *,
     param_name: str = "<vdata_3d>",
@@ -233,7 +255,7 @@ def as_3d_varray(
     return varray_3d
 
 
-def as_3d_r2tarray(
+def extract_3d_r2tarray(
     r2tdata_3d: Rank2TensorData_3D,
     *,
     param_name: str = "<r2tdata_3d>",

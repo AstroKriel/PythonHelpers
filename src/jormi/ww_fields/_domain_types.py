@@ -11,7 +11,6 @@ from dataclasses import dataclass
 
 from jormi.ww_types import type_manager, cartesian_coordinates
 
-
 ##
 ## === DATA STRUCTURES
 ##
@@ -69,7 +68,7 @@ class UniformDomain:
             axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
             if num_cells <= 0:
                 raise ValueError(
-                    f"`<resolution>[{axis_label}]` must be a positive integer."
+                    f"`<resolution>[{axis_label}]` must be a positive integer.",
                 )
 
     def _validate_domain_bounds(
@@ -108,7 +107,7 @@ class UniformDomain:
             )
             if not (hi_value > lo_value):
                 raise ValueError(
-                    f"{axis_label}-axis: max bound must be > min bound."
+                    f"{axis_label}-axis: max bound must be > min bound.",
                 )
 
     @cached_property
@@ -124,10 +123,7 @@ class UniformDomain:
     def domain_lengths(
         self,
     ) -> tuple[float, ...]:
-        return tuple(
-            axis_bounds[1] - axis_bounds[0]
-            for axis_bounds in self.domain_bounds
-        )
+        return tuple(axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds)
 
     @cached_property
     def num_cells(
@@ -163,9 +159,9 @@ class UniformDomain:
 
         cell_centers_per_axis: list[numpy.ndarray] = []
         for (axis_min, _), cell_width, num_cells in zip(
-            self.domain_bounds,
-            self.cell_widths,
-            self.resolution,
+                self.domain_bounds,
+                self.cell_widths,
+                self.resolution,
         ):
             cell_centers = _get_cell_centers(axis_min, cell_width, num_cells)
             cell_centers_per_axis.append(cell_centers)

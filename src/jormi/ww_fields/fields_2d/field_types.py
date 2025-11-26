@@ -10,7 +10,6 @@ from jormi.ww_types import type_manager
 from jormi.ww_fields import _field_types
 from jormi.ww_fields.fields_2d import _fdata_types, domain_types
 
-
 ##
 ## === 2D FIELD TYPES
 ##

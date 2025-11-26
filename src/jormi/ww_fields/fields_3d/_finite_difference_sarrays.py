@@ -6,7 +6,7 @@
 
 import numpy
 
-from jormi.ww_fields.fields_3d import fdata_types
+from jormi.ww_fields.fields_3d import _fdata_types
 
 ##
 ## === FUNCTIONS
@@ -35,7 +35,7 @@ def second_order_centered_difference(
     """Second-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
-    fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(sarray_3d)
     sarray_3d_f = numpy.roll(sarray_3d, int(1 * forward), axis=grad_axis)
     sarray_3d_b = numpy.roll(sarray_3d, int(1 * backward), axis=grad_axis)
     return (sarray_3d_f - sarray_3d_b) / (2.0 * cell_width)
@@ -50,7 +50,7 @@ def fourth_order_centered_difference(
     """Fourth-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
-    fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(sarray_3d)
     sarray_3d_f1 = numpy.roll(sarray_3d, int(1 * forward), axis=grad_axis)
     sarray_3d_f2 = numpy.roll(sarray_3d, int(2 * forward), axis=grad_axis)
     sarray_3d_b1 = numpy.roll(sarray_3d, int(1 * backward), axis=grad_axis)
@@ -67,14 +67,17 @@ def sixth_order_centered_difference(
     """Sixth-order centered finite difference on a 3D scalar array."""
     forward = -1
     backward = +1
-    fdata_types.ensure_3d_sarray(sarray_3d)
+    _fdata_types.ensure_3d_sarray(sarray_3d)
     sarray_3d_f1 = numpy.roll(sarray_3d, int(1 * forward), axis=grad_axis)
     sarray_3d_f2 = numpy.roll(sarray_3d, int(2 * forward), axis=grad_axis)
     sarray_3d_f3 = numpy.roll(sarray_3d, int(3 * forward), axis=grad_axis)
     sarray_3d_b1 = numpy.roll(sarray_3d, int(1 * backward), axis=grad_axis)
     sarray_3d_b2 = numpy.roll(sarray_3d, int(2 * backward), axis=grad_axis)
     sarray_3d_b3 = numpy.roll(sarray_3d, int(3 * backward), axis=grad_axis)
-    return -(sarray_3d_f3 - 9.0 * sarray_3d_f2 + 45.0 * sarray_3d_f1 - 45.0 * sarray_3d_b1 + 9.0 * sarray_3d_b2 - sarray_3d_b3) / (60.0 * cell_width)
+    return -(
+        sarray_3d_f3 - 9.0 * sarray_3d_f2 + 45.0 * sarray_3d_f1 - 45.0 * sarray_3d_b1 + 9.0 * sarray_3d_b2 -
+        sarray_3d_b3
+    ) / (60.0 * cell_width)
 
 
 ## } MODULE

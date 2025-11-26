@@ -10,13 +10,11 @@ from typing import TypeAlias
 
 from jormi.ww_types import type_manager, array_checks
 
-
 ##
 ## === TYPE ALIASES
 ##
 
 FieldArray: TypeAlias = numpy.ndarray
-
 
 ##
 ## === DATA CLASSES

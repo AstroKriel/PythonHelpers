@@ -7,10 +7,9 @@
 import numpy
 
 from jormi.ww_fields.fields_3d import (
-    fdata_operators,
+    _farray_operators,
     field_types,
 )
-
 
 ##
 ## === OPTIMISED OPERATORS WORKING ON FIELDS
@@ -21,26 +20,18 @@ def compute_sfield_rms(
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the RMS of a 3D scalar field."""
-    field_types.ensure_3d_sfield(
-        sfield_3d=sfield_3d,
-        param_name="<sfield_3d>",
-    )
-    return fdata_operators.compute_sdata_rms(
-        sdata_3d=sfield_3d.fdata,
-    )
+    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
+    return _farray_operators.compute_sarray_rms(sarray_3d)
 
 
 def compute_sfield_volume_integral(
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the volume integral of a 3D scalar field."""
-    field_types.ensure_3d_sfield(
-        sfield_3d=sfield_3d,
-        param_name="<sfield_3d>",
-    )
+    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
     udomain_3d = sfield_3d.udomain
-    return fdata_operators.compute_sdata_volume_integral(
-        sdata_3d=sfield_3d.fdata,
+    return _farray_operators.compute_sarray_volume_integral(
+        sarray_3d=sarray_3d,
         cell_volume=udomain_3d.cell_volume,
     )
 
@@ -53,21 +44,18 @@ def compute_sfield_gradient(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the gradient d_i f of a 3D scalar field."""
-    field_types.ensure_3d_sfield(
-        sfield_3d=sfield_3d,
-        param_name="<sfield_3d>",
-    )
+    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
-    vdata_3d_gradf = fdata_operators.compute_sdata_grad(
-        sdata_3d=sfield_3d.fdata,
-        cell_widths=udomain_3d.cell_widths,
+    varray_3d_gradf = _farray_operators.compute_sarray_grad(
+        sarray_3d=sarray_3d,
+        cell_widths_3d=udomain_3d.cell_widths,
         varray_3d_out=varray_3d_out,
         grad_order=grad_order,
     )
-    return field_types.VectorField_3D(
-        fdata=vdata_3d_gradf,
-        udomain=udomain_3d,
+    return field_types.VectorField_3D.from_3d_varray(
+        varray_3d=varray_3d_gradf,
+        udomain_3d=udomain_3d,
         field_label=field_label,
         sim_time=sim_time,
     )
@@ -79,18 +67,15 @@ def compute_vfield_magnitude(
     field_label: str = "sqrt(f_i f_i)",
 ) -> field_types.ScalarField_3D:
     """Compute the magnitude sqrt(f_i f_i) of a 3D vector field."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d,
-        param_name="<vfield_3d>",
-    )
+    varray_3d = field_types.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    sdata_3d_vmagn = fdata_operators.compute_vdata_magnitude(
-        vdata_3d=vfield_3d.fdata,
+    sarray_3d_vmagn = _farray_operators.compute_varray_magnitude(
+        varray_3d=varray_3d,
     )
-    return field_types.ScalarField_3D(
-        fdata=sdata_3d_vmagn,
-        udomain=udomain_3d,
+    return field_types.ScalarField_3D.from_3d_sarray(
+        sarray_3d=sarray_3d_vmagn,
+        udomain_3d=udomain_3d,
         field_label=field_label,
         sim_time=sim_time,
     )
@@ -103,27 +88,21 @@ def compute_vfield_dot_product(
     field_label: str = "a_i b_i",
 ) -> field_types.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector fields."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_a,
-        param_name="<vfield_3d_a>",
-    )
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
-    )
+    varray_3d_a = field_types.extract_3d_varray(vfield_3d_a)
+    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
     field_types.ensure_same_3d_field_udomains(
         field_3d_a=vfield_3d_a,
         field_3d_b=vfield_3d_b,
         field_name_a="<vfield_3d_a>",
         field_name_b="<vfield_3d_b>",
     )
-    sdata_3d_adotb = fdata_operators.dot_over_vdata_comps(
-        vdata_3d_a=vfield_3d_a.fdata,
-        vdata_3d_b=vfield_3d_b.fdata,
+    sarray_3d_adotb = _farray_operators.dot_over_varray_comps(
+        varray_3d_a=varray_3d_a,
+        varray_3d_b=varray_3d_b,
     )
-    return field_types.ScalarField_3D(
-        fdata=sdata_3d_adotb,
-        udomain=vfield_3d_a.udomain,
+    return field_types.ScalarField_3D.from_3d_sarray(
+        sarray_3d=sarray_3d_adotb,
+        udomain_3d=vfield_3d_a.udomain,
         field_label=field_label,
         sim_time=vfield_3d_a.sim_time,
     )
@@ -138,29 +117,23 @@ def compute_vfield_cross_product(
     field_label: str = "epsilon_ijk a_j b_k",
 ) -> field_types.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector fields."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_a,
-        param_name="<vfield_3d_a>",
-    )
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
-    )
     field_types.ensure_same_3d_field_udomains(
         field_3d_a=vfield_3d_a,
         field_3d_b=vfield_3d_b,
         field_name_a="<vfield_3d_a>",
         field_name_b="<vfield_3d_b>",
     )
-    vdata_3d_axb = fdata_operators.compute_vdata_cross_product(
-        vdata_3d_a=vfield_3d_a.fdata,
-        vdata_3d_b=vfield_3d_b.fdata,
+    varray_3d_a = field_types.extract_3d_varray(vfield_3d_a)
+    varray_3d_b = field_types.extract_3d_varray(vfield_3d_b)
+    varray_3d_axb = _farray_operators.compute_varray_cross_product(
+        varray_3d_a=varray_3d_a,
+        varray_3d_b=varray_3d_b,
         varray_3d_out=varray_3d_out,
         sarray_3d_tmp=sarray_3d_tmp,
     )
-    return field_types.VectorField_3D(
-        fdata=vdata_3d_axb,
-        udomain=vfield_3d_a.udomain,
+    return field_types.VectorField_3D.from_3d_varray(
+        varray_3d=varray_3d_axb,
+        udomain_3d=vfield_3d_a.udomain,
         field_label=field_label,
         sim_time=vfield_3d_a.sim_time,
     )
@@ -174,21 +147,18 @@ def compute_vfield_curl(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the curl epsilon_ijk d_j f_k of a 3D vector field."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d,
-        param_name="<vfield_3d>",
-    )
+    varray_3d = field_types.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    vdata_3d_curl = fdata_operators.compute_vdata_curl(
-        vdata_3d=vfield_3d.fdata,
-        cell_widths=udomain_3d.cell_widths,
+    varray_3d_curl = _farray_operators.compute_varray_curl(
+        varray_3d=varray_3d,
+        cell_widths_3d=udomain_3d.cell_widths,
         varray_3d_out=varray_3d_out,
         grad_order=grad_order,
     )
-    return field_types.VectorField_3D(
-        fdata=vdata_3d_curl,
-        udomain=udomain_3d,
+    return field_types.VectorField_3D.from_3d_varray(
+        varray_3d=varray_3d_curl,
+        udomain_3d=udomain_3d,
         field_label=field_label,
         sim_time=sim_time,
     )
@@ -202,72 +172,20 @@ def compute_vfield_divergence(
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:
     """Compute the divergence d_i f_i of a 3D vector field."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d,
-        param_name="<vfield_3d>",
-    )
+    varray_3d = field_types.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    sdata_3d_div = fdata_operators.compute_vdata_divergence(
-        vdata_3d=vfield_3d.fdata,
-        cell_widths=udomain_3d.cell_widths,
+    sarray_3d_div = _farray_operators.compute_varray_divergence(
+        varray_3d=varray_3d,
+        cell_widths_3d=udomain_3d.cell_widths,
         sarray_3d_out=sarray_3d_out,
         grad_order=grad_order,
     )
-    return field_types.ScalarField_3D(
-        fdata=sdata_3d_div,
-        udomain=udomain_3d,
+    return field_types.ScalarField_3D.from_3d_sarray(
+        sarray_3d=sarray_3d_div,
+        udomain_3d=udomain_3d,
         field_label=field_label,
         sim_time=sim_time,
-    )
-
-
-##
-## === MAGNETIC FIELD QUANTITIES
-##
-
-
-def compute_magnetic_energy_density(
-    vfield_3d_b: field_types.VectorField_3D,
-    *,
-    energy_prefactor: float = 0.5,
-    field_label: str = "E_mag",
-) -> field_types.ScalarField_3D:
-    """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
-    )
-    udomain_3d = vfield_3d_b.udomain
-    sim_time = vfield_3d_b.sim_time
-    sdata_3d_Emag = fdata_operators.compute_magnetic_energy_density_sdata(
-        vdata_3d_b=vfield_3d_b.fdata,
-        energy_prefactor=energy_prefactor,
-    )
-    return field_types.ScalarField_3D(
-        fdata=sdata_3d_Emag,
-        udomain=udomain_3d,
-        field_label=field_label,
-        sim_time=sim_time,
-    )
-
-
-def compute_total_magnetic_energy(
-    vfield_3d_b: field_types.VectorField_3D,
-    *,
-    energy_prefactor: float = 0.5,
-) -> float:
-    """Compute total magnetic energy as the volume integral of the energy density."""
-    field_types.ensure_3d_vfield(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
-    )
-    sfield_3d_Emag = compute_magnetic_energy_density(
-        vfield_3d_b=vfield_3d_b,
-        energy_prefactor=energy_prefactor,
-    )
-    return compute_sfield_volume_integral(
-        sfield_3d=sfield_3d_Emag,
     )
 
 
