@@ -123,15 +123,14 @@ def _create_uniformly_spaced_bin_centers(
         param_name="bin_range_percent",
         allow_none=False,
         require_positive=True,
+        allow_zero=True,
     )
     p16_value = numpy.percentile(values, 16)
     p50_value = numpy.percentile(values, 50)
     p84_value = numpy.percentile(values, 84)
-    return numpy.linspace(
-        start=p16_value - (1 + bin_range_percent) * (p50_value - p16_value),
-        stop=p84_value + (1 + bin_range_percent) * (p84_value - p50_value),
-        num=int(num_bins),
-    )
+    start_value = p16_value - (1 + bin_range_percent) * (p50_value - p16_value)
+    stop_value = p84_value + (1 + bin_range_percent) * (p84_value - p50_value)
+    return numpy.linspace(start_value, stop_value, num_bins)
 
 
 def _get_bin_edges_from_centers(
@@ -176,12 +175,14 @@ def _ensure_correct_pdf_integral(
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
+        allow_zero=True,
     )
     type_manager.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
         require_positive=True,
+        allow_zero=True,
     )
     bin_edges = _get_bin_edges_from_centers(bin_centers)
     bin_widths = numpy.diff(bin_edges)
@@ -196,6 +197,7 @@ def _ensure_correct_pdf_integral(
         param_name="integral",
         allow_none=False,
         require_positive=True,
+        allow_zero=False,
     )
     if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
         raise ValueError(f"{param_name} is not normalised: integral={integral}.")
@@ -215,12 +217,14 @@ def _ensure_correct_jpdf_integral(
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
+        allow_zero=True,
     )
     type_manager.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
         require_positive=True,
+        allow_zero=True,
     )
     row_edges = _get_bin_edges_from_centers(row_centers)
     col_edges = _get_bin_edges_from_centers(col_centers)
@@ -238,6 +242,7 @@ def _ensure_correct_jpdf_integral(
         param_name="integral",
         allow_none=False,
         require_positive=True,
+        allow_zero=False,
     )
     if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
         raise ValueError(f"{param_name} is not normalised: integral={integral}.")
@@ -346,6 +351,7 @@ def estimate_pdf(
         param_name="delta_threshold",
         allow_none=False,
         require_positive=True,
+        allow_zero=False,
     )
     if numpy.std(values, dtype=numpy.float64) < delta_threshold:
         mean_value = float(
@@ -378,10 +384,10 @@ def estimate_pdf(
             dtype=numpy.float64,
         )
         densities_delta = bin_counts_delta / (
-            numpy.sum(
+            bin_widths_delta * numpy.sum(
                 bin_counts_delta,
                 dtype=numpy.float64,
-            ) * bin_widths_delta
+            )
         )
         return EstimatedPDF(
             bin_centers=bin_centers_delta,
@@ -476,11 +482,11 @@ class EstimatedJPDF:
         )
         num_rows = self.row_centers.shape[0]
         num_cols = self.col_centers.shape[0]
-        if self.densities.shape != (num_rows, num_cols):
-            raise ValueError(
-                "`densities` must have shape "
-                f"({num_rows}, {num_cols}) but got {self.densities.shape}.",
-            )
+        array_checks.ensure_shape(
+            array=self.densities,
+            param_name="densities",
+            expected_shape=(num_rows, num_cols),
+        )
         _ensure_correct_jpdf_integral(
             row_centers=self.row_centers,
             col_centers=self.col_centers,
@@ -598,7 +604,10 @@ def estimate_jpdf(
     bin_indices_rows = numpy.clip(bin_indices_rows, 0, len(row_centers) - 1)
     bin_indices_cols = numpy.clip(bin_indices_cols, 0, len(col_centers) - 1)
     bin_counts = numpy.zeros(
-        (len(row_centers), len(col_centers)),
+        (
+            len(row_centers),
+            len(col_centers),
+        ),
         dtype=numpy.float64,
     )
     if data_weights is not None:
@@ -626,10 +635,11 @@ def estimate_jpdf(
             param_name="smoothing_length",
             allow_none=False,
             require_positive=True,
+            allow_zero=True,
         )
-        estimated_jpdf = smooth_2d_arrays.smooth_2d_data_with_gaussian_filter(
-            estimated_jpdf,
-            smoothing_length,
+        estimated_jpdf = smooth_2d_arrays.smooth_2d_array(
+            data=estimated_jpdf,
+            sigma=smoothing_length,
         )
         total = float(
             numpy.sum(
