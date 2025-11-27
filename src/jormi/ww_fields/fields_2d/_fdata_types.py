@@ -12,7 +12,7 @@ from jormi.ww_types import array_checks
 from jormi.ww_fields import _fdata_types
 
 ##
-## --- 2D SPECIALISATIONS (SCALAR / VECTOR)
+## === 2D SCALAR / VECTOR NDARRAY
 ##
 
 
@@ -55,7 +55,7 @@ class VectorFieldData_2D(_fdata_types.FieldData):
 
 
 ##
-## --- 2D FIELD DATA VALIDATION
+## === 2D FIELD DATA VALIDATION
 ##
 
 
@@ -98,7 +98,7 @@ def ensure_2d_vdata(
 
 
 ##
-## --- 2D NDARRAY VALIDATION
+## === 2D NDARRAY VALIDATION
 ##
 
 
@@ -135,60 +135,44 @@ def ensure_2d_varray(
 
 
 ##
-## --- 2D NDARRAY NORMALISERS
+## === 2D NDARRAY EXTRACTORS
 ##
 
 
-def as_2d_sarray(
-    sdata_2d: ScalarFieldData_2D | numpy.ndarray,
+def extract_2d_sarray(
+    sdata_2d: ScalarFieldData_2D,
     *,
     param_name: str = "<sdata_2d>",
 ) -> numpy.ndarray:
-    """
-    Normalise `sdata_2d` to a 2D scalar ndarray and validate its structure.
-
-    Accepts either:
-      - raw ndarray of shape (Nx, Ny), or
-      - ScalarFieldData_2D (2D scalar field data).
-    """
-    if isinstance(sdata_2d, ScalarFieldData_2D):
-        farray = sdata_2d.farray
-        ensure_2d_sarray(
-            sarray_2d=farray,
-            param_name="<sdata_2d.farray>",
-        )
-        return farray
-    ensure_2d_sarray(
-        sarray_2d=sdata_2d,
+    """Normalise `sdata_2d` to a 2D scalar ndarray and validate its structure."""
+    ensure_2d_sdata(
+        sdata_2d=sdata_2d,
         param_name=param_name,
     )
-    return sdata_2d
+    sarray_2d = sdata_2d.farray
+    ensure_2d_sarray(
+        sarray_2d=sarray_2d,
+        param_name=f"{param_name}.farray",
+    )
+    return sarray_2d
 
 
-def as_2d_varray(
-    vdata_2d: VectorFieldData_2D | numpy.ndarray,
+def extract_2d_varray(
+    vdata_2d: VectorFieldData_2D,
     *,
     param_name: str = "<vdata_2d>",
 ) -> numpy.ndarray:
-    """
-    Normalise `vdata_2d` to a 2D vector ndarray and validate its structure.
-
-    Accepts either:
-      - raw ndarray of shape (2, Nx, Ny), or
-      - VectorFieldData_2D (2D vector field data).
-    """
-    if isinstance(vdata_2d, VectorFieldData_2D):
-        farray = vdata_2d.farray
-        ensure_2d_varray(
-            varray_2d=farray,
-            param_name="<vdata_2d.farray>",
-        )
-        return farray
-    ensure_2d_varray(
-        varray_2d=vdata_2d,
+    """Normalise `vdata_2d` to a 2D vector ndarray and validate its structure."""
+    ensure_2d_vdata(
+        vdata_2d=vdata_2d,
         param_name=param_name,
     )
-    return vdata_2d
+    varray_2d = vdata_2d.farray
+    ensure_2d_varray(
+        varray_2d=varray_2d,
+        param_name=f"{param_name}.farray",
+    )
+    return varray_2d
 
 
 ## } MODULE

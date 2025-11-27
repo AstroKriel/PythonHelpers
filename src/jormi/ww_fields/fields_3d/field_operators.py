@@ -13,7 +13,7 @@ from jormi.ww_fields.fields_3d import (
 )
 
 ##
-## === OPTIMISED OPERATORS WORKING ON FIELDS
+## === OPERATORS WORKING ON SCALAR FIELDS
 ##
 
 
@@ -77,6 +77,11 @@ def compute_sfield_gradient(
         field_label=field_label,
         sim_time=sim_time,
     )
+
+
+##
+## === OPERATORS WORKING ON VECTOR FIELDS
+##
 
 
 def compute_vfield_magnitude(

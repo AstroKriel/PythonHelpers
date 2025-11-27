@@ -9,11 +9,11 @@ import numpy
 from typing import Self
 from dataclasses import dataclass
 
-from jormi.ww_types import (
-    type_manager,
-    cartesian_coordinates,
+from jormi.ww_types import type_manager
+from jormi.ww_fields import (
+    _cartesian_coordinates,
+    _field_types,
 )
-from jormi.ww_fields import _field_types
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _fdata_types,
@@ -79,7 +79,7 @@ class VectorField_3D(_field_types.Field):
 
     fdata: _fdata_types.VectorFieldData_3D
     udomain: domain_types.UniformDomain_3D
-    comp_axes: cartesian_coordinates.AxisTuple = cartesian_coordinates.DEFAULT_AXES_ORDER
+    comp_axes: _cartesian_coordinates.AxisTuple = _cartesian_coordinates.DEFAULT_AXES_ORDER
 
     def __post_init__(
         self,
@@ -106,7 +106,7 @@ class VectorField_3D(_field_types.Field):
     def _validate_axes(
         self,
     ) -> None:
-        cartesian_coordinates.ensure_default_axes_order(
+        _cartesian_coordinates.ensure_default_axes_order(
             axes=self.comp_axes,
             param_name="<comp_axes>",
         )
@@ -138,10 +138,10 @@ class VectorField_3D(_field_types.Field):
 
     def get_vcomp_sarray_3d(
         self,
-        comp_axis: cartesian_coordinates.AxisLike,
+        comp_axis: _cartesian_coordinates.AxisLike,
     ) -> numpy.ndarray:
         """Return a (Nx, Ny, Nz) view of the requested component."""
-        comp_index = cartesian_coordinates.get_axis_index(comp_axis)
+        comp_index = _cartesian_coordinates.get_axis_index(comp_axis)
         varray_3d = extract_3d_varray(
             vfield_3d=self,
             param_name="<vfield_3d>",

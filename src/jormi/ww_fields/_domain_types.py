@@ -7,9 +7,10 @@
 import numpy
 
 from functools import cached_property
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from jormi.ww_types import type_manager, cartesian_coordinates
+from jormi.ww_types import type_manager
+from jormi.ww_fields import _cartesian_coordinates
 
 ##
 ## === DATA STRUCTURES
@@ -18,7 +19,9 @@ from jormi.ww_types import type_manager, cartesian_coordinates
 
 @dataclass(frozen=True)
 class UniformDomain:
-    num_sdim: int
+    """Base uniform domain."""
+
+    num_sdims: int
     periodicity: tuple[bool, ...]
     resolution: tuple[int, ...]
     domain_bounds: tuple[tuple[float, float], ...]
@@ -26,22 +29,20 @@ class UniformDomain:
     def __post_init__(
         self,
     ) -> None:
-        self._validate_num_sdim()
+        self._validate_num_sdims()
         self._validate_periodicity()
         self._validate_resolution()
         self._validate_domain_bounds()
 
-    def _validate_num_sdim(
+    def _validate_num_sdims(
         self,
     ) -> None:
         type_manager.ensure_finite_int(
-            param=self.num_sdim,
-            param_name="<num_sdim>",
+            param=self.num_sdims,
+            param_name="<num_sdims>",
             allow_none=False,
             require_positive=True,
         )
-        if self.num_sdim not in (2, 3):
-            raise ValueError("`<num_sdim>` must be either 2 or 3.")
 
     def _validate_periodicity(
         self,
@@ -49,7 +50,7 @@ class UniformDomain:
         type_manager.ensure_sequence(
             param=self.periodicity,
             param_name="<periodicity>",
-            seq_length=self.num_sdim,
+            seq_length=self.num_sdims,
             valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
             valid_elem_types=type_manager.RuntimeTypes.Booleans.BooleanLike,
         )
@@ -60,12 +61,12 @@ class UniformDomain:
         type_manager.ensure_sequence(
             param=self.resolution,
             param_name="<resolution>",
-            seq_length=self.num_sdim,
+            seq_length=self.num_sdims,
             valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
             valid_elem_types=type_manager.RuntimeTypes.Numerics.IntLike,
         )
         for axis_index, num_cells in enumerate(self.resolution):
-            axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
+            axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
             if num_cells <= 0:
                 raise ValueError(
                     f"`<resolution>[{axis_label}]` must be a positive integer.",
@@ -77,13 +78,13 @@ class UniformDomain:
         type_manager.ensure_sequence(
             param=self.domain_bounds,
             param_name="<domain_bounds>",
-            seq_length=self.num_sdim,
+            seq_length=self.num_sdims,
             valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
             valid_elem_types=type_manager.RuntimeTypes.Sequences.TupleLike,
         )
-        for axis_index in range(self.num_sdim):
+        for axis_index in range(self.num_sdims):
             bounds = self.domain_bounds[axis_index]
-            axis_label = cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
+            axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
             axis_param_name = f"<domain_bounds[{axis_label}]>"
             type_manager.ensure_sequence(
                 param=bounds,
@@ -188,7 +189,7 @@ def ensure_udomain(
 def ensure_udomain_metadata(
     udomain: UniformDomain,
     *,
-    num_sdim: int | None = None,
+    num_sdims: int | None = None,
     param_name: str = "<udomain>",
 ) -> None:
     """Check metadata for `UniformDomain`."""
@@ -196,10 +197,10 @@ def ensure_udomain_metadata(
         udomain=udomain,
         param_name=param_name,
     )
-    if (num_sdim is not None) and (udomain.num_sdim != num_sdim):
+    if (num_sdims is not None) and (udomain.num_sdims != num_sdims):
         raise ValueError(
-            f"`{param_name}` must have num_sdim={num_sdim},"
-            f" but got num_sdim={udomain.num_sdim}.",
+            f"`{param_name}` must have num_sdims={num_sdims},"
+            f" but got num_sdims={udomain.num_sdims}.",
         )
 
 

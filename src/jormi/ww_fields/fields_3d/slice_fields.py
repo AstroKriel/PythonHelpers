@@ -16,7 +16,6 @@ from jormi.ww_fields.fields_3d import (
     field_types as _3d_field_types,
 )
 
-
 ##
 ## === SLICE HELPERS
 ##
@@ -55,13 +54,11 @@ def _slice_3d_udomain(
     if slice_index >= resolution_3d[out_of_plane_axis_index]:
         raise ValueError(
             f"`{param_name}.slice_index` = {slice_index} must be smaller than"
-            f" resolution[{out_of_plane_axis_index}] = {resolution_3d[out_of_plane_axis_index]}."
+            f" resolution[{out_of_plane_axis_index}] = {resolution_3d[out_of_plane_axis_index]}.",
         )
     ## determine in-plane axes by dropping the out-of-plane axis
     in_plane_axes = [
-        axis
-        for axis in _cartesian_coordinates.DEFAULT_AXES_ORDER
-        if axis is not out_of_plane_axis
+        axis for axis in _cartesian_coordinates.DEFAULT_AXES_ORDER if axis is not out_of_plane_axis
     ]
     x0_in_plane_axis, x1_in_plane_axis = in_plane_axes
     x0_in_plane_axis_index = x0_in_plane_axis.axis_index
@@ -121,7 +118,6 @@ def get_slice_index(
     raise RuntimeError(
         f"Unexpected SequencePosition {seq_position!r} for {param_name}.slice_axis.",
     )
-
 
 
 ##

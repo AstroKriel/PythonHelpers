@@ -21,11 +21,11 @@ from jormi.ww_fields import _domain_types
 @dataclass(frozen=True)
 class UniformDomain_3D(_domain_types.UniformDomain):
     """
-    Uniform 3D domain.
+    Uniform 3D domain: `num_sdims == 3`.
 
-    - periodicity: (Px, Py, Pz)
-    - resolution:  (Nx, Ny, Nz)
-    - domain_bounds: ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+    - `periodicity`: (Px, Py, Pz)
+    - `resolution`:  (Nx, Ny, Nz)
+    - `domain_bounds`: ((x_min, x_max), (y_min, y_max), (z_min, z_max))
     """
 
     periodicity: tuple[bool, bool, bool]
@@ -36,10 +36,26 @@ class UniformDomain_3D(_domain_types.UniformDomain):
         tuple[float, float],
     ]
 
+    def __init__(
+        self,
+        periodicity: tuple[bool, bool, bool],
+        resolution: tuple[int, int, int],
+        domain_bounds: tuple[
+            tuple[float, float],
+            tuple[float, float],
+            tuple[float, float],
+        ],
+    ) -> None:
+        super().__init__(
+            num_sdims=3,
+            periodicity=periodicity,
+            resolution=resolution,
+            domain_bounds=domain_bounds,
+        )
+
     def __post_init__(
         self,
     ) -> None:
-        object.__setattr__(self, "num_sdims", 3)
         super().__post_init__()
 
     @cached_property
