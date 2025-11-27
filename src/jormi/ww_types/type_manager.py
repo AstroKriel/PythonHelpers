@@ -315,8 +315,16 @@ def ensure_finite_numeric(
     valid_types: tuple[type, ...],
     allow_none: bool,
     require_positive: bool,
+    allow_zero: bool,
 ) -> None:
-    """Ensure `param` is finite, positive (optional), and of the given numeric types."""
+    """
+    Ensure `param` is finite and of the given numeric types.
+
+    If `require_positive` is:
+      - False: no sign constraint.
+      - True and `allow_zero` is True: require param >= 0.
+      - True and `allow_zero` is False: require param > 0.
+    """
     if param is None:
         if allow_none:
             return
@@ -333,7 +341,9 @@ def ensure_finite_numeric(
         )
     if not numpy.isfinite(param):
         raise ValueError(f"`{param_name}` must be finite, got {param}.")
-    if require_positive and not (param > 0):
+    if not(param >= 0) and (require_positive and allow_zero):
+        raise ValueError(f"`{param_name}` must be non-negative (>= 0), got {param}.")
+    if not(param > 0) and (require_positive and not allow_zero):
         raise ValueError(f"`{param_name}` must be positive (> 0), got {param}.")
 
 
@@ -343,6 +353,7 @@ def ensure_finite_float(
     param_name: str = "<param>",
     allow_none: bool = False,
     require_positive: bool = False,
+    allow_zero: bool = True,
 ) -> None:
     """Ensure `param` is a finite float-like value."""
     ensure_finite_numeric(
@@ -351,6 +362,7 @@ def ensure_finite_float(
         allow_none=allow_none,
         valid_types=RuntimeTypes.Numerics.FloatLike,
         require_positive=require_positive,
+        allow_zero=allow_zero,
     )
 
 
@@ -360,6 +372,7 @@ def ensure_finite_int(
     param_name: str = "<param>",
     allow_none: bool = False,
     require_positive: bool = False,
+    allow_zero: bool = True,
 ) -> None:
     """Ensure `param` is a finite int-like value."""
     ensure_finite_numeric(
@@ -368,6 +381,7 @@ def ensure_finite_int(
         allow_none=allow_none,
         valid_types=RuntimeTypes.Numerics.IntLike,
         require_positive=require_positive,
+        allow_zero=allow_zero,
     )
 
 
