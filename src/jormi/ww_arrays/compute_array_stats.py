@@ -9,7 +9,7 @@ import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_types import array_checks
+from jormi.ww_types import type_manager, array_checks
 from jormi.ww_arrays import smooth_2d_arrays
 
 ##
@@ -28,30 +28,33 @@ def compute_p_norm(
     array_a = array_checks.as_1d(
         array_like=array_a,
         param_name="array_a",
-        check_finite=False,
+        check_finite=True,
     )
     array_b = array_checks.as_1d(
         array_like=array_b,
         param_name="array_b",
-        check_finite=False,
+        check_finite=True,
     )
-    mask = numpy.isfinite(array_a) & numpy.isfinite(array_b)
-    array_a = array_a[mask]
-    array_b = array_b[mask]
     array_checks.ensure_nonempty(
         array=array_a,
-        param_name="array_a[finite]",
+        param_name="array_a",
     )
     array_checks.ensure_same_shape(
         array_a=array_a,
         array_b=array_b,
-        param_name_a="array_a[finite]",
-        param_name_b="array_b[finite]",
+        param_name_a="array_a",
+        param_name_b="array_b",
     )
-    if not isinstance(p_norm, (int, float, numpy.integer, numpy.floating)):
-        raise ValueError(f"`p_norm = {p_norm}` is not a number.")
-    if not isinstance(normalise_by_length, (bool, numpy.bool_)):
-        raise ValueError("`normalise_by_length` must be a boolean.")
+    type_manager.ensure_numeric(
+        param=p_norm,
+        param_name="p_norm",
+        allow_none=False,
+    )
+    type_manager.ensure_bool(
+        param=normalise_by_length,
+        param_name="normalise_by_length",
+        allow_none=False,
+    )
     if numpy.array_equal(array_a, array_b):
         return 0.0
     array_diff = numpy.abs(array_a - array_b)
@@ -98,10 +101,42 @@ def compute_p_norm(
 ##
 
 
-def get_bin_edges_from_centers(
+def _create_uniformly_spaced_bin_centers(
+    *,
+    values: numpy.ndarray,
+    num_bins: int,
+    bin_range_percent: float = 1.0,
+) -> numpy.ndarray:
+    values = array_checks.as_1d(
+        array_like=values,
+        param_name="values",
+        check_finite=True,
+    )
+    type_manager.ensure_finite_int(
+        param=num_bins,
+        param_name="num_bins",
+        allow_none=False,
+        require_positive=True,
+    )
+    type_manager.ensure_finite_float(
+        param=bin_range_percent,
+        param_name="bin_range_percent",
+        allow_none=False,
+        require_positive=True,
+    )
+    p16_value = numpy.percentile(values, 16)
+    p50_value = numpy.percentile(values, 50)
+    p84_value = numpy.percentile(values, 84)
+    return numpy.linspace(
+        start=p16_value - (1 + bin_range_percent) * (p50_value - p16_value),
+        stop=p84_value + (1 + bin_range_percent) * (p84_value - p50_value),
+        num=int(num_bins),
+    )
+
+
+def _get_bin_edges_from_centers(
     bin_centers: numpy.ndarray,
 ) -> numpy.ndarray:
-    """Convert bin centers to edges."""
     bin_centers = array_checks.as_1d(
         array_like=bin_centers,
         param_name="bin_centers",
@@ -123,35 +158,89 @@ def get_bin_edges_from_centers(
     )
 
 
-def create_uniformly_spaced_bin_centers(
+##
+## === PDF NORMALISATION CHECKS
+##
+
+
+def _ensure_correct_pdf_integral(
     *,
-    values: numpy.ndarray,
-    num_bins: int,
-    bin_range_percent: float = 1.0,
-) -> numpy.ndarray:
-    values = array_checks.as_1d(
-        array_like=values,
-        param_name="values",
-        check_finite=True,
+    bin_centers: numpy.ndarray,
+    densities: numpy.ndarray,
+    param_name: str = "<EstimatedPDF>",
+    relative_tol: float = 1e-6,
+    absolute_tol: float = 1e-12,
+) -> None:
+    type_manager.ensure_finite_float(
+        param=relative_tol,
+        param_name="relative_tol",
+        allow_none=False,
+        require_positive=True,
     )
-    if not isinstance(num_bins, (int, numpy.integer)):
-        raise ValueError("`num_bins` must be an integer.")
-    if num_bins <= 0:
-        raise ValueError("`num_bins` must be positive.")
-    if not isinstance(bin_range_percent, (int, float, numpy.integer, numpy.floating)):
-        raise ValueError("`bin_range_percent` must be a number.")
-    if not numpy.isfinite(bin_range_percent):
-        raise ValueError("`bin_range_percent` must be finite.")
-    if bin_range_percent < 0:
-        raise ValueError("`bin_range_percent` must be non-negative.")
-    p16_value = numpy.percentile(values, 16)
-    p50_value = numpy.percentile(values, 50)
-    p84_value = numpy.percentile(values, 84)
-    return numpy.linspace(
-        start=p16_value - (1 + bin_range_percent) * (p50_value - p16_value),
-        stop=p84_value + (1 + bin_range_percent) * (p84_value - p50_value),
-        num=int(num_bins),
+    type_manager.ensure_finite_float(
+        param=absolute_tol,
+        param_name="absolute_tol",
+        allow_none=False,
+        require_positive=True,
     )
+    bin_edges = _get_bin_edges_from_centers(bin_centers)
+    bin_widths = numpy.diff(bin_edges)
+    integral = float(
+        numpy.sum(
+            densities * bin_widths,
+            dtype=numpy.float64,
+        ),
+    )
+    type_manager.ensure_finite_float(
+        param=integral,
+        param_name="integral",
+        allow_none=False,
+        require_positive=True,
+    )
+    if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
+        raise ValueError(f"{param_name} is not normalised: integral={integral}.")
+
+
+def _ensure_correct_jpdf_integral(
+    *,
+    row_centers: numpy.ndarray,
+    col_centers: numpy.ndarray,
+    densities: numpy.ndarray,
+    param_name: str = "<EstimatedJPDF>",
+    relative_tol: float = 1e-6,
+    absolute_tol: float = 1e-12,
+) -> None:
+    type_manager.ensure_finite_float(
+        param=relative_tol,
+        param_name="relative_tol",
+        allow_none=False,
+        require_positive=True,
+    )
+    type_manager.ensure_finite_float(
+        param=absolute_tol,
+        param_name="absolute_tol",
+        allow_none=False,
+        require_positive=True,
+    )
+    row_edges = _get_bin_edges_from_centers(row_centers)
+    col_edges = _get_bin_edges_from_centers(col_centers)
+    bin_widths_rows = numpy.diff(row_edges)
+    bin_widths_cols = numpy.diff(col_edges)
+    bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
+    integral = float(
+        numpy.sum(
+            densities * bin_areas,
+            dtype=numpy.float64,
+        ),
+    )
+    type_manager.ensure_finite_float(
+        param=integral,
+        param_name="integral",
+        allow_none=False,
+        require_positive=True,
+    )
+    if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
+        raise ValueError(f"{param_name} is not normalised: integral={integral}.")
 
 
 ##
@@ -171,10 +260,6 @@ class EstimatedPDF:
             array=self.bin_centers,
             param_name="bin_centers",
         )
-        array_checks.ensure_nonempty(
-            array=self.bin_centers,
-            param_name="bin_centers",
-        )
         array_checks.ensure_finite(
             array=self.bin_centers,
             param_name="bin_centers",
@@ -183,25 +268,27 @@ class EstimatedPDF:
             array=self.densities,
             param_name="densities",
         )
-        array_checks.ensure_nonempty(
-            array=self.densities,
-            param_name="densities",
-        )
         array_checks.ensure_finite(
             array=self.densities,
             param_name="densities",
         )
-        array_checks.ensure_shape(
-            array=self.densities,
-            expected_shape=self.bin_centers.shape,
-            param_name="densities",
+        array_checks.ensure_same_shape(
+            array_a=self.bin_centers,
+            array_b=self.densities,
+            param_name_a="bin_centers",
+            param_name_b="densities",
+        )
+        _ensure_correct_pdf_integral(
+            bin_centers=self.bin_centers,
+            densities=self.densities,
+            param_name="EstimatedPDF",
         )
 
     @functools.cached_property
     def bin_edges(
         self,
     ) -> numpy.ndarray:
-        return get_bin_edges_from_centers(self.bin_centers)
+        return _get_bin_edges_from_centers(self.bin_centers)
 
     @property
     def resolution(
@@ -254,10 +341,12 @@ def estimate_pdf(
             param_name="values[finite]",
         )
         weights = None
-    if not isinstance(delta_threshold, (int, float, numpy.integer, numpy.floating)):
-        raise ValueError("`delta_threshold` must be a number.")
-    if not numpy.isfinite(delta_threshold) or delta_threshold < 0:
-        raise ValueError("`delta_threshold` must be a finite, non-negative number.")
+    type_manager.ensure_finite_float(
+        param=delta_threshold,
+        param_name="delta_threshold",
+        allow_none=False,
+        require_positive=True,
+    )
     if numpy.std(values, dtype=numpy.float64) < delta_threshold:
         mean_value = float(
             numpy.mean(
@@ -301,7 +390,7 @@ def estimate_pdf(
     if bin_centers is None:
         if num_bins is None:
             raise ValueError("You did not provide a binning option.")
-        bin_centers = create_uniformly_spaced_bin_centers(
+        bin_centers = _create_uniformly_spaced_bin_centers(
             values=values,
             num_bins=num_bins,
             bin_range_percent=bin_range_percent,
@@ -314,7 +403,7 @@ def estimate_pdf(
         )
         if not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
             raise ValueError("Bin centers must be sorted in ascending order.")
-    bin_edges = get_bin_edges_from_centers(bin_centers).astype(numpy.float64)
+    bin_edges = _get_bin_edges_from_centers(bin_centers).astype(numpy.float64)
     bin_widths = numpy.diff(bin_edges)
     if numpy.any(bin_widths <= 0):
         raise ValueError("All bin widths must be positive.")
@@ -353,77 +442,71 @@ def estimate_pdf(
 
 @dataclass(frozen=True)
 class EstimatedJPDF:
-    bin_centers_rows: numpy.ndarray
-    bin_centers_cols: numpy.ndarray
+    row_centers: numpy.ndarray
+    col_centers: numpy.ndarray
     densities: numpy.ndarray
 
     def __post_init__(
         self,
     ) -> None:
         array_checks.ensure_1d(
-            array=self.bin_centers_rows,
-            param_name="bin_centers_rows",
-        )
-        array_checks.ensure_nonempty(
-            array=self.bin_centers_rows,
-            param_name="bin_centers_rows",
+            array=self.row_centers,
+            param_name="row_centers",
         )
         array_checks.ensure_finite(
-            array=self.bin_centers_rows,
-            param_name="bin_centers_rows",
+            array=self.row_centers,
+            param_name="row_centers",
         )
         array_checks.ensure_1d(
-            array=self.bin_centers_cols,
-            param_name="bin_centers_cols",
-        )
-        array_checks.ensure_nonempty(
-            array=self.bin_centers_cols,
-            param_name="bin_centers_cols",
+            array=self.col_centers,
+            param_name="col_centers",
         )
         array_checks.ensure_finite(
-            array=self.bin_centers_cols,
-            param_name="bin_centers_cols",
-        )
-        array_checks.ensure_array(
-            array=self.densities,
-            param_name="densities",
+            array=self.col_centers,
+            param_name="col_centers",
         )
         array_checks.ensure_dims(
             array=self.densities,
-            num_dims=2,
             param_name="densities",
+            num_dims=2,
         )
         array_checks.ensure_finite(
             array=self.densities,
             param_name="densities",
         )
-        num_rows = self.bin_centers_rows.shape[0]
-        num_cols = self.bin_centers_cols.shape[0]
+        num_rows = self.row_centers.shape[0]
+        num_cols = self.col_centers.shape[0]
         if self.densities.shape != (num_rows, num_cols):
             raise ValueError(
                 "`densities` must have shape "
-                f"({num_rows}, {num_cols}); got {self.densities.shape}.",
+                f"({num_rows}, {num_cols}) but got {self.densities.shape}.",
             )
+        _ensure_correct_jpdf_integral(
+            row_centers=self.row_centers,
+            col_centers=self.col_centers,
+            densities=self.densities,
+            param_name="EstimatedJPDF",
+        )
 
     @functools.cached_property
-    def bin_edges_rows(
+    def row_edges(
         self,
     ) -> numpy.ndarray:
-        return get_bin_edges_from_centers(self.bin_centers_rows)
+        return _get_bin_edges_from_centers(self.row_centers)
 
     @functools.cached_property
-    def bin_edges_cols(
+    def col_edges(
         self,
     ) -> numpy.ndarray:
-        return get_bin_edges_from_centers(self.bin_centers_cols)
+        return _get_bin_edges_from_centers(self.col_centers)
 
     @property
     def resolution(
         self,
     ) -> tuple[int, int]:
         return (
-            self.bin_centers_rows.shape[0],
-            self.bin_centers_cols.shape[0],
+            self.row_centers.shape[0],
+            self.col_centers.shape[0],
         )
 
 
@@ -432,8 +515,8 @@ def estimate_jpdf(
     data_x: numpy.ndarray,
     data_y: numpy.ndarray,
     data_weights: numpy.ndarray | None = None,
-    bin_centers_cols: numpy.ndarray | None = None,
-    bin_centers_rows: numpy.ndarray | None = None,
+    col_centers: numpy.ndarray | None = None,
+    row_centers: numpy.ndarray | None = None,
     num_bins: int | None = None,
     bin_range_percent: float = 1.0,
     smoothing_length: float | None = None,
@@ -442,12 +525,12 @@ def estimate_jpdf(
     data_x = array_checks.as_1d(
         array_like=data_x,
         param_name="data_x",
-        check_finite=False,
+        check_finite=True,
     )
     data_y = array_checks.as_1d(
         array_like=data_y,
         param_name="data_y",
-        check_finite=False,
+        check_finite=True,
     )
     array_checks.ensure_same_shape(
         array_a=data_x,
@@ -459,7 +542,7 @@ def estimate_jpdf(
         data_weights = array_checks.as_1d(
             array_like=data_weights,
             param_name="data_weights",
-            check_finite=False,
+            check_finite=True,
         )
         array_checks.ensure_same_shape(
             array_a=data_x,
@@ -467,66 +550,55 @@ def estimate_jpdf(
             param_name_a="data_x",
             param_name_b="data_weights",
         )
-        mask_xy = (numpy.isfinite(data_x) & numpy.isfinite(data_y) & numpy.isfinite(data_weights))
-    else:
-        mask_xy = numpy.isfinite(data_x) & numpy.isfinite(data_y)
-    data_x = data_x[mask_xy]
-    data_y = data_y[mask_xy]
-    array_checks.ensure_nonempty(
-        array=data_x,
-        param_name="data_x[finite]",
-    )
-    if data_weights is not None:
-        data_weights = data_weights[mask_xy]
         if numpy.any(data_weights < 0):
             raise ValueError("`data_weights` must be non-negative.")
     else:
         data_weights = None
-    if (bin_centers_cols is None) and (bin_centers_rows is None) and (num_bins is None):
+    if (col_centers is None) and (row_centers is None) and (num_bins is None):
         raise ValueError("You did not provide a binning option.")
     if num_bins is None:
-        if bin_centers_cols is not None:
-            num_bins = len(bin_centers_cols)
-        if bin_centers_rows is not None:
-            num_bins = len(bin_centers_rows)
+        if col_centers is not None:
+            num_bins = len(col_centers)
+        if row_centers is not None:
+            num_bins = len(row_centers)
     assert num_bins is not None
-    if bin_centers_cols is None:
-        bin_centers_cols = create_uniformly_spaced_bin_centers(
+    if col_centers is None:
+        col_centers = _create_uniformly_spaced_bin_centers(
             values=data_x,
             num_bins=num_bins,
             bin_range_percent=bin_range_percent,
         ).astype(numpy.float64)
     else:
-        bin_centers_cols = array_checks.as_1d(
-            array_like=bin_centers_cols,
-            param_name="bin_centers_cols",
+        col_centers = array_checks.as_1d(
+            array_like=col_centers,
+            param_name="col_centers",
             check_finite=True,
         )
-    if bin_centers_rows is None:
-        bin_centers_rows = create_uniformly_spaced_bin_centers(
+    if row_centers is None:
+        row_centers = _create_uniformly_spaced_bin_centers(
             values=data_y,
             num_bins=num_bins,
             bin_range_percent=bin_range_percent,
         ).astype(numpy.float64)
     else:
-        bin_centers_rows = array_checks.as_1d(
-            array_like=bin_centers_rows,
-            param_name="bin_centers_rows",
+        row_centers = array_checks.as_1d(
+            array_like=row_centers,
+            param_name="row_centers",
             check_finite=True,
         )
-    bin_edges_rows = get_bin_edges_from_centers(bin_centers_rows).astype(numpy.float64)
-    bin_edges_cols = get_bin_edges_from_centers(bin_centers_cols).astype(numpy.float64)
-    bin_widths_rows = numpy.diff(bin_edges_rows)
-    bin_widths_cols = numpy.diff(bin_edges_cols)
+    row_edges = _get_bin_edges_from_centers(row_centers).astype(numpy.float64)
+    col_edges = _get_bin_edges_from_centers(col_centers).astype(numpy.float64)
+    bin_widths_rows = numpy.diff(row_edges)
+    bin_widths_cols = numpy.diff(col_edges)
     if numpy.any(bin_widths_rows <= 0) or numpy.any(bin_widths_cols <= 0):
         raise ValueError("All bin widths must be positive.")
     bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
-    bin_indices_rows = numpy.searchsorted(bin_edges_rows, data_y, side="right") - 1
-    bin_indices_cols = numpy.searchsorted(bin_edges_cols, data_x, side="right") - 1
-    bin_indices_rows = numpy.clip(bin_indices_rows, 0, len(bin_centers_rows) - 1)
-    bin_indices_cols = numpy.clip(bin_indices_cols, 0, len(bin_centers_cols) - 1)
+    bin_indices_rows = numpy.searchsorted(row_edges, data_y, side="right") - 1
+    bin_indices_cols = numpy.searchsorted(col_edges, data_x, side="right") - 1
+    bin_indices_rows = numpy.clip(bin_indices_rows, 0, len(row_centers) - 1)
+    bin_indices_cols = numpy.clip(bin_indices_cols, 0, len(col_centers) - 1)
     bin_counts = numpy.zeros(
-        (len(bin_centers_rows), len(bin_centers_cols)),
+        (len(row_centers), len(col_centers)),
         dtype=numpy.float64,
     )
     if data_weights is not None:
@@ -549,15 +621,12 @@ def estimate_jpdf(
     )
     estimated_jpdf = (bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts)
     if smoothing_length is not None:
-        if not isinstance(
-                smoothing_length,
-            (int, float, numpy.integer, numpy.floating),
-        ):
-            raise ValueError("`smoothing_length` must be a number.")
-        if not numpy.isfinite(smoothing_length) or smoothing_length < 0:
-            raise ValueError(
-                "`smoothing_length` must be a finite, non-negative number.",
-            )
+        type_manager.ensure_finite_float(
+            param=smoothing_length,
+            param_name="smoothing_length",
+            allow_none=False,
+            require_positive=True,
+        )
         estimated_jpdf = smooth_2d_arrays.smooth_2d_data_with_gaussian_filter(
             estimated_jpdf,
             smoothing_length,
@@ -571,8 +640,8 @@ def estimate_jpdf(
         if total > 0:
             estimated_jpdf /= total
     return EstimatedJPDF(
-        bin_centers_rows=bin_centers_rows,
-        bin_centers_cols=bin_centers_cols,
+        row_centers=row_centers,
+        col_centers=col_centers,
         densities=estimated_jpdf,
     )
 
