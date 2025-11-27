@@ -11,8 +11,8 @@ from dataclasses import dataclass
 
 from jormi.ww_types import array_checks, type_manager
 from jormi.ww_fields.fields_3d import (
-    _fdata_types,
-    field_types,
+    _fdata,
+    field,
 )
 
 ##
@@ -92,7 +92,7 @@ def _compute_3d_power_spectrum_sarray(
     resolution_3d: tuple[int, int, int],
 ) -> numpy.ndarray:
     """Compute the 3D power spectrum |F(k)|^2 of a scalar array (Nx, Ny, Nz)."""
-    _fdata_types.ensure_3d_sarray(
+    _fdata.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
     )
@@ -132,7 +132,7 @@ def _integrate_spectrum_over_spherical_shells(
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Integrate a 3D power spectrum over spherical shells in index-space."""
-    _fdata_types.ensure_3d_sarray(
+    _fdata.ensure_3d_sarray(
         sarray_3d=centered_3d_spectrum,
         param_name="<centered_3d_spectrum>",
     )
@@ -192,10 +192,10 @@ def _compute_isotropic_power_spectrum_sarray(
 
 
 def compute_isotropic_power_spectrum_sfield(
-    sfield_3d: field_types.ScalarField_3D,
+    sfield_3d: field.ScalarField_3D,
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a 3D scalar field."""
-    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
+    sarray_3d = field.extract_3d_sarray(sfield_3d)
     udomain_3d = sfield_3d.udomain
     resolution_3d = udomain_3d.resolution
     return _compute_isotropic_power_spectrum_sarray(

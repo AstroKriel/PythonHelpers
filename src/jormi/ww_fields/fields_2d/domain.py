@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from jormi.ww_types import type_manager
 from jormi.ww_fields import (
-    _domain_types,
+    _domain,
     _cartesian_coordinates,
 )
 
@@ -22,7 +22,7 @@ from jormi.ww_fields import (
 
 
 @dataclass(frozen=True)
-class UniformDomain_2D(_domain_types.UniformDomain):
+class UniformDomain_2D(_domain.UniformDomain):
     """
     Uniform 2D domain: `num_sdims == 2`.
 

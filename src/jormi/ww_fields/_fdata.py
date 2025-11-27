@@ -65,12 +65,12 @@ class FieldData:
             allow_none=False,
             require_positive=True,
         )
-        ## NOTE: `num_ranks+1` is used to enforce num_ranks >= 0
         type_manager.ensure_finite_int(
-            param=self.num_ranks + 1,
+            param=self.num_ranks,
             param_name=f"{self.param_name}.num_ranks",
             allow_none=False,
             require_positive=True,
+            allow_zero=True,
         )
         if (self.num_ranks == 0) and (self.num_comps != 1):
             raise ValueError(

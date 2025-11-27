@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Self, Callable
 
 from jormi.ww_types import type_manager, array_checks
-from jormi.ww_fields import _fdata_types, _domain_types
+from jormi.ww_fields import _fdata, _domain
 
 ##
 ## === BASE FIELD TYPE
@@ -24,8 +24,8 @@ class Field:
     add additional constraints on the underlying `FieldData` and metadata.
     """
 
-    fdata: _fdata_types.FieldData
-    udomain: _domain_types.UniformDomain
+    fdata: _fdata.FieldData
+    udomain: _domain.UniformDomain
     field_label: str
     sim_time: float | None = None
 
@@ -40,7 +40,7 @@ class Field:
     def _validate_fdata(
         self,
     ) -> None:
-        _fdata_types.ensure_fdata(
+        _fdata.ensure_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
@@ -48,7 +48,7 @@ class Field:
     def _validate_udomain(
         self,
     ) -> None:
-        _domain_types.ensure_udomain(
+        _domain.ensure_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -81,10 +81,10 @@ class Field:
         cls,
         *,
         farray,
-        udomain: _domain_types.UniformDomain,
+        udomain: _domain.UniformDomain,
         field_label: str,
         sim_time: float | None = None,
-        fdata_fn: Callable[..., _fdata_types.FieldData],
+        fdata_fn: Callable[..., _fdata.FieldData],
         fdata_param_name: str = "<farray>",
         **fdata_kwargs,
     ) -> Self:
@@ -161,7 +161,7 @@ def ensure_field_metadata(
         field=field,
         param_name=param_name,
     )
-    _fdata_types.ensure_fdata_metadata(
+    _fdata.ensure_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,
@@ -173,12 +173,12 @@ def ensure_field_metadata(
 def ensure_udomain_matches_field(
     *,
     field: Field,
-    udomain: _domain_types.UniformDomain,
+    udomain: _domain.UniformDomain,
     domain_name: str = "<udomain>",
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    _domain_types.ensure_udomain(
+    _domain.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
     )

@@ -12,7 +12,7 @@ from jormi.ww_types import type_manager
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _finite_difference_sarrays,
-    _fdata_types,
+    _fdata,
 )
 
 ##
@@ -31,15 +31,15 @@ class HelmholtzDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_div,
             param_name="<varray_3d_div>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_sol,
             param_name="<varray_3d_sol>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_bulk,
             param_name="<varray_3d_bulk>",
         )
@@ -78,7 +78,7 @@ def compute_helmholtz_decomposed_farrays(
     HelmholtzDecomposedFArrays_3D
         Decomposed varrays.
     """
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=varray_3d_q,
         param_name="<varray_3d_q>",
     )
@@ -186,19 +186,19 @@ class TNBDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.uvarray_3d_tangent,
             param_name="<uvarray_3d_tangent>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.uvarray_3d_normal,
             param_name="<uvarray_3d_normal>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.uvarray_3d_binormal,
             param_name="<uvarray_3d_binormal>",
         )
-        _fdata_types.ensure_3d_sarray(
+        _fdata.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
         )
@@ -235,7 +235,7 @@ def compute_tnb_farrays(
       - uvarray_3d_binormal  (3, Nx, Ny, Nz)
       - sarray_3d_curvature  (Nx, Ny, Nz)
     """
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
@@ -343,15 +343,15 @@ class MagneticCurvatureFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_sarray(
+        _fdata.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
         )
-        _fdata_types.ensure_3d_sarray(
+        _fdata.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_stretching,
             param_name="<sarray_3d_stretching>",
         )
-        _fdata_types.ensure_3d_sarray(
+        _fdata.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_compression,
             param_name="<sarray_3d_compression>",
         )
@@ -384,15 +384,15 @@ def compute_magnetic_curvature_farrays(
         stretching  = t_i t_j d_i u_j
         compression = d_i u_i
     """
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=uvarray_3d_tangent,
         param_name="<uvarray_3d_tangent>",
     )
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=uvarray_3d_normal,
         param_name="<uvarray_3d_normal>",
     )
@@ -463,15 +463,15 @@ class LorentzForceFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_lorentz,
             param_name="<varray_3d_lorentz>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_tension,
             param_name="<varray_3d_tension>",
         )
-        _fdata_types.ensure_3d_varray(
+        _fdata.ensure_3d_varray(
             varray_3d=self.varray_3d_gradP_perp,
             param_name="<varray_3d_gradP_perp>",
         )
@@ -500,7 +500,7 @@ def compute_lorentz_force_farrays(
         gradP_perp_i = d_i (b_k b_k / 2) - t_i t_j d_j (b_k b_k / 2)
         lorentz_i    = tension_i - gradP_perp_i
     """
-    _fdata_types.ensure_3d_varray(
+    _fdata.ensure_3d_varray(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
     )
@@ -528,7 +528,7 @@ def compute_lorentz_force_farrays(
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
-    varray_3d_gradP = _fdata_types.ensure_farray_metadata(
+    varray_3d_gradP = _fdata.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=sarray_3d_b_magn_sq.dtype,

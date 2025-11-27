@@ -7,7 +7,7 @@
 import numpy
 
 from jormi.ww_types import type_manager
-from jormi.ww_fields.fields_3d import _fdata_types
+from jormi.ww_fields.fields_3d import _fdata
 
 ##
 ## === INTERNAL HELPERS
@@ -21,7 +21,7 @@ def _validate_args(
     grad_axis: int,
     sarray_name: str,
 ) -> None:
-    _fdata_types.ensure_3d_sarray(
+    _fdata.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name=sarray_name,
     )

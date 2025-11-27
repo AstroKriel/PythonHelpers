@@ -8,8 +8,8 @@ import numpy
 
 from jormi.ww_types import type_manager
 from jormi.ww_fields.fields_3d import (
-    domain_types,
-    field_types,
+    domain,
+    field,
 )
 
 ##
@@ -53,13 +53,13 @@ def _generate_gaussian_random_3d_sarray(
 
 def generate_gaussian_random_3d_sfield(
     *,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain.UniformDomain_3D,
     correlation_length: float,
     field_label: str = "G(x)",
     sim_time: float | None = None,
-) -> field_types.ScalarField_3D:
+) -> field.ScalarField_3D:
     """Generate a 3D scalar field with a Gaussian correlation length."""
-    domain_types.ensure_3d_udomain(
+    domain.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
@@ -73,7 +73,7 @@ def generate_gaussian_random_3d_sfield(
         resolution=udomain_3d.resolution,
         correlation_length=correlation_length,
     )
-    return field_types.ScalarField_3D.from_3d_sarray(
+    return field.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
         field_label=field_label,
@@ -142,14 +142,14 @@ def _generate_powerlaw_random_3d_sarray(
 
 def generate_powerlaw_random_3d_sfield(
     *,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain.UniformDomain_3D,
     alpha_perp: float,
     alpha_para: float | None = None,
     field_label: str = "P(x)",
     sim_time: float | None = None,
-) -> field_types.ScalarField_3D:
+) -> field.ScalarField_3D:
     """Generate a 3D scalar field with a power-law power spectrum."""
-    domain_types.ensure_3d_udomain(
+    domain.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
@@ -171,7 +171,7 @@ def generate_powerlaw_random_3d_sfield(
         alpha_perp=alpha_perp,
         alpha_para=alpha_para,
     )
-    return field_types.ScalarField_3D.from_3d_sarray(
+    return field.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
         field_label=field_label,

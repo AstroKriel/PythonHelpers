@@ -11,7 +11,7 @@ from functools import cached_property
 from dataclasses import dataclass
 
 from jormi.ww_types import type_manager
-from jormi.ww_fields import _domain_types
+from jormi.ww_fields import _domain
 
 ##
 ## === 3D DOMAIN
@@ -19,7 +19,7 @@ from jormi.ww_fields import _domain_types
 
 
 @dataclass(frozen=True)
-class UniformDomain_3D(_domain_types.UniformDomain):
+class UniformDomain_3D(_domain.UniformDomain):
     """
     Uniform 3D domain: `num_sdims == 3`.
 

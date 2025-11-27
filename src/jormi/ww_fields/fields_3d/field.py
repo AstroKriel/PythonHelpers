@@ -12,12 +12,12 @@ from dataclasses import dataclass
 from jormi.ww_types import type_manager
 from jormi.ww_fields import (
     _cartesian_coordinates,
-    _field_types,
+    _field,
 )
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
-    _fdata_types,
-    domain_types,
+    _fdata,
+    domain,
 )
 
 ##
@@ -26,11 +26,11 @@ from jormi.ww_fields.fields_3d import (
 
 
 @dataclass(frozen=True)
-class ScalarField_3D(_field_types.Field):
+class ScalarField_3D(_field.Field):
     """3D scalar field: num_ranks=0, num_comps=1, num_sdims=3."""
 
-    fdata: _fdata_types.ScalarFieldData_3D
-    udomain: domain_types.UniformDomain_3D
+    fdata: _fdata.ScalarFieldData_3D
+    udomain: domain.UniformDomain_3D
 
     def __post_init__(
         self,
@@ -41,11 +41,11 @@ class ScalarField_3D(_field_types.Field):
     def _validate_sdata(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_sdata(
+        _fdata.ensure_3d_sdata(
             sdata_3d=self.fdata,
             param_name="<sfield_3d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field.ensure_field_metadata(
             field=self,
             num_comps=1,
             num_sdims=3,
@@ -58,7 +58,7 @@ class ScalarField_3D(_field_types.Field):
         cls,
         *,
         sarray_3d,
-        udomain_3d: domain_types.UniformDomain_3D,
+        udomain_3d: domain.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
     ) -> "ScalarField_3D":
@@ -68,17 +68,17 @@ class ScalarField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=_fdata_types.ScalarFieldData_3D,
+            fdata_fn=_fdata.ScalarFieldData_3D,
             fdata_param_name="<sarray_3d>",
         )
 
 
 @dataclass(frozen=True)
-class VectorField_3D(_field_types.Field):
+class VectorField_3D(_field.Field):
     """3D vector field: num_ranks=1, num_comps=3, num_sdims=3."""
 
-    fdata: _fdata_types.VectorFieldData_3D
-    udomain: domain_types.UniformDomain_3D
+    fdata: _fdata.VectorFieldData_3D
+    udomain: domain.UniformDomain_3D
     comp_axes: _cartesian_coordinates.AxisTuple = _cartesian_coordinates.DEFAULT_AXES_ORDER
 
     def __post_init__(
@@ -91,11 +91,11 @@ class VectorField_3D(_field_types.Field):
     def _validate_vdata(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_vdata(
+        _fdata.ensure_3d_vdata(
             vdata_3d=self.fdata,
             param_name="<vfield_3d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field.ensure_field_metadata(
             field=self,
             num_comps=3,
             num_sdims=3,
@@ -122,7 +122,7 @@ class VectorField_3D(_field_types.Field):
         cls,
         *,
         varray_3d,
-        udomain_3d: domain_types.UniformDomain_3D,
+        udomain_3d: domain.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
     ) -> "VectorField_3D":
@@ -132,7 +132,7 @@ class VectorField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=_fdata_types.VectorFieldData_3D,
+            fdata_fn=_fdata.VectorFieldData_3D,
             fdata_param_name="<varray_3d>",
         )
 
@@ -168,7 +168,7 @@ class UnitVectorField_3D(VectorField_3D):
             vfield_3d=self,
             param_name="<uvfield_3d>",
         )
-        ## validate here, rather than in the _fdata_types module, since the following
+        ## validate here, rather than in the _fdata module, since the following
         ## fn-call would yield a circular import there
         sarray_3d_vmagn_sq = _farray_operators.sum_of_varray_comps_squared(
             varray_3d=varray_3d,
@@ -262,7 +262,7 @@ def ensure_3d_uvfield(
 def ensure_3d_udomain_matches_sfield(
     *,
     sfield_3d: ScalarField_3D,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain.UniformDomain_3D,
     domain_name: str = "<udomain_3d>",
     sfield_name: str = "<sfield_3d>",
 ) -> None:
@@ -271,7 +271,7 @@ def ensure_3d_udomain_matches_sfield(
         sfield_3d=sfield_3d,
         param_name=sfield_name,
     )
-    _field_types.ensure_udomain_matches_field(
+    _field.ensure_udomain_matches_field(
         udomain=udomain_3d,
         field=sfield_3d,
         domain_name=domain_name,
@@ -281,7 +281,7 @@ def ensure_3d_udomain_matches_sfield(
 
 def ensure_3d_udomain_matches_vfield(
     *,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain.UniformDomain_3D,
     vfield_3d: VectorField_3D,
     domain_name: str = "<udomain_3d>",
     vfield_name: str = "<vfield_3d>",
@@ -291,7 +291,7 @@ def ensure_3d_udomain_matches_vfield(
         vfield_3d=vfield_3d,
         param_name=vfield_name,
     )
-    _field_types.ensure_udomain_matches_field(
+    _field.ensure_udomain_matches_field(
         udomain=udomain_3d,
         field=vfield_3d,
         domain_name=domain_name,
@@ -301,28 +301,28 @@ def ensure_3d_udomain_matches_vfield(
 
 def ensure_same_3d_field_shape(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field.Field,
+    field_3d_b: _field.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
     """
     Ensure two 3D Field instances have shape-compatible data arrays.
 
-    This is a thin wrapper around the base ww_types.field_types helper,
-    re-exposed here so 3D code can stay within jormi.ww_fields.fields_3d.field_types.
+    This is a thin wrapper around the base ww_types.field helper,
+    re-exposed here so 3D code can stay within jormi.ww_fields.fields_3d.field.
     """
-    _field_types.ensure_field_metadata(
+    _field.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
         num_sdims=3,
     )
-    _field_types.ensure_field_metadata(
+    _field.ensure_field_metadata(
         field=field_3d_b,
         param_name=field_name_b,
         num_sdims=3,
     )
-    _field_types.ensure_same_field_shape(
+    _field.ensure_same_field_shape(
         field_a=field_3d_a,
         field_b=field_3d_b,
         field_name_a=field_name_a,
@@ -332,8 +332,8 @@ def ensure_same_3d_field_shape(
 
 def ensure_same_3d_field_udomains(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field.Field,
+    field_3d_b: _field.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
@@ -345,12 +345,12 @@ def ensure_same_3d_field_udomains(
     field_3d_a, field_3d_b
         3D Field instances whose udomain attributes should match.
     """
-    _field_types.ensure_field_metadata(
+    _field.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
         num_sdims=3,
     )
-    _field_types.ensure_field_metadata(
+    _field.ensure_field_metadata(
         field=field_3d_b,
         param_name=field_name_b,
         num_sdims=3,
@@ -363,8 +363,8 @@ def ensure_same_3d_field_udomains(
 
 def ensure_same_3d_field_shape_and_udomains(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field.Field,
+    field_3d_b: _field.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
@@ -404,7 +404,7 @@ def extract_3d_sarray(
         sfield_3d=sfield_3d,
         param_name=param_name,
     )
-    return _fdata_types.extract_3d_sarray(
+    return _fdata.extract_3d_sarray(
         sdata_3d=sfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
@@ -420,7 +420,7 @@ def extract_3d_varray(
         vfield_3d=vfield_3d,
         param_name=param_name,
     )
-    return _fdata_types.extract_3d_varray(
+    return _fdata.extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
