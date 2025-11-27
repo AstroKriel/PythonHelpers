@@ -76,9 +76,14 @@ def _get_queue_config(
     queue_name: str,
 ) -> dict:
     """Extract relevant system-queue constraints."""
-    queue_config = _QUEUE_CONFIGS.get(system_name).get(queue_name) ## TODO: fix case when system_name is None
-    if not queue_config:
-        raise QueueValidationError(f"Unknown queue `{queue_name}` for system `{system_name}`.")
+    system_config = _QUEUE_CONFIGS.get(system_name)
+    if system_config is None:
+        raise QueueValidationError(f"Unknown system `{system_name}`.")
+    queue_config = system_config.get(queue_name)
+    if queue_config is None:
+        raise QueueValidationError(
+            f"Unknown queue `{queue_name}` for system `{system_name}`.",
+        )
     return queue_config
 
 
