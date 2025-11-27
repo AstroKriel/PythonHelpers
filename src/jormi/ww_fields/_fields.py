@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Self, Callable
 
 from jormi.ww_types import type_manager, array_checks
-from jormi.ww_fields import _fdata, _domain
+from jormi.ww_fields import _fdata, _domains
 
 ##
 ## === BASE FIELD TYPE
@@ -25,7 +25,7 @@ class Field:
     """
 
     fdata: _fdata.FieldData
-    udomain: _domain.UniformDomain
+    udomain: _domains.UniformDomain
     field_label: str
     sim_time: float | None = None
 
@@ -48,7 +48,7 @@ class Field:
     def _validate_udomain(
         self,
     ) -> None:
-        _domain.ensure_udomain(
+        _domains.ensure_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -81,7 +81,7 @@ class Field:
         cls,
         *,
         farray,
-        udomain: _domain.UniformDomain,
+        udomain: _domains.UniformDomain,
         field_label: str,
         sim_time: float | None = None,
         fdata_fn: Callable[..., _fdata.FieldData],
@@ -173,12 +173,12 @@ def ensure_field_metadata(
 def ensure_udomain_matches_field(
     *,
     field: Field,
-    udomain: _domain.UniformDomain,
+    udomain: _domains.UniformDomain,
     domain_name: str = "<udomain>",
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    _domain.ensure_udomain(
+    _domains.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
     )

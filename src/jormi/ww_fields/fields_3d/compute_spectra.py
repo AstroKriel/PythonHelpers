@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from jormi.ww_types import array_checks, type_manager
 from jormi.ww_fields.fields_3d import (
     _fdata,
-    field,
+    fields,
 )
 
 ##
@@ -192,10 +192,10 @@ def _compute_isotropic_power_spectrum_sarray(
 
 
 def compute_isotropic_power_spectrum_sfield(
-    sfield_3d: field.ScalarField_3D,
+    sfield_3d: fields.ScalarField_3D,
 ) -> IsotropicPowerSpectrum:
-    """Compute the 1D (shell-integrated) power spectrum of a 3D scalar field."""
-    sarray_3d = field.extract_3d_sarray(sfield_3d)
+    """Compute the 1D (shell-integrated) power spectrum of a 3D scalar field"""
+    sarray_3d = fields.extract_3d_sarray(sfield_3d)
     udomain_3d = sfield_3d.udomain
     resolution_3d = udomain_3d.resolution
     return _compute_isotropic_power_spectrum_sarray(

@@ -10,9 +10,9 @@ from typing import Self
 from dataclasses import dataclass
 
 from jormi.ww_types import type_manager
-from jormi.ww_fields import _field
+from jormi.ww_fields import _fields
 from jormi.ww_fields.fields_2d import (
-    domain,
+    domains,
     _fdata,
 )
 
@@ -22,11 +22,11 @@ from jormi.ww_fields.fields_2d import (
 
 
 @dataclass(frozen=True)
-class ScalarField_2D(_field.Field):
+class ScalarField_2D(_fields.Field):
     """2D scalar field: `num_ranks == 0`, `num_comps == 1`, `num_sdims == 2`."""
 
     fdata: _fdata.ScalarFieldData_2D
-    udomain: domain.UniformDomain_2D
+    udomain: domains.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -41,7 +41,7 @@ class ScalarField_2D(_field.Field):
             sdata_2d=self.fdata,
             param_name="<sfield_2d.fdata>",
         )
-        _field.ensure_field_metadata(
+        _fields.ensure_field_metadata(
             field=self,
             num_comps=1,
             num_sdims=2,
@@ -54,7 +54,7 @@ class ScalarField_2D(_field.Field):
         cls,
         *,
         sarray_2d: numpy.ndarray,
-        udomain_2d: domain.UniformDomain_2D,
+        udomain_2d: domains.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
@@ -78,16 +78,16 @@ class ScalarField_2D(_field.Field):
     def is_sliced_from_3d(
         self,
     ) -> bool:
-        """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain.UniformDomain_2D_Sliced3D)
+        """Return True if the underlying domain is a 3D-sliced 2D domains."""
+        return isinstance(self.udomain, domains.UniformDomain_2D_Sliced3D)
 
 
 @dataclass(frozen=True)
-class VectorField_2D(_field.Field):
+class VectorField_2D(_fields.Field):
     """2D vector field: `num_ranks == 1`, `num_comps == 2`, `num_sdims == 2`."""
 
     fdata: _fdata.VectorFieldData_2D
-    udomain: domain.UniformDomain_2D
+    udomain: domains.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -102,7 +102,7 @@ class VectorField_2D(_field.Field):
             vdata_2d=self.fdata,
             param_name="<vfield_2d.fdata>",
         )
-        _field.ensure_field_metadata(
+        _fields.ensure_field_metadata(
             field=self,
             num_comps=2,
             num_sdims=2,
@@ -115,7 +115,7 @@ class VectorField_2D(_field.Field):
         cls,
         *,
         varray_2d: numpy.ndarray,
-        udomain_2d: domain.UniformDomain_2D,
+        udomain_2d: domains.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
@@ -139,8 +139,8 @@ class VectorField_2D(_field.Field):
     def is_sliced_from_3d(
         self,
     ) -> bool:
-        """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain.UniformDomain_2D_Sliced3D)
+        """Return True if the underlying domain is a 3D-sliced 2D domains."""
+        return isinstance(self.udomain, domains.UniformDomain_2D_Sliced3D)
 
 
 ##
@@ -177,12 +177,12 @@ def ensure_2d_sfield_sliced_from_3d(
     *,
     param_name: str = "<sfield_2d>",
 ) -> None:
-    """Ensure `sfield_2d` is ScalarField_2D with a 3D-sliced 2D domain."""
+    """Ensure `sfield_2d` is ScalarField_2D with a 3D-sliced 2D domains."""
     ensure_2d_sfield(
         sfield_2d=sfield_2d,
         param_name=param_name,
     )
-    domain.ensure_2d_udomain_sliced_from_3d(
+    domains.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=sfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )
@@ -193,12 +193,12 @@ def ensure_2d_vfield_sliced_from_3d(
     *,
     param_name: str = "<vfield_2d>",
 ) -> None:
-    """Ensure `vfield_2d` is VectorField_2D with a 3D-sliced 2D domain."""
+    """Ensure `vfield_2d` is VectorField_2D with a 3D-sliced 2D domains."""
     ensure_2d_vfield(
         vfield_2d=vfield_2d,
         param_name=param_name,
     )
-    domain.ensure_2d_udomain_sliced_from_3d(
+    domains.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=vfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )

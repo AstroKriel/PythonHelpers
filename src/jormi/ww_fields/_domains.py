@@ -7,7 +7,7 @@
 import numpy
 
 from functools import cached_property
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from jormi.ww_types import type_manager
 from jormi.ww_fields import _cartesian_coordinates

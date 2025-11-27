@@ -34,11 +34,7 @@ def _validate_3d_cell_widths(
     *,
     param_name: str = "<cell_widths_3d>",
 ) -> None:
-    """
-    Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats.
-
-    This function does not coerce or copy `cell_widths_3d`; it only validates.
-    """
+    """Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats."""
     type_manager.ensure_sequence(
         param=cell_widths_3d,
         param_name=param_name,
