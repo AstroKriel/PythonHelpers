@@ -341,9 +341,9 @@ def ensure_finite_numeric(
         )
     if not numpy.isfinite(param):
         raise ValueError(f"`{param_name}` must be finite, got {param}.")
-    if not(param >= 0) and (require_positive and allow_zero):
+    if not (param >= 0) and (require_positive and allow_zero):
         raise ValueError(f"`{param_name}` must be non-negative (>= 0), got {param}.")
-    if not(param > 0) and (require_positive and not allow_zero):
+    if not (param > 0) and (require_positive and not allow_zero):
         raise ValueError(f"`{param_name}` must be positive (> 0), got {param}.")
 
 

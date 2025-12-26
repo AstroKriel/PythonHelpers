@@ -112,7 +112,7 @@ def plot_vfield_sliceSlice(ax, vfield: field_types.VectorField, domain_bounds):
         linewidth=2.0,
         density=1.0,
         arrowsize=1.0,
-        broken_streamlines=False,
+        broken_stringeamlines=False,
     )
     ax.text(
         0.5,
@@ -298,7 +298,7 @@ def main():
     plot_manager.save_figure(fig, file_path)
     assert len(failed_vfields) == 0, (
         f"Test failed for the following vector field(s): "
-        f"{list_utils.cast_to_string(failed_vfields)}"
+        f"{list_utils.as_string(failed_vfields)}"
     )
     print("All tests passed successfully!")
 

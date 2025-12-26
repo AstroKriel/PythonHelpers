@@ -9,7 +9,7 @@ import numpy
 from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.collections import LineCollection
 
-from jormi.ww_types import cardinal_anchors, ordinal_anchors, array_checks, type_manager
+from jormi.ww_types import cardinal_anchors, ordinal_anchors, array_checks, type_checks
 from jormi.ww_plots import plot_manager
 
 ##
@@ -75,21 +75,21 @@ def add_custom_legend(
     column_spacing: float = 0.5,
     put_label_first: bool = False,
 ):
-    type_manager.ensure_list_of_strings(
+    type_checks.ensure_list_of_strings(
         param=artists,
         param_name="artists",
     )
-    type_manager.ensure_list_of_strings(
+    type_checks.ensure_list_of_strings(
         param=labels,
         param_name="labels",
     )
-    type_manager.ensure_list_of_strings(
+    type_checks.ensure_list_of_strings(
         param=colors,
         param_name="colors",
     )
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("artists, labels, and colors must have the same length.")
-    type_manager.ensure_tuple_of_numbers(
+    type_checks.ensure_tuple_of_numbers(
         param=anchor_point,
         param_name="anchor_point",
         seq_length=2,

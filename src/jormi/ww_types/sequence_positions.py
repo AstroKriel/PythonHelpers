@@ -9,7 +9,6 @@ from typing import TypeAlias
 
 from jormi.utils import list_utils
 
-
 ##
 ## === TYPE DEFINITIONS
 ##
@@ -24,7 +23,6 @@ class SequencePosition(str, Enum):
 
 
 SequencePositionLike: TypeAlias = SequencePosition | str
-
 
 ##
 ## === TYPE CONVERTER

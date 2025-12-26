@@ -9,7 +9,7 @@ import csv
 from pathlib import Path
 
 from jormi.ww_io import io_manager, log_manager
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 
 ##
 ## === FUNCTIONS
@@ -20,7 +20,7 @@ def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
     """Ensure `file_path` is a valid .csv path and return it as an absolute Path."""
-    type_manager.ensure_not_none(
+    type_checks.ensure_not_none(
         param=file_path,
         param_name="file_path",
     )
@@ -34,7 +34,7 @@ def _validate_input_dict(
     input_dict: dict,
 ) -> None:
     """Validate that `input_dict` is a dict with string keys."""
-    type_manager.ensure_dict(
+    type_checks.ensure_dict(
         param=input_dict,
         param_name="input_dict",
         allow_none=False,
@@ -42,7 +42,7 @@ def _validate_input_dict(
     if not input_dict:
         return
     keys_as_list = list(input_dict.keys())
-    type_manager.ensure_list_of_strings(
+    type_checks.ensure_list_of_strings(
         param=keys_as_list,
         param_name="input_dict keys",
         allow_none=False,
@@ -54,12 +54,12 @@ def read_csv_file_into_dict(
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
-    type_manager.ensure_char(
+    type_checks.ensure_char(
         param=delimiter,
         param_name="delimiter",
         allow_none=False,
@@ -98,12 +98,12 @@ def save_dict_to_csv_file(
     overwrite: bool = True,
     verbose: bool = True,
 ) -> None:
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=overwrite,
         param_name="overwrite",
         allow_none=False,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,

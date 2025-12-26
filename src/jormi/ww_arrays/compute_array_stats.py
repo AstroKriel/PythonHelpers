@@ -9,7 +9,7 @@ import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager, array_checks
+from jormi.ww_types import type_checks, array_checks
 from jormi.ww_arrays import smooth_2d_arrays
 
 ##
@@ -46,12 +46,12 @@ def compute_p_norm(
         param_name_a="array_a",
         param_name_b="array_b",
     )
-    type_manager.ensure_numeric(
+    type_checks.ensure_numeric(
         param=p_norm,
         param_name="p_norm",
         allow_none=False,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=normalise_by_length,
         param_name="normalise_by_length",
         allow_none=False,
@@ -117,13 +117,13 @@ def _create_uniformly_spaced_bin_centers(
         param_name="values",
         check_finite=True,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_bins,
         param_name="num_bins",
         allow_none=False,
         require_positive=True,
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=bin_range_percent,
         param_name="bin_range_percent",
         allow_none=False,
@@ -179,14 +179,14 @@ def _ensure_correct_pdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -203,7 +203,7 @@ def _ensure_correct_pdf_integral(
         ),
     )
     ## validate normalisation of the 1D PDF
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -224,14 +224,14 @@ def _ensure_correct_jpdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -251,7 +251,7 @@ def _ensure_correct_jpdf_integral(
         ),
     )
     ## validate normalisation of the 2D JPDF
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -364,7 +364,7 @@ def estimate_pdf(
         )
         weights = None
     ## validate delta-threshold and detect near-delta distributions
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=delta_threshold,
         param_name="delta_threshold",
         allow_none=False,
@@ -660,7 +660,7 @@ def estimate_jpdf(
     estimated_jpdf = (bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts)
     ## optional smoothing and re-normalisation
     if smoothing_length is not None:
-        type_manager.ensure_finite_float(
+        type_checks.ensure_finite_float(
             param=smoothing_length,
             param_name="smoothing_length",
             allow_none=False,

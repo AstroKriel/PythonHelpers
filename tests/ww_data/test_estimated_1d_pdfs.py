@@ -64,7 +64,7 @@ def main():
     plot_manager.save_figure(fig, file_path)
     assert len(
         pdfs_that_failed,
-    ) == 0, f"Test failed for the following methods: {list_utils.cast_to_string(pdfs_that_failed)}"
+    ) == 0, f"Test failed for the following methods: {list_utils.as_string(pdfs_that_failed)}"
     print("All tests passed successfully!")
 
 

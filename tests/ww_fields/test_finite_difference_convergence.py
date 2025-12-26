@@ -94,7 +94,7 @@ class TestFiniteDifferenceConvergence:
         plot_manager.save_figure(fig, file_path)
         assert len(
             failed_methods,
-        ) == 0, f"Convergence test failed for the following method(s): {list_utils.cast_to_string(failed_methods)}"
+        ) == 0, f"Convergence test failed for the following method(s): {list_utils.as_string(failed_methods)}"
         print("Test passed successfully!")
 
     def _plot_exact_soln(self):

@@ -6,12 +6,12 @@
 
 import numpy
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 from jormi.ww_fields.fields_3d import (
     _finite_difference_sarrays,
     _farray_operators,
-    _fdata,
-    fields,
+    _fdata_type,
+    field_type,
     field_operators,
 )
 
@@ -21,22 +21,22 @@ from jormi.ww_fields.fields_3d import (
 
 
 def compute_magnetic_energy_density_sfield(
-    vfield_3d_b: fields.VectorField_3D,
+    vfield_3d_b: field_type.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
     field_label: str = "E_mag",
-) -> fields.ScalarField_3D:
+) -> field_type.ScalarField_3D:
     """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=energy_prefactor,
         param_name="<energy_prefactor>",
         allow_none=False,
     )
-    fields.ensure_3d_vfield(
+    field_type.ensure_3d_vfield(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    varray_3d_b = fields.extract_3d_varray(
+    varray_3d_b = field_type.extract_3d_varray(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
@@ -49,7 +49,7 @@ def compute_magnetic_energy_density_sfield(
         sarray_3d=sarray_3d_b2,
         scale=energy_prefactor,
     )
-    return fields.ScalarField_3D.from_3d_sarray(
+    return field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_b2,
         udomain_3d=udomain_3d,
         field_label=field_label,
@@ -58,7 +58,7 @@ def compute_magnetic_energy_density_sfield(
 
 
 def compute_total_magnetic_energy(
-    vfield_3d_b: fields.VectorField_3D,
+    vfield_3d_b: field_type.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
 ) -> float:
@@ -88,7 +88,7 @@ def _compute_kinetic_dissipation_varray(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
@@ -119,7 +119,7 @@ def _compute_kinetic_dissipation_varray(
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_df = _fdata.ensure_farray_metadata(
+    varray_3d_df = _fdata_type.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=dtype,
@@ -152,26 +152,26 @@ def _compute_kinetic_dissipation_varray(
 
 
 def compute_kinetic_dissipation_vfield(
-    vfield_3d_u: fields.VectorField_3D,
+    vfield_3d_u: field_type.VectorField_3D,
     *,
     grad_order: int = 2,
-) -> fields.VectorField_3D:
+) -> field_type.VectorField_3D:
     """
     Compute d_j S_ji for a 3D velocity field u_i, where
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    fields.ensure_3d_vfield(
+    field_type.ensure_3d_vfield(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
         require_positive=True,
     )
-    varray_3d_u = fields.extract_3d_varray(
+    varray_3d_u = field_type.extract_3d_varray(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
@@ -182,7 +182,7 @@ def compute_kinetic_dissipation_vfield(
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    return fields.VectorField_3D.from_3d_varray(
+    return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_df,
         udomain_3d=udomain_3d,
         field_label=r"$d_j \mathcal{S}_{j i}$",

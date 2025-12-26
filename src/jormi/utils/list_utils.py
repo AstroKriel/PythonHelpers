@@ -8,7 +8,7 @@ import numpy
 
 from typing import Literal
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 
 ##
 ## === FUNCTIONS
@@ -21,12 +21,12 @@ def sample_list(
     max_elems: int,
 ) -> list:
     """Return at most `max_elems` samples from `elems`, spread across the list."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=elems,
         param_name="elems",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=max_elems,
         param_name="max_elems",
         allow_none=False,
@@ -48,10 +48,10 @@ def filter_out_nones(
     elems: list,
 ) -> list:
     """Return a copy of `elems` with all `None` entries removed."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=elems,
         param_name="elems",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
     return [elem for elem in elems if elem is not None]
 
@@ -62,13 +62,13 @@ def get_index_of_closest_value(
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value in a list."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=values,
         param_name="values",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
-        valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.NumericLike,
     )
-    type_manager.ensure_numeric(
+    type_checks.ensure_numeric(
         param=target,
         param_name="target",
         allow_none=False,
@@ -103,13 +103,13 @@ def get_index_of_first_crossing(
         "falling" -> only crossings where value decreases through target
         None      -> either direction
     """
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=values,
         param_name="values",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
-        valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.NumericLike,
     )
-    type_manager.ensure_numeric(
+    type_checks.ensure_numeric(
         param=target,
         param_name="target",
         allow_none=False,
@@ -157,17 +157,17 @@ def as_string(
     conjunction: str = "",
 ) -> str:
     """Convert a (possibly nested) list into a human-readable, comma-separated string."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=elems,
         param_name="elems",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_string(
+    type_checks.ensure_string(
         param=conjunction,
         param_name="conjunction",
         allow_none=False,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=wrap_in_quotes,
         param_name="wrap_in_quotes",
         allow_none=False,
@@ -202,18 +202,18 @@ def get_preview_string(
     wrap_in_quotes: bool = False,
 ) -> str:
     """Return a short preview string of the first few elements."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=elems,
         param_name="elems",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=preview_length,
         param_name="preview_length",
         allow_none=False,
         require_positive=True,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=wrap_in_quotes,
         param_name="wrap_in_quotes",
         allow_none=False,
@@ -235,17 +235,17 @@ def get_intersect_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the intersection of two lists (optionally sorted)."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=list_a,
         param_name="list_a",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=list_b,
         param_name="list_b",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=sort_values,
         param_name="sort_values",
         allow_none=False,
@@ -265,17 +265,17 @@ def get_union_of_lists(
     sort_values: bool = False,
 ) -> list:
     """Find the union of two lists (optionally sorted)."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=list_a,
         param_name="list_a",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=list_b,
         param_name="list_b",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=sort_values,
         param_name="sort_values",
         allow_none=False,
@@ -292,10 +292,10 @@ def flatten_list(
     elems: list,
 ) -> list:
     """Flatten a nested list into a single list."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=elems,
         param_name="elems",
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.ListLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.ListLike,
     )
     flat_elems: list = []
     for elem in elems:

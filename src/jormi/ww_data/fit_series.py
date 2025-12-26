@@ -11,7 +11,7 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 
-from jormi.ww_types import type_manager, array_checks
+from jormi.ww_types import type_checks, array_checks
 from jormi.ww_data import data_series
 from jormi.ww_io import log_manager
 
@@ -281,7 +281,7 @@ def get_line_angle(
     Compute the apparent angle (in degrees) of a line with a particular slope
     when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
     """
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=domain_bounds,
         seq_length=4,
         valid_seq_types=(tuple, list),

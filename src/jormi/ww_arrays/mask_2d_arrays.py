@@ -10,7 +10,7 @@ from typing import TypeAlias
 from numpy.typing import NDArray
 from dataclasses import dataclass
 
-from jormi.ww_types import array_checks, type_manager
+from jormi.ww_types import array_checks, type_checks
 from jormi.ww_types import cardinal_anchors, ordinal_anchors
 
 ##
@@ -70,13 +70,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[IndexGrid2D, IndexGrid2D]:
     """Return (row_index, col_index) for a 2D grid."""
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

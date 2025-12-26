@@ -70,7 +70,7 @@ class TestDictUtils(unittest.TestCase):
         self.assertEqual(dict_1, {"a": [1, 2]})
         self.assertEqual(dict_2, {"a": [3, 4], "b": 5})
 
-    def test_merge_dicts_complex_structures(self):
+    def test_merge_dicts_complex_stringuctures(self):
         ## typical case: merging two complex dictionaries with mixed structures (lists, sets, and nested dictionaries)
         dict_1 = {"a": [1, 2], "b": {"x": 1}, "c": {1, 2}}
         dict_2 = {"a": [3, 4], "b": {"y": 2}, "c": {3, 4}, "d": "new"}

@@ -6,7 +6,7 @@
 
 import numpy
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 
 ##
 ## === FUNCTIONS
@@ -19,7 +19,7 @@ def ensure_array(
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray."""
-    type_manager.ensure_ndarray(
+    type_checks.ensure_ndarray(
         param=array,
         param_name=param_name,
     )
@@ -64,7 +64,7 @@ def ensure_shape(
         array=array,
         param_name=param_name,
     )
-    type_manager.ensure_tuple_of_ints(
+    type_checks.ensure_tuple_of_ints(
         param=expected_shape,
         param_name="expected_shape",
     )
@@ -108,7 +108,7 @@ def ensure_dims(
         array=array,
         param_name=param_name,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_dims,
         param_name="num_dims",
         require_positive=True,
@@ -132,6 +132,7 @@ def ensure_1d(
     )
 
 
+## TODO: move to an array_utils module
 def as_1d(
     array_like: tuple | list | numpy.ndarray,
     *,
@@ -139,7 +140,7 @@ def as_1d(
     check_finite: bool = True,
 ) -> numpy.ndarray:
     """Convert `array_like` to a 1D ndarray[float64]."""
-    type_manager.ensure_not_none(
+    type_checks.ensure_not_none(
         param=array_like,
         param_name=param_name,
     )

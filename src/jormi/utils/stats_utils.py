@@ -8,7 +8,7 @@ import numpy
 
 from scipy.special import erfinv as scipy_erfinv
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 
 ##
 ## === FUNCTIONS
@@ -26,23 +26,23 @@ def sample_gaussian_distribution_from_quantiles(
     Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 corresponds with
     probability-values 0 < p1 < p2 < 1.
     """
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=q1,
         valid_types=(float, int),
     )
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=q2,
         valid_types=(float, int),
     )
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=p1,
         valid_types=(float, int),
     )
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=p2,
         valid_types=(float, int),
     )
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=num_samples,
         valid_types=int,
     )

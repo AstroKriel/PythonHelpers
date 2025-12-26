@@ -11,7 +11,7 @@ import numpy
 from pathlib import Path
 
 from jormi.ww_io import io_manager, log_manager
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 from jormi.utils import dict_utils
 
 ##
@@ -23,7 +23,7 @@ def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
     """Ensure `file_path` is a valid .json path and return it as an absolute Path."""
-    type_manager.ensure_not_none(
+    type_checks.ensure_not_none(
         param=file_path,
         param_name="file_path",
     )
@@ -38,7 +38,7 @@ def read_json_file_into_dict(
     *,
     verbose: bool = True,
 ):
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
@@ -50,7 +50,7 @@ def read_json_file_into_dict(
         log_manager.log_task(f"Reading json-file: {file_path}")
     with open(file_path, "r", encoding="utf-8") as file_pointer:
         data = json.load(file_pointer)
-    type_manager.ensure_dict(
+    type_checks.ensure_dict(
         param=data,
         param_name="JSON root object",
         allow_none=False,
@@ -82,18 +82,18 @@ def save_dict_to_json_file(
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=overwrite,
         param_name="overwrite",
         allow_none=False,
     )
-    type_manager.ensure_bool(
+    type_checks.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
     file_path = _ensure_path_is_valid(file_path)
-    type_manager.ensure_dict(
+    type_checks.ensure_dict(
         param=input_dict,
         param_name="input_dict",
         allow_none=False,

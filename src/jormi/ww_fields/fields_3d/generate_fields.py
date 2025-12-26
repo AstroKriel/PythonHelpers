@@ -6,10 +6,10 @@
 
 import numpy
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 from jormi.ww_fields.fields_3d import (
-    domains,
-    fields,
+    domain_type,
+    field_type,
 )
 
 ##
@@ -53,17 +53,17 @@ def _generate_gaussian_random_3d_sarray(
 
 def generate_gaussian_random_3d_sfield(
     *,
-    udomain_3d: domains.UniformDomain_3D,
+    udomain_3d: domain_type.UniformDomain_3D,
     correlation_length: float,
     field_label: str = "G(x)",
     sim_time: float | None = None,
-) -> fields.ScalarField_3D:
-    """Generate a 3D scalar fields with a Gaussian correlation length."""
-    domains.ensure_3d_udomain(
+) -> field_type.ScalarField_3D:
+    """Generate a 3D scalar field_type with a Gaussian correlation length."""
+    domain_type.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=correlation_length,
         param_name="<correlation_length>",
         allow_none=False,
@@ -73,7 +73,7 @@ def generate_gaussian_random_3d_sfield(
         resolution=udomain_3d.resolution,
         correlation_length=correlation_length,
     )
-    return fields.ScalarField_3D.from_3d_sarray(
+    return field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
         field_label=field_label,
@@ -142,25 +142,25 @@ def _generate_powerlaw_random_3d_sarray(
 
 def generate_powerlaw_random_3d_sfield(
     *,
-    udomain_3d: domains.UniformDomain_3D,
+    udomain_3d: domain_type.UniformDomain_3D,
     alpha_perp: float,
     alpha_para: float | None = None,
     field_label: str = "P(x)",
     sim_time: float | None = None,
-) -> fields.ScalarField_3D:
-    """Generate a 3D scalar fields with a power-law power spectrum."""
-    domains.ensure_3d_udomain(
+) -> field_type.ScalarField_3D:
+    """Generate a 3D scalar field_type with a power-law power spectrum."""
+    domain_type.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=alpha_perp,
         param_name="<alpha_perp>",
         allow_none=False,
         require_positive=False,
     )
     if alpha_para is not None:
-        type_manager.ensure_finite_float(
+        type_checks.ensure_finite_float(
             param=alpha_para,
             param_name="<alpha_para>",
             allow_none=False,
@@ -171,7 +171,7 @@ def generate_powerlaw_random_3d_sfield(
         alpha_perp=alpha_perp,
         alpha_para=alpha_para,
     )
-    return fields.ScalarField_3D.from_3d_sarray(
+    return field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
         field_label=field_label,

@@ -10,9 +10,9 @@ from typing import cast
 from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 from jormi.ww_fields import (
-    _domains,
+    _domain_type,
     _cartesian_coordinates,
 )
 
@@ -22,7 +22,7 @@ from jormi.ww_fields import (
 
 
 @dataclass(frozen=True)
-class UniformDomain_2D(_domains.UniformDomain):
+class UniformDomain_2D(_domain_type.UniformDomain):
     """
     Uniform 2D domain: `num_sdims == 2`.
 
@@ -159,7 +159,7 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
         )
         object.__setattr__(self, "out_of_plane_axis", slice_axis_enum)
         ## validate index and coordinate
-        type_manager.ensure_finite_int(
+        type_checks.ensure_finite_int(
             param=self.slice_index,
             param_name="slice_index",
             allow_none=False,
@@ -170,7 +170,7 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
                 "slice_index must be non-negative:"
                 f" got {self.slice_index}",
             )
-        type_manager.ensure_finite_float(
+        type_checks.ensure_finite_float(
             param=self.slice_position,
             param_name="slice_position",
             allow_none=False,
@@ -194,7 +194,7 @@ def ensure_2d_udomain(
     *,
     param_name: str = "<udomain_2d>",
 ) -> None:
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=udomain_2d,
         param_name=param_name,
         valid_types=UniformDomain_2D,
@@ -214,7 +214,7 @@ def ensure_2d_udomain_sliced_from_3d(
     understands `field.udomain` (which is annotated as `UniformDomain_2D`);
     the actual subtype-check is enforced via `valid_types=UniformDomain_2D_Sliced3D`.
     """
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=udomain_2d,
         param_name=param_name,
         valid_types=UniformDomain_2D_Sliced3D,

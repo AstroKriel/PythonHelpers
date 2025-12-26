@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Literal, TypeAlias
 
 from jormi.utils import list_utils
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 
 ##
 ## === DATA TYPES
@@ -87,7 +87,7 @@ def get_axis_from_index(
     param_name: str = "<index>",
 ) -> CartesianAxis:
     """Return the CartesianAxis corresponding to a default index (0, 1, 2)."""
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=index,
         param_name=param_name,
         allow_none=False,
@@ -119,11 +119,11 @@ def as_axes_tuple(
 
     Validates the outer container shape and then normalises each entry via `as_axis()`.
     """
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=axes,
         param_name=param_name,
         seq_length=3,
-        valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
     )
     axes_enum_list: list[CartesianAxis] = []
     for axis_index, axis_like in enumerate(axes):

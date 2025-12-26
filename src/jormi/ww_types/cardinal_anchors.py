@@ -32,6 +32,7 @@ class HorizontalAnchor(str, Enum):
 
 VerticalAnchorLike: TypeAlias = VerticalAnchor | str
 HorizontalAnchorLike: TypeAlias = HorizontalAnchor | str
+AnchorLike: TypeAlias = VerticalAnchorLike | HorizontalAnchorLike
 
 ##
 ## === TYPE CONVERTERS
@@ -57,7 +58,9 @@ def as_vertical_anchor(
     if isinstance(anchor, VerticalAnchor):
         return anchor
     if not isinstance(anchor, str):
-        raise TypeError(f"Expected a VerticalAnchor or str; got {type(anchor).__name__}.")
+        raise TypeError(
+            f"Expected a VerticalAnchor or str; got {type(anchor).__name__}.",
+        )
     anchor_lower = anchor.lower()
     resolved_anchor = None
     for vertical_anchor in VerticalAnchor:
@@ -95,7 +98,9 @@ def as_horizontal_anchor(
     if isinstance(anchor, HorizontalAnchor):
         return anchor
     if not isinstance(anchor, str):
-        raise TypeError(f"Expected a HorizontalAnchor or str; got {type(anchor).__name__}.")
+        raise TypeError(
+            f"Expected a HorizontalAnchor or str; got {type(anchor).__name__}.",
+        )
     anchor_lower = anchor.lower()
     resolved_anchor = None
     for horizontal_anchor in HorizontalAnchor:
@@ -112,6 +117,96 @@ def as_horizontal_anchor(
             f" Expected one of {valid_string}.",
         )
     return resolved_anchor
+
+
+def as_vertical_edge_anchor(
+    anchor: VerticalAnchorLike,
+    *,
+    param_name: str = "<param>",
+) -> VerticalAnchor:
+    """Convert into a VerticalAnchor and ensure it is an edge (Top/Bottom, not Center)."""
+    resolved_anchor = as_vertical_anchor(anchor)
+    ensure_vertical_edge_anchor(
+        anchor=resolved_anchor,
+        param_name=param_name,
+    )
+    return resolved_anchor
+
+
+def as_horizontal_edge_anchor(
+    anchor: HorizontalAnchorLike,
+    *,
+    param_name: str = "<param>",
+) -> HorizontalAnchor:
+    """Convert into a HorizontalAnchor and ensure it is an edge (Left/Right, not Center)."""
+    resolved_anchor = as_horizontal_anchor(anchor)
+    ensure_horizontal_edge_anchor(
+        anchor=resolved_anchor,
+        param_name=param_name,
+    )
+    return resolved_anchor
+
+
+def as_edge_anchor(
+    anchor: AnchorLike,
+    *,
+    param_name: str = "<param>",
+) -> VerticalAnchor | HorizontalAnchor:
+    """
+    Convert into an edge VerticalAnchor or HorizontalAnchor.
+
+    Explicit logic, no try/except guessing:
+
+    - If `anchor` is already a VerticalAnchor / HorizontalAnchor:
+        - enforce edge and return it.
+    - If `anchor` is a string:
+        - for 'top'/'center'/'bottom' → treat as vertical, enforce edge.
+        - for 'left'/'center'/'right' → treat as horizontal, enforce edge.
+        - anything else → ValueError.
+    """
+    if isinstance(anchor, VerticalAnchor):
+        ensure_vertical_edge_anchor(
+            anchor=anchor,
+            param_name=param_name,
+        )
+        return anchor
+    if isinstance(anchor, HorizontalAnchor):
+        ensure_horizontal_edge_anchor(
+            anchor=anchor,
+            param_name=param_name,
+        )
+        return anchor
+    if isinstance(anchor, str):
+        anchor_lower = anchor.lower()
+        if anchor_lower in {vertical_anchor.value for vertical_anchor in VerticalAnchor}:
+            resolved_anchor = as_vertical_anchor(anchor_lower)
+            ensure_vertical_edge_anchor(
+                anchor=resolved_anchor,
+                param_name=param_name,
+            )
+            return resolved_anchor
+        if anchor_lower in {horizontal_anchor.value for horizontal_anchor in HorizontalAnchor}:
+            resolved_anchor = as_horizontal_anchor(anchor_lower)
+            ensure_horizontal_edge_anchor(
+                anchor=resolved_anchor,
+                param_name=param_name,
+            )
+            return resolved_anchor
+        valid_values = [
+            VerticalAnchor.Top.value,
+            VerticalAnchor.Bottom.value,
+            HorizontalAnchor.Left.value,
+            HorizontalAnchor.Right.value,
+        ]
+        valid_string = list_utils.as_quoted_string(elems=valid_values)
+        raise ValueError(
+            f"Invalid edge anchor string: {anchor!r} in `{param_name}`."
+            f" Expected one of {valid_string}.",
+        )
+    raise TypeError(
+        f"`{param_name}` must be a VerticalAnchor, HorizontalAnchor, or str;"
+        f" got {type(anchor).__name__}.",
+    )
 
 
 ##

@@ -23,7 +23,7 @@ from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
 
-from jormi.ww_types import type_manager, cardinal_anchors
+from jormi.ww_types import type_checks, cardinal_anchors
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
 
@@ -143,12 +143,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

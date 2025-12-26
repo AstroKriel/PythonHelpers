@@ -16,35 +16,35 @@ from jormi.utils import list_utils
 class TestListUtils(unittest.TestCase):
 
     def test_cast_to_string(self):
-        result = list_utils.cast_to_string(["a", "b", "c"])
+        result = list_utils.as_string(["a", "b", "c"])
         self.assertEqual(result, "`a`, `b`, or `c`")
         ## with conjunction but no Oxford comma
-        result = list_utils.cast_to_string(
+        result = list_utils.as_string(
             ["a", "b", "c"],
             conjunction="and",
             use_oxford_comma=False,
         )
         self.assertEqual(result, "`a`, `b` and `c`")
         ## with conjunction and Oxford comma
-        result = list_utils.cast_to_string(
+        result = list_utils.as_string(
             ["a", "b", "c"],
             conjunction="and",
             use_oxford_comma=True,
         )
         self.assertEqual(result, "`a`, `b`, and `c`")
         ## with only two elements
-        result = list_utils.cast_to_string(["a", "b"])
+        result = list_utils.as_string(["a", "b"])
         self.assertEqual(result, "`a` or `b`")
-        result = list_utils.cast_to_string(["a", "b"], conjunction="")
+        result = list_utils.as_string(["a", "b"], conjunction="")
         self.assertEqual(result, "`a`, `b`")
         ## single element
-        result = list_utils.cast_to_string(["a"])
+        result = list_utils.as_string(["a"])
         self.assertEqual(result, "`a`")
         ## empty list
-        result = list_utils.cast_to_string([])
+        result = list_utils.as_string([])
         self.assertEqual(result, "")
         ## no quotes
-        result = list_utils.cast_to_string(["x", "y"], wrap_in_quotes=False, conjunction="and")
+        result = list_utils.as_string(["x", "y"], wrap_in_quotes=False, conjunction="and")
         self.assertEqual(result, "x and y")
 
     def test_get_intersect_of_lists(self):
@@ -212,7 +212,7 @@ class TestListUtils(unittest.TestCase):
         self.assertEqual(out, expected)
         self.assertNotEqual(out[-1], elems[-1])
 
-    def test_first_element_and_constant_stride(self):
+    def test_first_element_and_constant_stringide(self):
         elems = list(range(37))
         max_elems = 7
         out = list_utils.sample_list(elems, max_elems)

@@ -9,7 +9,7 @@ import numpy
 from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks
 from jormi.ww_fields import _cartesian_coordinates
 
 ##
@@ -37,7 +37,7 @@ class UniformDomain:
     def _validate_num_sdims(
         self,
     ) -> None:
-        type_manager.ensure_finite_int(
+        type_checks.ensure_finite_int(
             param=self.num_sdims,
             param_name="<num_sdims>",
             allow_none=False,
@@ -47,23 +47,23 @@ class UniformDomain:
     def _validate_periodicity(
         self,
     ) -> None:
-        type_manager.ensure_sequence(
+        type_checks.ensure_sequence(
             param=self.periodicity,
             param_name="<periodicity>",
             seq_length=self.num_sdims,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Booleans.BooleanLike,
+            valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_checks.RuntimeTypes.Booleans.BooleanLike,
         )
 
     def _validate_resolution(
         self,
     ) -> None:
-        type_manager.ensure_sequence(
+        type_checks.ensure_sequence(
             param=self.resolution,
             param_name="<resolution>",
             seq_length=self.num_sdims,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Numerics.IntLike,
+            valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_checks.RuntimeTypes.Numerics.IntLike,
         )
         for axis_index, num_cells in enumerate(self.resolution):
             axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
@@ -75,32 +75,32 @@ class UniformDomain:
     def _validate_domain_bounds(
         self,
     ) -> None:
-        type_manager.ensure_sequence(
+        type_checks.ensure_sequence(
             param=self.domain_bounds,
             param_name="<domain_bounds>",
             seq_length=self.num_sdims,
-            valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=type_manager.RuntimeTypes.Sequences.TupleLike,
+            valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=type_checks.RuntimeTypes.Sequences.TupleLike,
         )
         for axis_index in range(self.num_sdims):
             bounds = self.domain_bounds[axis_index]
             axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
             axis_param_name = f"<domain_bounds[{axis_label}]>"
-            type_manager.ensure_sequence(
+            type_checks.ensure_sequence(
                 param=bounds,
                 param_name=axis_param_name,
                 seq_length=2,
-                valid_seq_types=type_manager.RuntimeTypes.Sequences.TupleLike,
-                valid_elem_types=type_manager.RuntimeTypes.Numerics.NumericLike,
+                valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
+                valid_elem_types=type_checks.RuntimeTypes.Numerics.NumericLike,
             )
             lo_value, hi_value = bounds
-            type_manager.ensure_finite_float(
+            type_checks.ensure_finite_float(
                 param=lo_value,
                 param_name=f"{axis_param_name}[0]",
                 allow_none=False,
                 require_positive=False,
             )
-            type_manager.ensure_finite_float(
+            type_checks.ensure_finite_float(
                 param=hi_value,
                 param_name=f"{axis_param_name}[1]",
                 allow_none=False,
@@ -179,7 +179,7 @@ def ensure_udomain(
     *,
     param_name: str = "<udomain>",
 ) -> None:
-    type_manager.ensure_type(
+    type_checks.ensure_type(
         param=udomain,
         param_name=param_name,
         valid_types=UniformDomain,

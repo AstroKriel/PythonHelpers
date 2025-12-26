@@ -6,10 +6,10 @@
 
 import numpy
 
-from jormi.ww_types import type_manager, array_checks
+from jormi.ww_types import type_checks, array_checks
 from jormi.ww_fields.fields_3d import (
     _finite_difference_sarrays,
-    _fdata,
+    _fdata_type,
 )
 
 ##
@@ -35,16 +35,16 @@ def _validate_3d_cell_widths(
     param_name: str = "<cell_widths_3d>",
 ) -> None:
     """Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats."""
-    type_manager.ensure_sequence(
+    type_checks.ensure_sequence(
         param=cell_widths_3d,
         param_name=param_name,
         allow_none=False,
         seq_length=3,
         valid_seq_types=(tuple, list),
-        valid_elem_types=type_manager.RuntimeTypes.Numerics.FloatLike,
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike,
     )
     for dim_index, cell_width in enumerate(cell_widths_3d):
-        type_manager.ensure_finite_float(
+        type_checks.ensure_finite_float(
             param=cell_width,
             param_name=f"{param_name}[{dim_index}]",
             allow_none=False,
@@ -61,7 +61,7 @@ def compute_sarray_rms(
     sarray_3d: numpy.ndarray,
 ) -> float:
     """Compute the RMS of a 3D scalar array."""
-    _fdata.ensure_3d_sarray(
+    _fdata_type.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
@@ -75,11 +75,11 @@ def compute_sarray_volume_integral(
     cell_volume: float,
 ) -> float:
     """Compute the volume integral of a 3D scalar array."""
-    _fdata.ensure_3d_sarray(
+    _fdata_type.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
-    type_manager.ensure_finite_float(
+    type_checks.ensure_finite_float(
         param=cell_volume,
         param_name="<cell_volume>",
         allow_none=False,
@@ -101,12 +101,12 @@ def compute_sarray_grad(
 
     Returns a 4D ndarray with shape (3, Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_sarray(
+    _fdata_type.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
     _validate_3d_cell_widths(cell_widths_3d)
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -115,7 +115,7 @@ def compute_sarray_grad(
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray_3d.shape
     dtype = numpy.result_type(sarray_3d.dtype, numpy.float64)
-    varray_3d_gradf = _fdata.ensure_farray_metadata(
+    varray_3d_gradf = _fdata_type.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=varray_3d_out,
         dtype=dtype,
@@ -146,7 +146,7 @@ def scale_sarray_inplace(
     scale: float,
 ) -> None:
     """Scale a 3D scalar array in-place by a scalar factor."""
-    _fdata.ensure_3d_sarray(
+    _fdata_type.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
@@ -157,7 +157,7 @@ def sqrt_sarray_inplace(
     sarray_3d: numpy.ndarray,
 ) -> None:
     """Take the square-root of a 3D scalar array in-place."""
-    _fdata.ensure_3d_sarray(
+    _fdata_type.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
@@ -181,18 +181,18 @@ def sum_of_varray_comps_squared(
     varray_3d has shape (3, Nx, Ny, Nz).
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
     domain_shape = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
-    sarray_3d_out = _fdata.ensure_farray_metadata(
+    sarray_3d_out = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         farray=sarray_3d_out,
         dtype=dtype,
     )
-    sarray_3d_tmp = _fdata.ensure_farray_metadata(
+    sarray_3d_tmp = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         farray=sarray_3d_tmp,
         dtype=dtype,
@@ -218,11 +218,11 @@ def dot_over_varray_comps(
     Each input has shape (3, Nx, Ny, Nz).
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d_a,
         param_name="<varray_3d_a>",
     )
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
     )
@@ -234,12 +234,12 @@ def dot_over_varray_comps(
     )
     domain_shape = varray_3d_a.shape[1:]
     dtype = numpy.result_type(varray_3d_a.dtype, varray_3d_b.dtype)
-    sarray_3d_out = _fdata.ensure_farray_metadata(
+    sarray_3d_out = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         farray=sarray_3d_out,
         dtype=dtype,
     )
-    sarray_3d_tmp = _fdata.ensure_farray_metadata(
+    sarray_3d_tmp = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         farray=sarray_3d_tmp,
         dtype=dtype,
@@ -268,12 +268,12 @@ def compute_varray_grad(
       - r2tarray_3d with shape (3, 3, Nx, Ny, Nz),
         where grad[comp_j, grad_i, ...] = d_i v_j.
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
     _validate_3d_cell_widths(cell_widths_3d)
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -282,7 +282,7 @@ def compute_varray_grad(
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
-    r2tarray_3d_gradf = _fdata.ensure_farray_metadata(
+    r2tarray_3d_gradf = _fdata_type.ensure_farray_metadata(
         farray_shape=(3, 3, num_cells_x, num_cells_y, num_cells_z),
         farray=r2tarray_3d_gradf,
         dtype=dtype,
@@ -320,11 +320,11 @@ def compute_varray_cross_product(
 
     All arrays have shape (3, Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d_a,
         param_name="<varray_3d_a>",
     )
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
     )
@@ -336,12 +336,12 @@ def compute_varray_cross_product(
     )
     domain_shape = varray_3d_a.shape[1:]
     dtype = numpy.result_type(varray_3d_a.dtype, varray_3d_b.dtype)
-    varray_3d_axb = _fdata.ensure_farray_metadata(
+    varray_3d_axb = _fdata_type.ensure_farray_metadata(
         farray_shape=varray_3d_a.shape,
         dtype=dtype,
         farray=varray_3d_out,
     )
-    sarray_3d_tmp = _fdata.ensure_farray_metadata(
+    sarray_3d_tmp = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         dtype=dtype,
         farray=sarray_3d_tmp,
@@ -373,12 +373,12 @@ def compute_varray_curl(
 
     varray_3d and varray_3d_out have shape (3, Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
     _validate_3d_cell_widths(cell_widths_3d)
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -386,7 +386,7 @@ def compute_varray_curl(
     )
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_curl = _fdata.ensure_farray_metadata(
+    varray_3d_curl = _fdata_type.ensure_farray_metadata(
         farray_shape=varray_3d.shape,
         dtype=varray_3d.dtype,
         farray=varray_3d_out,
@@ -448,12 +448,12 @@ def compute_varray_divergence(
 
     varray_3d has shape (3, Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
     _validate_3d_cell_widths(cell_widths_3d)
-    type_manager.ensure_finite_int(
+    type_checks.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -462,7 +462,7 @@ def compute_varray_divergence(
     nabla = _finite_difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     domain_shape = varray_3d.shape[1:]
-    sarray_3d_div = _fdata.ensure_farray_metadata(
+    sarray_3d_div = _fdata_type.ensure_farray_metadata(
         farray_shape=domain_shape,
         dtype=varray_3d.dtype,
         farray=sarray_3d_out,
@@ -505,7 +505,7 @@ def compute_varray_magnitude(
 
     Returns a 3D ndarray with shape (Nx, Ny, Nz).
     """
-    _fdata.ensure_3d_varray(
+    _fdata_type.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
