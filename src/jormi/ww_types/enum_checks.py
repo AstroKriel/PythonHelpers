@@ -32,35 +32,35 @@ def _normalise_string(
 
 
 def _find_match_in_enum(
-    key: str,
+    member_key: str,
     *,
     enum_type: EnumType,
 ) -> Enum | None:
     for member in enum_type:
-        if key == _normalise_string(member.name):
+        if member_key == _normalise_string(member.name):
             return member
-        if key == _normalise_string(str(member.value)):
+        if member_key == _normalise_string(str(member.value)):
             return member
     return None
 
 
 def _find_unique_match(
-    key: str,
+    member_key: str,
     *,
     valid_enums: tuple[EnumType, ...],
 ) -> Enum | None:
-    match = None
+    matched_member = None
     for enum_type in valid_enums:
-        candidate = _find_match_in_enum(
-            key=key,
+        candidate_member = _find_match_in_enum(
+            member_key=member_key,
             enum_type=enum_type,
         )
-        if candidate is None:
+        if candidate_member is None:
             continue
-        if (match is not None) and (candidate is not match):
+        if (matched_member is not None) and (candidate_member is not matched_member):
             raise ValueError("Ambiguous Enum member.")
-        match = candidate
-    return match
+        matched_member = candidate_member
+    return matched_member
 
 
 def _enum_member_names(
@@ -140,13 +140,13 @@ def resolve_member(
         param_name="member",
         valid_types=str,
     )
-    key = _normalise_string(member)
-    match = _find_unique_match(
-        key=key,
+    normalised_member = _normalise_string(member)
+    matched_member = _find_unique_match(
+        member_key=normalised_member,
         valid_enums=valid_enums,
     )
-    if match is not None:
-        return match
+    if matched_member is not None:
+        return matched_member
     raise ValueError(
         f"Invalid Enum member: {member!r}; expected one of: {_enum_member_names(valid_enums)} (to match by member name).",
     )
