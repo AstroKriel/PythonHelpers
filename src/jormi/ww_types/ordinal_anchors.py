@@ -20,11 +20,7 @@ class _Center(str, Enum):
 
 
 class _QuadrantCorner(str, Enum):
-    """
-    Quadrant corner positions.
-
-    Values match Matplotlib's `loc` strings.
-    """
+    """Corner placements using mpl-loc strings."""
 
     TopLeft = "upper left"
     TopRight = "upper right"
@@ -33,11 +29,7 @@ class _QuadrantCorner(str, Enum):
 
 
 class _QuadrantEdge(str, Enum):
-    """
-    Quadrant edge-centre positions.
-
-    Values match Matplotlib's `loc` strings.
-    """
+    """Edge-center placements using mpl-loc strings."""
 
     Top = "upper center"
     Left = "center left"
@@ -55,6 +47,8 @@ class _Side(str, Enum):
 
 ##
 ## === TYPE HINTS + RUNTIME TYPES
+## TypeHints defines categories for annotations.
+## RuntimeTypes converts them into tuples for enum_checks validation.
 ##
 
 
@@ -63,12 +57,15 @@ class TypeHints:
     PositionLike: TypeAlias = enum_checks.EnumMemberLike
 
     class Box:
+
         Center = _Center
         Corner = _QuadrantCorner
         Edge = _QuadrantEdge
         Side = _Side
 
     class MPL:
+        """Type-hint groupings for mpl-style parameters."""
+
         AnchorLike = _QuadrantCorner | _QuadrantEdge | _Center
         AlignLike = _Side | _Center
 
@@ -76,18 +73,21 @@ class TypeHints:
 class RuntimeTypes:
 
     class Box:
+
         Center = enum_checks.as_runtime_type(TypeHints.Box.Center)
         Corner = enum_checks.as_runtime_type(TypeHints.Box.Corner)
         Edge = enum_checks.as_runtime_type(TypeHints.Box.Edge)
         Side = enum_checks.as_runtime_type(TypeHints.Box.Side)
 
     class MPL:
+        """Runtime enum tuples for mpl-style rules."""
+
         AnchorLike = enum_checks.as_runtime_type(TypeHints.MPL.AnchorLike)
         AlignLike = enum_checks.as_runtime_type(TypeHints.MPL.AlignLike)
 
 
 ##
-## === BASIS RULES
+## === BOX RULES
 ##
 
 
@@ -189,7 +189,7 @@ def ensure_mpl_anchor(
     *,
     param_name: str = "<param>",
 ) -> None:
-    """Ensure `position` is valid for Matplotlib `loc`."""
+    """Ensure `position` is valid for mpl-loc placement."""
     enum_checks.ensure_valid_member(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,
@@ -197,27 +197,12 @@ def ensure_mpl_anchor(
     )
 
 
-def as_mpl_anchor(
-    position: TypeHints.PositionLike,
-) -> TypeHints.MPL.AnchorLike:
-    """Resolve `position` into a `loc`-compatible enum member."""
-    resolved_position = enum_checks.resolve_member(
-        member=position,
-        valid_enums=RuntimeTypes.MPL.AnchorLike,
-    )
-    return resolved_position  # type: ignore[return-value]
-
-
 def ensure_mpl_ha(
     ha: TypeHints.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
-    """
-    Ensure `ha` is valid for Matplotlib `horizontalalignment`.
-
-    Allowed: Left, Right, Center.
-    """
+    """Ensure `ha` is valid for mpl-ha."""
     enum_checks.ensure_member_in(
         member=ha,
         valid_members=(
@@ -234,14 +219,7 @@ def ensure_mpl_va(
     *,
     param_name: str = "<param>",
 ) -> None:
-    """
-    Ensure `va` is valid for Matplotlib `verticalalignment`.
-
-    Allowed: Top, Bottom, Center.
-
-    Note: Matplotlib also supports baseline alignments; these are intentionally excluded
-    by this basis.
-    """
+    """Ensure `va` is valid for mpl-va."""
     enum_checks.ensure_member_in(
         member=va,
         valid_members=(
@@ -253,29 +231,42 @@ def ensure_mpl_va(
     )
 
 
+def as_mpl_anchor(
+    position: TypeHints.PositionLike,
+) -> TypeHints.MPL.AnchorLike:
+    """Resolve `position` to an anchor enum member for mpl-loc placement."""
+    resolved_position = enum_checks.resolve_member(
+        member=position,
+        valid_enums=RuntimeTypes.MPL.AnchorLike,
+    )
+    return resolved_position  # type: ignore[return-value]
+
+
 def as_mpl_ha(
     ha: TypeHints.PositionLike,
 ) -> TypeHints.MPL.AlignLike:
-    """Resolve `ha` into a basis enum member valid for Matplotlib `ha`."""
+    """Resolve `ha` to an enum member valid for mpl-ha."""
     ensure_mpl_ha(
         ha=ha,
         param_name="ha",
     )
+    ## the previous check already ensured the correct set
     resolved_ha = enum_checks.resolve_member(
         member=ha,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
-    return resolved_ha # type: ignore[return-value]
+    return resolved_ha  # type: ignore[return-value]
 
 
 def as_mpl_va(
     va: TypeHints.PositionLike,
 ) -> TypeHints.MPL.AlignLike:
-    """Resolve `va` into a basis enum member valid for Matplotlib `va`."""
+    """Resolve `va` to an enum member valid for mpl-va."""
     ensure_mpl_va(
         va=va,
         param_name="va",
     )
+    ## the previous check already ensured the correct set
     resolved_va = enum_checks.resolve_member(
         member=va,
         valid_enums=RuntimeTypes.MPL.AlignLike,
