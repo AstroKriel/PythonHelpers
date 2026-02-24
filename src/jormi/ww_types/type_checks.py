@@ -10,9 +10,8 @@ from typing import get_args
 
 ##
 ## === TYPE DEFINITIONS
-##
-## TypeHints defines conceptual categories for annotations.
-## RuntimeTypes converts those into tuples for isinstance checks.
+## TypeHints defines categories for annotations.
+## RuntimeTypes converts them for isinstance checks.
 ##
 
 
