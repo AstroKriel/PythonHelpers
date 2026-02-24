@@ -5,12 +5,14 @@
 ##
 
 from enum import Enum
+
+from jormi.utils import list_utils
 from jormi.ww_types import type_checks
 
 ##
 ## === TYPE DEFINITIONS
 ## Enumerators (Enums for short) are a class (i.e. type) that defines a fixed set of named members;
-## each member has a `.name` and `.value` are themselves also an instance of the Enum
+## each member has a `.name` and `.value`, and members are themselves an instance of the Enum class
 ##
 
 EnumType = type[Enum]
@@ -18,35 +20,8 @@ EnumTypesLike = EnumType | tuple[EnumType, ...] | list[EnumType]
 EnumMemberLike = Enum | str
 
 ##
-## === HELPER FUNCTIONS
+## === INTERNAL HELPERS
 ##
-
-
-def _ensure_enums(
-    param: EnumTypesLike,
-    *,
-    param_name: str = "param",
-) -> None:
-    """Ensure `param` is an Enum class, or a non-empty sequence of Enum types."""
-    ## allow a single Enum
-    if isinstance(param, type):
-        if not issubclass(param, Enum):
-            raise TypeError(f"`{param_name}` must be an Enum class.")
-        return
-    ## otherwise require a flat sequence (e.g., tuple or list) of types (Enums are a subset of types)
-    type_checks.ensure_sequence(
-        param=param,
-        param_name=param_name,
-        allow_none=False,
-        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=type,
-    )
-    ## reject empty sequences
-    if not param:
-        raise ValueError(f"`{param_name}` must be non-empty.")
-    ## reject sequences containing non-Enum types
-    if not all(issubclass(enum_type, Enum) for enum_type in param):
-        raise TypeError(f"`{param_name}` all entries must be Enum types.")
 
 
 def _normalise_string(
@@ -87,12 +62,38 @@ def _find_unique_match(
     return match
 
 
-def _resolve_all_enum_values(
-    valid_enums: tuple[EnumType, ...],
+def _enum_member_names(
+    enum_types: tuple[EnumType, ...],
 ) -> str:
-    values = [str(member.value) for enum_type in valid_enums for member in enum_type]
-    values = sorted(set(values))
-    return ", ".join(repr(value) for value in values)
+    member_names = [member.name for enum_type in enum_types for member in enum_type]
+    member_names = sorted(set(member_names))
+    return list_utils.as_quoted_string(member_names)
+
+
+##
+## === INTERACTING WITH ENUMS + THEIR MEMBERS
+##
+
+
+def ensure_sequence_of_enums(
+    param: tuple[EnumType, ...] | list[EnumType],
+    *,
+    param_name: str = "param",
+) -> None:
+    """Ensure `param` is a non-empty sequence of Enum types."""
+    type_checks.ensure_sequence(
+        param=param,
+        param_name=param_name,
+        allow_none=False,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=type,
+    )
+    ## reject empty sequences
+    if not param:
+        raise ValueError(f"`{param_name}` must be non-empty.")
+    ## reject sequences containing non-Enum types
+    if not all(issubclass(enum_type, Enum) for enum_type in param):
+        raise TypeError(f"All `{param_name}` entries must be Enum types.")
 
 
 def resolve_member(
@@ -105,7 +106,7 @@ def resolve_member(
         param=valid_enums,
         param_name="valid_enums",
     )
-    _ensure_enums(
+    ensure_sequence_of_enums(
         param=valid_enums,
         param_name="valid_enums",
     )
@@ -129,7 +130,7 @@ def resolve_member(
     if match is not None:
         return match
     raise ValueError(
-        f"Invalid Enum member: {member!r}; expected one of: {_resolve_all_enum_values(valid_enums)}.",
+        f"Invalid Enum member: {member!r}; expected one of: {_enum_member_names(valid_enums)} (to match by member name).",
     )
 
 
@@ -145,9 +146,7 @@ def ensure_valid_member(
             valid_enums=valid_enums,
         )
     except (TypeError, ValueError) as error:
-        raise ValueError(
-            f"`{param_name}` must be a valid Enum member; got {member!r} ({type(member).__name__}).",
-        ) from error
+        raise type(error)(f"`{param_name}` is invalid: {error}") from error
 
 
 def ensure_member_in(
@@ -162,16 +161,18 @@ def ensure_member_in(
     )
     if not valid_members:
         raise ValueError("`valid_members` must be non-empty.")
-    if not all(isinstance(member, Enum) for member in valid_members):
+    if not all(isinstance(valid_member, Enum) for valid_member in valid_members):
         raise TypeError("`valid_members` entries must be Enum members.")
-    valid_enums = tuple({type(member) for member in valid_members})
+    valid_enums = tuple({type(valid_member) for valid_member in valid_members})
     resolved_member = resolve_member(
         member=member,
         valid_enums=valid_enums,
     )
     if resolved_member not in valid_members:
-        valid_members_string = ", ".join(member.name for member in valid_members)
-        raise ValueError(f"`{param_name}` must be one of: {valid_members_string}; got {resolved_member.name}.")
+        valid_members_string = list_utils.as_quoted_string([valid_member.name for valid_member in valid_members])
+        raise ValueError(
+            f"`{param_name}` must be one of: {valid_members_string}; got {resolved_member.name}.",
+        )
 
 
 ## } MODULE
