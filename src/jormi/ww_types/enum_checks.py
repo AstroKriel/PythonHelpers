@@ -4,173 +4,174 @@
 ## === DEPENDENCIES
 ##
 
-from __future__ import annotations
-
 from enum import Enum
-from typing import TypeAlias
-
-from jormi.utils import list_utils
 from jormi.ww_types import type_checks
 
 ##
 ## === TYPE DEFINITIONS
+## Enumerators (Enums for short) are a class (i.e. type) that defines a fixed set of named members;
+## each member has a `.name` and `.value` are themselves also an instance of the Enum
+##
+
+EnumType = type[Enum]
+EnumTypesLike = EnumType | tuple[EnumType, ...] | list[EnumType]
+EnumMemberLike = Enum | str
+
+##
+## === HELPER FUNCTIONS
 ##
 
 
-EnumType: TypeAlias = type[Enum]
-EnumTypesLike: TypeAlias = EnumType | tuple[EnumType, ...] | list[EnumType]
-EnumMemberLike: TypeAlias = Enum | str
-
-##
-## === TYPE NORMALISERS
-##
-
-
-def as_tuple_of_enum_types(
-    valid_types: EnumTypesLike,
+def _ensure_enums(
+    param: EnumTypesLike,
     *,
-    param_name: str = "valid_types",
-) -> tuple[EnumType, ...]:
-    """
-    Canonicalize `valid_types` into a non-empty tuple of Enum subclasses.
-
-    Accepts:
-      - A single Enum class
-      - A tuple/list of Enum classes
-
-    Returns:
-      - tuple of Enum classes
-    """
-    valid_types_tuple = type_checks.as_tuple(
-        param=valid_types,
+    param_name: str = "param",
+) -> None:
+    """Ensure `param` is an Enum class, or a non-empty sequence of Enum types."""
+    ## allow a single Enum
+    if isinstance(param, type):
+        if not issubclass(param, Enum):
+            raise TypeError(f"`{param_name}` must be an Enum class.")
+        return
+    ## otherwise require a flat sequence (e.g., tuple or list) of types (Enums are a subset of types)
+    type_checks.ensure_sequence(
+        param=param,
         param_name=param_name,
+        allow_none=False,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=type,
     )
-
-    if len(valid_types_tuple) == 0:
+    ## reject empty sequences
+    if not param:
         raise ValueError(f"`{param_name}` must be non-empty.")
+    ## reject sequences containing non-Enum types
+    if not all(issubclass(enum_type, Enum) for enum_type in param):
+        raise TypeError(f"`{param_name}` all entries must be Enum types.")
 
-    bad_types = [
-        valid_type for valid_type in valid_types_tuple
-        if (not isinstance(valid_type, type)) or (not issubclass(valid_type, Enum))
-    ]
-    if bad_types:
-        bad_type_names = ", ".join(
-            getattr(bad_type, "__name__", repr(bad_type))
-            for bad_type in bad_types
+
+def _normalise_string(
+    string: str,
+) -> str:
+    return string.strip().lower()
+
+
+def _find_match_in_enum(
+    key: str,
+    *,
+    enum_type: EnumType,
+) -> Enum | None:
+    for member in enum_type:
+        if key == _normalise_string(member.name):
+            return member
+        if key == _normalise_string(str(member.value)):
+            return member
+    return None
+
+
+def _find_unique_match(
+    key: str,
+    *,
+    valid_enums: tuple[EnumType, ...],
+) -> Enum | None:
+    match = None
+    for enum_type in valid_enums:
+        candidate = _find_match_in_enum(
+            key=key,
+            enum_type=enum_type,
         )
-        raise TypeError(
-            f"`{param_name}` must contain Enum types only; got {bad_type_names}.",
-        )
-
-    return tuple(valid_types_tuple)
-
-
-##
-## === ENUM RESOLUTION
-##
+        if candidate is None:
+            continue
+        if (match is not None) and (candidate is not match):
+            raise ValueError("Ambiguous Enum member.")
+        match = candidate
+    return match
 
 
-def as_enum_member(
+def _resolve_all_enum_values(
+    valid_enums: tuple[EnumType, ...],
+) -> str:
+    values = [str(member.value) for enum_type in valid_enums for member in enum_type]
+    values = sorted(set(values))
+    return ", ".join(repr(value) for value in values)
+
+
+def resolve_member(
     member: EnumMemberLike,
     *,
-    valid_types: EnumTypesLike,
+    valid_enums: EnumTypesLike,
 ) -> Enum:
-    """
-    Resolve `member` into a canonical Enum member drawn from `valid_types`.
-
-    Accepts:
-      - Enum members from one of `valid_types`
-      - Strings matching an Enum member's value (case-insensitive)
-      - Strings matching an Enum member's name  (case-insensitive)
-
-    Returns:
-      - A member of one of the enums in `valid_types`.
-    """
-    valid_types_tuple = as_tuple_of_enum_types(
-        valid_types=valid_types,
-        param_name="valid_types",
+    """Return `member` as an Enum member from one of `valid_enums`."""
+    valid_enums = type_checks.as_tuple(
+        param=valid_enums,
+        param_name="valid_enums",
     )
-
+    _ensure_enums(
+        param=valid_enums,
+        param_name="valid_enums",
+    )
+    ## Enum members are themselves an Enum (an instance of the same parent Enum)
+    ## if member is a valid Enum, return
     if isinstance(member, Enum):
-        for enum_type in valid_types_tuple:
-            if isinstance(member, enum_type):
-                return member
-
-    member_lower = str(member).strip().lower()
-
-    for enum_type in valid_types_tuple:
-        for candidate_member in enum_type:
-            is_like_value = (member_lower == str(candidate_member.value).lower())
-            is_like_name = (member_lower == candidate_member.name.lower())
-            if is_like_value or is_like_name:
-                return candidate_member
-
-    valid_values = [
-        str(candidate_member.value)
-        for enum_type in valid_types_tuple
-        for candidate_member in enum_type
-    ]
-    valid_values_string = list_utils.as_quoted_string(elems=sorted(valid_values))
+        if isinstance(member, valid_enums):
+            return member
+        raise ValueError(f"Enum member {member!r} is not in the set of valid Enum types.")
+    ## otherwise search for a unique instance of the string the user passed in valid_enums name or value
+    type_checks.ensure_type(
+        param=member,
+        param_name="member",
+        valid_types=str,
+    )
+    key = _normalise_string(member)
+    match = _find_unique_match(
+        key=key,
+        valid_enums=valid_enums,
+    )
+    if match is not None:
+        return match
     raise ValueError(
-        f"Invalid enum member: {member!r}."
-        f" Expected one of {valid_values_string}.",
+        f"Invalid Enum member: {member!r}; expected one of: {_resolve_all_enum_values(valid_enums)}.",
     )
 
 
-def ensure_enum_member(
+def ensure_valid_member(
     member: EnumMemberLike,
     *,
-    valid_types: EnumTypesLike,
+    valid_enums: EnumTypesLike,
     param_name: str = "<param>",
 ) -> None:
-    """Ensure `member` can be resolved into one of `valid_types`."""
     try:
-        as_enum_member(
+        resolve_member(
             member=member,
-            valid_types=valid_types,
+            valid_enums=valid_enums,
         )
     except (TypeError, ValueError) as error:
-        raise TypeError(
-            f"`{param_name}` must be resolvable to one of the allowed enum types; "
-            f"got {member!r} ({type(member).__name__}).",
+        raise ValueError(
+            f"`{param_name}` must be a valid Enum member; got {member!r} ({type(member).__name__}).",
         ) from error
 
 
-##
-## === SUBSET VALIDATION
-##
-
-
-def ensure_enum_member_in(
+def ensure_member_in(
     member: EnumMemberLike,
     *,
     valid_members: tuple[Enum, ...] | list[Enum],
     param_name: str = "<param>",
 ) -> None:
-    """
-    Ensure `member` resolves to one of `valid_members`.
-
-    This is useful for enforcing axis-specific subsets (e.g. Top/Bottom only).
-    """
-    valid_members_tuple = type_checks.as_tuple(
+    valid_members = type_checks.as_tuple(
         param=valid_members,
         param_name="valid_members",
     )
-    if len(valid_members_tuple) == 0:
+    if not valid_members:
         raise ValueError("`valid_members` must be non-empty.")
-
-    valid_types = tuple({type(valid_member) for valid_member in valid_members_tuple})
-    resolved_member = as_enum_member(
+    if not all(isinstance(member, Enum) for member in valid_members):
+        raise TypeError("`valid_members` entries must be Enum members.")
+    valid_enums = tuple({type(member) for member in valid_members})
+    resolved_member = resolve_member(
         member=member,
-        valid_types=valid_types,
+        valid_enums=valid_enums,
     )
-
-    if resolved_member not in valid_members_tuple:
-        valid_names = [valid_member.name for valid_member in valid_members_tuple]
-        valid_string = list_utils.as_quoted_string(elems=sorted(valid_names))
-        raise ValueError(
-            f"`{param_name}` must be one of {valid_string}; got {resolved_member.name}.",
-        )
+    if resolved_member not in valid_members:
+        valid_members_string = ", ".join(member.name for member in valid_members)
+        raise ValueError(f"`{param_name}` must be one of: {valid_members_string}; got {resolved_member.name}.")
 
 
 ## } MODULE
