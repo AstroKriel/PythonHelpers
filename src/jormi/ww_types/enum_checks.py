@@ -5,6 +5,7 @@
 ##
 
 from enum import Enum
+from typing import get_args
 
 from jormi.utils import list_utils
 from jormi.ww_types import type_checks
@@ -73,6 +74,23 @@ def _enum_member_names(
 ##
 ## === INTERACTING WITH ENUMS + THEIR MEMBERS
 ##
+
+
+def as_runtime_type(
+    type_hint,
+) -> tuple[type[Enum], ...]:
+    """
+    Convert a union of Enum member types into a tuple of Enum classes
+    suitable for `enum_checks`' runtime validation.
+    """
+    args = get_args(type_hint)
+    if args:
+        if not all(isinstance(arg, type) and issubclass(arg, Enum) for arg in args):
+            raise TypeError(f"Non-Enum argument(s) in hint: {type_hint!r}")
+        return tuple(args)
+    if isinstance(type_hint, type) and issubclass(type_hint, Enum):
+        return (type_hint, )
+    raise TypeError(f"Unsupported Enum type-hint: {type_hint!r}")
 
 
 def ensure_sequence_of_enums(
@@ -169,7 +187,9 @@ def ensure_member_in(
         valid_enums=valid_enums,
     )
     if resolved_member not in valid_members:
-        valid_members_string = list_utils.as_quoted_string([valid_member.name for valid_member in valid_members])
+        valid_members_string = list_utils.as_quoted_string(
+            [valid_member.name for valid_member in valid_members],
+        )
         raise ValueError(
             f"`{param_name}` must be one of: {valid_members_string}; got {resolved_member.name}.",
         )
