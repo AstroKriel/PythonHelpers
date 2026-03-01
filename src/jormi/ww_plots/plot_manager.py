@@ -23,7 +23,7 @@ from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
 
-from jormi.ww_types import type_checks, cardinal_anchors
+from jormi.ww_types import type_checks, box_positions
 from jormi.ww_io import io_manager, shell_manager
 from jormi.ww_plots import plot_styler
 
@@ -191,51 +191,38 @@ def add_inset_axis(
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
-    x_label_alignment: cardinal_anchors.VerticalAnchorLike = cardinal_anchors.VerticalAnchor.Top,
-    y_label_alignment: cardinal_anchors.HorizontalAnchorLike = cardinal_anchors.HorizontalAnchor.Right,
+    x_label_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Top,
+    y_label_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
 ) -> PlotAxis:
     """Add an inset Axis to `ax`."""
-    x_label_anchor = cardinal_anchors.as_vertical_anchor(x_label_alignment)
-    y_label_anchor = cardinal_anchors.as_horizontal_anchor(y_label_alignment)
-    cardinal_anchors.ensure_vertical_edge_anchor(
-        anchor=x_label_anchor,
-        param_name="x_label_anchor",
-    )
-    cardinal_anchors.ensure_horizontal_edge_anchor(
-        anchor=y_label_anchor,
-        param_name="y_label_anchor",
-    )
+    x_label_side = box_positions.as_box_side(x_label_alignment)
+    y_label_side = box_positions.as_box_side(y_label_alignment)
     ax_inset = ax.inset_axes(bounds)
     if fontsize is None:
         fontsize = rcParams["axes.labelsize"]
-    x_label_anchor_value = x_label_anchor.value
-    y_label_anchor_value = y_label_anchor.value
-    ## asserts are necessary to keep static analysis happy (formally unreachable)
-    assert x_label_anchor_value != "center"
-    assert y_label_anchor_value != "center"
     if x_label is not None:
         ax_inset.set_xlabel(
             xlabel=x_label,
             fontsize=fontsize,
         )
-        ax_inset.xaxis.set_label_position(x_label_anchor_value)
+        ax_inset.xaxis.set_label_position(x_label_side.value)  # type: ignore[arg-type]
     if y_label is not None:
         ax_inset.set_ylabel(
             ylabel=y_label,
             fontsize=fontsize,
         )
-        ax_inset.yaxis.set_label_position(y_label_anchor_value)
+        ax_inset.yaxis.set_label_position(y_label_side.value)  # type: ignore[arg-type]
     ax_inset.tick_params(
         axis="x",
-        labeltop=cardinal_anchors.is_top_edge(x_label_anchor),
-        labelbottom=cardinal_anchors.is_bottom_edge(x_label_anchor),
+        labeltop=(x_label_side is box_positions.TypeHints.Box.Side.Top),
+        labelbottom=(x_label_side is box_positions.TypeHints.Box.Side.Bottom),
         top=True,
         bottom=True,
     )
     ax_inset.tick_params(
         axis="y",
-        labelleft=cardinal_anchors.is_left_edge(y_label_anchor),
-        labelright=cardinal_anchors.is_right_edge(y_label_anchor),
+        labelleft=(y_label_side is box_positions.TypeHints.Box.Side.Left),
+        labelright=(y_label_side is box_positions.TypeHints.Box.Side.Right),
         left=True,
         right=True,
     )

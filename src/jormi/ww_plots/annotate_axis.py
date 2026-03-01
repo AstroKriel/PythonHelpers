@@ -9,7 +9,7 @@ import numpy
 from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.collections import LineCollection
 
-from jormi.ww_types import cardinal_anchors, ordinal_anchors, array_checks, type_checks
+from jormi.ww_types import box_positions, array_checks, type_checks
 from jormi.ww_plots import plot_manager
 
 ##
@@ -22,8 +22,8 @@ def add_text(
     x_pos: float,
     y_pos: float,
     label: str,
-    x_alignment: cardinal_anchors.HorizontalAnchorLike = cardinal_anchors.HorizontalAnchor.Center,
-    y_alignment: cardinal_anchors.VerticalAnchorLike = cardinal_anchors.VerticalAnchor.Center,
+    x_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
+    y_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
     fontsize: float = 20,
     font_color: str = "black",
     add_box: bool = False,
@@ -32,8 +32,8 @@ def add_text(
     edge_color: str = "black",
     rotate_deg: float | None = None,
 ):
-    x_anchor = cardinal_anchors.as_horizontal_anchor(x_alignment)
-    y_anchor = cardinal_anchors.as_vertical_anchor(y_alignment)
+    x_anchor = box_positions.as_mpl_ha(x_alignment)
+    y_anchor = box_positions.as_mpl_va(y_alignment)
     box_params = dict(
         facecolor=face_color,
         edgecolor=edge_color,
@@ -63,8 +63,8 @@ def add_custom_legend(
     line_width: float = 1.5,
     fontsize: float = 16,
     text_color: str = "black",
-    anchor_corner: ordinal_anchors.CornerAnchorLike = ordinal_anchors.CornerAnchor.TopRight,
-    anchor_point: tuple[float, float] = (1.0, 1.0),
+    anchor_at_corner: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Corner.TopRight,
+    point_to_anchor: tuple[float, float] = (1.0, 1.0),
     enable_frame: bool = False,
     frame_alpha: float = 0.5,
     face_color: str = "white",
@@ -90,11 +90,11 @@ def add_custom_legend(
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("artists, labels, and colors must have the same length.")
     type_checks.ensure_tuple_of_numbers(
-        param=anchor_point,
-        param_name="anchor_point",
+        param=point_to_anchor,
+        param_name="point_to_anchor",
         seq_length=2,
     )
-    anchor_corner = ordinal_anchors.as_corner_anchor(anchor_corner)
+    anchor_at_corner = box_positions.as_mpl_anchor(position=anchor_at_corner)
     artists_to_draw = []
     valid_markers = [".", "o", "s", "D", "^", "v"]
     valid_lines = ["-", "--", "-.", ":"]
@@ -127,8 +127,8 @@ def add_custom_legend(
     legend = ax.legend(
         handles=artists_to_draw,
         labels=labels,
-        bbox_to_anchor=anchor_point,
-        loc=anchor_corner.value,
+        bbox_to_anchor=point_to_anchor,
+        loc=anchor_at_corner.value,
         fontsize=fontsize,
         labelcolor=text_color,
         frameon=enable_frame,
@@ -143,7 +143,6 @@ def add_custom_legend(
         markerfirst=not (put_label_first),
     )
     ax.add_artist(legend)
-    return legend
 
 
 def overlay_curve(

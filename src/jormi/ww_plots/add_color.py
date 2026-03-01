@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap
 
-from jormi.ww_types import cardinal_anchors, type_checks
+from jormi.ww_types import type_checks, box_positions
 
 ##
 ## === DATA STRUCTURE
@@ -111,27 +111,6 @@ class CMap:
 ##
 ## === INTERNAL HELPERS
 ##
-
-
-def _resolve_cbar_side(
-    side: cardinal_anchors.AnchorLike,
-) -> str:
-    param_name = "<side>"
-    edge_anchor = cardinal_anchors.as_edge_anchor(
-        anchor=side,
-        param_name=param_name,
-    )
-    if isinstance(edge_anchor, cardinal_anchors.VerticalAnchor):
-        if cardinal_anchors.is_top_edge(edge_anchor, param_name=param_name):
-            return "top"
-        if cardinal_anchors.is_bottom_edge(edge_anchor, param_name=param_name):
-            return "bottom"
-    if isinstance(edge_anchor, cardinal_anchors.HorizontalAnchor):
-        if cardinal_anchors.is_left_edge(edge_anchor, param_name=param_name):
-            return "left"
-        if cardinal_anchors.is_right_edge(edge_anchor, param_name=param_name):
-            return "right"
-    raise ValueError("Something went wrong.")
 
 
 def _ensure_unit_interval(
@@ -323,17 +302,42 @@ def add_cbar_from_cmap(
     cmap: mpl_colors.Colormap | CMap,
     norm: mpl_colors.Normalize | None = None,
     label: str | None = None,
-    side: cardinal_anchors.AnchorLike = "right",
+    anchor_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
     ax_percentage: float = 0.1,
     cbar_padding: float = 0.02,
     label_padding: float = 10.0,
     fontsize: float = 20.0,
 ):
-    side_str = _resolve_cbar_side(side)
-    type_checks.ensure_finite_float(param=ax_percentage, param_name="ax_percentage", allow_none=False, require_positive=True, allow_zero=False)
-    type_checks.ensure_finite_float(param=cbar_padding, param_name="cbar_padding", allow_none=False, require_positive=True, allow_zero=True)
-    type_checks.ensure_finite_float(param=label_padding, param_name="label_padding", allow_none=False, require_positive=True, allow_zero=True)
-    type_checks.ensure_finite_float(param=fontsize, param_name="fontsize", allow_none=False, require_positive=True, allow_zero=False)
+    anchor_side = box_positions.as_box_side(side=anchor_side)
+    anchor_side_str = anchor_side.value
+    type_checks.ensure_finite_float(
+        param=ax_percentage,
+        param_name="ax_percentage",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    type_checks.ensure_finite_float(
+        param=cbar_padding,
+        param_name="cbar_padding",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    type_checks.ensure_finite_float(
+        param=label_padding,
+        param_name="label_padding",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    type_checks.ensure_finite_float(
+        param=fontsize,
+        param_name="fontsize",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
     if isinstance(cmap, CMap):
         cmap_obj = cmap.cmap
         norm_obj = cmap.norm
@@ -344,10 +348,10 @@ def add_cbar_from_cmap(
         norm_obj = norm
     fig = ax.figure
     box = ax.get_position()
-    if side_str in ("left", "right"):
+    if anchor_side_str in ("left", "right"):
         orientation = "vertical"
         cbar_size = box.width * float(ax_percentage)
-        if side_str == "right":
+        if anchor_side_str == "right":
             cbar_bounds = [
                 box.x1 + float(cbar_padding),
                 box.y0,
@@ -364,7 +368,7 @@ def add_cbar_from_cmap(
     else:
         orientation = "horizontal"
         cbar_size = box.height * float(ax_percentage)
-        if side_str == "top":
+        if anchor_side_str == "top":
             cbar_bounds = [
                 box.x0,
                 box.y1 + float(cbar_padding),
@@ -396,8 +400,8 @@ def add_cbar_from_cmap(
                 fontsize=float(fontsize),
                 labelpad=float(label_padding),
             )
-            cbar.ax.xaxis.set_label_position(side_str)
-        cbar.ax.xaxis.set_ticks_position(side_str)
+            cbar.ax.xaxis.set_label_position(anchor_side_str)  # type: ignore[arg-type]
+        cbar.ax.xaxis.set_ticks_position(anchor_side_str)  # type: ignore[arg-type]
     else:
         if label:
             cbar.set_label(
@@ -406,8 +410,8 @@ def add_cbar_from_cmap(
                 labelpad=float(label_padding),
                 rotation=90,
             )
-            cbar.ax.yaxis.set_label_position(side_str)
-        cbar.ax.yaxis.set_ticks_position(side_str)
+            cbar.ax.yaxis.set_label_position(anchor_side_str)  # type: ignore[arg-type]
+        cbar.ax.yaxis.set_ticks_position(anchor_side_str)  # type: ignore[arg-type]
         cbar.ax.get_yaxis().label.set_verticalalignment("center")
     return cbar
 
