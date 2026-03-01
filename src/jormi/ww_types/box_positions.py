@@ -142,6 +142,10 @@ def ensure_box_side(
 def as_box_corner(
     corner: TypeHints.PositionLike,
 ) -> TypeHints.Box.Corner:
+    ensure_box_corner(
+        corner=corner,
+        param_name="corner",
+    )
     resolved_corner = enum_checks.resolve_member(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
@@ -152,6 +156,10 @@ def as_box_corner(
 def as_box_edge(
     edge: TypeHints.PositionLike,
 ) -> TypeHints.Box.Edge:
+    ensure_box_edge(
+        edge=edge,
+        param_name="edge",
+    )
     resolved_edge = enum_checks.resolve_member(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
@@ -162,6 +170,10 @@ def as_box_edge(
 def as_box_center(
     center: TypeHints.PositionLike,
 ) -> TypeHints.Box.Center:
+    ensure_box_center(
+        center=center,
+        param_name="center",
+    )
     resolved_center = enum_checks.resolve_member(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
@@ -172,6 +184,10 @@ def as_box_center(
 def as_box_side(
     side: TypeHints.PositionLike,
 ) -> TypeHints.Box.Side:
+    ensure_box_side(
+        side=side,
+        param_name="side",
+    )
     resolved_side = enum_checks.resolve_member(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
@@ -235,6 +251,10 @@ def as_mpl_anchor(
     position: TypeHints.PositionLike,
 ) -> TypeHints.MPL.AnchorLike:
     """Resolve `position` to an anchor enum member for mpl-loc placement."""
+    ensure_mpl_anchor(
+        position=position,
+        param_name="position",
+    )
     resolved_position = enum_checks.resolve_member(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,

@@ -7,7 +7,7 @@
 import numpy
 from typing import Literal
 
-from jormi.ww_types import type_checks, array_checks, cardinal_anchors
+from jormi.ww_types import type_checks, array_checks, box_positions
 from jormi.ww_plots import plot_manager, add_color
 
 ##
@@ -123,18 +123,18 @@ def plot_2d_array(
     cmap_name: str = "cmr.arctic",
     add_cbar: bool = True,
     cbar_label: str | None = None,
-    cbar_side: cardinal_anchors.AnchorLike = "right",
+    cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
 ):
     array_checks.ensure_dims(
         array=array_2d,
         num_dims=2,
     )
-    array_plot = as_plot_view(
+    array_view = as_plot_view(
         data_array=array_2d,
         data_format=data_format,
     )
     min_value, max_value = _get_value_range(
-        array_2d=array_plot,
+        array_2d=array_view,
         cbar_bounds=cbar_bounds,
     )
     cmap_obj = add_color.CMap(
@@ -144,7 +144,7 @@ def plot_2d_array(
     )
     axis_extent = _as_axis_extent(axis_bounds)
     im_obj = ax.imshow(
-        array_plot,
+        array_view,
         extent=axis_extent,
         aspect=axis_aspect_ratio,
         origin="lower",
@@ -160,7 +160,7 @@ def plot_2d_array(
             ax=ax,
             cmap=cmap_obj,
             label=cbar_label,
-            side=cbar_side,
+            anchor_side=cbar_side,
         )
     return im_obj
 
