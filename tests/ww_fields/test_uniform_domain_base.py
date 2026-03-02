@@ -269,7 +269,12 @@ class TestProperties(unittest.TestCase):
         cell_centers = udomain.cell_centers
         self.assertEqual(len(cell_centers), 1)
         expected = numpy.array([0.125, 0.375, 0.625, 0.875], dtype=float)
-        self.assertTrue(numpy.allclose(cell_centers[0], expected))
+        self.assertTrue(
+            numpy.allclose(
+                cell_centers[0],
+                expected,
+            ),
+        )
 
     def test_cell_centers_shapes_3d(self):
         udomain = _domain_type.UniformDomain(

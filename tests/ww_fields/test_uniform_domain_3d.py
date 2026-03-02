@@ -116,9 +116,24 @@ class TestProperties(unittest.TestCase):
         expected_x0 = numpy.array([0.125, 0.375, 0.625, 0.875])
         expected_x1 = numpy.array([0.5, 1.5])
         expected_x2 = numpy.array([-0.5, 0.5])
-        self.assertTrue(numpy.allclose(x0_centers, expected_x0))
-        self.assertTrue(numpy.allclose(x1_centers, expected_x1))
-        self.assertTrue(numpy.allclose(x2_centers, expected_x2))
+        self.assertTrue(
+            numpy.allclose(
+                x0_centers,
+                expected_x0,
+            ),
+        )
+        self.assertTrue(
+            numpy.allclose(
+                x1_centers,
+                expected_x1,
+            ),
+        )
+        self.assertTrue(
+            numpy.allclose(
+                x2_centers,
+                expected_x2,
+            ),
+        )
 
     def test_cached_properties_return_same_object(self):
         udomain_3d = domain_type.UniformDomain_3D(
