@@ -105,12 +105,14 @@ class UniformDomain:
                 param=lo_value,
                 param_name=f"{axis_param_name}[0]",
                 allow_none=False,
+                allow_zero=True,
                 require_positive=False,
             )
             type_checks.ensure_finite_float(
                 param=hi_value,
                 param_name=f"{axis_param_name}[1]",
                 allow_none=False,
+                allow_zero=True,
                 require_positive=False,
             )
             if not (hi_value > lo_value):
