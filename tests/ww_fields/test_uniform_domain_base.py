@@ -23,10 +23,22 @@ class TestConstruction(unittest.TestCase):
             resolution=(4, ),
             domain_bounds=((0.0, 1.0), ),
         )
-        self.assertEqual(udomain.num_sdims, 1)
-        self.assertEqual(udomain.periodicity, (True, ))
-        self.assertEqual(udomain.resolution, (4, ))
-        self.assertEqual(udomain.domain_bounds, ((0.0, 1.0), ))
+        self.assertEqual(
+            udomain.num_sdims,
+            1,
+        )
+        self.assertEqual(
+            udomain.periodicity,
+            (True, ),
+        )
+        self.assertEqual(
+            udomain.resolution,
+            (4, ),
+        )
+        self.assertEqual(
+            udomain.domain_bounds,
+            ((0.0, 1.0), ),
+        )
 
     def test_constructs_valid_2d(self):
         udomain = _domain_type.UniformDomain(
@@ -35,8 +47,14 @@ class TestConstruction(unittest.TestCase):
             resolution=(8, 4),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
         )
-        self.assertEqual(udomain.num_sdims, 2)
-        self.assertEqual(udomain.num_cells, 8 * 4)
+        self.assertEqual(
+            udomain.num_sdims,
+            2,
+        )
+        self.assertEqual(
+            udomain.num_cells,
+            8 * 4,
+        )
 
     def test_constructs_valid_3d(self):
         udomain = _domain_type.UniformDomain(
@@ -45,8 +63,14 @@ class TestConstruction(unittest.TestCase):
             resolution=(4, 5, 6),
             domain_bounds=((0.0, 1.0), (0.0, 2.0), (-3.0, 3.0)),
         )
-        self.assertEqual(udomain.num_sdims, 3)
-        self.assertEqual(udomain.num_cells, 4 * 5 * 6)
+        self.assertEqual(
+            udomain.num_sdims,
+            3,
+        )
+        self.assertEqual(
+            udomain.num_cells,
+            4 * 5 * 6,
+        )
 
 
 class TestValidation(unittest.TestCase):
@@ -111,16 +135,22 @@ class TestValidation(unittest.TestCase):
             )
 
     def test_rejects_non_positive_resolution_and_mentions_axis_label(self):
-        with self.assertRaises(ValueError) as ctx:
+        with self.assertRaises(ValueError) as assert_context:
             _domain_type.UniformDomain(
                 num_sdims=3,
                 periodicity=(True, True, True),
                 resolution=(4, 0, 6),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
-        err_msg = str(ctx.exception)
-        self.assertIn("<resolution>", err_msg)
-        self.assertIn(cartesian_axes.get_axis_label(axis=1), err_msg)
+        assert_message = str(assert_context.exception)
+        self.assertIn(
+            "<resolution>",
+            assert_message,
+        )
+        self.assertIn(
+            cartesian_axes.get_axis_label(axis=1),
+            assert_message,
+        )
 
     def test_rejects_wrong_domain_bounds_length(self):
         with self.assertRaises((TypeError, ValueError)):
@@ -150,16 +180,16 @@ class TestValidation(unittest.TestCase):
             )
 
     def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(self):
-        with self.assertRaises(ValueError) as ctx:
+        with self.assertRaises(ValueError) as assert_context:
             _domain_type.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 0.0), (0.0, 1.0)),
             )
-        err_msg = str(ctx.exception)
-        self.assertIn(cartesian_axes.get_axis_label(axis=0), err_msg)
-        self.assertIn("max bound must be > min bound", err_msg)
+        assert_message = str(assert_context.exception)
+        self.assertIn(cartesian_axes.get_axis_label(axis=0), assert_message)
+        self.assertIn("max bound must be > min bound", assert_message)
 
     def test_rejects_num_sdims_exceeding_supported_cartesian_axes(self):
         with self.assertRaises((TypeError, ValueError)):
@@ -180,11 +210,26 @@ class TestProperties(unittest.TestCase):
             resolution=(10, 4),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0)),
         )
-        self.assertEqual(udomain.domain_lengths, (2.0, 4.0))
-        self.assertEqual(udomain.cell_widths, (0.2, 1.0))
-        self.assertAlmostEqual(udomain._measure_per_cell, 0.2 * 1.0)
-        self.assertAlmostEqual(udomain._total_measure, 2.0 * 4.0)
-        self.assertEqual(udomain.num_cells, 40)
+        self.assertEqual(
+            udomain.domain_lengths,
+            (2.0, 4.0),
+        )
+        self.assertEqual(
+            udomain.cell_widths,
+            (0.2, 1.0),
+        )
+        self.assertAlmostEqual(
+            udomain._measure_per_cell,
+            0.2 * 1.0,
+        )
+        self.assertAlmostEqual(
+            udomain._total_measure,
+            2.0 * 4.0,
+        )
+        self.assertEqual(
+            udomain.num_cells,
+            40,
+        )
 
     def test_lengths_widths_measures_num_cells_3d(self):
         udomain = _domain_type.UniformDomain(
@@ -193,11 +238,26 @@ class TestProperties(unittest.TestCase):
             resolution=(2, 3, 4),
             domain_bounds=((0.0, 1.0), (0.0, 3.0), (-2.0, 2.0)),
         )
-        self.assertEqual(udomain.domain_lengths, (1.0, 3.0, 4.0))
-        self.assertEqual(udomain.cell_widths, (0.5, 1.0, 1.0))
-        self.assertAlmostEqual(udomain._measure_per_cell, 0.5 * 1.0 * 1.0)
-        self.assertAlmostEqual(udomain._total_measure, 1.0 * 3.0 * 4.0)
-        self.assertEqual(udomain.num_cells, 2 * 3 * 4)
+        self.assertEqual(
+            udomain.domain_lengths,
+            (1.0, 3.0, 4.0),
+        )
+        self.assertEqual(
+            udomain.cell_widths,
+            (0.5, 1.0, 1.0),
+        )
+        self.assertAlmostEqual(
+            udomain._measure_per_cell,
+            0.5 * 1.0 * 1.0,
+        )
+        self.assertAlmostEqual(
+            udomain._total_measure,
+            1.0 * 3.0 * 4.0,
+        )
+        self.assertEqual(
+            udomain.num_cells,
+            2 * 3 * 4,
+        )
 
     def test_cell_centers_values_1d(self):
         udomain = _domain_type.UniformDomain(
@@ -219,11 +279,24 @@ class TestProperties(unittest.TestCase):
             domain_bounds=((0.0, 3.0), (10.0, 20.0), (-7.0, 0.0)),
         )
         x0_centers, x1_centers, x2_centers = udomain.cell_centers
-        self.assertEqual(x0_centers.shape, (3, ))
-        self.assertEqual(x1_centers.shape, (5, ))
-        self.assertEqual(x2_centers.shape, (7, ))
-        self.assertTrue(numpy.all((x1_centers > 10.0) & (x1_centers < 20.0)))
-        self.assertTrue(numpy.all((x2_centers > -7.0) & (x2_centers < 0.0)))
+        self.assertEqual(
+            x0_centers.shape,
+            (3, ),
+        )
+        self.assertEqual(
+            x1_centers.shape,
+            (5, ),
+        )
+        self.assertEqual(
+            x2_centers.shape,
+            (7, ),
+        )
+        self.assertTrue(
+            numpy.all((x1_centers > 10.0) & (x1_centers < 20.0)),
+        )
+        self.assertTrue(
+            numpy.all((x2_centers > -7.0) & (x2_centers < 0.0)),
+        )
 
     def test_cached_properties_return_same_object(self):
         udomain = _domain_type.UniformDomain(
@@ -232,9 +305,18 @@ class TestProperties(unittest.TestCase):
             resolution=(3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        self.assertIs(udomain.cell_widths, udomain.cell_widths)
-        self.assertIs(udomain.domain_lengths, udomain.domain_lengths)
-        self.assertIs(udomain.cell_centers, udomain.cell_centers)
+        self.assertIs(
+            udomain.cell_widths,
+            udomain.cell_widths,
+        )
+        self.assertIs(
+            udomain.domain_lengths,
+            udomain.domain_lengths,
+        )
+        self.assertIs(
+            udomain.cell_centers,
+            udomain.cell_centers,
+        )
 
 
 class TestEnsureHelpers(unittest.TestCase):
@@ -259,9 +341,15 @@ class TestEnsureHelpers(unittest.TestCase):
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        _domain_type.ensure_udomain_metadata(udomain=udomain, num_sdims=2)
+        _domain_type.ensure_udomain_metadata(
+            udomain=udomain,
+            num_sdims=2,
+        )
         with self.assertRaises(ValueError):
-            _domain_type.ensure_udomain_metadata(udomain=udomain, num_sdims=3)
+            _domain_type.ensure_udomain_metadata(
+                udomain=udomain,
+                num_sdims=3,
+            )
 
 
 ##

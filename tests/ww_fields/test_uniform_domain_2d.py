@@ -23,16 +23,28 @@ class TestConstruction(unittest.TestCase):
             resolution=(8, 4),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
         )
-        self.assertEqual(udomain_2d.num_sdims, 2)
-        self.assertEqual(udomain_2d.periodicity, (True, False))
-        self.assertEqual(udomain_2d.resolution, (8, 4))
-        self.assertEqual(udomain_2d.domain_bounds, ((0.0, 1.0), (-2.0, 2.0)))
+        self.assertEqual(
+            udomain_2d.num_sdims,
+            2,
+        )
+        self.assertEqual(
+            udomain_2d.periodicity,
+            (True, False),
+        )
+        self.assertEqual(
+            udomain_2d.resolution,
+            (8, 4),
+        )
+        self.assertEqual(
+            udomain_2d.domain_bounds,
+            ((0.0, 1.0), (-2.0, 2.0)),
+        )
 
     def test_resolution_length_must_be_2(self):
         with self.assertRaises((TypeError, ValueError)):
             domain_type.UniformDomain_2D(
                 periodicity=(True, False),
-                resolution=(8, 4, 2),
+                resolution=(8, 4, 2),  # type: ignore[arg-type]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -41,7 +53,7 @@ class TestConstruction(unittest.TestCase):
             domain_type.UniformDomain_2D(
                 periodicity=(True, False),
                 resolution=(8, 4),
-                domain_bounds=((0.0, 1.0),),
+                domain_bounds=((0.0, 1.0), ),  # type: ignore[arg-type]
             )
 
 
@@ -53,10 +65,22 @@ class TestProperties(unittest.TestCase):
             resolution=(10, 4),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0)),
         )
-        self.assertEqual(udomain_2d.domain_lengths, (2.0, 4.0))
-        self.assertEqual(udomain_2d.cell_widths, (0.2, 1.0))
-        self.assertAlmostEqual(udomain_2d.cell_area, 0.2 * 1.0)
-        self.assertAlmostEqual(udomain_2d.total_area, 2.0 * 4.0)
+        self.assertEqual(
+            udomain_2d.domain_lengths,
+            (2.0, 4.0),
+        )
+        self.assertEqual(
+            udomain_2d.cell_widths,
+            (0.2, 1.0),
+        )
+        self.assertAlmostEqual(
+            udomain_2d.cell_area,
+            0.2 * 1.0,
+        )
+        self.assertAlmostEqual(
+            udomain_2d.total_area,
+            2.0 * 4.0,
+        )
 
     def test_cell_centers_shapes_and_values(self):
         udomain_2d = domain_type.UniformDomain_2D(
@@ -65,8 +89,14 @@ class TestProperties(unittest.TestCase):
             domain_bounds=((0.0, 1.0), (0.0, 2.0)),
         )
         x0_centers, x1_centers = udomain_2d.cell_centers
-        self.assertEqual(x0_centers.shape, (4,))
-        self.assertEqual(x1_centers.shape, (2,))
+        self.assertEqual(
+            x0_centers.shape,
+            (4, ),
+        )
+        self.assertEqual(
+            x1_centers.shape,
+            (2, ),
+        )
         expected_x0 = numpy.array([0.125, 0.375, 0.625, 0.875])
         expected_x1 = numpy.array([0.5, 1.5])
         self.assertTrue(numpy.allclose(x0_centers, expected_x0))
@@ -78,15 +108,24 @@ class TestProperties(unittest.TestCase):
             resolution=(3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        self.assertIs(udomain_2d.cell_widths, udomain_2d.cell_widths)
-        self.assertIs(udomain_2d.domain_lengths, udomain_2d.domain_lengths)
-        self.assertIs(udomain_2d.cell_centers, udomain_2d.cell_centers)
+        self.assertIs(
+            udomain_2d.cell_widths,
+            udomain_2d.cell_widths,
+        )
+        self.assertIs(
+            udomain_2d.domain_lengths,
+            udomain_2d.domain_lengths,
+        )
+        self.assertIs(
+            udomain_2d.cell_centers,
+            udomain_2d.cell_centers,
+        )
 
 
 class TestSliced3D(unittest.TestCase):
 
     def test_constructs_and_normalises_axis_enum(self):
-        udomain_2d = domain_type.UniformDomain_2D_Sliced3D(
+        udomain_2d = domain_type.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(8, 8),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -94,17 +133,17 @@ class TestSliced3D(unittest.TestCase):
             slice_index=3,
             slice_position=0.5,
         )
-        self.assertIsInstance(
+        self.assertIs(
             udomain_2d.out_of_plane_axis,
-            cartesian_axes.CartesianAxis_3D,
+            cartesian_axes.CartesianAxis_3D.X1,
         )
         self.assertEqual(
             udomain_2d.sliced_axis_index,
-            cartesian_axes.get_axis_index(axis="X1"),
+            1,
         )
 
     def test_accepts_int_and_enum_axis_inputs(self):
-        udomain_from_int = domain_type.UniformDomain_2D_Sliced3D(
+        udomain_from_int = domain_type.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -112,9 +151,16 @@ class TestSliced3D(unittest.TestCase):
             slice_index=0,
             slice_position=0.0,
         )
-        self.assertEqual(udomain_from_int.sliced_axis_index, 2)
+        self.assertIs(
+            udomain_from_int.out_of_plane_axis,
+            cartesian_axes.CartesianAxis_3D.X2,
+        )
+        self.assertEqual(
+            udomain_from_int.sliced_axis_index,
+            2,
+        )
 
-        udomain_from_enum = domain_type.UniformDomain_2D_Sliced3D(
+        udomain_from_enum = domain_type.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -122,11 +168,18 @@ class TestSliced3D(unittest.TestCase):
             slice_index=1,
             slice_position=0.25,
         )
-        self.assertEqual(udomain_from_enum.sliced_axis_index, 0)
+        self.assertIs(
+            udomain_from_enum.out_of_plane_axis,
+            cartesian_axes.CartesianAxis_3D.X0,
+        )
+        self.assertEqual(
+            udomain_from_enum.sliced_axis_index,
+            0,
+        )
 
     def test_rejects_invalid_axis(self):
         with self.assertRaises(ValueError):
-            domain_type.UniformDomain_2D_Sliced3D(
+            domain_type.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -137,7 +190,7 @@ class TestSliced3D(unittest.TestCase):
 
     def test_slice_index_must_be_non_negative(self):
         with self.assertRaises(ValueError):
-            domain_type.UniformDomain_2D_Sliced3D(
+            domain_type.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -148,20 +201,20 @@ class TestSliced3D(unittest.TestCase):
 
     def test_slice_position_must_be_finite(self):
         with self.assertRaises((TypeError, ValueError)):
-            domain_type.UniformDomain_2D_Sliced3D(  # type: ignore[arg-type]
+            domain_type.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
                 out_of_plane_axis=0,
                 slice_index=0,
-                slice_position="a",
+                slice_position="a",  # type: ignore[arg-type]
             )
 
 
 class TestEnsureHelpers(unittest.TestCase):
 
     def test_ensure_2d_udomain_accepts_subtype(self):
-        udomain_2d = domain_type.UniformDomain_2D_Sliced3D(
+        udomain_2d = domain_type.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -178,9 +231,7 @@ class TestEnsureHelpers(unittest.TestCase):
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(TypeError):
-            domain_type.ensure_2d_udomain_sliced_from_3d(
-                udomain_2d=udomain_2d,
-            )
+            domain_type.ensure_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
 
 
 ##

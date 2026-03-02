@@ -22,16 +22,28 @@ class TestConstruction(unittest.TestCase):
             resolution=(8, 4, 2),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)),
         )
-        self.assertEqual(udomain_3d.num_sdims, 3)
-        self.assertEqual(udomain_3d.periodicity, (True, True, False))
-        self.assertEqual(udomain_3d.resolution, (8, 4, 2))
-        self.assertEqual(udomain_3d.domain_bounds, ((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)))
+        self.assertEqual(
+            udomain_3d.num_sdims,
+            3,
+        )
+        self.assertEqual(
+            udomain_3d.periodicity,
+            (True, True, False),
+        )
+        self.assertEqual(
+            udomain_3d.resolution,
+            (8, 4, 2),
+        )
+        self.assertEqual(
+            udomain_3d.domain_bounds,
+            ((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)),
+        )
 
     def test_resolution_length_must_be_3(self):
         with self.assertRaises((TypeError, ValueError)):
             domain_type.UniformDomain_3D(
                 periodicity=(True, True, True),
-                resolution=(8, 4),
+                resolution=(8, 4), # type: ignore[arg-type]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -40,7 +52,7 @@ class TestConstruction(unittest.TestCase):
             domain_type.UniformDomain_3D(
                 periodicity=(True, True, True),
                 resolution=(8, 4, 2),
-                domain_bounds=((0.0, 1.0), (0.0, 1.0)),
+                domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # type: ignore[arg-type]
             )
 
 
@@ -52,11 +64,26 @@ class TestProperties(unittest.TestCase):
             resolution=(10, 4, 2),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0), (0.0, 1.0)),
         )
-        self.assertEqual(udomain_3d.domain_lengths, (2.0, 4.0, 1.0))
-        self.assertEqual(udomain_3d.cell_widths, (0.2, 1.0, 0.5))
-        self.assertAlmostEqual(udomain_3d.cell_volume, 0.2 * 1.0 * 0.5)
-        self.assertAlmostEqual(udomain_3d.total_volume, 2.0 * 4.0 * 1.0)
-        self.assertEqual(udomain_3d.num_cells, 10 * 4 * 2)
+        self.assertEqual(
+            udomain_3d.domain_lengths,
+            (2.0, 4.0, 1.0),
+        )
+        self.assertEqual(
+            udomain_3d.cell_widths,
+            (0.2, 1.0, 0.5),
+        )
+        self.assertAlmostEqual(
+            udomain_3d.cell_volume,
+            0.2 * 1.0 * 0.5,
+        )
+        self.assertAlmostEqual(
+            udomain_3d.total_volume,
+            2.0 * 4.0 * 1.0,
+        )
+        self.assertEqual(
+            udomain_3d.num_cells,
+            10 * 4 * 2,
+        )
 
     def test_cell_centers_shapes_and_values(self):
         udomain_3d = domain_type.UniformDomain_3D(
@@ -65,9 +92,18 @@ class TestProperties(unittest.TestCase):
             domain_bounds=((0.0, 1.0), (0.0, 2.0), (-1.0, 1.0)),
         )
         x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
-        self.assertEqual(x0_centers.shape, (4,))
-        self.assertEqual(x1_centers.shape, (2,))
-        self.assertEqual(x2_centers.shape, (2,))
+        self.assertEqual(
+            x0_centers.shape,
+            (4, ),
+        )
+        self.assertEqual(
+            x1_centers.shape,
+            (2, ),
+        )
+        self.assertEqual(
+            x2_centers.shape,
+            (2, ),
+        )
         expected_x0 = numpy.array([0.125, 0.375, 0.625, 0.875])
         expected_x1 = numpy.array([0.5, 1.5])
         expected_x2 = numpy.array([-0.5, 0.5])
@@ -81,9 +117,18 @@ class TestProperties(unittest.TestCase):
             resolution=(3, 3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
-        self.assertIs(udomain_3d.cell_widths, udomain_3d.cell_widths)
-        self.assertIs(udomain_3d.domain_lengths, udomain_3d.domain_lengths)
-        self.assertIs(udomain_3d.cell_centers, udomain_3d.cell_centers)
+        self.assertIs(
+            udomain_3d.cell_widths,
+            udomain_3d.cell_widths,
+        )
+        self.assertIs(
+            udomain_3d.domain_lengths,
+            udomain_3d.domain_lengths,
+        )
+        self.assertIs(
+            udomain_3d.cell_centers,
+            udomain_3d.cell_centers,
+        )
 
 
 class TestEnsureHelpers(unittest.TestCase):
