@@ -46,21 +46,27 @@ class UniformDomain_2D(_domain_type.UniformDomain):
         self,
     ) -> tuple[float, float]:
         return cast(
-            tuple[float, float], super().cell_widths)
+            tuple[float, float],
+            super().cell_widths,
+        )
 
     @cached_property
     def domain_lengths(
         self,
     ) -> tuple[float, float]:
         return cast(
-            tuple[float, float], super().domain_lengths)
+            tuple[float, float],
+            super().domain_lengths,
+        )
 
     @cached_property
     def cell_centers(
         self,
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         return cast(
-            tuple[numpy.ndarray, numpy.ndarray], super().cell_centers)
+            tuple[numpy.ndarray, numpy.ndarray],
+            super().cell_centers,
+        )
 
     @cached_property
     def cell_area(
