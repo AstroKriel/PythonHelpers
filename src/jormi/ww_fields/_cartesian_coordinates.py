@@ -4,197 +4,138 @@
 ## === DEPENDENCIES
 ##
 
+from dataclasses import dataclass
 from enum import Enum
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, cast
 
-from jormi.utils import list_utils
-from jormi.ww_types import type_checks
+from jormi.ww_types import enum_checks, type_checks
 
 ##
 ## === DATA TYPES
 ##
 
-IndexValue: TypeAlias = Literal[0, 1, 2]
+AxisLabel_3D: TypeAlias = Literal["x0", "x1", "x2"]
+AxisIndex_3D: TypeAlias = Literal[0, 1, 2]
+
+VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = ("x0", "x1", "x2")
+VALID_3D_AXIS_INDICES: tuple[AxisIndex_3D, AxisIndex_3D, AxisIndex_3D] = (0, 1, 2)
 
 
-class CartesianAxis(str, Enum):
-    """Default Cartesian axes in 3D with attached index."""
+@dataclass(frozen=True, slots=True)
+class AxisParams:
+    axis_label: str
+    axis_index: int
 
-    X = "x"
-    Y = "y"
-    Z = "z"
+
+class CartesianAxis_3D(str, Enum):
+    """Default Cartesian axes in 3D with an explicit label and axis_index."""
+
+    _axis_label: AxisLabel_3D
+    _axis_index: AxisIndex_3D
+
+    X0 = AxisParams(
+        axis_label=VALID_3D_AXIS_LABELS[0],
+        axis_index=VALID_3D_AXIS_INDICES[0],
+    )
+    X1 = AxisParams(
+        axis_label=VALID_3D_AXIS_LABELS[1],
+        axis_index=VALID_3D_AXIS_INDICES[1],
+    )
+    X2 = AxisParams(
+        axis_label=VALID_3D_AXIS_LABELS[2],
+        axis_index=VALID_3D_AXIS_INDICES[2],
+    )
+
+    def __new__(
+        cls,
+        axis_params: AxisParams,
+    ) -> "CartesianAxis_3D":
+        type_checks.ensure_type(
+            param=axis_params.axis_label,
+            valid_types=type_checks.RuntimeTypes.Strings.StringLike,
+            param_name="axis_label",
+        )
+        if axis_params.axis_label not in VALID_3D_AXIS_LABELS:
+            raise ValueError(f"`axis_label` is invalid: {axis_params.axis_label!r}")
+        type_checks.ensure_type(
+            param=axis_params.axis_index,
+            valid_types=type_checks.RuntimeTypes.Numerics.IntLike,
+            param_name="axis_index",
+        )
+        if axis_params.axis_index not in VALID_3D_AXIS_INDICES:
+            raise ValueError(f"`axis_index` is invalid: {axis_params.axis_index!r}")
+        obj = str.__new__(cls, axis_params.axis_label)
+        obj._value_ = axis_params.axis_label
+        obj._axis_label = cast(AxisLabel_3D, axis_params.axis_label)
+        obj._axis_index = cast(AxisIndex_3D, axis_params.axis_index)
+        return obj
+
+    @property
+    def axis_label(
+        self,
+    ) -> AxisLabel_3D:
+        return self._axis_label
 
     @property
     def axis_index(
         self,
-    ) -> IndexValue:
-        """Default index of this axis."""
-        if self is CartesianAxis.X:
-            return 0
-        if self is CartesianAxis.Y:
-            return 1
-        if self is CartesianAxis.Z:
-            return 2
-        valid_axes = [cartesian_axis.value for cartesian_axis in CartesianAxis]
-        valid_string = list_utils.as_quoted_string(elems=valid_axes)
-        raise ValueError(
-            f"Unknown CartesianAxis value {self!r}. Expected one of {valid_string}.",
-        )
+    ) -> AxisIndex_3D:
+        return self._axis_index
 
 
-AxisLike: TypeAlias = CartesianAxis | str
-AxisTuple: TypeAlias = tuple[CartesianAxis, CartesianAxis, CartesianAxis]
+AxisLike: TypeAlias = CartesianAxis_3D | str | int
+AxisTuple_3D: TypeAlias = tuple[CartesianAxis_3D, CartesianAxis_3D, CartesianAxis_3D]
 
-DEFAULT_AXES_ORDER: AxisTuple = (
-    CartesianAxis.X,
-    CartesianAxis.Y,
-    CartesianAxis.Z,
+DEFAULT_3D_AXES_ORDER: AxisTuple_3D = (
+    CartesianAxis_3D.X0,
+    CartesianAxis_3D.X1,
+    CartesianAxis_3D.X2,
 )
-
-##
-## === HELPERS FOR AXIS
-##
 
 
 def as_axis(
     *,
     axis: AxisLike,
     param_name: str = "<axis>",
-) -> CartesianAxis:
-    """Normalise a string ('x', 'y', 'z') or CartesianAxis into a CartesianAxis enum."""
-    if isinstance(axis, CartesianAxis):
+) -> CartesianAxis_3D:
+    """
+    Resolve `axis` into a canonical `CartesianAxis_3D` member.
+
+    Accepts:
+      - A `CartesianAxis_3D` member (e.g. `CartesianAxis_3D.X1`)
+      - An integer axis index: 0, 1, 2
+      - A string axis identifier (case-insensitive), matching either:
+          * the axis label: "x0", "x1", "x2"
+          * the Enum member name: "X0", "X1", "X2"
+    """
+    type_checks.ensure_type(
+        param=axis,
+        valid_types=(int, str, CartesianAxis_3D),
+        param_name=param_name,
+    )
+    if isinstance(axis, CartesianAxis_3D):
         return axis
-    if isinstance(axis, str):
-        axis_lower = axis.lower()
-        for candidate_axis in CartesianAxis:
-            if candidate_axis.value == axis_lower:
-                return candidate_axis
-    valid_axes = [cartesian_axis.value for cartesian_axis in CartesianAxis]
-    valid_string = list_utils.as_quoted_string(elems=valid_axes)
-    raise ValueError(f"`{param_name}` must be one of {valid_string}, got {axis!r}.")
+    if isinstance(axis, int):
+        if axis == VALID_3D_AXIS_INDICES[0]: return CartesianAxis_3D.X0
+        if axis == VALID_3D_AXIS_INDICES[1]: return CartesianAxis_3D.X1
+        if axis == VALID_3D_AXIS_INDICES[2]: return CartesianAxis_3D.X2
+        raise ValueError(f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}.")
+    return enum_checks.resolve_member(
+        member=axis,
+        valid_enums=CartesianAxis_3D,
+    )  # type: ignore[return-value]
+
+
+def get_axis_label(
+    axis: AxisLike,
+) -> AxisLabel_3D:
+    return as_axis(axis=axis).axis_label
 
 
 def get_axis_index(
     axis: AxisLike,
-) -> IndexValue:
-    """Return the default index (0, 1, 2) for a given axis."""
+) -> AxisIndex_3D:
     return as_axis(axis=axis).axis_index
-
-
-def get_axis_from_index(
-    *,
-    index: int,
-    param_name: str = "<index>",
-) -> CartesianAxis:
-    """Return the CartesianAxis corresponding to a default index (0, 1, 2)."""
-    type_checks.ensure_finite_int(
-        param=index,
-        param_name=param_name,
-        allow_none=False,
-        require_positive=False,
-    )
-    if index == 0:
-        return CartesianAxis.X
-    if index == 1:
-        return CartesianAxis.Y
-    if index == 2:
-        return CartesianAxis.Z
-    valid_indices = [cartesian_axis.axis_index for cartesian_axis in DEFAULT_AXES_ORDER]
-    valid_string = list_utils.as_quoted_string(elems=valid_indices)
-    raise ValueError(f"`{param_name}` must be one of {valid_string}, got {index!r}.")
-
-
-##
-## === HELPERS FOR AXES
-##
-
-
-def as_axes_tuple(
-    *,
-    axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "<axes>",
-) -> AxisTuple:
-    """
-    Convert a length-3 tuple of AxisLike into a tuple of CartesianAxis.
-
-    Validates the outer container shape and then normalises each entry via `as_axis()`.
-    """
-    type_checks.ensure_sequence(
-        param=axes,
-        param_name=param_name,
-        seq_length=3,
-        valid_seq_types=type_checks.RuntimeTypes.Sequences.TupleLike,
-    )
-    axes_enum_list: list[CartesianAxis] = []
-    for axis_index, axis_like in enumerate(axes):
-        axis_enum = as_axis(
-            axis=axis_like,
-            param_name=f"{param_name}[{axis_index}]",
-        )
-        axes_enum_list.append(axis_enum)
-    return (
-        axes_enum_list[0],
-        axes_enum_list[1],
-        axes_enum_list[2],
-    )
-
-
-def ensure_valid_axes_permutation(
-    *,
-    axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "<axes>",
-) -> None:
-    """Ensure `axes` is a permutation of the default axes (order not enforced)."""
-    axes_tuple = as_axes_tuple(
-        axes=axes,
-        param_name=param_name,
-    )
-    if set(axes_tuple) != set(DEFAULT_AXES_ORDER):
-        in_axes = [axis.value for axis in axes_tuple]
-        valid_axes = [axis.value for axis in DEFAULT_AXES_ORDER]
-        in_string = list_utils.as_quoted_string(elems=in_axes)
-        valid_string = list_utils.as_quoted_string(elems=valid_axes)
-        raise ValueError(
-            f"`{param_name}` must be a permutation of {valid_string}, got {in_string}.",
-        )
-
-
-def ensure_default_axes_order(
-    *,
-    axes: tuple[AxisLike, AxisLike, AxisLike],
-    param_name: str = "<axes>",
-) -> None:
-    """Ensure `axes` matches the default order exactly: (x, y, z)."""
-    axes_tuple = as_axes_tuple(
-        axes=axes,
-        param_name=param_name,
-    )
-    ensure_valid_axes_permutation(
-        axes=axes_tuple,
-        param_name=param_name,
-    )
-    if axes_tuple != DEFAULT_AXES_ORDER:
-        in_axes = [axis.value for axis in axes_tuple]
-        valid_axes = [axis.value for axis in DEFAULT_AXES_ORDER]
-        in_string = list_utils.as_quoted_string(elems=in_axes)
-        valid_string = list_utils.as_quoted_string(elems=valid_axes)
-        raise ValueError(
-            f"`{param_name}` must be exactly {valid_string}, got {in_string}.",
-        )
-
-
-def is_default_axes_order(
-    axes: tuple[AxisLike, AxisLike, AxisLike],
-) -> bool:
-    """Return True if `axes` corresponds exactly to the default order (x, y, z)."""
-    try:
-        axes_tuple = as_axes_tuple(
-            axes=axes,
-            param_name="<axes>",
-        )
-    except ValueError:
-        return False
-    return axes_tuple == DEFAULT_AXES_ORDER
 
 
 ## } MODULE
