@@ -40,6 +40,15 @@ class TestConstruction(unittest.TestCase):
             ((0.0, 1.0), (-2.0, 2.0)),
         )
 
+    def test_rejects_num_sdims_argument(self):
+        with self.assertRaises(TypeError):
+            domain_type.UniformDomain_2D(
+                num_sdims=2, # type: ignore[call-arg]
+                periodicity=(True, False),
+                resolution=(8, 4),
+                domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
+            )
+
     def test_resolution_length_must_be_2(self):
         with self.assertRaises((TypeError, ValueError)):
             domain_type.UniformDomain_2D(
@@ -195,6 +204,17 @@ class TestSliced3D(unittest.TestCase):
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
                 out_of_plane_axis=0,
+                slice_index=-1,
+                slice_position=0.0,
+            )
+
+    def test_direct_init_rejects_negative_slice_index(self):
+        with self.assertRaises(ValueError):
+            domain_type.UniformDomain_2D_Sliced3D(
+                periodicity=(True, True),
+                resolution=(4, 4),
+                domain_bounds=((0.0, 1.0), (0.0, 1.0)),
+                out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X0,
                 slice_index=-1,
                 slice_position=0.0,
             )

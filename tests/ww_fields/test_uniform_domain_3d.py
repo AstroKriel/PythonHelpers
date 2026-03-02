@@ -39,6 +39,15 @@ class TestConstruction(unittest.TestCase):
             ((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)),
         )
 
+    def test_rejects_num_sdims_argument(self):
+        with self.assertRaises(TypeError):
+            domain_type.UniformDomain_3D(
+                num_sdims=3, # type: ignore[call-arg]
+                periodicity=(True, False, True),
+                resolution=(8, 4),
+                domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
+            )
+
     def test_resolution_length_must_be_3(self):
         with self.assertRaises((TypeError, ValueError)):
             domain_type.UniformDomain_3D(
