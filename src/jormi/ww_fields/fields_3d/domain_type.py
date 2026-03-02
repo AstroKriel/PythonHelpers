@@ -8,7 +8,7 @@ import numpy
 
 from typing import cast
 from functools import cached_property
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from jormi.ww_types import type_checks
 from jormi.ww_fields import _domain_type
@@ -23,11 +23,12 @@ class UniformDomain_3D(_domain_type.UniformDomain):
     """
     Uniform 3D domain: `num_sdims == 3`.
 
-    - `periodicity`: (Px, Py, Pz)
-    - `resolution`:  (Nx, Ny, Nz)
-    - `domain_bounds`: ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+    - `periodicity`: (P0, P1, P2)
+    - `resolution`: (N0, N1, N2)
+    - `domain_bounds`: ((x0_min, x0_max), (x1_min, x1_max), (x2_min, x2_max))
     """
 
+    num_sdims: int = field(default=3, init=False)
     periodicity: tuple[bool, bool, bool]
     resolution: tuple[int, int, int]
     domain_bounds: tuple[
@@ -35,23 +36,6 @@ class UniformDomain_3D(_domain_type.UniformDomain):
         tuple[float, float],
         tuple[float, float],
     ]
-
-    def __init__(
-        self,
-        periodicity: tuple[bool, bool, bool],
-        resolution: tuple[int, int, int],
-        domain_bounds: tuple[
-            tuple[float, float],
-            tuple[float, float],
-            tuple[float, float],
-        ],
-    ) -> None:
-        super().__init__(
-            num_sdims=3,
-            periodicity=periodicity,
-            resolution=resolution,
-            domain_bounds=domain_bounds,
-        )
 
     def __post_init__(
         self,

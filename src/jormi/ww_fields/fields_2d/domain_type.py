@@ -8,13 +8,10 @@ import numpy
 
 from typing import cast
 from functools import cached_property
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from jormi.ww_types import type_checks
-from jormi.ww_fields import (
-    _domain_type,
-    _cartesian_coordinates,
-)
+from jormi.ww_fields import _domain_type, cartesian_axes
 
 ##
 ## === 2D DOMAIN
@@ -27,34 +24,17 @@ class UniformDomain_2D(_domain_type.UniformDomain):
     Uniform 2D domain: `num_sdims == 2`.
 
     - `periodicity`: (Px, Py)
-    - `resolution`:  (Nx, Ny)
-    - `domain_bounds`: ((x_min, x_max), (y_min, y_max))
+    - `resolution`: (Nx, Ny)
+    - `domain_bounds`: ((x0_min, x0_max), (x1_min, x1_max))
     """
 
+    num_sdims: int = field(default=2, init=False)
     periodicity: tuple[bool, bool]
     resolution: tuple[int, int]
     domain_bounds: tuple[
         tuple[float, float],
         tuple[float, float],
     ]
-
-    def __init__(
-        self,
-        *,
-        periodicity: tuple[bool, bool],
-        resolution: tuple[int, int],
-        domain_bounds: tuple[
-            tuple[float, float],
-            tuple[float, float],
-        ],
-    ) -> None:
-        ## fix num_sdims for all 2D domains and forward metadata to the base class
-        super().__init__(
-            num_sdims=2,
-            periodicity=periodicity,
-            resolution=resolution,
-            domain_bounds=domain_bounds,
-        )
 
     def __post_init__(
         self,
@@ -66,27 +46,21 @@ class UniformDomain_2D(_domain_type.UniformDomain):
         self,
     ) -> tuple[float, float]:
         return cast(
-            tuple[float, float],
-            super().cell_widths,
-        )
+            tuple[float, float], super().cell_widths)
 
     @cached_property
     def domain_lengths(
         self,
     ) -> tuple[float, float]:
         return cast(
-            tuple[float, float],
-            super().domain_lengths,
-        )
+            tuple[float, float], super().domain_lengths)
 
     @cached_property
     def cell_centers(
         self,
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         return cast(
-            tuple[numpy.ndarray, numpy.ndarray],
-            super().cell_centers,
-        )
+            tuple[numpy.ndarray, numpy.ndarray], super().cell_centers)
 
     @cached_property
     def cell_area(
@@ -111,20 +85,20 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
     """
     2D uniform domain obtained by slicing a 3D uniform domain.
 
-    Behaves like a regular 2D uniform domain, but carries extra
-    metadata about its 3D origin:
+    Behaves like a regular 2D uniform domain, but carries extra metadata:
 
-    - `out_of_plane_axis`: out-of-plane axis removed from the original 3D domain (x, y, or z).
+    - `out_of_plane_axis`: axis removed from the original 3D domain (stored canonically).
     - `slice_index`: grid index along `out_of_plane_axis` where the slice was taken.
     - `slice_position`: physical coordinate along `out_of_plane_axis` where the slice was taken.
     """
 
-    out_of_plane_axis: _cartesian_coordinates.AxisLike
+    out_of_plane_axis: cartesian_axes.CartesianAxis_3D
     slice_index: int
     slice_position: float
 
-    def __init__(
-        self,
+    @classmethod
+    def from_slice(
+        cls,
         *,
         periodicity: tuple[bool, bool],
         resolution: tuple[int, int],
@@ -132,33 +106,32 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
             tuple[float, float],
             tuple[float, float],
         ],
-        out_of_plane_axis: _cartesian_coordinates.AxisLike,
+        out_of_plane_axis: cartesian_axes.AxisLike_3D,
         slice_index: int,
         slice_position: float,
-    ) -> None:
-        ## construct the underlying 2D domain (num_sdims is fixed to 2 there)
-        super().__init__(
+    ) -> "UniformDomain_2D_Sliced3D":
+        axis_enum = cartesian_axes.as_axis(
+            axis=out_of_plane_axis,
+            param_name="out_of_plane_axis",
+        )
+        return cls(
             periodicity=periodicity,
             resolution=resolution,
             domain_bounds=domain_bounds,
+            out_of_plane_axis=axis_enum,
+            slice_index=slice_index,
+            slice_position=slice_position,
         )
-        ## assign extra sliced-3D metadata on the frozen dataclass
-        object.__setattr__(self, "out_of_plane_axis", out_of_plane_axis)
-        object.__setattr__(self, "slice_index", slice_index)
-        object.__setattr__(self, "slice_position", slice_position)
 
     def __post_init__(
         self,
     ) -> None:
-        ## validate the underlying 2D domain itself
         super().__post_init__()
-        ## normalise and store the axis as a CartesianAxis enum
-        slice_axis_enum = _cartesian_coordinates.as_axis(
-            axis=self.out_of_plane_axis,
+        type_checks.ensure_type(
+            param=self.out_of_plane_axis,
             param_name="out_of_plane_axis",
+            valid_types=cartesian_axes.CartesianAxis_3D,
         )
-        object.__setattr__(self, "out_of_plane_axis", slice_axis_enum)
-        ## validate index and coordinate
         type_checks.ensure_finite_int(
             param=self.slice_index,
             param_name="slice_index",
@@ -179,9 +152,9 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
     @cached_property
     def sliced_axis_index(
         self,
-    ) -> int:
-        """Default integer index (0, 1, 2) of the out-of-plane slice axis."""
-        return _cartesian_coordinates.get_axis_index(self.out_of_plane_axis)
+    ) -> cartesian_axes.AxisIndex_3D:
+        """Integer index (0, 1, 2) of the out-of-plane slice axis."""
+        return self.out_of_plane_axis.axis_index
 
 
 ##
