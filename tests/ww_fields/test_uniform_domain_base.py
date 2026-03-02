@@ -19,14 +19,14 @@ class TestConstruction(unittest.TestCase):
     def test_constructs_valid_1d(self):
         udomain = _domain_type.UniformDomain(
             num_sdims=1,
-            periodicity=(True,),
-            resolution=(4,),
-            domain_bounds=((0.0, 1.0),),
+            periodicity=(True, ),
+            resolution=(4, ),
+            domain_bounds=((0.0, 1.0), ),
         )
         self.assertEqual(udomain.num_sdims, 1)
-        self.assertEqual(udomain.periodicity, (True,))
-        self.assertEqual(udomain.resolution, (4,))
-        self.assertEqual(udomain.domain_bounds, ((0.0, 1.0),))
+        self.assertEqual(udomain.periodicity, (True, ))
+        self.assertEqual(udomain.resolution, (4, ))
+        self.assertEqual(udomain.domain_bounds, ((0.0, 1.0), ))
 
     def test_constructs_valid_2d(self):
         udomain = _domain_type.UniformDomain(
@@ -53,22 +53,22 @@ class TestValidation(unittest.TestCase):
 
     def test_rejects_invalid_num_sdims(self):
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=0,
                 periodicity=(),
                 resolution=(),
                 domain_bounds=(),
             )
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=-1,
                 periodicity=(),
                 resolution=(),
                 domain_bounds=(),
             )
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
-                num_sdims=1.0,
+            _domain_type.UniformDomain(
+                num_sdims=1.0, # type: ignore[arg-type]
                 periodicity=(True,),
                 resolution=(4,),
                 domain_bounds=((0.0, 1.0),),
@@ -85,9 +85,9 @@ class TestValidation(unittest.TestCase):
 
     def test_rejects_non_bool_periodicity(self):
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=2,
-                periodicity=(True, 1),
+                periodicity=(True, 1), # type: ignore[arg-type]
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
@@ -103,10 +103,10 @@ class TestValidation(unittest.TestCase):
 
     def test_rejects_non_int_resolution(self):
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
-                resolution=(4.0, 4),
+                resolution=(4.0, 4), # type: ignore[arg-type]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -128,25 +128,25 @@ class TestValidation(unittest.TestCase):
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=((0.0, 1.0),),
+                domain_bounds=((0.0, 1.0), ),
             )
 
     def test_rejects_domain_bounds_not_pairs(self):
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),
+                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # type: ignore[arg-type]
             )
 
     def test_rejects_domain_bounds_non_numeric(self):
         with self.assertRaises((TypeError, ValueError)):
-            _domain_type.UniformDomain(  # type: ignore[arg-type]
+            _domain_type.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=(("a", "b"), (0.0, 1.0)),
+                domain_bounds=(("a", "b"), (0.0, 1.0)),  # type: ignore[arg-type]
             )
 
     def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(self):
@@ -202,9 +202,9 @@ class TestProperties(unittest.TestCase):
     def test_cell_centers_values_1d(self):
         udomain = _domain_type.UniformDomain(
             num_sdims=1,
-            periodicity=(True,),
-            resolution=(4,),
-            domain_bounds=((0.0, 1.0),),
+            periodicity=(True, ),
+            resolution=(4, ),
+            domain_bounds=((0.0, 1.0), ),
         )
         cell_centers = udomain.cell_centers
         self.assertEqual(len(cell_centers), 1)
@@ -219,9 +219,9 @@ class TestProperties(unittest.TestCase):
             domain_bounds=((0.0, 3.0), (10.0, 20.0), (-7.0, 0.0)),
         )
         x0_centers, x1_centers, x2_centers = udomain.cell_centers
-        self.assertEqual(x0_centers.shape, (3,))
-        self.assertEqual(x1_centers.shape, (5,))
-        self.assertEqual(x2_centers.shape, (7,))
+        self.assertEqual(x0_centers.shape, (3, ))
+        self.assertEqual(x1_centers.shape, (5, ))
+        self.assertEqual(x2_centers.shape, (7, ))
         self.assertTrue(numpy.all((x1_centers > 10.0) & (x1_centers < 20.0)))
         self.assertTrue(numpy.all((x2_centers > -7.0) & (x2_centers < 0.0)))
 
