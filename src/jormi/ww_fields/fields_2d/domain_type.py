@@ -110,7 +110,7 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
         slice_index: int,
         slice_position: float,
     ) -> "UniformDomain_2D_Sliced3D":
-        axis_enum = cartesian_axes.as_axis(
+        out_of_plane_axis = cartesian_axes.as_axis(
             axis=out_of_plane_axis,
             param_name="out_of_plane_axis",
         )
@@ -118,7 +118,7 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
             periodicity=periodicity,
             resolution=resolution,
             domain_bounds=domain_bounds,
-            out_of_plane_axis=axis_enum,
+            out_of_plane_axis=out_of_plane_axis,
             slice_index=slice_index,
             slice_position=slice_position,
         )
@@ -136,7 +136,8 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
             param=self.slice_index,
             param_name="slice_index",
             allow_none=False,
-            require_positive=False,
+            allow_zero=True,
+            require_positive=True,
         )
         if self.slice_index < 0:
             raise ValueError(
@@ -147,6 +148,8 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
             param=self.slice_position,
             param_name="slice_position",
             allow_none=False,
+            allow_zero=True,
+            require_positive=False,
         )
 
     @cached_property
