@@ -15,6 +15,29 @@ from jormi.ww_fields import cartesian_axes
 
 class TestCartesianAxis_3D(unittest.TestCase):
 
+    def test_round_trip_invariants(self):
+        for axis_index, axis in enumerate(cartesian_axes.DEFAULT_3D_AXES_ORDER):
+            self.assertIs(
+                cartesian_axes.as_axis(axis=axis),
+                axis,
+            )
+            self.assertIs(
+                cartesian_axes.as_axis(axis=axis.axis_label),
+                axis,
+            )
+            self.assertIs(
+                cartesian_axes.as_axis(axis=axis.axis_index),
+                axis,
+            )
+            self.assertEqual(
+                cartesian_axes.get_axis_index(axis=axis),
+                axis_index,
+            )
+            self.assertEqual(
+                cartesian_axes.get_axis_label(axis=axis),
+                f"x{axis_index}",
+            )
+
     def test_enum_member_values(self):
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X0.value,
@@ -30,6 +53,7 @@ class TestCartesianAxis_3D(unittest.TestCase):
         )
 
     def test_enum_member_properties(self):
+        ## axis labels
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X0.axis_label,
             "x0",
@@ -42,7 +66,7 @@ class TestCartesianAxis_3D(unittest.TestCase):
             cartesian_axes.CartesianAxis_3D.X2.axis_label,
             "x2",
         )
-
+        ## axis index
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X0.axis_index,
             0,
@@ -56,7 +80,7 @@ class TestCartesianAxis_3D(unittest.TestCase):
             2,
         )
 
-    def test_valid_constants(self):
+    def test_default_3d_axes(self):
         self.assertEqual(
             cartesian_axes.VALID_3D_AXIS_LABELS,
             ("x0", "x1", "x2"),
@@ -78,8 +102,8 @@ class TestCartesianAxis_3D(unittest.TestCase):
 class TestAsAxis(unittest.TestCase):
 
     def test_accepts_enum_member(self):
-        out = cartesian_axes.as_axis(axis=cartesian_axes.CartesianAxis_3D.X1)
-        self.assertIs(out, cartesian_axes.CartesianAxis_3D.X1)
+        out_axis = cartesian_axes.as_axis(axis=cartesian_axes.CartesianAxis_3D.X1)
+        self.assertIs(out_axis, cartesian_axes.CartesianAxis_3D.X1)
 
     def test_accepts_index(self):
         self.assertIs(
@@ -117,9 +141,11 @@ class TestAsAxis(unittest.TestCase):
 
     def test_rejects_unknown_string(self):
         with self.assertRaises(ValueError):
+            cartesian_axes.as_axis(axis="1")
+        with self.assertRaises(ValueError):
             cartesian_axes.as_axis(axis="x3")
         with self.assertRaises(ValueError):
-            cartesian_axes.as_axis(axis="nope")
+            cartesian_axes.as_axis(axis="bla")
 
     def test_rejects_invalid_type(self):
         with self.assertRaises(TypeError):
@@ -132,41 +158,37 @@ class TestGetAxisIndexAndLabel(unittest.TestCase):
 
     def test_getters_accept_all_inputs(self):
         self.assertEqual(
-            cartesian_axes.get_axis_label(
-                cartesian_axes.CartesianAxis_3D.X2,
-            ),
+            cartesian_axes.get_axis_label(axis=cartesian_axes.CartesianAxis_3D.X2),
             "x2",
         )
         self.assertEqual(
-            cartesian_axes.get_axis_index(
-                cartesian_axes.CartesianAxis_3D.X2,
-            ),
+            cartesian_axes.get_axis_index(axis=cartesian_axes.CartesianAxis_3D.X2),
             2,
         )
 
         self.assertEqual(
-            cartesian_axes.get_axis_label("X0"),
+            cartesian_axes.get_axis_label(axis="X0"),
             "x0",
         )
         self.assertEqual(
-            cartesian_axes.get_axis_index("X0"),
+            cartesian_axes.get_axis_index(axis="X0"),
             0,
         )
 
         self.assertEqual(
-            cartesian_axes.get_axis_label(1),
+            cartesian_axes.get_axis_label(axis=1),
             "x1",
         )
         self.assertEqual(
-            cartesian_axes.get_axis_index(1),
+            cartesian_axes.get_axis_index(axis=1),
             1,
         )
 
     def test_getters_raise_on_invalid(self):
         with self.assertRaises(ValueError):
-            cartesian_axes.get_axis_label("x3")
+            cartesian_axes.get_axis_label(axis="x3")
         with self.assertRaises(ValueError):
-            cartesian_axes.get_axis_index(3)
+            cartesian_axes.get_axis_index(axis=3)
 
 
 ##
