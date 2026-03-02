@@ -4,8 +4,8 @@
 ## === DEPENDENCIES
 ##
 
-from jormi.ww_types import type_checks, sequence_positions
-from jormi.ww_fields import _cartesian_coordinates
+from jormi.ww_types import type_checks
+from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
     domain_type as _2d_domain_type,
     field_type as _2d_field_type,
@@ -23,18 +23,16 @@ from jormi.ww_fields.fields_3d import (
 def _slice_3d_udomain(
     *,
     udomain_3d: _3d_domain_type.UniformDomain_3D,
-    out_of_plane_axis: _cartesian_coordinates.AxisLike,
+    out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     param_name: str = "<udomain_3d>",
 ) -> _2d_domain_type.UniformDomain_2D_Sliced3D:
     """Construct a 2D sliced domain from a 3D uniform domain."""
-    ## normalise out-of-plane axis
-    out_of_plane_axis = _cartesian_coordinates.as_axis(
+    out_of_plane_axis = cartesian_axes.as_axis(
         axis=out_of_plane_axis,
         param_name=f"{param_name}.out_of_plane_axis",
     )
     out_of_plane_axis_index = out_of_plane_axis.axis_index
-    ## validate slice index
     type_checks.ensure_finite_int(
         param=slice_index,
         param_name=f"{param_name}.slice_index",
@@ -46,7 +44,6 @@ def _slice_3d_udomain(
             f"`{param_name}.slice_index` must be non-negative:"
             f" got {slice_index}",
         )
-    ## extract 3D metadata
     periodicity_3d = udomain_3d.periodicity
     resolution_3d = udomain_3d.resolution
     domain_bounds_3d = udomain_3d.domain_bounds
@@ -55,10 +52,7 @@ def _slice_3d_udomain(
             f"`{param_name}.slice_index` = {slice_index} must be smaller than"
             f" resolution[{out_of_plane_axis_index}] = {resolution_3d[out_of_plane_axis_index]}.",
         )
-    ## determine in-plane axes by dropping the out-of-plane axis
-    in_plane_axes = [
-        axis for axis in _cartesian_coordinates.DEFAULT_AXES_ORDER if axis is not out_of_plane_axis
-    ]
+    in_plane_axes = [axis for axis in cartesian_axes.DEFAULT_3D_AXES_ORDER if axis is not out_of_plane_axis]
     x0_in_plane_axis, x1_in_plane_axis = in_plane_axes
     x0_in_plane_axis_index = x0_in_plane_axis.axis_index
     x1_in_plane_axis_index = x1_in_plane_axis.axis_index
@@ -74,48 +68,16 @@ def _slice_3d_udomain(
         domain_bounds_3d[x0_in_plane_axis_index],
         domain_bounds_3d[x1_in_plane_axis_index],
     )
-    ## compute physical coordinate of the slice along the out-of-plane axis
     cell_centers_3d = udomain_3d.cell_centers
     out_of_plane_cell_centers = cell_centers_3d[out_of_plane_axis_index]
     slice_position = float(out_of_plane_cell_centers[slice_index])
-    ## construct 2D domain that remembers its 3D origin
-    return _2d_domain_type.UniformDomain_2D_Sliced3D(
+    return _2d_domain_type.UniformDomain_2D_Sliced3D.from_slice(
         periodicity=periodicity_2d,
         resolution=resolution_2d,
         domain_bounds=domain_bounds_2d,
         out_of_plane_axis=out_of_plane_axis,
         slice_index=slice_index,
         slice_position=slice_position,
-    )
-
-
-def get_slice_index(
-    *,
-    udomain_3d: _3d_domain_type.UniformDomain_3D,
-    slice_axis: _cartesian_coordinates.AxisLike,
-    position: sequence_positions.SequencePositionLike,
-    param_name: str = "<udomain_3d>",
-) -> int:
-    """
-    Return a canonical slice index along a given axis.
-
-    `position` can be:
-    - SequencePositionLike: "first" / "middle" / "last"
-    """
-    slice_axis = _cartesian_coordinates.as_axis(
-        axis=slice_axis,
-        param_name=f"{param_name}.slice_axis",
-    )
-    slice_axis_index = slice_axis.axis_index
-    resolution_3d = udomain_3d.resolution
-    axis_resolution = resolution_3d[slice_axis_index]
-    last_index = axis_resolution - 1
-    seq_position = sequence_positions.as_sequence_position(position)
-    if seq_position is sequence_positions.SequencePosition.First: return 0
-    if seq_position is sequence_positions.SequencePosition.Middle: return last_index // 2
-    if seq_position is sequence_positions.SequencePosition.Last: return last_index
-    raise RuntimeError(
-        f"Unexpected SequencePosition {seq_position!r} for {param_name}.slice_axis.",
     )
 
 
@@ -127,7 +89,7 @@ def get_slice_index(
 def slice_3d_sfield(
     *,
     sfield_3d: _3d_field_type.ScalarField_3D,
-    out_of_plane_axis: _cartesian_coordinates.AxisLike,
+    out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
 ) -> _2d_field_type.ScalarField_2D:
@@ -148,14 +110,14 @@ def slice_3d_sfield(
         slice_index=slice_index,
         param_name=slice_param_name,
     )
-    axis_enum = _cartesian_coordinates.as_axis(
+    out_of_plane_axis = cartesian_axes.as_axis(
         axis=out_of_plane_axis,
         param_name=f"{slice_param_name}.out_of_plane_axis",
     )
-    axis_index = axis_enum.axis_index
-    if axis_index == 0:
+    out_of_plane_axis_index = out_of_plane_axis.axis_index
+    if out_of_plane_axis_index == 0:
         sarray_2d = sarray_3d[slice_index, :, :]
-    elif axis_index == 1:
+    elif out_of_plane_axis_index == 1:
         sarray_2d = sarray_3d[:, slice_index, :]
     else:
         sarray_2d = sarray_3d[:, :, slice_index]
@@ -177,7 +139,7 @@ def slice_3d_sfield(
 def slice_3d_vfield_inplane(
     *,
     vfield_3d: _3d_field_type.VectorField_3D,
-    out_of_plane_axis: _cartesian_coordinates.AxisLike,
+    out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
 ) -> _2d_field_type.VectorField_2D:
@@ -185,8 +147,7 @@ def slice_3d_vfield_inplane(
     Slice a 3D vector field into a 2D vector field of in-plane components.
 
     The resulting 2D vector has two components corresponding to the
-    components tangent to the slice plane (i.e. all components except
-    along `out_of_plane_axis`).
+    components tangent to the slice plane.
     """
     _3d_field_type.ensure_3d_vfield(vfield_3d)
     varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
@@ -199,17 +160,16 @@ def slice_3d_vfield_inplane(
         slice_index=slice_index,
         param_name=slice_param_name,
     )
-    axis_enum = _cartesian_coordinates.as_axis(
+    out_of_plane_axis = cartesian_axes.as_axis(
         axis=out_of_plane_axis,
         param_name=f"{slice_param_name}.out_of_plane_axis",
     )
-    axis_index = axis_enum.axis_index
-    ## in-plane components: drop the component aligned with out_of_plane_axis
-    comp_indices = [0, 1, 2]
-    comp_indices.remove(axis_index)
-    if axis_index == 0:
+    out_of_plane_axis_index = out_of_plane_axis.axis_index
+    comp_indices = list(cartesian_axes.VALID_3D_AXIS_INDICES)
+    comp_indices.remove(out_of_plane_axis_index)
+    if out_of_plane_axis_index == 0:
         varray_2d = varray_3d[comp_indices, slice_index, :, :]
-    elif axis_index == 1:
+    elif out_of_plane_axis_index == 1:
         varray_2d = varray_3d[comp_indices, :, slice_index, :]
     else:
         varray_2d = varray_3d[comp_indices, :, :, slice_index]
@@ -226,16 +186,11 @@ def slice_3d_vfield_inplane(
 def slice_3d_vfield_outofplane(
     *,
     vfield_3d: _3d_field_type.VectorField_3D,
-    out_of_plane_axis: _cartesian_coordinates.AxisLike,
+    out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
 ) -> _2d_field_type.ScalarField_2D:
-    """
-    Slice a 3D vector field into a 2D scalar field of the out-of-plane component.
-
-    The resulting 2D scalar field contains the component of the vector
-    aligned with `out_of_plane_axis`, evaluated on the slice plane.
-    """
+    """Slice a 3D vector field into a 2D scalar field of the out-of-plane component."""
     _3d_field_type.ensure_3d_vfield(vfield_3d)
     varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
@@ -247,14 +202,14 @@ def slice_3d_vfield_outofplane(
         slice_index=slice_index,
         param_name=slice_param_name,
     )
-    axis_enum = _cartesian_coordinates.as_axis(
+    out_of_plane_axis = cartesian_axes.as_axis(
         axis=out_of_plane_axis,
         param_name=f"{slice_param_name}.out_of_plane_axis",
     )
-    axis_index = axis_enum.axis_index
-    if axis_index == 0:
+    out_of_plane_axis_index = out_of_plane_axis.axis_index
+    if out_of_plane_axis_index == 0:
         sarray_2d = varray_3d[0, slice_index, :, :]
-    elif axis_index == 1:
+    elif out_of_plane_axis_index == 1:
         sarray_2d = varray_3d[1, :, slice_index, :]
     else:
         sarray_2d = varray_3d[2, :, :, slice_index]
