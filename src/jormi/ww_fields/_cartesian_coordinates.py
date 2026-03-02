@@ -83,7 +83,7 @@ class CartesianAxis_3D(str, Enum):
         return self._axis_index
 
 
-AxisLike: TypeAlias = CartesianAxis_3D | str | int
+AxisLike_3D: TypeAlias = CartesianAxis_3D | str | int
 AxisTuple_3D: TypeAlias = tuple[CartesianAxis_3D, CartesianAxis_3D, CartesianAxis_3D]
 
 DEFAULT_3D_AXES_ORDER: AxisTuple_3D = (
@@ -95,7 +95,7 @@ DEFAULT_3D_AXES_ORDER: AxisTuple_3D = (
 
 def as_axis(
     *,
-    axis: AxisLike,
+    axis: AxisLike_3D,
     param_name: str = "<axis>",
 ) -> CartesianAxis_3D:
     """
@@ -127,13 +127,13 @@ def as_axis(
 
 
 def get_axis_label(
-    axis: AxisLike,
+    axis: AxisLike_3D,
 ) -> AxisLabel_3D:
     return as_axis(axis=axis).axis_label
 
 
 def get_axis_index(
-    axis: AxisLike,
+    axis: AxisLike_3D,
 ) -> AxisIndex_3D:
     return as_axis(axis=axis).axis_index
 
