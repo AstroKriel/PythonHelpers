@@ -204,4 +204,35 @@ def ensure_2d_vfield_sliced_from_3d(
     )
 
 
+##
+## === EXTRACT NDARRAY FROM FIELDS
+##
+
+
+def extract_2d_sarray(
+    sfield_2d: ScalarField_2D,
+    *,
+    param_name: str = "<sfield_2d>",
+) -> numpy.ndarray:
+    """Return the underlying (Nx, Ny) ndarray for a 2D scalar field."""
+    ensure_2d_sfield(
+        sfield_2d=sfield_2d,
+        param_name=param_name,
+    )
+    return sfield_2d.fdata.farray
+
+
+def extract_2d_varray(
+    vfield_2d: VectorField_2D,
+    *,
+    param_name: str = "<vfield_2d>",
+) -> numpy.ndarray:
+    """Return the underlying (2, Nx, Ny) ndarray for a 2D vector field."""
+    ensure_2d_vfield(
+        vfield_2d=vfield_2d,
+        param_name=param_name,
+    )
+    return vfield_2d.fdata.farray
+
+
 ## } MODULE

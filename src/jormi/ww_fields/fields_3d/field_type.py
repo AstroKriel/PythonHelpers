@@ -10,10 +10,7 @@ from typing import Self
 from dataclasses import dataclass
 
 from jormi.ww_types import type_checks
-from jormi.ww_fields import (
-    _cartesian_coordinates,
-    _field_type,
-)
+from jormi.ww_fields import cartesian_axes, _field_type
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _fdata_type,
@@ -57,7 +54,7 @@ class ScalarField_3D(_field_type.Field):
     def from_3d_sarray(
         cls,
         *,
-        sarray_3d,
+        sarray_3d: numpy.ndarray,
         udomain_3d: domain_type.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
@@ -79,7 +76,7 @@ class VectorField_3D(_field_type.Field):
 
     fdata: _fdata_type.VectorFieldData_3D
     udomain: domain_type.UniformDomain_3D
-    comp_axes: _cartesian_coordinates.AxisTuple = _cartesian_coordinates.DEFAULT_AXES_ORDER
+    comp_axes: cartesian_axes.AxisTuple_3D = cartesian_axes.DEFAULT_3D_AXES_ORDER
 
     def __post_init__(
         self,
@@ -106,10 +103,16 @@ class VectorField_3D(_field_type.Field):
     def _validate_axes(
         self,
     ) -> None:
-        _cartesian_coordinates.ensure_default_axes_order(
-            axes=self.comp_axes,
+        type_checks.ensure_type(
+            param=self.comp_axes,
             param_name="<comp_axes>",
+            valid_types=tuple,
         )
+        if self.comp_axes != cartesian_axes.DEFAULT_3D_AXES_ORDER:
+            raise ValueError(
+                "`<comp_axes>` must equal cartesian_axes.DEFAULT_3D_AXES_ORDER:"
+                f" got {self.comp_axes!r}.",
+            )
         if self.fdata.num_comps != len(self.comp_axes):
             raise ValueError(
                 "VectorField_3D component axes must match number of components:"
@@ -121,7 +124,7 @@ class VectorField_3D(_field_type.Field):
     def from_3d_varray(
         cls,
         *,
-        varray_3d,
+        varray_3d: numpy.ndarray,
         udomain_3d: domain_type.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
@@ -138,10 +141,10 @@ class VectorField_3D(_field_type.Field):
 
     def get_vcomp_sarray_3d(
         self,
-        comp_axis: _cartesian_coordinates.AxisLike,
+        comp_axis: cartesian_axes.AxisLike_3D,
     ) -> numpy.ndarray:
         """Return a (Nx, Ny, Nz) view of the requested component."""
-        comp_index = _cartesian_coordinates.get_axis_index(comp_axis)
+        comp_index = cartesian_axes.get_axis_index(comp_axis)
         varray_3d = extract_3d_varray(
             vfield_3d=self,
             param_name="<vfield_3d>",
@@ -168,11 +171,7 @@ class UnitVectorField_3D(VectorField_3D):
             vfield_3d=self,
             param_name="<uvfield_3d>",
         )
-        ## validate here, rather than in the _fdata_type module, since the following
-        ## fn-call would yield a circular import there
-        sarray_3d_vmagn_sq = _farray_operators.sum_of_varray_comps_squared(
-            varray_3d=varray_3d,
-        )
+        sarray_3d_vmagn_sq = _farray_operators.sum_of_varray_comps_squared(varray_3d=varray_3d)
         if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq)):
             raise ValueError("UnitVectorField_3D should not contain any NaN/Inf magnitudes.")
         if numpy.any(sarray_3d_vmagn_sq <= 1e-300):
@@ -306,12 +305,7 @@ def ensure_same_3d_field_shape(
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
-    """
-    Ensure two 3D Field instances have shape-compatible data arrays.
-
-    This is a thin wrapper around the base ww_types.field helper,
-    re-exposed here so 3D code can stay within jormi.ww_fields.fields_3d.field.
-    """
+    """Ensure two 3D Field instances have shape-compatible data arrays."""
     _field_type.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
@@ -337,14 +331,7 @@ def ensure_same_3d_field_udomains(
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
-    """
-    Ensure two 3D Field instances have matching UniformDomain objects.
-
-    Parameters
-    ----------
-    field_3d_a, field_3d_b
-        3D Field instances whose udomain attributes should match.
-    """
+    """Ensure two 3D Field instances have matching UniformDomain objects."""
     _field_type.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
@@ -368,13 +355,7 @@ def ensure_same_3d_field_shape_and_udomains(
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
-    """
-    Ensure two 3D Field instances have matching data shapes and UniformDomains.
-
-    This is a convenience wrapper that combines `ensure_same_3d_field_shape`
-    and `ensure_same_3d_field_udomains` for the common case where both
-    conditions are required.
-    """
+    """Ensure two 3D Field instances have matching data shapes and UniformDomains."""
     ensure_same_3d_field_shape(
         field_3d_a=field_3d_a,
         field_3d_b=field_3d_b,

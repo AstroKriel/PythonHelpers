@@ -10,7 +10,7 @@ from functools import cached_property
 from dataclasses import dataclass
 
 from jormi.ww_types import type_checks
-from jormi.ww_fields import _cartesian_coordinates
+from jormi.ww_fields import cartesian_axes
 
 ##
 ## === DATA STRUCTURES
@@ -34,6 +34,12 @@ class UniformDomain:
         self._validate_resolution()
         self._validate_domain_bounds()
 
+    def _axis_label_from_index(
+        self,
+        axis_index: int,
+    ) -> str:
+        return cartesian_axes.get_axis_label(axis_index)
+
     def _validate_num_sdims(
         self,
     ) -> None:
@@ -41,6 +47,7 @@ class UniformDomain:
             param=self.num_sdims,
             param_name="<num_sdims>",
             allow_none=False,
+            allow_zero=False,
             require_positive=True,
         )
 
@@ -66,7 +73,7 @@ class UniformDomain:
             valid_elem_types=type_checks.RuntimeTypes.Numerics.IntLike,
         )
         for axis_index, num_cells in enumerate(self.resolution):
-            axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
+            axis_label = self._axis_label_from_index(axis_index)
             if num_cells <= 0:
                 raise ValueError(
                     f"`<resolution>[{axis_label}]` must be a positive integer.",
@@ -84,7 +91,7 @@ class UniformDomain:
         )
         for axis_index in range(self.num_sdims):
             bounds = self.domain_bounds[axis_index]
-            axis_label = _cartesian_coordinates.DEFAULT_AXES_ORDER[axis_index].value
+            axis_label = self._axis_label_from_index(axis_index)
             axis_param_name = f"<domain_bounds[{axis_label}]>"
             type_checks.ensure_sequence(
                 param=bounds,
@@ -98,12 +105,14 @@ class UniformDomain:
                 param=lo_value,
                 param_name=f"{axis_param_name}[0]",
                 allow_none=False,
+                allow_zero=True,
                 require_positive=False,
             )
             type_checks.ensure_finite_float(
                 param=hi_value,
                 param_name=f"{axis_param_name}[1]",
                 allow_none=False,
+                allow_zero=True,
                 require_positive=False,
             )
             if not (hi_value > lo_value):
@@ -136,14 +145,14 @@ class UniformDomain:
     def _measure_per_cell(
         self,
     ) -> float:
-        """Area per cell in 2D; volume per cell in 3D."""
+        """Area per cell if 2D; volume per cell if 3D."""
         return float(numpy.prod(self.cell_widths))
 
     @cached_property
     def _total_measure(
         self,
     ) -> float:
-        """Total area in 2D; total volume in 3D."""
+        """Total area if 2D; total volume if 3D."""
         return float(numpy.prod(self.domain_lengths))
 
     @cached_property
