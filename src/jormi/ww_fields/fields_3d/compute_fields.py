@@ -57,7 +57,7 @@ def compute_magnetic_energy_density_sfield(
     )
 
 
-def compute_total_magnetic_energy(
+def compute_total_magnetic_energy_value(
     vfield_3d_b: field_type.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
