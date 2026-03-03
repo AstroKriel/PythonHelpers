@@ -54,32 +54,32 @@ class IsotropicPowerSpectrum:
 
 
 @functools.lru_cache(maxsize=10)
-def _compute_radial_k_magn(
-    grouped_num_cells: tuple[int, int, int],
+def _compute_3d_radial_k_magnitude(
+    num_cells_per_dim: tuple[int, int, int],
 ) -> numpy.ndarray:
     """
     Return a 3D scalar array of radial wave-mode indices for a cubic-domain
-    with shape `grouped_num_cells`.
+    with shape `num_cells_per_dim`.
 
     Each entry stores the index-space distance from the central mode (k=0),
     so values run from ~0 at the center up to k_max near the edges.
     """
     type_checks.ensure_tuple_of_ints(
-        param=grouped_num_cells,
-        param_name="<grouped_num_cells>",
+        param=num_cells_per_dim,
+        param_name="<num_cells_per_dim>",
         seq_length=3,
     )
-    num_cells_x, num_cells_y, num_cells_z = grouped_num_cells
+    num_cells_x, num_cells_y, num_cells_z = num_cells_per_dim
     if not (num_cells_x == num_cells_y == num_cells_z):
         raise ValueError(
-            "_compute_radial_k_magn assumes a cubic grid:"
-            f" got grouped_num_cells={grouped_num_cells} (expected Nx=Ny=Nz).",
+            "_compute_3d_radial_k_magnitude assumes a cubic grid:"
+            f" got num_cells_per_dim={num_cells_per_dim} (expected Nx=Ny=Nz).",
         )
     k_center = numpy.array(
-        [(num_cells - 1) / 2 for num_cells in grouped_num_cells],
+        [(num_cells - 1) / 2 for num_cells in num_cells_per_dim],
         dtype=float,
     )
-    grid_indices = numpy.indices(grouped_num_cells)
+    grid_indices = numpy.indices(num_cells_per_dim)
     delta_ix = grid_indices[0] - k_center[0]
     delta_iy = grid_indices[1] - k_center[1]
     delta_iz = grid_indices[2] - k_center[2]
@@ -152,9 +152,7 @@ def _integrate_spectrum_over_spherical_shells(
     num_modes = num_cells_x // 2
     k_bin_edges_1d = numpy.linspace(0.5, num_modes, num_modes + 1)
     k_bin_centers_1d = numpy.ceil((k_bin_edges_1d[:-1] + k_bin_edges_1d[1:]) / 2.0)
-    k_magn_3d = _compute_radial_k_magn(
-        grouped_num_cells=resolution_3d,
-    )
+    k_magn_3d = _compute_3d_radial_k_magnitude(num_cells_per_dim=resolution_3d)
     k_bin_mapping_3d = numpy.digitize(
         x=k_magn_3d,
         bins=k_bin_edges_1d,
