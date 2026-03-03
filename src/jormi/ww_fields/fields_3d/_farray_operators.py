@@ -40,7 +40,7 @@ def _validate_3d_cell_widths(
         param_name=param_name,
         allow_none=False,
         seq_length=3,
-        valid_seq_types=(tuple, list),
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike,
     )
     for dim_index, cell_width in enumerate(cell_widths_3d):
@@ -48,6 +48,7 @@ def _validate_3d_cell_widths(
             param=cell_width,
             param_name=f"{param_name}[{dim_index}]",
             allow_none=False,
+            allow_zero=False,
             require_positive=True,
         )
 
@@ -516,6 +517,44 @@ def compute_varray_magnitude(
     )
     sqrt_sarray_inplace(sarray_3d_vmagn_sq)
     return sarray_3d_vmagn_sq
+
+
+##
+## === UNIT VECTOR (3D) ARRAY OPERATORS
+##
+
+
+def ensure_uvarray_magnitude(
+    varray_3d: numpy.ndarray,
+    *,
+    tol: float = 1e-6,
+    param_name: str = "<varray_3d>",
+) -> None:
+    """
+    Validate that every vector in a (3, Nx, Ny, Nz) array has unit magnitude.
+
+    Raises ValueError if any element is non-finite, or if any magnitude deviates
+    from 1.0 by more than `tol`.
+    """
+    _fdata_type.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name=param_name,
+    )
+    sarray_3d_vmagn_sq = sum_of_varray_comps_squared(varray_3d=varray_3d)
+    if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq)):
+        raise ValueError(
+            f"`{param_name}` should not contain any NaN/Inf magnitudes.",
+        )
+    max_error = float(
+        numpy.max(
+            numpy.abs(numpy.sqrt(sarray_3d_vmagn_sq) - 1.0),
+        ),
+    )
+    if max_error > tol:
+        raise ValueError(
+            f"`{param_name}` magnitude deviates from unit-magnitude=1.0 by"
+            f" max(error)={max_error:.3e} (tol={tol}).",
+        )
 
 
 ## } MODULE
