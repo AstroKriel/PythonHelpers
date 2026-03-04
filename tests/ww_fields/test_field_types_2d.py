@@ -16,7 +16,7 @@ from jormi.ww_fields.fields_2d import domain_type, field_type
 ##
 
 
-def _make_domain_2d(
+def _make_2d_udomain(
     resolution: tuple = (4, 4),
 ) -> domain_type.UniformDomain_2D:
     return domain_type.UniformDomain_2D(
@@ -48,7 +48,7 @@ def _make_sfield_2d(
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_type.ScalarField_2D:
-    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_domain_2d(resolution)
+    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_2d_udomain(resolution)
     return field_type.ScalarField_2D.from_2d_sarray(
         sarray_2d=numpy.ones(resolution),
         udomain_2d=udomain,
@@ -63,7 +63,7 @@ def _make_vfield_2d(
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_type.VectorField_2D:
-    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_domain_2d(resolution)
+    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_2d_udomain(resolution)
     return field_type.VectorField_2D.from_2d_varray(
         varray_2d=numpy.ones((2, ) + resolution),
         udomain_2d=udomain,
@@ -105,7 +105,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         self.assertIsNone(sfield.sim_time)
 
     def test_udomain_is_stored(self):
-        domain = _make_domain_2d()
+        domain = _make_2d_udomain()
         sfield = field_type.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
             udomain_2d=domain,
@@ -120,7 +120,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="",
             )
 
@@ -128,7 +128,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4,)),  # type: ignore[arg-type]
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
 
@@ -136,7 +136,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4, 4)),  # type: ignore[arg-type]
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
 
@@ -144,7 +144,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
-                udomain_2d=_make_domain_2d(resolution=(8, 8)),
+                udomain_2d=_make_2d_udomain(resolution=(8, 8)),
                 field_label="bad",
             )
 
@@ -210,7 +210,7 @@ class TestScalarField2D_Properties(unittest.TestCase):
 
     def test_fdata_array_values_preserved(self):
         sarray = numpy.arange(12, dtype=float).reshape((3, 4))
-        domain = _make_domain_2d(resolution=(3, 4))
+        domain = _make_2d_udomain(resolution=(3, 4))
         sfield = field_type.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
             udomain_2d=domain,
@@ -296,7 +296,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((3, 4, 4)),  # type: ignore[arg-type]
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
 
@@ -304,7 +304,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4)),  # type: ignore[arg-type]
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
 
@@ -312,7 +312,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
-                udomain_2d=_make_domain_2d(resolution=(8, 8)),
+                udomain_2d=_make_2d_udomain(resolution=(8, 8)),
                 field_label="bad",
             )
 
@@ -320,7 +320,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_type.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
-                udomain_2d=_make_domain_2d(),
+                udomain_2d=_make_2d_udomain(),
                 field_label="",
             )
 
@@ -382,7 +382,7 @@ class TestVectorField2D_Properties(unittest.TestCase):
 
     def test_fdata_array_values_preserved(self):
         varray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
-        domain = _make_domain_2d(resolution=(3, 4))
+        domain = _make_2d_udomain(resolution=(3, 4))
         vfield = field_type.VectorField_2D.from_2d_varray(
             varray_2d=varray,
             udomain_2d=domain,

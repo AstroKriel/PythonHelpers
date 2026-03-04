@@ -14,7 +14,7 @@ from jormi.ww_fields.fields_3d import domain_type, field_type
 ##
 
 
-def _make_domain_3d(
+def _make_3d_udomain(
     resolution: tuple = (4, 4, 4),
     domain_bounds: tuple = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
 ) -> domain_type.UniformDomain_3D:
@@ -30,7 +30,7 @@ def _make_sfield_3d(
     domain: domain_type.UniformDomain_3D | None = None,
 ) -> field_type.ScalarField_3D:
     if domain is None:
-        domain = _make_domain_3d(resolution)
+        domain = _make_3d_udomain(resolution)
     return field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=domain,
@@ -43,7 +43,7 @@ def _make_vfield_3d(
     domain: domain_type.UniformDomain_3D | None = None,
 ) -> field_type.VectorField_3D:
     if domain is None:
-        domain = _make_domain_3d(resolution)
+        domain = _make_3d_udomain(resolution)
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=domain,
@@ -58,7 +58,7 @@ def _make_unit_vfield_3d(
     varray[0] = 1.0
     vfield = field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=_make_domain_3d(resolution),
+        udomain_3d=_make_3d_udomain(resolution),
         field_label="uv",
     )
     return field_type.UnitVectorField_3D.from_3d_vfield(vfield)
@@ -110,7 +110,7 @@ class TestEnsureFieldTypes(unittest.TestCase):
         varray[0] = 1.0
         vfield = field_type.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_domain_3d(),
+            udomain_3d=_make_3d_udomain(),
             field_label="unit_but_not_uvfield",
         )
         with self.assertRaises(TypeError):
@@ -124,7 +124,7 @@ class TestEnsureFieldTypes(unittest.TestCase):
 class TestEnsureUdomainMatchesField(unittest.TestCase):
 
     def test_udomain_matches_sfield_passes(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         sfield = _make_sfield_3d(domain=domain)
         field_type.ensure_3d_udomain_matches_sfield(
             sfield_3d=sfield,
@@ -132,8 +132,8 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
         )
 
     def test_udomain_matches_sfield_fails_with_different_domain(self):
-        domain_a = _make_domain_3d(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_domain_3d(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield = _make_sfield_3d(domain=domain_a)
         with self.assertRaises(ValueError):
             field_type.ensure_3d_udomain_matches_sfield(
@@ -142,7 +142,7 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
             )
 
     def test_udomain_matches_sfield_rejects_wrong_field_type(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         vfield = _make_vfield_3d(domain=domain)
         with self.assertRaises(TypeError):
             field_type.ensure_3d_udomain_matches_sfield(
@@ -151,7 +151,7 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
             )
 
     def test_udomain_matches_vfield_passes(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         vfield = _make_vfield_3d(domain=domain)
         field_type.ensure_3d_udomain_matches_vfield(
             vfield_3d=vfield,
@@ -159,8 +159,8 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
         )
 
     def test_udomain_matches_vfield_fails_with_different_domain(self):
-        domain_a = _make_domain_3d(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_domain_3d(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         vfield = _make_vfield_3d(domain=domain_a)
         with self.assertRaises(ValueError):
             field_type.ensure_3d_udomain_matches_vfield(
@@ -169,7 +169,7 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
             )
 
     def test_udomain_matches_vfield_rejects_wrong_field_type(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         sfield = _make_sfield_3d(domain=domain)
         with self.assertRaises(TypeError):
             field_type.ensure_3d_udomain_matches_vfield(
@@ -218,7 +218,7 @@ class TestEnsureSameShape(unittest.TestCase):
 class TestEnsureSameUdomains(unittest.TestCase):
 
     def test_same_domain_passes(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
         field_type.ensure_same_3d_field_udomains(
@@ -235,8 +235,8 @@ class TestEnsureSameUdomains(unittest.TestCase):
         )
 
     def test_different_bounds_raises(self):
-        domain_a = _make_domain_3d(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_domain_3d(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield_a = _make_sfield_3d(domain=domain_a)
         sfield_b = _make_sfield_3d(domain=domain_b)
         with self.assertRaises(ValueError):
@@ -268,7 +268,7 @@ class TestEnsureSameUdomains(unittest.TestCase):
 class TestEnsureSameShapeAndUdomains(unittest.TestCase):
 
     def test_identical_fields_pass(self):
-        domain = _make_domain_3d()
+        domain = _make_3d_udomain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
         field_type.ensure_same_3d_field_shape_and_udomains(
@@ -287,12 +287,12 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
 
     def test_different_bounds_raises(self):
         sfield_a = _make_sfield_3d(
-            domain=_make_domain_3d(
+            domain=_make_3d_udomain(
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             ),
         )
         sfield_b = _make_sfield_3d(
-            domain=_make_domain_3d(
+            domain=_make_3d_udomain(
                 domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)),
             ),
         )
@@ -309,7 +309,7 @@ class TestExtractArrays(unittest.TestCase):
         sarray = numpy.arange(64, dtype=float).reshape((4, 4, 4))
         sfield = field_type.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
-            udomain_3d=_make_domain_3d(),
+            udomain_3d=_make_3d_udomain(),
             field_label="f",
         )
         result = field_type.extract_3d_sarray(sfield)
@@ -337,7 +337,7 @@ class TestExtractArrays(unittest.TestCase):
         varray = numpy.arange(192, dtype=float).reshape((3, 4, 4, 4))
         vfield = field_type.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_domain_3d(),
+            udomain_3d=_make_3d_udomain(),
             field_label="v",
         )
         result = field_type.extract_3d_varray(vfield)

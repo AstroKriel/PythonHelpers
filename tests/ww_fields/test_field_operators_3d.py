@@ -317,19 +317,19 @@ class TestVectorFieldMagnitude(unittest.TestCase):
 class TestVectorFieldDotProduct(unittest.TestCase):
 
     def test_dot_of_orthogonal_unit_vectors_is_zero(self):
-        vfield_x = _make_constant_vfield(
+        vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        vfield_y = _make_constant_vfield(
+        vfield_x1 = _make_constant_vfield(
             value_in_x0=0.0,
             value_in_x1=1.0,
             value_in_x2=0.0,
         )
         sfield_dot = field_operators.compute_vfield_dot_product(
-            vfield_3d_a=vfield_x,
-            vfield_3d_b=vfield_y,
+            vfield_3d_a=vfield_x0,
+            vfield_3d_b=vfield_x1,
         )
         self.assertTrue(
             numpy.allclose(
@@ -339,14 +339,14 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
 
     def test_dot_of_parallel_unit_vectors_is_one(self):
-        vfield_x = _make_constant_vfield(
+        vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
         sfield_dot = field_operators.compute_vfield_dot_product(
-            vfield_3d_a=vfield_x,
-            vfield_3d_b=vfield_x,
+            vfield_3d_a=vfield_x0,
+            vfield_3d_b=vfield_x0,
         )
         self.assertTrue(
             numpy.allclose(
@@ -438,20 +438,20 @@ class TestVectorFieldDotProduct(unittest.TestCase):
 
 class TestVectorFieldCrossProduct(unittest.TestCase):
 
-    def test_x_cross_y_equals_z(self):
-        vfield_x = _make_constant_vfield(
+    def test_x0_cross_x1_equals_x2(self):
+        vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        vfield_y = _make_constant_vfield(
+        vfield_x1 = _make_constant_vfield(
             value_in_x0=0.0,
             value_in_x1=1.0,
             value_in_x2=0.0,
         )
         vfield_cross = field_operators.compute_vfield_cross_product(
-            vfield_3d_a=vfield_x,
-            vfield_3d_b=vfield_y,
+            vfield_3d_a=vfield_x0,
+            vfield_3d_b=vfield_x1,
         )
         varray = field_type.extract_3d_varray(vfield_cross)
         self.assertTrue(
@@ -473,20 +473,20 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             ),
         )
 
-    def test_y_cross_x_equals_minus_z(self):
-        vfield_x = _make_constant_vfield(
+    def test_x1_cross_x0_equals_minus_x2(self):
+        vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        vfield_y = _make_constant_vfield(
+        vfield_x1 = _make_constant_vfield(
             value_in_x0=0.0,
             value_in_x1=1.0,
             value_in_x2=0.0,
         )
         vfield_cross = field_operators.compute_vfield_cross_product(
-            vfield_3d_a=vfield_y,
-            vfield_3d_b=vfield_x,
+            vfield_3d_a=vfield_x1,
+            vfield_3d_b=vfield_x0,
         )
         varray = field_type.extract_3d_varray(vfield_cross)
         self.assertTrue(numpy.allclose(varray[2], -1.0))
@@ -549,20 +549,20 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
 
     def test_output_buffer_reused_when_compatible(self):
-        vfield_x = _make_constant_vfield(
+        vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        vfield_y = _make_constant_vfield(
+        vfield_x1 = _make_constant_vfield(
             value_in_x0=0.0,
             value_in_x1=1.0,
             value_in_x2=0.0,
         )
         array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_cross_product(
-            vfield_3d_a=vfield_x,
-            vfield_3d_b=vfield_y,
+            vfield_3d_a=vfield_x0,
+            vfield_3d_b=vfield_x1,
             varray_3d_out=array,
         )
         self.assertTrue(numpy.shares_memory(result.fdata.farray, array))
@@ -748,7 +748,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         )
         vfield_curl = field_operators.compute_vfield_curl(vfield)
         varray_curl = field_type.extract_3d_varray(vfield_curl)
-        expected_z = (
+        expected_x2 = (
             2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0_centers)[:, None, None] * numpy.ones(resolution)
         )
         self.assertTrue(
@@ -768,7 +768,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         self.assertTrue(
             numpy.allclose(
                 varray_curl[2],
-                expected_z,
+                expected_x2,
                 atol=1e-3,
             ),
         )
