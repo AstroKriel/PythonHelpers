@@ -129,7 +129,7 @@ def sixth_order_centered_difference(
     sarray_3d_b1 = numpy.roll(sarray_3d, int(1 * backward), axis=grad_axis)
     sarray_3d_b2 = numpy.roll(sarray_3d, int(2 * backward), axis=grad_axis)
     sarray_3d_b3 = numpy.roll(sarray_3d, int(3 * backward), axis=grad_axis)
-    return -(
+    return (
         sarray_3d_f3 - 9.0 * sarray_3d_f2 + 45.0 * sarray_3d_f1 - 45.0 * sarray_3d_b1 + 9.0 * sarray_3d_b2 -
         sarray_3d_b3
     ) / (60.0 * cell_width)
