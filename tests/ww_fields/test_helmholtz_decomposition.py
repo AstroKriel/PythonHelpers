@@ -126,7 +126,7 @@ def compute_field_fraction(bin_edges, pdf):
 def plot_vfield_slice(ax, vfield: field_type.VectorField_3D, domain_bounds):
     varray = field_type.extract_3d_varray(vfield)
     num_cells_x, num_cells_y, num_cells_z = varray.shape[1:]
-    index_z = num_cells_z // 2  ## middle slice in the z-direction
+    index_z = num_cells_z // 2  # middle slice in the z-direction
     grid_x0, grid_x1 = numpy.meshgrid(
         numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x),
         numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_y),
@@ -249,7 +249,7 @@ def main():
         curl_bulk = field_operators.compute_vfield_curl(vfield_3d_bulk)
         div_bulk = field_operators.compute_vfield_divergence(vfield_3d_bulk)
         sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
-        sfield_check_bulk_div = div_bulk  ## already scalar field
+        sfield_check_bulk_div = div_bulk  # already scalar field
         ## stats
         abs_q_diff = numpy.abs(field_type.extract_3d_sarray(sfield_check_q_diff))
         abs_sol_in_div = numpy.abs(field_type.extract_3d_sarray(sfield_check_div_is_sol_free))
@@ -296,7 +296,7 @@ def main():
         ]
         failed_checks = [check_msg for check_passed, check_msg in checks if not check_passed]
         ## plots: for each input field, fill a 4x4 block column-wise:
-        col = vfield_index  ## one column per input case
+        col = vfield_index
         plot_vfield_slice(
             ax=axs_grid[0, col],
             vfield=vfield_rec,
