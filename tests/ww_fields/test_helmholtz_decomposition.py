@@ -60,7 +60,7 @@ def generate_uniform_vfield(
         allow_none=False,
         seq_length=3,
         valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike,
     )
     resolution = udomain_3d.resolution
     varray = numpy.stack(
@@ -88,7 +88,7 @@ def generate_mixed_vfield(
         allow_none=True,
         seq_length=3,
         valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike,
     )
     varray_div = field_type.extract_3d_varray(generate_div_vfield(udomain_3d))
     varray_sol = field_type.extract_3d_varray(generate_sol_vfield(udomain_3d))
@@ -266,23 +266,57 @@ def main():
         std_div_in_sol = numpy.std(abs_div_in_sol)
         std_curl_bulk = numpy.std(abs_curl_bulk)
         std_div_bulk = numpy.std(abs_div_bulk)
-        ## simple thresholds (tolerant; these can be tightened)
-        bool_q_returned = ave_q_diff < 0.5
-        bool_div_is_sol_free = ave_sol_in_div < 0.5
-        bool_sol_is_div_free = ave_div_in_sol < 0.5
-        bool_bulk_uniform_curl = ave_curl_bulk < 1e-12
-        bool_bulk_uniform_div = ave_div_bulk < 1e-12
         print(f"|q - (q_div + q_sol + q_bulk)| median = {ave_q_diff:.2e} +/- {std_q_diff:.2e}")
         print(f"|curl(q_div)| median = {ave_sol_in_div:.2e} +/- {std_sol_in_div:.2e}")
         print(f"|div(q_sol)| median = {ave_div_in_sol:.2e} +/- {std_div_in_sol:.2e}")
         print(f"|curl(q_bulk)| median = {ave_curl_bulk:.2e} +/- {std_curl_bulk:.2e}")
         print(f"|div(q_bulk)| median = {ave_div_bulk:.2e} +/- {std_div_bulk:.2e}")
+        ## simple thresholds (tolerant; these can be tightened)
+        checks = [
+            (
+                ave_q_diff < 0.5,
+                "q_div + q_sol + q_bulk != q",
+            ),
+            (
+                ave_sol_in_div < 0.5,
+                "|curl(q_div)| > threshold",
+            ),
+            (
+                ave_div_in_sol < 0.5,
+                "|div(q_sol)| > threshold",
+            ),
+            (
+                ave_curl_bulk < 1e-12,
+                "|curl(q_bulk)| not == 0",
+            ),
+            (
+                ave_div_bulk < 1e-12,
+                "|div(q_bulk)| not == 0",
+            ),
+        ]
+        failed_checks = [check_msg for check_passed, check_msg in checks if not check_passed]
         ## plots: for each input field, fill a 4x4 block column-wise:
         col = vfield_index  ## one column per input case
-        plot_vfield_slice(axs_grid[0, col], vfield_rec, domain_bounds)
-        plot_vfield_slice(axs_grid[1, col], vfield_3d_div, domain_bounds)
-        plot_vfield_slice(axs_grid[2, col], vfield_3d_sol, domain_bounds)
-        plot_vfield_slice(axs_grid[3, col], vfield_3d_bulk, domain_bounds)
+        plot_vfield_slice(
+            ax=axs_grid[0, col],
+            vfield=vfield_rec,
+            domain_bounds=domain_bounds,
+        )
+        plot_vfield_slice(
+            ax=axs_grid[1, col],
+            vfield=vfield_3d_div,
+            domain_bounds=domain_bounds,
+        )
+        plot_vfield_slice(
+            ax=axs_grid[2, col],
+            vfield=vfield_3d_sol,
+            domain_bounds=domain_bounds,
+        )
+        plot_vfield_slice(
+            ax=axs_grid[3, col],
+            vfield=vfield_3d_bulk,
+            domain_bounds=domain_bounds,
+        )
         axs_grid[0, col].text(
             0.5,
             0.05,
@@ -319,13 +353,9 @@ def main():
             transform=axs_grid[3, col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        if not (bool_q_returned and bool_div_is_sol_free and bool_sol_is_div_free and bool_bulk_uniform_curl
-                and bool_bulk_uniform_div):
-            if not bool_q_returned: print("Failed test. q_div + q_sol + q_bulk != q")
-            if not bool_div_is_sol_free: print("Failed test. |curl(q_div)| > threshold")
-            if not bool_sol_is_div_free: print("Failed test. |div(q_sol)| > threshold")
-            if not bool_bulk_uniform_curl: print("Failed test. |curl(q_bulk)| not ~ 0")
-            if not bool_bulk_uniform_div: print("Failed test. |div(q_bulk)| not ~ 0")
+        if failed_checks:
+            for check_msg in failed_checks:
+                print(f"Failed test. {check_msg}")
             failed_vfields.append(vfield_name)
         else:
             print("Test passed successfully!")
