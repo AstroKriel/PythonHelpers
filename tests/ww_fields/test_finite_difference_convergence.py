@@ -8,9 +8,8 @@ import sys
 import numpy
 from jormi.utils import list_utils
 from jormi.ww_io import io_manager
-from jormi.ww_data import compute_stats
 from jormi.ww_plots import plot_manager
-from jormi.ww_fields import finite_difference
+from jormi.ww_fields.fields_3d import _finite_difference_sarrays
 
 ##
 ## === HELPER FUNCTIONS
@@ -36,7 +35,11 @@ def evaluate_exact_fntion_derivative_at_points(x_values):
 
 def estimate_fntion_derivative(x_values, y_values, func_dydx):
     cell_width = (x_values[-1] - x_values[0]) / len(x_values)  # assumes uniform samples
-    return func_dydx(y_values, cell_width, grad_axis=0)
+    return func_dydx(
+        sarray_3d=y_values[:, None, None],
+        cell_width=cell_width,
+        grad_axis=0,
+    )[:, 0, 0]
 
 
 def calculate_powerlaw_amplitude(x_0, y_0, b):
@@ -59,19 +62,19 @@ class TestFiniteDifferenceConvergence:
         self.num_points_to_test = [10, 20, 50, 1e2, 2e2, 5e2]
         self.grad_methods = [
             {
-                "worker_fn": finite_difference.second_order_centered_difference,
+                "worker_fn": _finite_difference_sarrays.second_order_centered_difference,
                 "expected_scaling": -2,
                 "label": "2nd order",
                 "color": "red",
             },
             {
-                "worker_fn": finite_difference.fourth_order_centered_difference,
+                "worker_fn": _finite_difference_sarrays.fourth_order_centered_difference,
                 "expected_scaling": -4,
                 "label": "4th order",
                 "color": "forestgreen",
             },
             {
-                "worker_fn": finite_difference.sixth_order_centered_difference,
+                "worker_fn": _finite_difference_sarrays.sixth_order_centered_difference,
                 "expected_scaling": -6,
                 "label": "6th order",
                 "color": "royalblue",
@@ -134,34 +137,41 @@ class TestFiniteDifferenceConvergence:
             color = grad_method["color"]
             label = grad_method["label"]
             self._plot_approx_soln(nabla, color, label)
-            errors = []
+            rms_errors = []
             for num_points in self.num_points_to_test:
                 x_values = sample_domain(self.domain_bounds, num_points)
                 y_values = evaluate_fntion_at_points(x_values)
                 dydx_exact = evaluate_exact_fntion_derivative_at_points(x_values)
                 cell_width = x_values[1] - x_values[0]  # assumes uniform samples
-                dydx_approx = nabla(y_values, cell_width, grad_axis=0)
-                error = compute_stats.compute_p_norm(
-                    array_a=dydx_exact,
-                    array_b=dydx_approx,
-                    p_norm=2,
-                    normalise_by_length=True,
+                dydx_approx = nabla(
+                    sarray_3d=y_values[:, None, None],
+                    cell_width=cell_width,
+                    grad_axis=0,
+                )[:, 0, 0]
+                rms_error = float(
+                    numpy.sqrt(
+                        numpy.mean(
+                            numpy.square(
+                                dydx_exact - dydx_approx,
+                            ),
+                        ),
+                    ),
                 )
-                errors.append(error)
-            if not self._check_convergence(errors, expected_scaling, color, label):
+                rms_errors.append(rms_error)
+            if not self._check_convergence(rms_errors, expected_scaling, color, label):
                 failed_methods.append(label)
         return failed_methods
 
-    def _check_convergence(self, errors, expected_scaling, color, label):
+    def _check_convergence(self, rms_errors, expected_scaling, color, label):
         inverse_dx_values = numpy.array(
             self.num_points_to_test,
         ) / (self.domain_bounds[1] - self.domain_bounds[0])
-        amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], errors[0], expected_scaling)
+        amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], rms_errors[0], expected_scaling)
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
-        residuals = (numpy.array(errors) - expected_errors) / expected_errors
+        residuals = (numpy.array(rms_errors) - expected_errors) / expected_errors
         self.axs_grid[0, 1].plot(
             inverse_dx_values,
-            errors,
+            rms_errors,
             marker="o",
             ms=10,
             ls="",

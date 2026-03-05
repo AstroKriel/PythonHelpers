@@ -7,24 +7,28 @@
 import numpy
 import unittest
 
-from jormi.ww_fields.fields_2d import field_type as _2d_field_type
-from jormi.ww_fields.fields_3d import domain_type as _3d_domain_type
-from jormi.ww_fields.fields_3d import field_type as _3d_field_type
 from jormi.ww_fields import cartesian_axes
-from jormi.ww_fields.fields_3d import slice_fields
+from jormi.ww_fields.fields_2d import (
+    field_type as field_type_2d,
+)
+from jormi.ww_fields.fields_3d import (
+    domain_type as domain_type_3d,
+    field_type as field_type_3d,
+    slice_fields,
+)
 
 ##
 ## === TEST SUITES
 ##
 
 
-class TestSlice3DUdomain(unittest.TestCase):
+class TestUdomain(unittest.TestCase):
 
     def _make_udomain_3d(
         self,
-    ) -> _3d_domain_type.UniformDomain_3D:
-        return _3d_domain_type.UniformDomain_3D(
-            periodicity=(True, True, True),
+    ) -> domain_type_3d.UniformDomain_3D:
+        return domain_type_3d.UniformDomain_3D(
+            periodicity=(True, False, True),
             resolution=(3, 4, 5),
             domain_bounds=((0.0, 3.0), (0.0, 4.0), (0.0, 5.0)),
         )
@@ -47,7 +51,7 @@ class TestSlice3DUdomain(unittest.TestCase):
         )
         self.assertEqual(
             udomain_2d.periodicity,
-            (True, True),
+            (False, True),
         )
         self.assertEqual(
             udomain_2d.resolution,
@@ -79,6 +83,10 @@ class TestSlice3DUdomain(unittest.TestCase):
             cartesian_axes.CartesianAxis_3D.X1,
         )
         self.assertEqual(
+            udomain_2d.periodicity,
+            (True, True),
+        )
+        self.assertEqual(
             udomain_2d.resolution,
             (3, 5),
         )
@@ -106,6 +114,10 @@ class TestSlice3DUdomain(unittest.TestCase):
         self.assertIs(
             udomain_2d.out_of_plane_axis,
             cartesian_axes.CartesianAxis_3D.X2,
+        )
+        self.assertEqual(
+            udomain_2d.periodicity,
+            (True, False),
         )
         self.assertEqual(
             udomain_2d.resolution,
@@ -155,12 +167,12 @@ class TestSlice3DUdomain(unittest.TestCase):
             )
 
 
-class TestSlice3DScalarField(unittest.TestCase):
+class TestScalarField(unittest.TestCase):
 
     def _make_udomain_3d(
         self,
-    ) -> _3d_domain_type.UniformDomain_3D:
-        return _3d_domain_type.UniformDomain_3D(
+    ) -> domain_type_3d.UniformDomain_3D:
+        return domain_type_3d.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(3, 4, 5),
             domain_bounds=((0.0, 3.0), (0.0, 4.0), (0.0, 5.0)),
@@ -168,10 +180,10 @@ class TestSlice3DScalarField(unittest.TestCase):
 
     def _make_sfield_3d(
         self,
-    ) -> _3d_field_type.ScalarField_3D:
+    ) -> field_type_3d.ScalarField_3D:
         udomain_3d = self._make_udomain_3d()
         sarray_3d = numpy.arange(3 * 4 * 5, dtype=float).reshape((3, 4, 5))
-        return _3d_field_type.ScalarField_3D.from_3d_sarray(
+        return field_type_3d.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray_3d,
             udomain_3d=udomain_3d,
             field_label="rho",
@@ -185,13 +197,18 @@ class TestSlice3DScalarField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        sarray_3d = field_type_3d.extract_3d_sarray(sfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (4, 5),
         )
-        self.assertTrue(numpy.allclose(sarray_2d, sarray_3d[1, :, :]))
+        self.assertTrue(
+            numpy.allclose(
+                sarray_2d,
+                sarray_3d[1, :, :],
+            ),
+        )
         self.assertEqual(
             sfield_2d.sim_time,
             sfield_3d.sim_time,
@@ -208,13 +225,18 @@ class TestSlice3DScalarField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        sarray_3d = field_type_3d.extract_3d_sarray(sfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (3, 5),
         )
-        self.assertTrue(numpy.allclose(sarray_2d, sarray_3d[:, 2, :]))
+        self.assertTrue(
+            numpy.allclose(
+                sarray_2d,
+                sarray_3d[:, 2, :],
+            ),
+        )
 
     def test_slices_axis_x2(self):
         sfield_3d = self._make_sfield_3d()
@@ -223,8 +245,8 @@ class TestSlice3DScalarField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        sarray_3d = field_type_3d.extract_3d_sarray(sfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (3, 4),
@@ -246,12 +268,12 @@ class TestSlice3DScalarField(unittest.TestCase):
             )
 
 
-class TestSlice3DVectorField(unittest.TestCase):
+class TestVectorField(unittest.TestCase):
 
     def _make_udomain_3d(
         self,
-    ) -> _3d_domain_type.UniformDomain_3D:
-        return _3d_domain_type.UniformDomain_3D(
+    ) -> domain_type_3d.UniformDomain_3D:
+        return domain_type_3d.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(3, 4, 5),
             domain_bounds=((0.0, 3.0), (0.0, 4.0), (0.0, 5.0)),
@@ -259,10 +281,10 @@ class TestSlice3DVectorField(unittest.TestCase):
 
     def _make_vfield_3d(
         self,
-    ) -> _3d_field_type.VectorField_3D:
+    ) -> field_type_3d.VectorField_3D:
         udomain_3d = self._make_udomain_3d()
         varray_3d = numpy.arange(3 * 3 * 4 * 5, dtype=float).reshape((3, 3, 4, 5))
-        return _3d_field_type.VectorField_3D.from_3d_varray(
+        return field_type_3d.VectorField_3D.from_3d_varray(
             varray_3d=varray_3d,
             udomain_3d=udomain_3d,
             field_label="u",
@@ -276,14 +298,19 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        varray_2d = _2d_field_type.extract_2d_varray(vfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        varray_2d = field_type_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
             (2, 4, 5),
         )
         expected = varray_3d[[1, 2], 1, :, :]
-        self.assertTrue(numpy.allclose(varray_2d, expected))
+        self.assertTrue(
+            numpy.allclose(
+                varray_2d,
+                expected,
+            ),
+        )
 
     def test_slices_inplane_axis_x1(self):
         vfield_3d = self._make_vfield_3d()
@@ -292,14 +319,19 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        varray_2d = _2d_field_type.extract_2d_varray(vfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        varray_2d = field_type_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
             (2, 3, 5),
         )
         expected = varray_3d[[0, 2], :, 2, :]
-        self.assertTrue(numpy.allclose(varray_2d, expected))
+        self.assertTrue(
+            numpy.allclose(
+                varray_2d,
+                expected,
+            ),
+        )
 
     def test_slices_inplane_axis_x2(self):
         vfield_3d = self._make_vfield_3d()
@@ -308,8 +340,8 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        varray_2d = _2d_field_type.extract_2d_varray(vfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        varray_2d = field_type_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
             (2, 3, 4),
@@ -329,13 +361,18 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (4, 5),
         )
-        self.assertTrue(numpy.allclose(sarray_2d, varray_3d[0, 1, :, :]))
+        self.assertTrue(
+            numpy.allclose(
+                sarray_2d,
+                varray_3d[0, 1, :, :],
+            ),
+        )
 
     def test_slices_outofplane_axis_x1(self):
         vfield_3d = self._make_vfield_3d()
@@ -344,8 +381,8 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (3, 5),
@@ -364,8 +401,8 @@ class TestSlice3DVectorField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
-        sarray_2d = _2d_field_type.extract_2d_sarray(sfield_2d)
+        varray_3d = field_type_3d.extract_3d_varray(vfield_3d)
+        sarray_2d = field_type_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
             (3, 4),

@@ -329,19 +329,19 @@ def compute_magnetic_curvature_decomposed_fields(
     sfield_3d_curvature = field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=mc_3d_farrays.sarray_3d_curvature,
         udomain_3d=udomain_3d,
-        field_label=r"$n_i n_j d_i u_j$",
+        field_label=r"n_i n_j d_i u_j",
         sim_time=sim_time,
     )
     sfield_3d_stretching = field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=mc_3d_farrays.sarray_3d_stretching,
         udomain_3d=udomain_3d,
-        field_label=r"$t_i t_j d_i u_j$",
+        field_label=r"t_i t_j d_i u_j",
         sim_time=sim_time,
     )
     sfield_3d_compression = field_type.ScalarField_3D.from_3d_sarray(
         sarray_3d=mc_3d_farrays.sarray_3d_compression,
         udomain_3d=udomain_3d,
-        field_label=r"$d_i u_i$",
+        field_label=r"d_i u_i",
         sim_time=sim_time,
     )
     return MagneticCurvatureFields_3D(
@@ -425,19 +425,19 @@ def compute_lorentz_force_decomposed_fields(
     vfield_3d_lorentz = field_type.VectorField_3D.from_3d_varray(
         varray_3d=lf_3d_farrays.varray_3d_lorentz,
         udomain_3d=udomain_3d,
-        field_label=r"$L_i$",
+        field_label=r"L_i",
         sim_time=sim_time,
     )
     vfield_3d_tension = field_type.VectorField_3D.from_3d_varray(
         varray_3d=lf_3d_farrays.varray_3d_tension,
         udomain_3d=udomain_3d,
-        field_label=r"$b_k b_k \kappa_i$",
+        field_label=r"b_k b_k \kappa_i",
         sim_time=sim_time,
     )
     vfield_3d_gradP_perp = field_type.VectorField_3D.from_3d_varray(
         varray_3d=lf_3d_farrays.varray_3d_gradP_perp,
         udomain_3d=udomain_3d,
-        field_label=r"$[d_i (b_k b_k / 2)]_\perp$",
+        field_label=r"[d_i (b_k b_k / 2)]_\perp",
         sim_time=sim_time,
     )
     return LorentzForceFields_3D(

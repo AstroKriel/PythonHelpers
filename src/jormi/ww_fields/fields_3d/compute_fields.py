@@ -57,7 +57,7 @@ def compute_magnetic_energy_density_sfield(
     )
 
 
-def compute_total_magnetic_energy(
+def compute_total_magnetic_energy_value(
     vfield_3d_b: field_type.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
@@ -185,7 +185,7 @@ def compute_kinetic_dissipation_vfield(
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_df,
         udomain_3d=udomain_3d,
-        field_label=r"$d_j \mathcal{S}_{j i}$",
+        field_label=r"d_j \mathcal{S}_{j i}",
         sim_time=sim_time,
     )
 

@@ -139,7 +139,7 @@ class VectorField_3D(_field_type.Field):
             fdata_param_name="<varray_3d>",
         )
 
-    def get_vcomp_sarray_3d(
+    def get_vcomp_3d_sarray(
         self,
         comp_axis: cartesian_axes.AxisLike_3D,
     ) -> numpy.ndarray:
@@ -171,23 +171,11 @@ class UnitVectorField_3D(VectorField_3D):
             vfield_3d=self,
             param_name="<uvfield_3d>",
         )
-        sarray_3d_vmagn_sq = _farray_operators.sum_of_varray_comps_squared(varray_3d=varray_3d)
-        if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq)):
-            raise ValueError("UnitVectorField_3D should not contain any NaN/Inf magnitudes.")
-        if numpy.any(sarray_3d_vmagn_sq <= 1e-300):
-            raise ValueError("UnitVectorField_3D should not contain any (near-)zero vectors.")
-        max_error = float(
-            numpy.max(
-                numpy.abs(
-                    numpy.sqrt(sarray_3d_vmagn_sq) - 1.0,
-                ),
-            ),
+        _farray_operators.ensure_uvarray_magnitude(
+            varray_3d=varray_3d,
+            tol=self.tol,
+            param_name="<uvfield_3d>",
         )
-        if max_error > self.tol:
-            raise ValueError(
-                "Vector magnitude deviates from unit-magnitude=1.0 by"
-                f" max(error)={max_error:.3e} (tol={self.tol}).",
-            )
 
     @classmethod
     def from_3d_vfield(
@@ -405,6 +393,44 @@ def extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
+
+
+##
+## === RENDERING FIELD LABEL
+##
+
+
+def get_label(
+    field: _field_type.Field,
+    *,
+    param_name: str = "<field>",
+) -> str:
+    """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
+    type_checks.ensure_type(
+        param=field,
+        param_name=param_name,
+        valid_types=_field_type.Field,
+    )
+    return f"${field.field_label}$"
+
+
+def get_vcomp_label(
+    vfield_3d: VectorField_3D,
+    comp_axis: cartesian_axes.AxisLike_3D,
+    *,
+    param_name: str = "<vfield_3d>",
+) -> str:
+    """Return the render-ready label for a vector field component.
+
+    Uses big square brackets with a numeric subscript.
+    Example: vfield with label `\\vec{v}` + axis X0 → `$\\left[\\vec{v}\\right]_0$`
+    """
+    ensure_3d_vfield(
+        vfield_3d=vfield_3d,
+        param_name=param_name,
+    )
+    comp_index = cartesian_axes.get_axis_index(comp_axis)
+    return f"$\\left[{vfield_3d.field_label}\\right]_{comp_index}$"
 
 
 ## } MODULE
