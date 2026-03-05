@@ -137,7 +137,7 @@ class TestFiniteDifferenceConvergence:
             color = grad_method["color"]
             label = grad_method["label"]
             self._plot_approx_soln(nabla, color, label)
-            errors = []
+            rms_errors = []
             for num_points in self.num_points_to_test:
                 x_values = sample_domain(self.domain_bounds, num_points)
                 y_values = evaluate_fntion_at_points(x_values)
@@ -148,7 +148,7 @@ class TestFiniteDifferenceConvergence:
                     cell_width=cell_width,
                     grad_axis=0,
                 )[:, 0, 0]
-                error = float(
+                rms_error = float(
                     numpy.sqrt(
                         numpy.mean(
                             numpy.square(
@@ -157,21 +157,21 @@ class TestFiniteDifferenceConvergence:
                         ),
                     ),
                 )
-                errors.append(error)
-            if not self._check_convergence(errors, expected_scaling, color, label):
+                rms_errors.append(rms_error)
+            if not self._check_convergence(rms_errors, expected_scaling, color, label):
                 failed_methods.append(label)
         return failed_methods
 
-    def _check_convergence(self, errors, expected_scaling, color, label):
+    def _check_convergence(self, rms_errors, expected_scaling, color, label):
         inverse_dx_values = numpy.array(
             self.num_points_to_test,
         ) / (self.domain_bounds[1] - self.domain_bounds[0])
-        amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], errors[0], expected_scaling)
+        amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], rms_errors[0], expected_scaling)
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
-        residuals = (numpy.array(errors) - expected_errors) / expected_errors
+        residuals = (numpy.array(rms_errors) - expected_errors) / expected_errors
         self.axs_grid[0, 1].plot(
             inverse_dx_values,
-            errors,
+            rms_errors,
             marker="o",
             ms=10,
             ls="",
