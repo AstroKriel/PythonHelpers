@@ -395,4 +395,42 @@ def extract_3d_varray(
     )
 
 
+##
+## === RENDERING FIELD LABEL
+##
+
+
+def get_label(
+    field: _field_type.Field,
+    *,
+    param_name: str = "<field>",
+) -> str:
+    """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
+    type_checks.ensure_type(
+        param=field,
+        param_name=param_name,
+        valid_types=_field_type.Field,
+    )
+    return f"${field.field_label}$"
+
+
+def get_vcomp_label(
+    vfield_3d: VectorField_3D,
+    comp_axis: cartesian_axes.AxisLike_3D,
+    *,
+    param_name: str = "<vfield_3d>",
+) -> str:
+    """Return the render-ready label for a vector field component.
+
+    Uses big square brackets with a numeric subscript.
+    Example: vfield with label `\\vec{v}` + axis X0 → `$\\left[\\vec{v}\\right]_0$`
+    """
+    ensure_3d_vfield(
+        vfield_3d=vfield_3d,
+        param_name=param_name,
+    )
+    comp_index = cartesian_axes.get_axis_index(comp_axis)
+    return f"$\\left[{vfield_3d.field_label}\\right]_{comp_index}$"
+
+
 ## } MODULE

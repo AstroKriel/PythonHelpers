@@ -26,7 +26,7 @@ def generate_div_vfield(
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"$\vec{q}$",
+        field_label=r"\vec{q}",
     )
 
 
@@ -45,7 +45,7 @@ def generate_sol_vfield(
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"$\vec{q}$",
+        field_label=r"\vec{q}",
     )
 
 
@@ -73,7 +73,7 @@ def generate_uniform_vfield(
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"$\vec{q}$",
+        field_label=r"\vec{q}",
     )
 
 
@@ -105,7 +105,7 @@ def generate_mixed_vfield(
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"$\vec{q}$",
+        field_label=r"\vec{q}",
     )
 
 

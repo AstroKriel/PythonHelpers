@@ -66,6 +66,11 @@ class Field:
             param=self.field_label,
             param_name="<field_label>",
         )
+        if "$" in self.field_label:
+            raise ValueError(
+                "`<field_label>` should not contain `$`; "
+                "provide the raw LaTeX math content without math-mode delimiters.",
+            )
 
     def _validate_sim_time(
         self,
