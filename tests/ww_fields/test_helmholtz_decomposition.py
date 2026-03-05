@@ -6,6 +6,7 @@
 
 import numpy
 from jormi.utils import list_utils
+from jormi.ww_types import type_checks
 from jormi.ww_io import io_manager
 from jormi.ww_plots import plot_manager
 from jormi.ww_fields.fields_3d import domain_type, field_type, field_operators, decompose_fields
@@ -49,17 +50,25 @@ def generate_sol_vfield(
 
 
 def generate_uniform_vfield(
-    const_vector: tuple,
+    const_vector: tuple[float, float, float],
     udomain_3d: domain_type.UniformDomain_3D,
 ) -> field_type.VectorField_3D:
     """Generate a uniform (bulk-only) vector field with constant components."""
+    type_checks.ensure_sequence(
+        param=const_vector,
+        param_name="const_vector",
+        allow_none=False,
+        seq_length=3,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike
+    )
     resolution = udomain_3d.resolution
     varray = numpy.stack(
         [
             numpy.full(resolution, float(const_vector[0])),
             numpy.full(resolution, float(const_vector[1])),
             numpy.full(resolution, float(const_vector[2])),
-        ]
+        ],
     )
     return field_type.VectorField_3D.from_3d_varray(
         varray_3d=varray,
@@ -69,14 +78,27 @@ def generate_uniform_vfield(
 
 
 def generate_mixed_vfield(
-    bulk_vector: tuple,
     udomain_3d: domain_type.UniformDomain_3D,
+    bulk_vector: tuple[float, float, float] | None = None,
 ) -> field_type.VectorField_3D:
     """Generate a mixed field: div + sol (+ optional uniform bulk)."""
+    type_checks.ensure_sequence(
+        param=bulk_vector,
+        param_name="bulk_vector",
+        allow_none=True,
+        seq_length=3,
+        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=type_checks.RuntimeTypes.Numerics.FloatLike
+    )
     varray_div = field_type.extract_3d_varray(generate_div_vfield(udomain_3d))
     varray_sol = field_type.extract_3d_varray(generate_sol_vfield(udomain_3d))
-    if any(float(b) != 0.0 for b in bulk_vector):
-        varray_bulk = field_type.extract_3d_varray(generate_uniform_vfield(bulk_vector, udomain_3d))
+    if bulk_vector is not None:
+        varray_bulk = field_type.extract_3d_varray(
+            vfield_3d=generate_uniform_vfield(
+                const_vector=bulk_vector,
+                udomain_3d=udomain_3d,
+            ),
+        )
         varray = varray_div + varray_sol + varray_bulk
     else:
         varray = varray_div + varray_sol
@@ -168,7 +190,10 @@ def main():
     list_vfields = [
         {
             "label": "mixed",
-            "vfield": generate_mixed_vfield(bulk_vector=bulk_vector, udomain_3d=udomain_3d),
+            "vfield": generate_mixed_vfield(
+                udomain_3d=udomain_3d,
+                bulk_vector=bulk_vector,
+            ),
         },
         {
             "label": "divergence",
