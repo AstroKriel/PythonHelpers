@@ -114,6 +114,11 @@ def generate_mixed_vfield(
 ##
 
 
+def _sfield_abs_median_std(sfield: field_type.ScalarField_3D) -> tuple[float, float]:
+    arr = numpy.abs(field_type.extract_3d_sarray(sfield))
+    return float(numpy.median(arr)), float(numpy.std(arr))
+
+
 def compute_field_fraction(bin_edges, pdf):
     nonzero_indices = numpy.where(pdf > 0)[0]
     if len(nonzero_indices) > 0:
@@ -125,16 +130,16 @@ def compute_field_fraction(bin_edges, pdf):
 
 def plot_vfield_slice(ax, vfield: field_type.VectorField_3D, domain_bounds):
     varray = field_type.extract_3d_varray(vfield)
-    num_cells_x, num_cells_y, num_cells_z = varray.shape[1:]
-    index_z = num_cells_z // 2  # middle slice in the z-direction
+    num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
+    index_x2 = num_cells_x2 // 2  # middle slice in the z-direction
     grid_x0, grid_x1 = numpy.meshgrid(
-        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x),
-        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_y),
+        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x0),
+        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x1),
         indexing="xy",
     )
     sfield_q_magn = field_operators.compute_vfield_magnitude(vfield)
     sfield_q_magn_array = field_type.extract_3d_sarray(sfield_q_magn)
-    sfield_q_magn_slice = sfield_q_magn_array[:, :, index_z]
+    sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
     sfield_q_magn_min = float(numpy.min(sfield_q_magn_slice))
     sfield_q_magn_max = float(numpy.max(sfield_q_magn_slice))
     ax.imshow(
@@ -147,8 +152,8 @@ def plot_vfield_slice(ax, vfield: field_type.VectorField_3D, domain_bounds):
     ax.streamplot(
         grid_x0,
         grid_x1,
-        varray[0, :, :, index_z],
-        varray[1, :, :, index_z],
+        varray[0, :, :, index_x2],
+        varray[1, :, :, index_x2],
         color="black",
         arrowstyle="->",
         linewidth=2.0,
@@ -208,7 +213,7 @@ def main():
             "vfield": generate_uniform_vfield(bulk_vector, udomain_3d),
         },
     ]
-    ## 4 rows (input + 3 decomps/combined) x 4 cols (combined, div-only, sol-only, bulk-only)
+    ## 4 rows (input + 3 meaured) x 4 cols (scenarios: combined, div-only, sol-only, bulk-only)
     fig, axs_grid = plot_manager.create_figure(
         num_rows=4,
         num_cols=4,
@@ -247,110 +252,103 @@ def main():
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(curl_div)
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(vfield_3d_sol)
         curl_bulk = field_operators.compute_vfield_curl(vfield_3d_bulk)
-        div_bulk = field_operators.compute_vfield_divergence(vfield_3d_bulk)
+        sfield_check_bulk_div = field_operators.compute_vfield_divergence(vfield_3d_bulk)
         sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
-        sfield_check_bulk_div = div_bulk  # already scalar field
-        ## stats
-        abs_q_diff = numpy.abs(field_type.extract_3d_sarray(sfield_check_q_diff))
-        abs_sol_in_div = numpy.abs(field_type.extract_3d_sarray(sfield_check_div_is_sol_free))
-        abs_div_in_sol = numpy.abs(field_type.extract_3d_sarray(sfield_check_sol_is_div_free))
-        abs_curl_bulk = numpy.abs(field_type.extract_3d_sarray(sfield_check_bulk_curl))
-        abs_div_bulk = numpy.abs(field_type.extract_3d_sarray(sfield_check_bulk_div))
-        ave_q_diff = numpy.median(abs_q_diff)
-        ave_sol_in_div = numpy.median(abs_sol_in_div)
-        ave_div_in_sol = numpy.median(abs_div_in_sol)
-        ave_curl_bulk = numpy.median(abs_curl_bulk)
-        ave_div_bulk = numpy.median(abs_div_bulk)
-        std_q_diff = numpy.std(abs_q_diff)
-        std_sol_in_div = numpy.std(abs_sol_in_div)
-        std_div_in_sol = numpy.std(abs_div_in_sol)
-        std_curl_bulk = numpy.std(abs_curl_bulk)
-        std_div_bulk = numpy.std(abs_div_bulk)
-        print(f"|q - (q_div + q_sol + q_bulk)| median = {ave_q_diff:.2e} +/- {std_q_diff:.2e}")
-        print(f"|curl(q_div)| median = {ave_sol_in_div:.2e} +/- {std_sol_in_div:.2e}")
-        print(f"|div(q_sol)| median = {ave_div_in_sol:.2e} +/- {std_div_in_sol:.2e}")
-        print(f"|curl(q_bulk)| median = {ave_curl_bulk:.2e} +/- {std_curl_bulk:.2e}")
-        print(f"|div(q_bulk)| median = {ave_div_bulk:.2e} +/- {std_div_bulk:.2e}")
-        ## simple thresholds (tolerant; these can be tightened)
-        checks = [
+        ## stats and thresholds (tolerant; these can be tightened)
+        check_items = [
             (
-                ave_q_diff < 0.5,
+                "|q - (q_div + q_sol + q_bulk)|",
+                sfield_check_q_diff,
+                0.5,
                 "q_div + q_sol + q_bulk != q",
             ),
             (
-                ave_sol_in_div < 0.5,
+                "|curl(q_div)|",
+                sfield_check_div_is_sol_free,
+                0.5,
                 "|curl(q_div)| > threshold",
             ),
             (
-                ave_div_in_sol < 0.5,
+                "|div(q_sol)|",
+                sfield_check_sol_is_div_free,
+                0.5,
                 "|div(q_sol)| > threshold",
             ),
             (
-                ave_curl_bulk < 1e-12,
-                "|curl(q_bulk)| not == 0",
+                "|curl(q_bulk)|",
+                sfield_check_bulk_curl,
+                1e-12,
+                "|curl(q_bulk)| not ~ 0",
             ),
             (
-                ave_div_bulk < 1e-12,
-                "|div(q_bulk)| not == 0",
+                "|div(q_bulk)|",
+                sfield_check_bulk_div,
+                1e-12,
+                "|div(q_bulk)| not ~ 0",
             ),
         ]
-        failed_checks = [check_msg for check_passed, check_msg in checks if not check_passed]
+        failed_checks = []
+        for label, sfield, threshold, fail_msg in check_items:
+            median, std = _sfield_abs_median_std(sfield)
+            print(f"{label} median = {median:.2e} +/- {std:.2e}")
+            if median >= threshold:
+                failed_checks.append(fail_msg)
         ## plots: for each input field, fill a 4x4 block column-wise:
-        col = vfield_index
+        index_col = vfield_index
         plot_vfield_slice(
-            ax=axs_grid[0, col],
+            ax=axs_grid[0, index_col],
             vfield=vfield_rec,
             domain_bounds=domain_bounds,
         )
         plot_vfield_slice(
-            ax=axs_grid[1, col],
+            ax=axs_grid[1, index_col],
             vfield=vfield_3d_div,
             domain_bounds=domain_bounds,
         )
         plot_vfield_slice(
-            ax=axs_grid[2, col],
+            ax=axs_grid[2, index_col],
             vfield=vfield_3d_sol,
             domain_bounds=domain_bounds,
         )
         plot_vfield_slice(
-            ax=axs_grid[3, col],
+            ax=axs_grid[3, index_col],
             vfield=vfield_3d_bulk,
             domain_bounds=domain_bounds,
         )
-        axs_grid[0, col].text(
+        axs_grid[0, index_col].text(
             0.5,
             0.05,
             f"reconstructed: {vfield_name}",
             va="bottom",
             ha="center",
-            transform=axs_grid[0, col].transAxes,
+            transform=axs_grid[0, index_col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs_grid[1, col].text(
+        axs_grid[1, index_col].text(
             0.5,
             0.05,
             "measured: divergence component",
             va="bottom",
             ha="center",
-            transform=axs_grid[1, col].transAxes,
+            transform=axs_grid[1, index_col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs_grid[2, col].text(
+        axs_grid[2, index_col].text(
             0.5,
             0.05,
             "measured: solenoidal component",
             va="bottom",
             ha="center",
-            transform=axs_grid[2, col].transAxes,
+            transform=axs_grid[2, index_col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
-        axs_grid[3, col].text(
+        axs_grid[3, index_col].text(
             0.5,
             0.05,
             "measured: bulk component",
             va="bottom",
             ha="center",
-            transform=axs_grid[3, col].transAxes,
+            transform=axs_grid[3, index_col].transAxes,
             bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
         )
         if failed_checks:
