@@ -122,7 +122,11 @@ def _compute_3d_power_spectrum_sarray(
         ),
         axes=(0, 1, 2),
     )
-    centered_3d_spectrum = numpy.square(numpy.abs(sarray_3d_shifted_fft_q))
+    centered_3d_spectrum = numpy.square(
+        numpy.abs(
+            sarray_3d_shifted_fft_q,
+        ),
+    )
     return centered_3d_spectrum
 
 

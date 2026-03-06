@@ -8,7 +8,9 @@ import numpy
 import unittest
 
 from jormi.ww_fields.fields_3d import (
-    domain_type, field_type, compute_spectra
+    domain_type,
+    field_type,
+    compute_spectra,
 )
 
 ##
@@ -118,7 +120,8 @@ class TestPureModeBinPlacement(unittest.TestCase):
         self.assertEqual(
             spectrum.k_bin_centers_1d[peak_index],
             mode_k,
-            msg=f"Expected peak at k={mode_k}, got k={spectrum.k_bin_centers_1d[peak_index]} for N={num_cells}",
+            msg=
+            f"Expected peak at k={mode_k}, got k={spectrum.k_bin_centers_1d[peak_index]} for N={num_cells}",
         )
 
     def test_k1_even_N(self):

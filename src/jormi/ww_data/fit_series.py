@@ -227,7 +227,7 @@ def fit_line_with_fixed_slope(
     errors_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
     fit_stats = fixed_slope_model.create_fit_stats(
         values_vector=fitted_vector,
-        errors_vector=errors_vector, # type: ignore
+        errors_vector=errors_vector,  # type: ignore
     )
     return FitSummary(
         model=fixed_slope_model,

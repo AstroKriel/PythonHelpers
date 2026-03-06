@@ -115,6 +115,6 @@ class DataSeries:
         if self.y_sigma_array is None:
             return numpy.ones_like(self.y_data_array, dtype=float)
         return 1.0 / numpy.square(self.y_sigma_array)
-    
+
 
 ## } MODULE

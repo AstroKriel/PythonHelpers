@@ -24,6 +24,7 @@ IndexGrid2D: TypeAlias = NDArray[numpy.int_]
 ## === DATA STRUCTURES
 ##
 
+
 @dataclass(frozen=True)
 class HalfMasks:
     """Masks that split a 2D grid into halves."""

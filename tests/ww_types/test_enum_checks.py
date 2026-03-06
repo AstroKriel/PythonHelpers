@@ -46,43 +46,43 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
     def test_rejects_empty(self):
         with self.assertRaises(ValueError):
             enum_checks.ensure_sequence_of_enums(
-                param=(), # nothing
+                param=(),
                 param_name="valid_enums",
             )
         with self.assertRaises(ValueError):
             enum_checks.ensure_sequence_of_enums(
-                param=[], # nothing
+                param=[],
                 param_name="valid_enums",
             )
 
     def test_rejects_non_sequence(self):
         with self.assertRaises(TypeError):
             enum_checks.ensure_sequence_of_enums(
-                param=Corners, # single enum is not a sequence
+                param=Corners, # type: ignore[arg-type]
                 param_name="valid_enums",
             )
 
     def test_rejects_non_types(self):
         with self.assertRaises(TypeError):
             enum_checks.ensure_sequence_of_enums(
-                param=["Corners"], # string-value is not an enum
+                param=["Corners"], # type: ignore[arg-type]
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
             enum_checks.ensure_sequence_of_enums(
-                param=[Corners, "Sides"], # string-value is not an enum
+                param=[Corners, "Sides"], # type: ignore[arg-type]
                 param_name="valid_enums",
             )
 
     def test_rejects_non_enum_types(self):
         with self.assertRaises(TypeError):
             enum_checks.ensure_sequence_of_enums(
-                param=[Corners, int], # int is not an enum
+                param=[Corners, int], # type: ignore[arg-type]
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
             enum_checks.ensure_sequence_of_enums(
-                param=(str, ), # str is not an enum
+                param=(str,), # type: ignore[arg-type]
                 param_name="valid_enums",
             )
 
@@ -147,19 +147,19 @@ class TestResolveMember(unittest.TestCase):
     def test_rejects_non_string_non_enum(self):
         with self.assertRaises(TypeError):
             enum_checks.resolve_member(
-                member=123, # value is not a string or enum member
+                member=123, # type: ignore[arg-type]
                 valid_enums=Corners,
             )
         with self.assertRaises(TypeError):
             enum_checks.resolve_member(
-                member=None, # undefined member
+                member=None, # type: ignore[arg-type]
                 valid_enums=Corners,
             )
 
     def test_rejects_unknown_string(self):
         with self.assertRaises(ValueError):
             enum_checks.resolve_member(
-                member="NotAThing", # cannot be found
+                member="NotAThing",
                 valid_enums=Corners,
             )
 
@@ -199,7 +199,7 @@ class TestEnsureValidMember(unittest.TestCase):
             )
         with self.assertRaises(TypeError):
             enum_checks.ensure_valid_member(
-                member=123,
+                member=123, # type: ignore[arg-type]
                 valid_enums=Corners,
                 param_name="loc",
             )
@@ -239,13 +239,13 @@ class TestEnsureMemberIn(unittest.TestCase):
         with self.assertRaises(TypeError):
             enum_checks.ensure_member_in(
                 member="TopLeft",
-                valid_members=[Corners],
+                valid_members=[Corners], # type: ignore[arg-type]
                 param_name="corner",
             )
         with self.assertRaises(TypeError):
             enum_checks.ensure_member_in(
                 member="TopLeft",
-                valid_members=["TopLeft"],
+                valid_members=["TopLeft"], # type: ignore[arg-type]
                 param_name="corner",
             )
 

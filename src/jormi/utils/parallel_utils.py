@@ -97,7 +97,7 @@ def run_in_parallel(
                     timeout=timeout_seconds,
                     kwargs={
                         "theme": theme,
-                        "use_tex": use_tex
+                        "use_tex": use_tex,
                     },
                 )
             else:
