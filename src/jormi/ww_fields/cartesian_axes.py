@@ -14,10 +14,10 @@ from jormi.ww_types import enum_checks, type_checks
 ## === DATA TYPES
 ##
 
-AxisLabel_3D: TypeAlias = Literal["x0", "x1", "x2"]
+AxisLabel_3D: TypeAlias = Literal["x_0", "x_1", "x_2"]
 AxisIndex_3D: TypeAlias = Literal[0, 1, 2]
 
-VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = ("x0", "x1", "x2")
+VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = ("x_0", "x_1", "x_2")
 VALID_3D_AXIS_INDICES: tuple[AxisIndex_3D, AxisIndex_3D, AxisIndex_3D] = (0, 1, 2)
 
 
@@ -105,7 +105,7 @@ def as_axis(
       - A `CartesianAxis_3D` member (e.g. `CartesianAxis_3D.X1`)
       - An integer axis index: 0, 1, 2
       - A string axis identifier (case-insensitive), matching either:
-          * the axis label: "x0", "x1", "x2"
+          * the axis label: "x_0", "x_1", "x_2"
           * the Enum member name: "X0", "X1", "X2"
     """
     type_checks.ensure_type(

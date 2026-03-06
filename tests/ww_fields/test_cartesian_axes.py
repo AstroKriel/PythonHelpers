@@ -35,36 +35,36 @@ class TestCartesianAxis_3D(unittest.TestCase):
             )
             self.assertEqual(
                 cartesian_axes.get_axis_label(axis=axis),
-                f"x{axis_index}",
+                f"x_{axis_index}",
             )
 
     def test_enum_member_values(self):
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X0.value,
-            "x0",
+            "x_0",
         )
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X1.value,
-            "x1",
+            "x_1",
         )
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X2.value,
-            "x2",
+            "x_2",
         )
 
     def test_enum_member_properties(self):
         ## axis labels
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X0.axis_label,
-            "x0",
+            "x_0",
         )
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X1.axis_label,
-            "x1",
+            "x_1",
         )
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X2.axis_label,
-            "x2",
+            "x_2",
         )
         ## axis index
         self.assertEqual(
@@ -83,7 +83,7 @@ class TestCartesianAxis_3D(unittest.TestCase):
     def test_default_3d_axes(self):
         self.assertEqual(
             cartesian_axes.VALID_3D_AXIS_LABELS,
-            ("x0", "x1", "x2"),
+            ("x_0", "x_1", "x_2"),
         )
         self.assertEqual(
             cartesian_axes.VALID_3D_AXIS_INDICES,
@@ -126,17 +126,23 @@ class TestAsAxis(unittest.TestCase):
             cartesian_axes.as_axis(axis=3)
 
     def test_accepts_string_case_insensitive(self):
+        ## resolve by value
         self.assertIs(
-            cartesian_axes.as_axis(axis="x0"),
+            cartesian_axes.as_axis(axis="x_0"),
             cartesian_axes.CartesianAxis_3D.X0,
         )
+        self.assertIs(
+            cartesian_axes.as_axis(axis=" x_1 "),
+            cartesian_axes.CartesianAxis_3D.X1,
+        )
+        ## resolve by member name (backwards-compatible)
         self.assertIs(
             cartesian_axes.as_axis(axis="X0"),
             cartesian_axes.CartesianAxis_3D.X0,
         )
         self.assertIs(
-            cartesian_axes.as_axis(axis=" x1 "),
-            cartesian_axes.CartesianAxis_3D.X1,
+            cartesian_axes.as_axis(axis="x0"),
+            cartesian_axes.CartesianAxis_3D.X0,
         )
 
     def test_rejects_unknown_string(self):
@@ -159,7 +165,7 @@ class TestGetAxisIndexAndLabel(unittest.TestCase):
     def test_getters_accept_all_inputs(self):
         self.assertEqual(
             cartesian_axes.get_axis_label(axis=cartesian_axes.CartesianAxis_3D.X2),
-            "x2",
+            "x_2",
         )
         self.assertEqual(
             cartesian_axes.get_axis_index(axis=cartesian_axes.CartesianAxis_3D.X2),
@@ -168,7 +174,7 @@ class TestGetAxisIndexAndLabel(unittest.TestCase):
 
         self.assertEqual(
             cartesian_axes.get_axis_label(axis="X0"),
-            "x0",
+            "x_0",
         )
         self.assertEqual(
             cartesian_axes.get_axis_index(axis="X0"),
@@ -177,7 +183,7 @@ class TestGetAxisIndexAndLabel(unittest.TestCase):
 
         self.assertEqual(
             cartesian_axes.get_axis_label(axis=1),
-            "x1",
+            "x_1",
         )
         self.assertEqual(
             cartesian_axes.get_axis_index(axis=1),
