@@ -76,7 +76,7 @@ def _compute_3d_radial_k_magnitude(
             f" got num_cells_per_dim={num_cells_per_dim} (expected Nx=Ny=Nz).",
         )
     k_center = numpy.array(
-        [(num_cells - 1) / 2 for num_cells in num_cells_per_dim],
+        [num_cells // 2 for num_cells in num_cells_per_dim],
         dtype=float,
     )
     grid_indices = numpy.indices(num_cells_per_dim)
