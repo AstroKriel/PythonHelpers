@@ -8,7 +8,7 @@ import os
 import multiprocessing
 
 from tqdm import tqdm
-from typing import Callable, Any, Iterable, List
+from typing import Callable, Any, Iterable
 from pebble import ProcessPool, ProcessExpired
 from concurrent.futures import TimeoutError
 
@@ -26,8 +26,8 @@ def _spawn_fresh_processes() -> None:
 
 def _normalise_grouped_args(
     grouped_args: Iterable[Any],
-) -> List[List[Any]]:
-    _grouped_args: List[List[Any]] = []
+) -> list[list[Any]]:
+    _grouped_args: list[list[Any]] = []
     for args in grouped_args:
         if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
             _grouped_args.append(list(args))
@@ -54,7 +54,7 @@ def _enable_plotting(
 
 def _invoke_with_plotting(
     worker_fn: Callable[..., Any],
-    task_args: List[Any],
+    task_args: list[Any],
     theme: str = "light",
     use_tex: bool = True,
 ) -> Any:
@@ -80,7 +80,7 @@ def run_in_parallel(
     enable_plotting: bool = False,
     theme: str = "light",
     use_tex: bool = True,
-) -> List[Any]:
+) -> list[Any]:
     _spawn_fresh_processes()
     grouped_args = _normalise_grouped_args(grouped_args)
     if num_workers is None:
@@ -91,39 +91,24 @@ def run_in_parallel(
         tasks = []
         for task_index, task_args in enumerate(grouped_args):
             if enable_plotting:
-                task_pair = [worker_fn, task_args]
-                task = (
-                    pool.schedule(
-                        _invoke_with_plotting,
-                        args=task_pair,
-                        timeout=timeout_seconds,
-                        kwargs={
-                            "theme": theme,
-                            "use_tex": use_tex,
-                        },
-                    ) if timeout_seconds is not None else pool.schedule(
-                        _invoke_with_plotting,
-                        args=task_pair,
-                        kwargs={
-                            "theme": theme,
-                            "use_tex": use_tex,
-                        },
-                    )
+                task = pool.schedule(
+                    _invoke_with_plotting,
+                    args=[worker_fn, task_args],
+                    timeout=timeout_seconds,
+                    kwargs={
+                        "theme": theme,
+                        "use_tex": use_tex
+                    },
                 )
             else:
-                task = (
-                    pool.schedule(worker_fn, args=task_args, timeout=timeout_seconds)
-                    if timeout_seconds is not None else pool.schedule(worker_fn, args=task_args)
+                task = pool.schedule(
+                    function=worker_fn,
+                    args=task_args,
+                    timeout=timeout_seconds,
                 )
             tasks.append((task_index, task))
-        if show_progress:
-            tasks = tqdm(
-                tasks,
-                total=len(tasks),
-                desc="Processing",
-                unit="tasks",
-            )
-        for task_index, task in tasks:
+        iterator = tqdm(tasks, total=len(tasks), desc="Processing", unit="tasks") if show_progress else tasks
+        for task_index, task in iterator:
             try:
                 task_results[task_index] = task.result()
             except TimeoutError:
