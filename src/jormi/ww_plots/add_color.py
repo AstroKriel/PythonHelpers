@@ -128,18 +128,18 @@ def _ensure_unit_interval(
 
 
 def _ensure_ordered_pair(
-    min_value: float,
-    max_value: float,
+    min_value: float | int,
+    max_value: float | int,
     *,
     min_name: str,
     max_name: str,
 ) -> None:
-    type_checks.ensure_finite_float(
+    type_checks.ensure_finite_scalar(
         param=min_value,
         param_name=min_name,
         allow_none=False,
     )
-    type_checks.ensure_finite_float(
+    type_checks.ensure_finite_scalar(
         param=max_value,
         param_name=max_name,
         allow_none=False,
@@ -257,9 +257,9 @@ class CUSTOM_CMAPS:
 def create_cmap(
     *,
     cmap_name: str,
-    vmin: float,
-    vmax: float,
-    vcenter: float | None = None,
+    vmin: float | int,
+    vmax: float | int,
+    vcenter: float | int | None = None,
     min_cmap_value: float = 0.0,
     max_cmap_value: float = 1.0,
 ) -> tuple[mpl_colors.Colormap, mpl_colors.Normalize]:

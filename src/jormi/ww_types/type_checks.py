@@ -384,6 +384,25 @@ def ensure_finite_int(
     )
 
 
+def ensure_finite_scalar(
+    param,
+    *,
+    param_name: str = "<param>",
+    allow_none: bool = False,
+    require_positive: bool = False,
+    allow_zero: bool = True,
+) -> None:
+    """Ensure `param` is a finite scalar (int-like or float-like) value."""
+    ensure_finite_numeric(
+        param=param,
+        param_name=param_name,
+        allow_none=allow_none,
+        valid_types=RuntimeTypes.Numerics.NumericLike,
+        require_positive=require_positive,
+        allow_zero=allow_zero,
+    )
+
+
 ##
 ## === CONTAINER LIKE
 ##
