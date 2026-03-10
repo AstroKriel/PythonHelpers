@@ -168,7 +168,7 @@ def plot_2d_array(
 def _generate_grid(
     field_shape: tuple[int, int],
     axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
-):
+) -> tuple[numpy.ndarray, numpy.ndarray]:
     axis_extent = _as_axis_extent(axis_bounds)
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
