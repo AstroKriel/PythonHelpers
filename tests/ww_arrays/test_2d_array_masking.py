@@ -319,6 +319,29 @@ class TestCircleMasks2D(unittest.TestCase):
         mask[2, 2] = False
         self.assertFalse(numpy.any(mask))
 
+    def test_custom_radius_spot_check(self):
+        ## 7x7, center=(3,3), radius=2: (3,5) is on the boundary (distance=2), (3,6) is outside (distance=3)
+        mask = mask_2d_arrays.CircleMasks2D.get_mask_inside(
+            num_rows=7,
+            num_cols=7,
+            center_row_col=(3.0, 3.0),
+            radius=2.0,
+            include_boundary=True,
+        )
+        self.assertTrue(mask[3, 5])  # distance == radius, included
+        self.assertFalse(mask[3, 6])  # distance > radius, excluded
+
+    def test_off_center_spot_check(self):
+        ## 7x7, center=(0,0), radius=1.5: (0,1) is inside (distance=1), (3,3) is outside (dist approx. 4.24)
+        mask = mask_2d_arrays.CircleMasks2D.get_mask_inside(
+            num_rows=7,
+            num_cols=7,
+            center_row_col=(0.0, 0.0),
+            radius=1.5,
+        )
+        self.assertTrue(mask[0, 1])  # distance = 1 < radius
+        self.assertFalse(mask[3, 3])  # distance approx. 4.24 > radius
+
     def test_output_shape(self):
         mask = mask_2d_arrays.CircleMasks2D.get_mask_inside(
             num_rows=4,
