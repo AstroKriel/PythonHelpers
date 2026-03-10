@@ -138,8 +138,7 @@ def plot_2d_array(
         cbar_bounds=cbar_bounds,
     )
     cmap_obj = add_color.CMap(
-        min_value=min_value,
-        max_value=max_value,
+        value_range=(min_value, max_value),
         cmap_name=cmap_name,
     )
     axis_extent = _as_axis_extent(axis_bounds)
