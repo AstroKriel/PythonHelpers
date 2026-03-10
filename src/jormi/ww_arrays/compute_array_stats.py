@@ -9,8 +9,74 @@ import functools
 
 from dataclasses import dataclass
 
+from jormi.ww_io import log_manager
 from jormi.ww_types import type_checks, array_checks
 from jormi.ww_arrays import smooth_2d_arrays
+from jormi.utils import list_utils
+
+##
+## === ARRAY VALUE CHECKS
+##
+
+
+def check_zero_values(
+    *,
+    array: numpy.ndarray,
+    param_name: str = "<array>",
+    raise_error: bool = True,
+) -> None:
+    """
+    Check that `array` contains no zero-valued cells that would cause undefined division.
+
+    If zeros are found, raises `ValueError` when `raise_error=True` (default),
+    or alert when `raise_error=False`.
+    """
+    num_zeros = int(numpy.count_nonzero(array == 0.0))
+    if num_zeros == 0: return
+    msg = (
+        f"{param_name} contains {num_zeros} zero-valued cell(s); "
+        "division by zero will produce inf/nan values (zeroed automatically). "
+        "Inspect your simulation data if this is unexpected."
+    )
+    if raise_error: raise ValueError(msg)
+    log_manager.log_alert(msg)
+
+
+def check_nonfinite_values(
+    *,
+    array: numpy.ndarray,
+    param_name: str = "<array>",
+    check_nan: bool = True,
+    check_posinf: bool = True,
+    check_neginf: bool = True,
+    raise_error: bool = True,
+) -> None:
+    """
+    Check that `array` contains no non-finite values (nan, +inf, -inf).
+
+    Each type is individually opt-in/out via `check_nan`, `check_posinf`, `check_neginf`.
+    If any enabled type is found, raises `ValueError` when `raise_error=True` (default),
+    or alerts when `raise_error=False`.
+    """
+    troubled_findings: list[str] = []
+    if check_nan:
+        num_nans = int(numpy.count_nonzero(numpy.isnan(array)))
+        if num_nans > 0: troubled_findings.append(f"{num_nans} nan")
+    if check_posinf:
+        num_posinf = int(numpy.count_nonzero(numpy.isposinf(array)))
+        if num_posinf > 0: troubled_findings.append(f"{num_posinf} +inf")
+    if check_neginf:
+        num_neginf = int(numpy.count_nonzero(numpy.isneginf(array)))
+        if num_neginf > 0: troubled_findings.append(f"{num_neginf} -inf")
+    if not troubled_findings: return
+    msg = (
+        f"{param_name} contains non-finite values ({list_utils.as_string(troubled_findings)}); "
+        "these will be zeroed automatically. "
+        "Inspect your simulation data if this is unexpected."
+    )
+    if raise_error: raise ValueError(msg)
+    log_manager.log_alert(msg)
+
 
 ##
 ## === P-NORM DISTANCE METRIC
