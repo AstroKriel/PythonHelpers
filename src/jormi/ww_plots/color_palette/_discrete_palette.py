@@ -22,13 +22,13 @@ class DiscretePalette(_base_palette.ColorPalette):
     """
     A discrete color palette defined by explicit bin boundaries.
 
-    Parameters
-    ----------
-    boundaries:
+    Fields
+    ---
+    - `boundaries`:
         Ordered sequence of bin edges in data space. N boundaries define N-1 bins.
-    palette_range:
+    - `palette_range`:
         Portion of the palette to use, as a (min, max) tuple in [0, 1].
-    _base_colormap:
+    - `_base_colormap`:
         Internal: the pre-built base colormap. Use from_name, from_colors, or uniform.
     """
     boundaries: tuple[float, ...]

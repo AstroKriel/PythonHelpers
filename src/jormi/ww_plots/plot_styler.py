@@ -47,7 +47,7 @@ LIGHT_RC_PARAMS: dict[str, object] = {
     "#dddddd",
     "grid.alpha":
     0.6,
-    ## default colours
+    ## default colors
     "axes.prop_cycle":
     cycler(
         color=[
@@ -91,7 +91,7 @@ DARK_RC_PARAMS: dict[str, object] = {
     "#2e2e35",
     "grid.alpha":
     0.3,
-    ## default colours
+    ## default colors
     "axes.prop_cycle":
     cycler(
         color=[
@@ -111,6 +111,8 @@ DARK_RC_PARAMS: dict[str, object] = {
 
 
 class Theme(Enum):
+    """Available Matplotlib color themes."""
+
     LIGHT = "light"
     DARK = "dark"
 

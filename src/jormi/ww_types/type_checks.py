@@ -403,6 +403,26 @@ def ensure_finite_scalar(
     )
 
 
+def ensure_in_bounds(
+    param,
+    *,
+    min_value: float,
+    max_value: float,
+    param_name: str = "<param>",
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a finite scalar in [min_value, max_value]."""
+    if (param is None) and allow_none:
+        return
+    ensure_finite_scalar(
+        param=param,
+        param_name=param_name,
+        allow_none=False,
+    )
+    if not (float(min_value) <= float(param) <= float(max_value)):
+        raise ValueError(f"`{param_name}` must lie in [{min_value}, {max_value}], got {param}.")
+
+
 ##
 ## === CONTAINER LIKE
 ##
@@ -604,6 +624,25 @@ def ensure_tuple_of_numbers(
             f"`{param_name}` elements must be numeric (int/float, not bool);"
             f" found booleans at indices: {preview_bad_indices_string}.",
         )
+
+
+def ensure_ordered_pair(
+    param,
+    *,
+    param_name: str = "<param>",
+    allow_none: bool = False,
+) -> None:
+    """Ensure `param` is a 2-element numeric tuple where param[0] <= param[1]."""
+    if (param is None) and allow_none:
+        return
+    ensure_tuple_of_numbers(
+        param=param,
+        param_name=param_name,
+        seq_length=2,
+        allow_none=False,
+    )
+    if not (float(param[0]) <= float(param[1])):
+        raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {param}.")
 
 
 def ensure_tuple_of_floats(

@@ -22,16 +22,16 @@ class DivergingPalette(_base_palette.ColorPalette):
     """
     A continuous, two-sided color palette anchored at a midpoint.
 
-    Parameters
-    ----------
-    value_range:
+    Fields
+    ---
+    - `value_range`:
         Data-space (vmin, vmax) tuple.
-    mid_value:
+    - `mid_value`:
         Data-space midpoint, which maps to the centre of the palette.
         Must satisfy vmin < mid_value < vmax.
-    palette_range:
+    - `palette_range`:
         Portion of the palette to use, as a (min, max) tuple in [0, 1].
-    _base_colormap:
+    - `_base_colormap`:
         Internal: the pre-built base colormap. Use from_name or from_colors.
     """
     value_range: tuple[float, float]

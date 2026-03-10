@@ -8,8 +8,8 @@ import numpy
 
 from pathlib import Path
 
-from jormi.ww_plots import plot_manager, add_colour
-from jormi.ww_plots.colour_palette import DivergingPalette
+from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_plots.color_palette import DivergingPalette
 
 ##
 ## === DEMO DATA
@@ -34,32 +34,31 @@ def main() -> None:
 
     palettes = [
         (
-            "default: blue-red",
-            DivergingPalette(
+            "from_name: blue-red",
+            DivergingPalette.from_name(
                 value_range=(vmin, vmax),
                 mid_value=vmid,
             ),
         ),
         (
-            "built-in: purple-green",
-            DivergingPalette(
+            "from_name: purple-green",
+            DivergingPalette.from_name(
                 value_range=(vmin, vmax),
                 mid_value=vmid,
                 palette_name="purple-green",
             ),
         ),
         (
-            "from_colours",
-            DivergingPalette.from_colours(
+            "from_colors",
+            DivergingPalette.from_colors(
                 value_range=(vmin, vmax),
                 mid_value=vmid,
-                colours=["#0a3d62", "#d6eaf8", "#f9f9f9", "#fadbd8", "#922b21"],
-                palette_name="custom-diverging",
+                colors=["#0a3d62", "#d6eaf8", "#f9f9f9", "#fadbd8", "#922b21"],
             ),
         ),
         (
             "with_mid_value (-0.3)",
-            DivergingPalette(
+            DivergingPalette.from_name(
                 value_range=(vmin, vmax),
                 mid_value=vmid,
             ).with_mid_value(-0.3),
@@ -83,7 +82,7 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_colour.add_colourbar(ax, palette=palette)
+        add_color.add_colorbar(ax, palette=palette)
         ax.set_title(title, fontsize=12)
         ax.set_xticks([])
         ax.set_yticks([])

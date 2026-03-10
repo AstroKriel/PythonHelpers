@@ -23,9 +23,14 @@ class UniformDomain_2D(_domain_type.UniformDomain):
     """
     Uniform 2D domain: `num_sdims == 2`.
 
-    - `periodicity`: (Px, Py)
-    - `resolution`: (Nx, Ny)
-    - `domain_bounds`: ((x0_min, x0_max), (x1_min, x1_max))
+    Fields
+    ---
+    - `periodicity`:
+        Per-axis periodicity flags as (Px, Py).
+    - `resolution`:
+        Number of cells along each axis as (Nx, Ny).
+    - `domain_bounds`:
+        Physical bounds as ((x0_min, x0_max), (x1_min, x1_max)).
     """
 
     num_sdims: int = field(default=2, init=False)

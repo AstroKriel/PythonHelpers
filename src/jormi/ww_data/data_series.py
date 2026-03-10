@@ -18,6 +18,21 @@ from jormi.ww_types import array_checks
 
 @dataclass(frozen=True)
 class DataSeries:
+    """
+    A 1D (x, y) data series with optional per-point uncertainties.
+
+    Fields
+    ---
+    - `x_data_array`:
+        1D array of x-values; must be finite and non-constant.
+    - `y_data_array`:
+        1D array of y-values; must be finite, non-constant, and same length as `x_data_array`.
+    - `x_sigma_array`:
+        Optional 1D array of x-uncertainties; must be strictly positive.
+    - `y_sigma_array`:
+        Optional 1D array of y-uncertainties; must be strictly positive.
+    """
+
     x_data_array: numpy.ndarray
     y_data_array: numpy.ndarray
     x_sigma_array: numpy.ndarray | None = None

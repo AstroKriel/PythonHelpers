@@ -46,12 +46,16 @@ class Symbols(str, Enum):
 
 @dataclass(frozen=True)
 class _MessageStyle:
+    """Display style bundle: human-readable label, icon character, and hex colour."""
+
     message: str
     icon: str
     colour: str
 
 
 class MessageType(Enum):
+    """Enum of supported log message categories, each carrying a display style."""
+
     TASK = _MessageStyle("Task", Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
     NOTE = _MessageStyle("Note", Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
     ACTION = _MessageStyle("Action", Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
@@ -67,6 +71,8 @@ class MessageType(Enum):
 
 
 class ActionOutcome(Enum):
+    """Enum of possible outcomes for an ACTION-type log message."""
+
     SUCCESS = _MessageStyle("Success", Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
     FAILURE = _MessageStyle("Failure", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
     ERROR = _MessageStyle("Error", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
@@ -82,6 +88,25 @@ class ActionOutcome(Enum):
 
 @dataclass
 class Message:
+    """
+    Data container for a single log message used by the renderers and log helpers.
+
+    Fields
+    ---
+    - `message`:
+        Main body text of the message.
+    - `message_type`:
+        Category of the message (e.g. TASK, NOTE, ACTION).
+    - `message_title`:
+        Optional title shown in block-style renderings.
+    - `action_outcome`:
+        Required when `message_type` is ACTION; describes success/failure/etc.
+    - `message_notes`:
+        Optional key-value pairs displayed as annotated notes inside a block.
+    - `timestamp`:
+        Optional ISO timestamp string; auto-generated if not provided.
+    """
+
     message: str
     message_type: MessageType
     message_title: str | None = None

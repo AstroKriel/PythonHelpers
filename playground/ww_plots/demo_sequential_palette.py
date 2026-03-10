@@ -8,8 +8,8 @@ import numpy
 
 from pathlib import Path
 
-from jormi.ww_plots import plot_manager, add_colour
-from jormi.ww_plots.colour_palette import SequentialPalette
+from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_plots.color_palette import SequentialPalette
 
 ##
 ## === DEMO DATA
@@ -34,29 +34,28 @@ def main() -> None:
 
     palettes = [
         (
-            "default: cmr.arctic",
-            SequentialPalette(
+            "from_name: cmr.arctic",
+            SequentialPalette.from_name(
                 value_range=(vmin, vmax),
             ),
         ),
         (
-            "built-in: white-brown",
-            SequentialPalette(
+            "from_name: white-brown",
+            SequentialPalette.from_name(
                 value_range=(vmin, vmax),
                 palette_name="white-brown",
             ),
         ),
         (
-            "from_colours",
-            SequentialPalette.from_colours(
+            "from_colors",
+            SequentialPalette.from_colors(
                 value_range=(vmin, vmax),
-                colours=["#1a1aff", "#ffffff", "#ff1a1a"],
-                palette_name="custom-blue-white-red",
+                colors=["#1a1aff", "#ffffff", "#ff1a1a"],
             ),
         ),
         (
             "with_palette_range (0.2, 0.8)",
-            SequentialPalette(
+            SequentialPalette.from_name(
                 value_range=(vmin, vmax),
             ).with_palette_range((0.2, 0.8)),
         ),
@@ -79,7 +78,7 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_colour.add_colourbar(ax, palette=palette)
+        add_color.add_colorbar(ax, palette=palette)
         ax.set_title(title, fontsize=12)
         ax.set_xticks([])
         ax.set_yticks([])

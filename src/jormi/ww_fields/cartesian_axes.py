@@ -23,6 +23,8 @@ VALID_3D_AXIS_INDICES: tuple[AxisIndex_3D, AxisIndex_3D, AxisIndex_3D] = (0, 1, 
 
 @dataclass(frozen=True, slots=True)
 class AxisParams:
+    """Label and integer index pair for a single Cartesian axis."""
+
     axis_label: str
     axis_index: int
 

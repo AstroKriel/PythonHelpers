@@ -8,8 +8,8 @@ import numpy
 
 from pathlib import Path
 
-from jormi.ww_plots import plot_manager, add_colour
-from jormi.ww_plots.colour_palette import DiscretePalette
+from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_plots.color_palette import DiscretePalette
 
 ##
 ## === DEMO DATA
@@ -41,17 +41,16 @@ def main() -> None:
             ),
         ),
         (
-            "explicit boundaries",
-            DiscretePalette(
+            "from_name: explicit boundaries",
+            DiscretePalette.from_name(
                 boundaries=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
             ),
         ),
         (
-            "from_colours",
-            DiscretePalette.from_colours(
+            "from_colors",
+            DiscretePalette.from_colors(
                 boundaries=(0.0, 0.25, 0.5, 0.75, 1.0),
-                colours=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
-                palette_name="custom-discrete",
+                colors=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
             ),
         ),
         (
@@ -80,7 +79,7 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_colour.add_colourbar(ax, palette=palette)
+        add_color.add_colorbar(ax, palette=palette)
         ax.set_title(title, fontsize=12)
         ax.set_xticks([])
         ax.set_yticks([])
