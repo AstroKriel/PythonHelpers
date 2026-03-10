@@ -26,14 +26,13 @@ Mask2D: TypeAlias = NDArray[numpy.bool_]
 def get_2d_shape(
     array_2d: numpy.ndarray,
 ) -> tuple[int, int]:
-    """Validate that array_2d is 2D and return (num_rows, num_cols)."""
+    """Validate that array_2d is a 2D array and return it shape: (num_rows, num_cols)."""
     array_checks.ensure_dims(
         array=array_2d,
         num_dims=2,
         param_name="array_2d",
     )
-    num_rows, num_cols = array_2d.shape
-    return num_rows, num_cols
+    return array_2d.shape
 
 
 ##
@@ -71,23 +70,23 @@ class HalfMasks2D:
     """Masks that split a 2D grid into halves, selected by side."""
 
     @staticmethod
-    def get_half_mask(
+    def get_mask(
         num_rows: int,
         num_cols: int,
         anchor: box_positions.TypeHints.PositionLike,
     ) -> Mask2D:
-        side = box_positions.as_box_side(anchor)
-        Side = box_positions.TypeHints.Box.Side
+        anchor_side = box_positions.as_box_side(anchor)
+        BoxSide = box_positions.TypeHints.Box.Side
         row_index, col_index = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        if side is Side.Top: return row_index <= (num_rows - 1) // 2
-        if side is Side.Bottom: return row_index > (num_rows - 1) // 2
-        if side is Side.Left: return col_index <= (num_cols - 1) // 2
-        if side is Side.Right: return col_index > (num_cols - 1) // 2
+        if anchor_side is BoxSide.Top: return row_index <= (num_rows - 1) // 2
+        if anchor_side is BoxSide.Left: return col_index <= (num_cols - 1) // 2
+        if anchor_side is BoxSide.Right: return col_index > (num_cols - 1) // 2
+        if anchor_side is BoxSide.Bottom: return row_index > (num_rows - 1) // 2
         raise ValueError(
-            f"HalfMasks2D.get_half_mask: anchor must be a Side, got {side!r}.",
+            f"HalfMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )
 
 
@@ -100,22 +99,22 @@ class QuadrantMasks2D:
     """Masks that select quadrants, keyed by corner position."""
 
     @staticmethod
-    def get_quadrant_mask(
+    def get_mask(
         num_rows: int,
         num_cols: int,
         anchor: box_positions.TypeHints.PositionLike,
     ) -> Mask2D:
-        corner = box_positions.as_box_corner(anchor)
-        Corner = box_positions.TypeHints.Box.Corner
+        anchor_corner = box_positions.as_box_corner(anchor)
+        BoxCorner = box_positions.TypeHints.Box.Corner
         row_index, col_index = _get_grid_indices(num_rows, num_cols)
         mask_top = row_index <= (num_rows - 1) // 2
         mask_left = col_index <= (num_cols - 1) // 2
-        if corner is Corner.TopLeft: return mask_top & mask_left
-        if corner is Corner.TopRight: return mask_top & ~mask_left
-        if corner is Corner.BottomLeft: return ~mask_top & mask_left
-        if corner is Corner.BottomRight: return ~mask_top & ~mask_left
+        if anchor_corner is BoxCorner.TopLeft: return mask_top & mask_left
+        if anchor_corner is BoxCorner.TopRight: return mask_top & ~mask_left
+        if anchor_corner is BoxCorner.BottomLeft: return ~mask_top & mask_left
+        if anchor_corner is BoxCorner.BottomRight: return ~mask_top & ~mask_left
         raise ValueError(
-            f"QuadrantMasks2D.get_quadrant_mask: unrecognised corner {corner!r}.",
+            f"QuadrantMasks2D.get_mask: unrecognised Box Corner {anchor_corner!r}.",
         )
 
 
@@ -128,7 +127,7 @@ class DiagonalMasks2D:
     """Masks defined relative to the main and anti-diagonals."""
 
     @staticmethod
-    def get_mask_above_main_diagonal(
+    def get_mask_above_main(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -139,17 +138,17 @@ class DiagonalMasks2D:
         return row_index <= col_index
 
     @staticmethod
-    def get_mask_below_main_diagonal(
+    def get_mask_below_main(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        return ~DiagonalMasks2D.get_mask_above_main_diagonal(
+        return ~DiagonalMasks2D.get_mask_above_main(
             num_rows=num_rows,
             num_cols=num_cols,
         )
 
     @staticmethod
-    def get_mask_above_anti_diagonal(
+    def get_mask_above_anti(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -161,60 +160,38 @@ class DiagonalMasks2D:
         return row_index <= (num_cols - 1) - col_index
 
     @staticmethod
-    def get_mask_below_anti_diagonal(
+    def get_mask_below_anti(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        return ~DiagonalMasks2D.get_mask_above_anti_diagonal(
+        return ~DiagonalMasks2D.get_mask_above_anti(
             num_rows=num_rows,
             num_cols=num_cols,
         )
 
 
 class WedgeMasks2D:
-    """
-    Wedge-like regions bounded by BOTH diagonals (the X-shape).
-
-    Vertical wedges are selected by Side.Top or Side.Bottom.
-    Horizontal wedges are selected by Side.Left or Side.Right.
-    """
+    """Wedge-like regions bounded by BOTH diagonals (the X-shape), selected by side."""
 
     @staticmethod
-    def get_vertical_wedge_mask(
+    def get_mask(
         num_rows: int,
         num_cols: int,
         anchor: box_positions.TypeHints.PositionLike,
     ) -> Mask2D:
-        side = box_positions.as_box_side(anchor)
-        Side = box_positions.TypeHints.Box.Side
+        anchor_side = box_positions.as_box_side(anchor)
+        BoxSide = box_positions.TypeHints.Box.Side
         row_index, col_index = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
         reflected_col_index = (num_cols - 1) - col_index
-        if side is Side.Top: return (row_index <= col_index) & (row_index <= reflected_col_index)
-        if side is Side.Bottom: return (row_index >= col_index) & (row_index >= reflected_col_index)
+        if anchor_side is BoxSide.Top: return (row_index <= col_index) & (row_index <= reflected_col_index)
+        if anchor_side is BoxSide.Left: return (row_index <= col_index) & (row_index >= reflected_col_index)
+        if anchor_side is BoxSide.Right: return (row_index >= col_index) & (row_index <= reflected_col_index)
+        if anchor_side is BoxSide.Bottom: return (row_index >= col_index) & (row_index >= reflected_col_index)
         raise ValueError(
-            f"WedgeMasks2D.get_vertical_wedge_mask: anchor must be Side.Top or Side.Bottom, got {side!r}.",
-        )
-
-    @staticmethod
-    def get_horizontal_wedge_mask(
-        num_rows: int,
-        num_cols: int,
-        anchor: box_positions.TypeHints.PositionLike,
-    ) -> Mask2D:
-        side = box_positions.as_box_side(anchor)
-        Side = box_positions.TypeHints.Box.Side
-        row_index, col_index = _get_grid_indices(
-            num_rows=num_rows,
-            num_cols=num_cols,
-        )
-        reflected_col_index = (num_cols - 1) - col_index
-        if side is Side.Left: return (row_index <= col_index) & (row_index >= reflected_col_index)
-        if side is Side.Right: return (row_index >= col_index) & (row_index <= reflected_col_index)
-        raise ValueError(
-            f"WedgeMasks2D.get_horizontal_wedge_mask: anchor must be Side.Left or Side.Right, got {side!r}.",
+            f"WedgeMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )
 
 
@@ -227,7 +204,7 @@ class CircleMasks2D:
     """Masks for circular regions (and their complements)."""
 
     @staticmethod
-    def get_mask_inside_circle(
+    def get_mask_inside(
         num_rows: int,
         num_cols: int,
         *,
@@ -251,7 +228,7 @@ class CircleMasks2D:
         return r_sq <= r_limit_sq if include_boundary else r_sq < r_limit_sq
 
     @staticmethod
-    def get_mask_outside_circle(
+    def get_mask_outside(
         num_rows: int,
         num_cols: int,
         *,
@@ -259,12 +236,12 @@ class CircleMasks2D:
         radius: float | None = None,
         include_boundary: bool = False,
     ) -> Mask2D:
-        return ~CircleMasks2D.get_mask_inside_circle(
-            num_rows,
-            num_cols,
+        return ~CircleMasks2D.get_mask_inside(
+            num_rows=num_rows,
+            num_cols=num_cols,
             center_row_col=center_row_col,
             radius=radius,
-            include_boundary=not include_boundary,
+            include_boundary=not(include_boundary),
         )
 
 
