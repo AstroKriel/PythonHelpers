@@ -24,22 +24,25 @@ def check_zero_values(
     array: numpy.ndarray,
     param_name: str = "<array>",
     raise_error: bool = True,
-) -> None:
+) -> bool:
     """
     Check that `array` contains no zero-valued cells that would cause undefined division.
 
     If zeros are found, raises `ValueError` when `raise_error=True` (default),
-    or alert when `raise_error=False`.
+    or alert when `raise_error=False`. Returns `True` if zeros were found, `False` otherwise.
     """
     num_zeros = int(numpy.count_nonzero(array == 0.0))
-    if num_zeros == 0: return
+    if num_zeros == 0:
+        return False
     msg = (
         f"{param_name} contains {num_zeros} zero-valued cell(s); "
         "division by zero will produce inf/nan values (zeroed automatically). "
         "Inspect your simulation data if this is unexpected."
     )
-    if raise_error: raise ValueError(msg)
+    if raise_error:
+        raise ValueError(msg)
     log_manager.log_alert(msg)
+    return True
 
 
 def check_nonfinite_values(
@@ -50,13 +53,13 @@ def check_nonfinite_values(
     check_posinf: bool = True,
     check_neginf: bool = True,
     raise_error: bool = True,
-) -> None:
+) -> bool:
     """
     Check that `array` contains no non-finite values (nan, +inf, -inf).
 
     Each type is individually opt-in/out via `check_nan`, `check_posinf`, `check_neginf`.
     If any enabled type is found, raises `ValueError` when `raise_error=True` (default),
-    or alerts when `raise_error=False`.
+    or alerts when `raise_error=False`. Returns `True` if non-finite values were found, `False` otherwise.
     """
     troubled_findings: list[str] = []
     if check_nan:
@@ -68,14 +71,17 @@ def check_nonfinite_values(
     if check_neginf:
         num_neginf = int(numpy.count_nonzero(numpy.isneginf(array)))
         if num_neginf > 0: troubled_findings.append(f"{num_neginf} -inf")
-    if not troubled_findings: return
+    if not troubled_findings:
+        return False
     msg = (
         f"{param_name} contains non-finite values ({list_utils.as_string(troubled_findings)}); "
         "these will be zeroed automatically. "
         "Inspect your simulation data if this is unexpected."
     )
-    if raise_error: raise ValueError(msg)
+    if raise_error:
+        raise ValueError(msg)
     log_manager.log_alert(msg)
+    return True
 
 
 ##
