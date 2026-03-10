@@ -241,7 +241,7 @@ class CircleMasks2D:
             num_cols=num_cols,
             center_row_col=center_row_col,
             radius=radius,
-            include_boundary=not(include_boundary),
+            include_boundary=not (include_boundary),
         )
 
 
