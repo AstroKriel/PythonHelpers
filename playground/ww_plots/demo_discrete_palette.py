@@ -35,36 +35,36 @@ def main() -> None:
     palettes = [
         (
             "uniform (5 bins)",
-            DiscretePalette.uniform(
+            DiscretePalette.from_uniform_range(
                 value_range=(vmin, vmax),
-                n_bins=5,
+                num_bins=5,
             ),
         ),
         (
-            "from_name: explicit boundaries",
+            "from_name: explicit bin_edges",
             DiscretePalette.from_name(
-                boundaries=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
+                bin_edges=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
             ),
         ),
         (
             "from_colors",
             DiscretePalette.from_colors(
-                boundaries=(0.0, 0.25, 0.5, 0.75, 1.0),
+                bin_edges=(0.0, 0.25, 0.5, 0.75, 1.0),
                 colors=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
             ),
         ),
         (
-            "with_boundaries",
-            DiscretePalette.uniform(
+            "with_bin_edges",
+            DiscretePalette.from_uniform_range(
                 value_range=(vmin, vmax),
-                n_bins=5,
-            ).with_boundaries((0.0, 0.05, 0.2, 0.5, 0.9, 1.0)),
+                num_bins=5,
+            ).with_bin_edges((0.0, 0.05, 0.2, 0.5, 0.9, 1.0)),
         ),
     ]
 
-    n_panels = len(palettes)
+    num_panels = len(palettes)
     fig, axs = plot_manager.create_figure(
-        num_rows=n_panels,
+        num_rows=num_panels,
         num_cols=1,
         axis_shape=(4, 4),
         x_spacing=0.3,

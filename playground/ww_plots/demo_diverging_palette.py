@@ -65,9 +65,9 @@ def main() -> None:
         ),
     ]
 
-    n_panels = len(palettes)
+    num_panels = len(palettes)
     fig, axs = plot_manager.create_figure(
-        num_rows=n_panels,
+        num_rows=num_panels,
         num_cols=1,
         axis_shape=(4, 4),
         x_spacing=0.3,

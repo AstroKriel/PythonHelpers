@@ -13,12 +13,34 @@ import matplotlib.colors as mpl_colors
 import cmasher  # noqa: F401
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from jormi.ww_types import type_checks
 
 ##
 ## === INTERNAL HELPERS
 ##
+
+
+def validate_palette_range(
+    palette_range: tuple[float, float],
+) -> None:
+    type_checks.ensure_in_bounds(
+        param=palette_range[0],
+        min_value=0.0,
+        max_value=1.0,
+        param_name="palette_range[0]",
+    )
+    type_checks.ensure_in_bounds(
+        param=palette_range[1],
+        min_value=0.0,
+        max_value=1.0,
+        param_name="palette_range[1]",
+    )
+    type_checks.ensure_ordered_pair(
+        param=palette_range,
+        param_name="palette_range",
+    )
 
 
 def resolve_palette(
@@ -62,13 +84,13 @@ def subset_palette(
         numpy.linspace(
             start=palette_min,
             stop=palette_max,
-            num=256,
+            num=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
         ),
     )
     return mpl_colors.LinearSegmentedColormap.from_list(
         name=f"{name}_sub",
         colors=sampled_colors,
-        N=256,
+        N=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
     )
 
 
@@ -102,6 +124,7 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
 ##
 
 
+@dataclass(frozen=True, kw_only=True)
 class ColorPalette(ABC):
     """
     Abstract base for all color palette types.
@@ -109,6 +132,11 @@ class ColorPalette(ABC):
     Subclasses must implement `_mpl_norm` and `_mpl_colormap`, and expose
     a `palette_range` field.
     """
+    _base_colormap: mpl_colors.Colormap = dataclasses.field(
+        hash=False,    # colormaps are not hashable; including this field would raise TypeError in __hash__
+        compare=False, # equality should reflect construction args, not colormap object identity
+        repr=False,    # colormap repr is large and uninformative; exclude to keep __repr__ clean
+    )
 
     @property
     @abstractmethod

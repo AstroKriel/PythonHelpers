@@ -9,6 +9,7 @@ import matplotlib.colors as mpl_colors
 
 from dataclasses import dataclass
 
+from jormi.ww_types import type_checks
 from jormi.ww_plots.color_palette import _base_palette
 
 ##
@@ -21,22 +22,17 @@ class SequentialPalette(_base_palette.ColorPalette):
     """
     A continuous, single-direction color palette.
 
-    Fields
-    ---
-    - `value_range`:
-        Data-space (vmin, vmax) tuple.
-    - `palette_range`:
-        Portion of the palette to use, as a (min, max) tuple in [0, 1].
-    - `_base_colormap`:
-        Internal: the pre-built base colormap. Use from_name or from_colors.
+    Use `from_name` or `from_colors` to construct.
     """
-    value_range: tuple[float, float]
-    palette_range: tuple[float, float] = (0.0, 1.0)
-    _base_colormap: mpl_colors.Colormap = dataclasses.field(
-        hash=False,
-        compare=False,
-        repr=False,
-    )
+    value_range: tuple[float, float]              # data-space (vmin, vmax)
+    palette_range: tuple[float, float] = (0.0, 1.0)  # portion of palette to use, in [0, 1]
+
+    def __post_init__(self) -> None:
+        type_checks.ensure_ordered_pair(
+            param=self.value_range,
+            param_name="value_range",
+        )
+        _base_palette.validate_palette_range(self.palette_range)
 
     @classmethod
     def from_name(
@@ -60,23 +56,23 @@ class SequentialPalette(_base_palette.ColorPalette):
         colors: list[str],
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "SequentialPalette":
-        base = mpl_colors.LinearSegmentedColormap.from_list(
+        base_colormap = mpl_colors.LinearSegmentedColormap.from_list(
             name="custom",
             colors=colors,
-            N=256,
+            N=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
         )
         return cls(
             value_range=value_range,
             palette_range=palette_range,
-            _base_colormap=base,
+            _base_colormap=base_colormap,
         )
 
     @property
     def _mpl_norm(self) -> mpl_colors.Normalize:
-        vmin, vmax = float(self.value_range[0]), float(self.value_range[1])
+        value_min, value_max = float(self.value_range[0]), float(self.value_range[1])
         return mpl_colors.Normalize(
-            vmin=vmin,
-            vmax=vmax,
+            vmin=value_min,
+            vmax=value_max,
         )
 
     @property
