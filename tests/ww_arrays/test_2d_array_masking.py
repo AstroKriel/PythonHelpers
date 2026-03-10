@@ -186,11 +186,11 @@ class TestQuadrantMasks2D(unittest.TestCase):
 class TestDiagonalMasks2D(unittest.TestCase):
 
     def test_main_diagonal_complement(self):
-        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_main(
+        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_main_diagonal(
             num_rows=5,
             num_cols=5,
         )
-        mask_below = mask_2d_arrays.DiagonalMasks2D.get_mask_below_main(
+        mask_below = mask_2d_arrays.DiagonalMasks2D.get_mask_below_main_diagonal(
             num_rows=5,
             num_cols=5,
         )
@@ -198,11 +198,11 @@ class TestDiagonalMasks2D(unittest.TestCase):
         self.assertTrue(numpy.all(mask_above | mask_below))
 
     def test_anti_diagonal_complement(self):
-        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_anti(
+        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_anti_diagonal(
             num_rows=5,
             num_cols=5,
         )
-        mask_below = mask_2d_arrays.DiagonalMasks2D.get_mask_below_anti(
+        mask_below = mask_2d_arrays.DiagonalMasks2D.get_mask_below_anti_diagonal(
             num_rows=5,
             num_cols=5,
         )
@@ -211,7 +211,7 @@ class TestDiagonalMasks2D(unittest.TestCase):
 
     def test_main_diagonal_spot_check(self):
         ## above_main: row_index <= col_index
-        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_main(
+        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_main_diagonal(
             num_rows=4,
             num_cols=4,
         )
@@ -222,7 +222,7 @@ class TestDiagonalMasks2D(unittest.TestCase):
     def test_anti_diagonal_spot_check(self):
         ## above_anti: row_index <= (num_cols - 1) - col_index
         ## for 4x4: row <= 3 - col
-        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_anti(
+        mask_above = mask_2d_arrays.DiagonalMasks2D.get_mask_above_anti_diagonal(
             num_rows=4,
             num_cols=4,
         )

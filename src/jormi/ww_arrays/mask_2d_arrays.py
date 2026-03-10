@@ -44,7 +44,7 @@ def _get_grid_indices(
     num_rows: int,
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
-    """Return (row_index, col_index) for a 2D grid."""
+    """Return (row_indices, col_indices) for a 2D grid."""
     type_checks.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
@@ -57,7 +57,10 @@ def _get_grid_indices(
         require_positive=True,
         allow_zero=False,
     )
-    indices = numpy.indices((num_rows, num_cols))
+    indices = numpy.indices((
+        num_rows,
+        num_cols,
+    ))
     return indices[0], indices[1]
 
 
@@ -77,14 +80,14 @@ class HalfMasks2D:
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
         BoxSide = box_positions.TypeHints.Box.Side
-        row_index, col_index = _get_grid_indices(
+        row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        if anchor_side is BoxSide.Top: return row_index <= (num_rows - 1) // 2
-        if anchor_side is BoxSide.Left: return col_index <= (num_cols - 1) // 2
-        if anchor_side is BoxSide.Right: return col_index > (num_cols - 1) // 2
-        if anchor_side is BoxSide.Bottom: return row_index > (num_rows - 1) // 2
+        if anchor_side is BoxSide.Top: return row_indices <= (num_rows - 1) // 2
+        if anchor_side is BoxSide.Left: return col_indices <= (num_cols - 1) // 2
+        if anchor_side is BoxSide.Right: return col_indices > (num_cols - 1) // 2
+        if anchor_side is BoxSide.Bottom: return row_indices > (num_rows - 1) // 2
         raise ValueError(
             f"HalfMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )
@@ -106,9 +109,12 @@ class QuadrantMasks2D:
     ) -> Mask2D:
         anchor_corner = box_positions.as_box_corner(anchor)
         BoxCorner = box_positions.TypeHints.Box.Corner
-        row_index, col_index = _get_grid_indices(num_rows, num_cols)
-        mask_top = row_index <= (num_rows - 1) // 2
-        mask_left = col_index <= (num_cols - 1) // 2
+        row_indices, col_indices = _get_grid_indices(
+            num_rows=num_rows,
+            num_cols=num_cols,
+        )
+        mask_top = row_indices <= (num_rows - 1) // 2
+        mask_left = col_indices <= (num_cols - 1) // 2
         if anchor_corner is BoxCorner.TopLeft: return mask_top & mask_left
         if anchor_corner is BoxCorner.TopRight: return mask_top & ~mask_left
         if anchor_corner is BoxCorner.BottomLeft: return ~mask_top & mask_left
@@ -127,51 +133,51 @@ class DiagonalMasks2D:
     """Masks defined relative to the main and anti-diagonals."""
 
     @staticmethod
-    def get_mask_above_main(
+    def get_mask_above_main_diagonal(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        row_index, col_index = _get_grid_indices(
+        row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        return row_index <= col_index
+        return row_indices <= col_indices
 
     @staticmethod
-    def get_mask_below_main(
+    def get_mask_below_main_diagonal(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        return ~DiagonalMasks2D.get_mask_above_main(
+        return ~DiagonalMasks2D.get_mask_above_main_diagonal(
             num_rows=num_rows,
             num_cols=num_cols,
         )
 
     @staticmethod
-    def get_mask_above_anti(
+    def get_mask_above_anti_diagonal(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        """'Above' means row_index <= reflected_col_index."""
-        row_index, col_index = _get_grid_indices(
+        """Above means: row_indices <= reflected_col_indices."""
+        row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        return row_index <= (num_cols - 1) - col_index
+        return row_indices <= (num_cols - 1) - col_indices
 
     @staticmethod
-    def get_mask_below_anti(
+    def get_mask_below_anti_diagonal(
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
-        return ~DiagonalMasks2D.get_mask_above_anti(
+        return ~DiagonalMasks2D.get_mask_above_anti_diagonal(
             num_rows=num_rows,
             num_cols=num_cols,
         )
 
 
 class WedgeMasks2D:
-    """Wedge-like regions bounded by BOTH diagonals (the X-shape), selected by side."""
+    """Wedge-like regions bounded by both main and anti-diagonals (the X-shape), selected by side."""
 
     @staticmethod
     def get_mask(
@@ -181,15 +187,19 @@ class WedgeMasks2D:
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
         BoxSide = box_positions.TypeHints.Box.Side
-        row_index, col_index = _get_grid_indices(
+        row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        reflected_col_index = (num_cols - 1) - col_index
-        if anchor_side is BoxSide.Top: return (row_index <= col_index) & (row_index <= reflected_col_index)
-        if anchor_side is BoxSide.Left: return (row_index <= col_index) & (row_index >= reflected_col_index)
-        if anchor_side is BoxSide.Right: return (row_index >= col_index) & (row_index <= reflected_col_index)
-        if anchor_side is BoxSide.Bottom: return (row_index >= col_index) & (row_index >= reflected_col_index)
+        reflected_col_indices = (num_cols - 1) - col_indices
+        is_above_main_diagonal = row_indices <= col_indices
+        is_below_main_diagonal = row_indices >= col_indices
+        is_above_anti_diagonal = row_indices <= reflected_col_indices
+        is_below_anti_diagonal = row_indices >= reflected_col_indices
+        if anchor_side is BoxSide.Top: return is_above_main_diagonal & is_above_anti_diagonal
+        if anchor_side is BoxSide.Left: return is_above_main_diagonal & is_below_anti_diagonal
+        if anchor_side is BoxSide.Right: return is_below_main_diagonal & is_above_anti_diagonal
+        if anchor_side is BoxSide.Bottom: return is_below_main_diagonal & is_below_anti_diagonal
         raise ValueError(
             f"WedgeMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )
@@ -212,7 +222,7 @@ class CircleMasks2D:
         radius: float | None = None,
         include_boundary: bool = True,
     ) -> Mask2D:
-        row_index, col_index = _get_grid_indices(
+        row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
         )
@@ -223,7 +233,7 @@ class CircleMasks2D:
             )
         if radius is None:
             radius = 0.5 * min(num_rows, num_cols)
-        r_sq = (row_index - center_row_col[0])**2 + (col_index - center_row_col[1])**2
+        r_sq = (row_indices - center_row_col[0])**2 + (col_indices - center_row_col[1])**2
         r_limit_sq = radius * radius
         return r_sq <= r_limit_sq if include_boundary else r_sq < r_limit_sq
 
