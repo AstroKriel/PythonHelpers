@@ -10,11 +10,7 @@ import matplotlib.colors as mpl_colors
 
 from dataclasses import dataclass
 
-from jormi.ww_plots.colour_palette._base import (
-    ColourPalette,
-    _get_base_palette,
-    _subset_palette,
-)
+from jormi.ww_plots.color_palette import _base_palette
 
 ##
 ## === CLASS
@@ -22,42 +18,58 @@ from jormi.ww_plots.colour_palette._base import (
 
 
 @dataclass(frozen=True, kw_only=True)
-class DiscretePalette(ColourPalette):
+class DiscretePalette(_base_palette.ColorPalette):
     """
-    A discrete colour palette defined by explicit bin boundaries.
+    A discrete color palette defined by explicit bin boundaries.
 
     Parameters
     ----------
     boundaries:
         Ordered sequence of bin edges in data space. N boundaries define N-1 bins.
-    palette_name:
-        Name of the colour palette to sample from. Can be a Matplotlib name,
-        a cmasher name, or one of the jormi built-in names.
     palette_range:
         Portion of the palette to use, as a (min, max) tuple in [0, 1].
-    colours:
-        Optional list of colours to build a custom palette from. If provided,
-        palette_name is used only as a label.
+    _base_colormap:
+        Internal: the pre-built base colormap. Use from_name, from_colors, or uniform.
     """
     boundaries: tuple[float, ...]
-    palette_name: str = "cmr.arctic"
     palette_range: tuple[float, float] = (0.0, 1.0)
-    colours: tuple[str, ...] | None = None
+    _base_colormap: mpl_colors.Colormap = dataclasses.field(
+        hash=False,
+        compare=False,
+        repr=False,
+    )
 
     @classmethod
-    def from_colours(
+    def from_name(
         cls,
         *,
         boundaries: tuple[float, ...],
-        colours: list[str],
-        palette_name: str = "custom",
+        palette_name: str = "cmr.arctic",
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DiscretePalette":
         return cls(
             boundaries=boundaries,
-            colours=tuple(colours),
-            palette_name=palette_name,
             palette_range=palette_range,
+            _base_colormap=_base_palette.resolve_palette(palette_name),
+        )
+
+    @classmethod
+    def from_colors(
+        cls,
+        *,
+        boundaries: tuple[float, ...],
+        colors: list[str],
+        palette_range: tuple[float, float] = (0.0, 1.0),
+    ) -> "DiscretePalette":
+        base = mpl_colors.LinearSegmentedColormap.from_list(
+            name="custom",
+            colors=colors,
+            N=256,
+        )
+        return cls(
+            boundaries=boundaries,
+            palette_range=palette_range,
+            _base_colormap=base,
         )
 
     @classmethod
@@ -68,16 +80,18 @@ class DiscretePalette(ColourPalette):
         n_bins: int,
         palette_name: str = "cmr.arctic",
         palette_range: tuple[float, float] = (0.0, 1.0),
-        colours: list[str] | None = None,
     ) -> "DiscretePalette":
         """Construct with evenly spaced boundaries across value_range."""
         vmin, vmax = value_range
-        boundaries = tuple(float(v) for v in numpy.linspace(vmin, vmax, n_bins + 1))
-        return cls(
+        boundaries = tuple(float(v) for v in numpy.linspace(
+            start=vmin,
+            stop=vmax,
+            num=n_bins + 1,
+        ))
+        return cls.from_name(
             boundaries=boundaries,
             palette_name=palette_name,
             palette_range=palette_range,
-            colours=tuple(colours) if colours is not None else None,
         )
 
     @property
@@ -95,20 +109,18 @@ class DiscretePalette(ColourPalette):
     @property
     def _mpl_colormap(self) -> mpl_colors.ListedColormap:
         n_bins = len(self.boundaries) - 1
-        if self.colours is not None:
-            base = mpl_colors.LinearSegmentedColormap.from_list(
-                name=self.palette_name,
-                colors=list(self.colours),
-                N=256,
-            )
-        else:
-            base = _get_base_palette(self.palette_name)
-        continuous = _subset_palette(
-            palette=base,
+        continuous = _base_palette.subset_palette(
+            palette=self._base_colormap,
             palette_range=self.palette_range,
-            name=self.palette_name,
+            name="discrete",
         )
-        sampled = continuous(numpy.linspace(0.0, 1.0, n_bins))
+        sampled = continuous(
+            numpy.linspace(
+                start=0.0,
+                stop=1.0,
+                num=n_bins,
+            ),
+        )
         return mpl_colors.ListedColormap(sampled)
 
     def with_boundaries(

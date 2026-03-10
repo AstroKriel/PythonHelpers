@@ -5,10 +5,12 @@
 ##
 
 import numpy
-import cmasher
 import dataclasses
 import matplotlib.cm as mpl_cm
 import matplotlib.colors as mpl_colors
+
+## side-effect import: registers cmasher colormaps with matplotlib
+import cmasher  # noqa: F401
 
 from abc import ABC, abstractmethod
 
@@ -19,41 +21,7 @@ from jormi.ww_types import type_checks
 ##
 
 
-def _ensure_in_unit_interval(
-    value: float,
-    *,
-    param_name: str,
-) -> None:
-    type_checks.ensure_finite_float(
-        param=value,
-        param_name=param_name,
-        allow_none=False,
-    )
-    if not (0.0 <= float(value) <= 1.0):
-        raise ValueError(f"`{param_name}` must lie in [0, 1], got {value}.")
-
-
-def _ensure_ordered_pair(
-    value_pair: tuple[float | int, float | int],
-    *,
-    param_name: str,
-) -> None:
-    min_value, max_value = value_pair
-    type_checks.ensure_finite_scalar(
-        param=min_value,
-        param_name=f"{param_name}[0]",
-        allow_none=False,
-    )
-    type_checks.ensure_finite_scalar(
-        param=max_value,
-        param_name=f"{param_name}[1]",
-        allow_none=False,
-    )
-    if not (float(min_value) <= float(max_value)):
-        raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {value_pair}.")
-
-
-def _get_base_palette(
+def resolve_palette(
     palette_name: str,
 ) -> mpl_colors.Colormap:
     type_checks.ensure_nonempty_string(
@@ -62,56 +30,45 @@ def _get_base_palette(
     )
     if palette_name in _BUILTIN_PALETTES:
         return _BUILTIN_PALETTES[palette_name]
-    try:
-        return mpl_cm.get_cmap(palette_name)
-    except ValueError:
-        return cmasher.get_cmap(palette_name)
+    return mpl_cm.get_cmap(palette_name)
 
 
-def _subset_palette(
+def subset_palette(
     palette: mpl_colors.Colormap,
     *,
     palette_range: tuple[float, float],
     name: str,
 ) -> mpl_colors.Colormap:
-    p_min, p_max = palette_range
-    _ensure_in_unit_interval(value=p_min, param_name="palette_range[0]")
-    _ensure_in_unit_interval(value=p_max, param_name="palette_range[1]")
-    _ensure_ordered_pair(palette_range, param_name="palette_range")
-    if (p_min == 0.0) and (p_max == 1.0):
+    palette_min, palette_max = palette_range
+    type_checks.ensure_in_bounds(
+        param=palette_min,
+        min_value=0.0,
+        max_value=1.0,
+        param_name="palette_range[0]",
+    )
+    type_checks.ensure_in_bounds(
+        param=palette_max,
+        min_value=0.0,
+        max_value=1.0,
+        param_name="palette_range[1]",
+    )
+    type_checks.ensure_ordered_pair(
+        param=palette_range,
+        param_name="palette_range",
+    )
+    if (palette_min == 0.0) and (palette_max == 1.0):
         return palette
-    sample = palette(numpy.linspace(p_min, p_max, 256))
+    sampled_colors = palette(
+        numpy.linspace(
+            start=palette_min,
+            stop=palette_max,
+            num=256,
+        ),
+    )
     return mpl_colors.LinearSegmentedColormap.from_list(
         name=f"{name}_sub",
-        colors=sample,
+        colors=sampled_colors,
         N=256,
-    )
-
-
-def _create_norm(
-    *,
-    value_range: tuple[float, float],
-    mid_value: float | None,
-) -> mpl_colors.Normalize:
-    _ensure_ordered_pair(value_range, param_name="value_range")
-    vmin, vmax = float(value_range[0]), float(value_range[1])
-    if mid_value is None:
-        return mpl_colors.Normalize(
-            vmin=vmin,
-            vmax=vmax,
-        )
-    type_checks.ensure_finite_float(
-        param=mid_value,
-        param_name="mid_value",
-        allow_none=False,
-    )
-    vcenter = float(mid_value)
-    if not (vmin < vcenter < vmax):
-        raise ValueError(f"`mid_value` must satisfy vmin < mid_value < vmax, got ({vmin}, {vcenter}, {vmax}).")
-    return mpl_colors.TwoSlopeNorm(
-        vmin=vmin,
-        vcenter=vcenter,
-        vmax=vmax,
     )
 
 
@@ -119,19 +76,21 @@ def _create_norm(
 ## === BUILTIN PALETTES
 ##
 
-
 _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
-    "blue-red": mpl_colors.LinearSegmentedColormap.from_list(
+    "blue-red":
+    mpl_colors.LinearSegmentedColormap.from_list(
         name="blue-red",
         colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
         N=256,
     ),
-    "white-brown": mpl_colors.LinearSegmentedColormap.from_list(
+    "white-brown":
+    mpl_colors.LinearSegmentedColormap.from_list(
         name="white-brown",
         colors=["#fdfdfd", "#f49325", "#010101"],
         N=256,
     ),
-    "purple-green": mpl_colors.LinearSegmentedColormap.from_list(
+    "purple-green":
+    mpl_colors.LinearSegmentedColormap.from_list(
         name="purple-green",
         colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
         N=256,
@@ -143,40 +102,32 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
 ##
 
 
-class ColourPalette(ABC):
+class ColorPalette(ABC):
     """
-    Abstract base for all colour palette types.
+    Abstract base for all color palette types.
 
-    Subclasses must implement `_mpl_norm`. All subclasses are expected to
-    expose the fields `palette_name`, `palette_range`, and `colours`, and
-    a `value_range` property or field.
+    Subclasses must implement `_mpl_norm` and `_mpl_colormap`, and expose
+    a `palette_range` field.
     """
 
     @property
     @abstractmethod
-    def _mpl_norm(self) -> mpl_colors.Normalize: ...
+    def _mpl_norm(self) -> mpl_colors.Normalize:
+        ...
 
     @property
+    @abstractmethod
     def _mpl_colormap(self) -> mpl_colors.Colormap:
-        if self.colours is not None:  # type: ignore[attr-defined]
-            base = mpl_colors.LinearSegmentedColormap.from_list(
-                name=self.palette_name,  # type: ignore[attr-defined]
-                colors=list(self.colours),  # type: ignore[attr-defined]
-                N=256,
-            )
-        else:
-            base = _get_base_palette(self.palette_name)  # type: ignore[attr-defined]
-        return _subset_palette(
-            palette=base,
-            palette_range=self.palette_range,  # type: ignore[attr-defined]
-            name=self.palette_name,  # type: ignore[attr-defined]
-        )
+        ...
 
     def with_palette_range(
         self,
         palette_range: tuple[float, float],
-    ) -> "ColourPalette":
-        return dataclasses.replace(self, palette_range=palette_range)  # type: ignore[call-overload]
+    ) -> "ColorPalette":
+        return dataclasses.replace(
+            obj=self, # type: ignore[call-overload]
+            palette_range=palette_range,
+        )
 
 
 ## } MODULE

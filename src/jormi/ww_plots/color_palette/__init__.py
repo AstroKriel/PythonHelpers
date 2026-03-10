@@ -1,10 +1,8 @@
-from jormi.ww_plots.colour_palette._base import ColourPalette
-from jormi.ww_plots.colour_palette._sequential import SequentialPalette
-from jormi.ww_plots.colour_palette._diverging import DivergingPalette
-from jormi.ww_plots.colour_palette._discrete import DiscretePalette
+from jormi.ww_plots.color_palette._sequential_palette import SequentialPalette
+from jormi.ww_plots.color_palette._diverging_palette import DivergingPalette
+from jormi.ww_plots.color_palette._discrete_palette import DiscretePalette
 
 __all__ = [
-    "ColourPalette",
     "SequentialPalette",
     "DivergingPalette",
     "DiscretePalette",
