@@ -84,6 +84,31 @@ def check_nonfinite_values(
     return True
 
 
+def make_nonfinites_zero(
+    *,
+    array: numpy.ndarray,
+    zero_nan: bool = True,
+    zero_posinf: bool = True,
+    zero_neginf: bool = True,
+) -> None:
+    """
+    Replace non-finite values in `array` with zero, in-place.
+
+    Each type is individually opt-in/out via `zero_nan`, `zero_posinf`, `zero_neginf`.
+    """
+    if zero_nan: array[numpy.isnan(array)] = 0.0
+    if zero_posinf: array[numpy.isposinf(array)] = 0.0
+    if zero_neginf: array[numpy.isneginf(array)] = 0.0
+
+
+def suppress_divide_warnings() -> numpy.errstate:
+    """Return a context manager that suppresses NumPy divide-by-zero and invalid-value warnings."""
+    return numpy.errstate(
+        divide="ignore",
+        invalid="ignore",
+    )
+
+
 ##
 ## === P-NORM DISTANCE METRIC
 ##
