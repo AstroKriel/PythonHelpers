@@ -16,6 +16,7 @@ import numpy
 
 from typing import TypeAlias, overload
 from pathlib import Path
+from dataclasses import dataclass
 from numpy.typing import NDArray
 
 from matplotlib import rcParams
@@ -183,6 +184,69 @@ def create_figure(
 ##
 ## === AXIS HELPERS
 ##
+
+_Side = box_positions.TypeHints.Box.Side
+
+
+@dataclass(frozen=True)
+class AxisBounds:
+    x_min: float
+    y_min: float
+    x_width: float
+    y_width: float
+
+
+def compute_adjacent_ax_bounds(
+    ax: PlotAxis,
+    side: _Side = box_positions.TypeHints.Box.Side.Right,
+    gap: float = 0.1,
+    thickness: float = 1.0,
+    length: float = 1.0,
+) -> AxisBounds:
+    """Compute figure bounds for an axis placed adjacent to `ax`.
+
+    The new axis sits on the `side` of `ax`, offset by `gap` (in figure coordinates).
+    `thickness` sets its extent perpendicular to `side`, as a fraction of `ax`'s
+    corresponding dimension. `length` sets its span parallel to `side`, also as a
+    fraction, centered on `ax`'s edge.
+    """
+    box = ax.get_position()
+    if side in (_Side.Left, _Side.Right):
+        x_width = box.width * thickness
+        y_width = box.height * length
+        if side == _Side.Right:
+            return AxisBounds(
+                x_min=box.x1 + gap,
+                y_min=box.y0 + (box.height - y_width) / 2,
+                x_width=x_width,
+                y_width=y_width,
+            )
+        else:
+            return AxisBounds(
+                x_min=box.x0 - x_width - gap,
+                y_min=box.y0 + (box.height - y_width) / 2,
+                x_width=x_width,
+                y_width=y_width,
+            )
+    elif side in (_Side.Top, _Side.Bottom):
+        x_width = box.width * length
+        y_width = box.height * thickness
+        if side == _Side.Top:
+            return AxisBounds(
+                x_min=box.x0 + (box.width - x_width) / 2,
+                y_min=box.y1 + gap,
+                x_width=x_width,
+                y_width=y_width,
+            )
+        else:
+            return AxisBounds(
+                x_min=box.x0 + (box.width - x_width) / 2,
+                y_min=box.y0 - y_width - gap,
+                x_width=x_width,
+                y_width=y_width,
+            )
+    else:
+        raise ValueError(f"Unexpected side: {side!r}")  # type: ignore[unreachable]
 
 
 def add_inset_axis(
