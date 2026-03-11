@@ -34,20 +34,11 @@ def main() -> None:
 
     palettes = [
         (
-            "named colormap: blue-white-red",
+            "named colormap",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
                 palette_name="blue-white-red",
-                palette_range=(0.0, 1.0),
-            ),
-        ),
-        (
-            "named colormap: purple-green",
-            DivergingPalette.from_name(
-                value_range=(value_min, value_max),
-                mid_value=value_mid,
-                palette_name="purple-green",
                 palette_range=(0.0, 1.0),
             ),
         ),
@@ -77,15 +68,6 @@ def main() -> None:
                 palette_name="blue-white-red",
                 palette_range=(0.0, 1.0),
             ).with_value_range((-0.5, 1.0)),
-        ),
-        (
-            "clipped color range: (0.2, 0.8)",
-            DivergingPalette.from_name(
-                value_range=(value_min, value_max),
-                mid_value=value_mid,
-                palette_name="blue-white-red",
-                palette_range=(0.0, 1.0),
-            ).with_palette_range((0.2, 0.8)),
         ),
     ]
 

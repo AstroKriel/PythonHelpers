@@ -67,15 +67,6 @@ def main() -> None:
                 palette_range=(0.0, 1.0),
             ).with_bin_edges((0.0, 0.05, 0.2, 0.5, 0.9, 1.0)),
         ),
-        (
-            "clipped color range: (0.2, 0.8)",
-            DiscretePalette.from_uniform_range(
-                value_range=(value_min, value_max),
-                num_bins=5,
-                palette_name="cmr.arctic",
-                palette_range=(0.0, 1.0),
-            ).with_palette_range((0.2, 0.8)),
-        ),
     ]
 
     num_panels = len(palettes)

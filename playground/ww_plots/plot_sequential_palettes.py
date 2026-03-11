@@ -34,18 +34,10 @@ def main() -> None:
 
     palettes = [
         (
-            "named colormap: cmr.arctic",
+            "named colormap",
             SequentialPalette.from_name(
                 value_range=(value_min, value_max),
                 palette_name="cmr.arctic",
-                palette_range=(0.0, 1.0),
-            ),
-        ),
-        (
-            "named colormap: white-brown",
-            SequentialPalette.from_name(
-                value_range=(value_min, value_max),
-                palette_name="white-brown",
                 palette_range=(0.0, 1.0),
             ),
         ),
