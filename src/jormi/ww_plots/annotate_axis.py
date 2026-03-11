@@ -13,7 +13,26 @@ from jormi.ww_types import box_positions, array_checks, type_checks
 from jormi.ww_plots import plot_manager
 
 ##
-## === FUNCTIONS
+## === VALID ARTISTS
+##
+
+_VALID_MARKERS: list[str] = [
+    ".",  # point
+    "o",  # circle
+    "s",  # square
+    "D",  # diamond
+    "^",  # triangle up
+    "v",  # triangle down
+]
+_VALID_LINES: list[str] = [
+    "-",   # solid
+    "--",  # dashed
+    "-.",  # dash-dot
+    ":",   # dotted
+]
+
+##
+## === AXIS ANNOTATIONS
 ##
 
 
@@ -24,21 +43,62 @@ def add_text(
     label: str,
     x_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
     y_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
-    fontsize: float = 20,
-    font_color: str = "black",
-    add_box: bool = False,
-    box_alpha: float = 0.8,
-    face_color: str = "white",
-    edge_color: str = "black",
+    text_size: float = 20,
+    text_color: str = "black",
+    box_alpha: float = 0.0,
+    box_color: str = "white",
     rotate_deg: float | None = None,
 ):
+    """
+    Add a text label to an axis at a position given in axes coordinates [0, 1].
+    A background box is drawn when `box_alpha > 0`.
+    """
+    ## validate position in axes coordinates [0, 1]
+    type_checks.ensure_in_bounds(
+        param=x_pos,
+        param_name="x_pos",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    type_checks.ensure_in_bounds(
+        param=y_pos,
+        param_name="y_pos",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    ## validate text style
+    type_checks.ensure_finite_float(
+        param=text_size,
+        param_name="text_size",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    ## validate box opacity; box is not drawn if alpha is zero
+    type_checks.ensure_in_bounds(
+        param=box_alpha,
+        param_name="box_alpha",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    ## validate optional rotation
+    type_checks.ensure_finite_float(
+        param=rotate_deg,
+        param_name="rotate_deg",
+        allow_none=True,
+    )
     x_anchor = box_positions.as_mpl_ha(x_alignment)
     y_anchor = box_positions.as_mpl_va(y_alignment)
-    box_params = dict(
-        facecolor=face_color,
-        edgecolor=edge_color,
-        alpha=box_alpha,
-        boxstyle="round,pad=0.3",
+    box_params = (
+        dict(
+            facecolor=box_color,
+            edgecolor="black",
+            alpha=box_alpha,
+            boxstyle="round,pad=0.3",
+        ) if box_alpha > 0.0 else None
     )
     ax.text(
         x=x_pos,
@@ -46,11 +106,11 @@ def add_text(
         s=label,
         ha=x_anchor.value,
         va=y_anchor.value,
-        color=font_color,
-        fontsize=fontsize,
+        color=text_color,
+        fontsize=text_size,
         rotation=rotate_deg,
         transform=ax.transAxes,
-        bbox=box_params if add_box else None,
+        bbox=box_params,
     )
 
 
@@ -61,20 +121,23 @@ def add_custom_legend(
     colors: list[str],
     marker_size: float = 8,
     line_width: float = 1.5,
-    fontsize: float = 16,
+    text_size: float = 16,
     text_color: str = "black",
+    anchor_point: tuple[float, float] = (1.0, 1.0),
     anchor_at_corner: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Corner.TopRight,
-    point_to_anchor: tuple[float, float] = (1.0, 1.0),
-    enable_frame: bool = False,
-    frame_alpha: float = 0.5,
-    face_color: str = "white",
-    edge_color: str = "grey",
+    frame_alpha: float = 0.0,
     num_cols: int = 1,
-    text_padding: float = 0.5,
-    label_spacing: float = 0.5,
-    column_spacing: float = 0.5,
-    put_label_first: bool = False,
+    spacing: float = 0.5,
+    marker_first: bool = True,
 ):
+    """
+    Add a custom legend to an axis, built from explicit style strings rather than plot handles.
+
+    Each entry in `artists` must be a marker (e.g. "o", "s") or line style (e.g. "-", "--"),
+    paired with the corresponding entry in `labels` and `colors`. A legend frame is drawn
+    when `frame_alpha > 0`.
+    """
+    ## validate parallel lists
     type_checks.ensure_list_of_strings(
         param=artists,
         param_name="artists",
@@ -88,18 +151,40 @@ def add_custom_legend(
         param_name="colors",
     )
     if len(artists) != len(labels) or len(artists) != len(colors):
-        raise ValueError("artists, labels, and colors must have the same length.")
+        raise ValueError("`artists`, `labels`, and `colors` must all have the same length.")
+    ## validate frame opacity; frame is skipped when alpha is zero
+    type_checks.ensure_in_bounds(
+        param=frame_alpha,
+        param_name="frame_alpha",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    ## validate anchor position in axes coordinates [0, 1]
     type_checks.ensure_tuple_of_numbers(
-        param=point_to_anchor,
-        param_name="point_to_anchor",
+        param=anchor_point,
+        param_name="anchor_point",
         seq_length=2,
     )
+    type_checks.ensure_in_bounds(
+        param=anchor_point[0],
+        param_name="anchor_point[0]",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    type_checks.ensure_in_bounds(
+        param=anchor_point[1],
+        param_name="anchor_point[1]",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
     anchor_at_corner = box_positions.as_mpl_anchor(position=anchor_at_corner)
+    ## build artist handles from style strings
     artists_to_draw = []
-    valid_markers = [".", "o", "s", "D", "^", "v"]
-    valid_lines = ["-", "--", "-.", ":"]
     for artist, color in zip(artists, colors):
-        if artist in valid_markers:
+        if artist in _VALID_MARKERS:
             artist_to_draw = mpl_line2d(
                 [0],
                 [0],
@@ -109,7 +194,7 @@ def add_custom_legend(
                 markeredgecolor="black",
                 markersize=marker_size,
             )
-        elif artist in valid_lines:
+        elif artist in _VALID_LINES:
             artist_to_draw = mpl_line2d(
                 [0],
                 [0],
@@ -119,28 +204,28 @@ def add_custom_legend(
             )
         else:
             raise ValueError(
-                f"Artist = `{artist}` is not a recognized marker or line style.\n"
-                f"\t- Valid markers: {valid_markers}.\n"
-                f"\t- Valid line styles: {valid_lines}.",
+                f"Artist `{artist}` is not a recognized marker or line style.\n"
+                f"\t- Valid markers: {_VALID_MARKERS}.\n"
+                f"\t- Valid line styles: {_VALID_LINES}.",
             )
         artists_to_draw.append(artist_to_draw)
     legend = ax.legend(
         handles=artists_to_draw,
         labels=labels,
-        bbox_to_anchor=point_to_anchor,
+        bbox_to_anchor=anchor_point,
         loc=anchor_at_corner.value,
-        fontsize=fontsize,
+        fontsize=text_size,
         labelcolor=text_color,
-        frameon=enable_frame,
+        frameon=(frame_alpha > 0.0),
         framealpha=frame_alpha,
-        facecolor=face_color,
-        edgecolor=edge_color,
+        facecolor="white",
+        edgecolor="black",
         ncol=num_cols,
         borderpad=0.45,
-        handletextpad=text_padding,
-        labelspacing=label_spacing,
-        columnspacing=column_spacing,
-        markerfirst=not (put_label_first),
+        handletextpad=spacing,
+        labelspacing=spacing,
+        columnspacing=spacing,
+        markerfirst=marker_first,
     )
     ax.add_artist(legend)
 
@@ -156,6 +241,27 @@ def overlay_curve(
     alpha: float = 1.0,
     zorder: float = 1.0,
 ):
+    """
+    Overlay a 2D curve onto an axis without affecting its axis limits.
+
+    `x_values` and `y_values` must be 1D and the same length, with at least two points.
+    """
+    ## validate line style
+    type_checks.ensure_finite_float(
+        param=linewidth,
+        param_name="linewidth",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    type_checks.ensure_in_bounds(
+        param=alpha,
+        param_name="alpha",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    ## validate curve data
     x_array = array_checks.as_1d(
         array_like=x_values,
         param_name="x_values",
