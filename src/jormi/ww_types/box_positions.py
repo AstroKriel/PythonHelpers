@@ -53,6 +53,7 @@ class _Side(str, Enum):
 
 
 class TypeHints:
+    """Type-hint groupings for box position and Matplotlib placement parameters."""
 
     PositionLike: TypeAlias = enum_checks.EnumMemberLike
 
@@ -71,6 +72,7 @@ class TypeHints:
 
 
 class RuntimeTypes:
+    """Runtime enum tuples derived from TypeHints for isinstance-based position checks."""
 
     class Box:
 

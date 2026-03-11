@@ -17,6 +17,23 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CommandOutcome:
+    """
+    Result of a completed shell command execution.
+
+    Fields
+    ---
+    - `command`:
+        The command string that was executed.
+    - `working_directory`:
+        Working directory used for the command, or None if not specified.
+    - `exit_code`:
+        Process exit code; 0 indicates success.
+    - `stdout`:
+        Captured standard output, or None if output was streamed to console.
+    - `stderr`:
+        Captured standard error, or None if output was streamed to console.
+    """
+
     command: str
     working_directory: str | None
     exit_code: int

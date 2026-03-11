@@ -19,7 +19,20 @@ from jormi.ww_fields import cartesian_axes
 
 @dataclass(frozen=True)
 class UniformDomain:
-    """Base uniform domain."""
+    """
+    Base class for a uniform Cartesian domain.
+
+    Fields
+    ---
+    - `num_sdims`:
+        Number of spatial dimensions.
+    - `periodicity`:
+        Per-axis periodicity flags; length must equal `num_sdims`.
+    - `resolution`:
+        Number of cells along each axis; length must equal `num_sdims`.
+    - `domain_bounds`:
+        Physical (min, max) bounds for each axis; length must equal `num_sdims`.
+    """
 
     num_sdims: int
     periodicity: tuple[bool, ...]

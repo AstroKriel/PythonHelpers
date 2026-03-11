@@ -138,8 +138,7 @@ def plot_2d_array(
         cbar_bounds=cbar_bounds,
     )
     cmap_obj = add_color.CMap(
-        min_value=min_value,
-        max_value=max_value,
+        value_range=(min_value, max_value),
         cmap_name=cmap_name,
     )
     axis_extent = _as_axis_extent(axis_bounds)
@@ -168,7 +167,7 @@ def plot_2d_array(
 def _generate_grid(
     field_shape: tuple[int, int],
     axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
-):
+) -> tuple[numpy.ndarray, numpy.ndarray]:
     axis_extent = _as_axis_extent(axis_bounds)
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")

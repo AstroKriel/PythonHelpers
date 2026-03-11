@@ -27,8 +27,8 @@ class FieldData:
     """
     Generic field array with component and spatial dimension metadata.
 
-    Conventions
-    ----------
+    Fields
+    ---
     - `num_ranks`:
         Number of component axes:
           * 0 -> scalar (no component axis)

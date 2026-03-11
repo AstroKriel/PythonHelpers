@@ -366,6 +366,18 @@ def _ensure_correct_jpdf_integral(
 
 @dataclass(frozen=True)
 class EstimatedPDF:
+    """
+    Estimated 1D probability density function from binned data.
+
+    Fields
+    ---
+    - `bin_centers`:
+        1D array of bin center positions; must be finite.
+    - `densities`:
+        1D array of probability densities at each bin center; must be finite,
+        same length as `bin_centers`, and normalised so the integral equals 1.
+    """
+
     bin_centers: numpy.ndarray
     densities: numpy.ndarray
 
@@ -567,6 +579,20 @@ def estimate_pdf(
 
 @dataclass(frozen=True)
 class EstimatedJPDF:
+    """
+    Estimated 2D joint probability density function from binned data.
+
+    Fields
+    ---
+    - `row_centers`:
+        1D array of bin center positions along the row (y) axis; must be finite.
+    - `col_centers`:
+        1D array of bin center positions along the column (x) axis; must be finite.
+    - `densities`:
+        2D array of joint probability densities with shape (num_rows, num_cols);
+        must be finite and normalised so the integral over bin areas equals 1.
+    """
+
     row_centers: numpy.ndarray
     col_centers: numpy.ndarray
     densities: numpy.ndarray

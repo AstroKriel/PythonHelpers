@@ -22,6 +22,8 @@ from jormi.ww_io import log_manager
 
 @dataclass(frozen=True)
 class FitStatistic:
+    """Fitted value and optional uncertainty for a single model parameter."""
+
     param_name: str
     value: float
     sigma: float | None = None
@@ -29,6 +31,8 @@ class FitStatistic:
 
 @dataclass(frozen=True)
 class Model:
+    """A named curve-fit model: function, parameter names, and an index lookup helper."""
+
     model_name: str
     param_names: tuple[str, ...]
     model_fn: Callable[..., numpy.ndarray]
@@ -77,6 +81,25 @@ class Model:
 
 @dataclass(frozen=True)
 class FitSummary:
+    """
+    Complete result of a curve-fit: model, per-parameter statistics, and residuals.
+
+    Fields
+    ---
+    - `model`:
+        The fitted model (name, parameter names, model function).
+    - `fit_stats`:
+        Mapping from parameter name to its `FitStatistic` (value + optional sigma).
+    - `residual_array`:
+        1D array of (y_data - y_fit) residuals; length must equal `num_points`.
+    - `num_points`:
+        Number of data points used in the fit.
+    - `x_bounds`:
+        (min, max) of the x data used in the fit.
+    - `y_bounds`:
+        (min, max) of the y data used in the fit.
+    """
+
     model: Model
     fit_stats: dict[str, FitStatistic]
     residual_array: numpy.ndarray

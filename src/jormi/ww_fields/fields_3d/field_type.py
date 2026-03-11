@@ -423,7 +423,7 @@ def get_vcomp_label(
     """Return the render-ready label for a vector field component.
 
     Uses big square brackets with a numeric subscript.
-    Example: vfield with label `\\vec{v}` + axis X0 → `$\\left[\\vec{v}\\right]_0$`
+    Example: vfield with label `\\vec{v}` + axis X0 -> `$\\left[\\vec{v}\\right]_0$`
     """
     ensure_3d_vfield(
         vfield_3d=vfield_3d,

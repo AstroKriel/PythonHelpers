@@ -336,6 +336,8 @@ def compute_tnb_farrays(
 
 @dataclass(frozen=True)
 class MagneticCurvatureFArrays_3D:
+    """Curvature, stretching, and compression scalar farrays derived from a 3D velocity field."""
+
     sarray_3d_curvature: numpy.ndarray
     sarray_3d_stretching: numpy.ndarray
     sarray_3d_compression: numpy.ndarray
@@ -456,6 +458,8 @@ def compute_magnetic_curvature_farrays(
 
 @dataclass(frozen=True)
 class LorentzForceFArrays_3D:
+    """Lorentz force decomposition: total force, magnetic tension, and perpendicular pressure gradient farrays."""
+
     varray_3d_lorentz: numpy.ndarray
     varray_3d_tension: numpy.ndarray
     varray_3d_gradP_perp: numpy.ndarray
