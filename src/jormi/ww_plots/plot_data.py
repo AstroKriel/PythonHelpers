@@ -91,6 +91,7 @@ def _get_value_range(
     If `cbar_bounds` is provided, validate and use it directly. Otherwise, infer from the finite
     values in `array_2d`, with a small pad applied.
     """
+    finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
         type_checks.ensure_ordered_pair(
@@ -101,9 +102,14 @@ def _get_value_range(
         min_value, max_value = float(cbar_bounds[0]), float(cbar_bounds[1])
         if not (numpy.isfinite(min_value) and numpy.isfinite(max_value)):
             raise ValueError(f"`cbar_bounds` must be finite, got ({min_value}, {max_value}).")
-        return (min_value, max_value)
+        in_range_mask = finite_mask & (array_2d >= min_value) & (array_2d <= max_value)
+        if not numpy.any(in_range_mask):
+            raise ValueError(f"`cbar_bounds` ({min_value}, {max_value}) does not overlap with data.")
+        return (
+            min_value,
+            max_value,
+        )
     ## infer bounds from data, with a small pad to avoid degenerate colormaps
-    finite_mask = numpy.isfinite(array_2d)
     if not numpy.any(finite_mask):
         raise ValueError("Array contains no finite values; cannot infer colorbar bounds.")
     min_value = float(numpy.min(array_2d[finite_mask]))
@@ -173,11 +179,8 @@ def plot_2d_array(
 
 def _generate_grid(
     field_shape: tuple[int, int],
-    axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
+    axis_extent: tuple[float, float, float, float],
 ) -> tuple[numpy.ndarray, numpy.ndarray]:
-    axis_extent = _as_axis_extent(axis_bounds)
-    if axis_extent is None:
-        raise ValueError("`axis_bounds` must not be None.")
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     num_rows, num_cols = field_shape
     coords_x = numpy.linspace(min_x_value, max_x_value, num_cols)
@@ -203,24 +206,26 @@ def plot_2d_quiver(
         array=array_2d_cols,
         num_dims=2,
     )
-    if array_2d_rows.shape != array_2d_cols.shape:
-        raise ValueError("`array_2d_rows` and `array_2d_cols` must be the same shape.")
-    grid_x, grid_y = _generate_grid(
-        field_shape=array_2d_rows.shape,
-        axis_bounds=axis_bounds,
+    array_checks.ensure_same_shape(
+        array_a=array_2d_rows,
+        array_b=array_2d_cols,
+        param_name_a="array_2d_rows",
+        param_name_b="array_2d_cols",
     )
     axis_extent = _as_axis_extent(axis_bounds)
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
+    grid_x, grid_y = _generate_grid(
+        field_shape=array_2d_rows.shape,
+        axis_extent=axis_extent,
+    )
     quiver_step_rows = max(1, array_2d_rows.shape[0] // num_quivers)
     quiver_step_cols = max(1, array_2d_cols.shape[1] // num_quivers)
-    field_rows_subset = array_2d_rows[::quiver_step_rows, ::quiver_step_cols]
-    field_cols_subset = array_2d_cols[::quiver_step_rows, ::quiver_step_cols]
     quiver_obj = ax.quiver(
         grid_x[::quiver_step_rows, ::quiver_step_cols],
         grid_y[::quiver_step_rows, ::quiver_step_cols],
-        field_cols_subset,
-        field_rows_subset,
+        array_2d_cols[::quiver_step_rows, ::quiver_step_cols],
+        array_2d_rows[::quiver_step_rows, ::quiver_step_cols],
         width=quiver_width,
         color=field_color,
     )
@@ -248,15 +253,19 @@ def plot_2d_streamlines(
         array=array_2d_cols,
         num_dims=2,
     )
-    if array_2d_rows.shape != array_2d_cols.shape:
-        raise ValueError("`array_2d_rows` and `array_2d_cols` must have the same shape.")
-    grid_x, grid_y = _generate_grid(
-        field_shape=array_2d_rows.shape,
-        axis_bounds=axis_bounds,
+    array_checks.ensure_same_shape(
+        array_a=array_2d_rows,
+        array_b=array_2d_cols,
+        param_name_a="array_2d_rows",
+        param_name_b="array_2d_cols",
     )
     axis_extent = _as_axis_extent(axis_bounds)
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
+    grid_x, grid_y = _generate_grid(
+        field_shape=array_2d_rows.shape,
+        axis_extent=axis_extent,
+    )
     stream_obj = ax.streamplot(
         grid_x,
         grid_y,
