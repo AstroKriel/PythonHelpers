@@ -34,7 +34,7 @@ def main() -> None:
 
     palettes = [
         (
-            "uniform binning: 5 equal intervals",
+            "uniform binning",
             DiscretePalette.from_uniform_range(
                 value_range=(value_min, value_max),
                 num_bins=5,
@@ -43,7 +43,7 @@ def main() -> None:
             ),
         ),
         (
-            "named colormap with custom bin edges",
+            "custom bin edges",
             DiscretePalette.from_name(
                 bin_edges=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
                 palette_name="cmr.arctic",
@@ -51,7 +51,7 @@ def main() -> None:
             ),
         ),
         (
-            "built from custom hex colors",
+            "custom hex colors",
             DiscretePalette.from_colors(
                 bin_edges=(0.0, 0.25, 0.5, 0.75, 1.0),
                 colors=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
@@ -59,7 +59,7 @@ def main() -> None:
             ),
         ),
         (
-            "bin edges modified after construction",
+            "modified color bins",
             DiscretePalette.from_uniform_range(
                 value_range=(value_min, value_max),
                 num_bins=5,
@@ -86,12 +86,17 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_color.add_colorbar(ax, palette=palette)
+        add_color.add_colorbar(
+            ax=ax,
+            palette=palette,
+            cbar_length=0.95,
+            cbar_thickness=0.1,
+        )
         ax.text(
             0.5,
             0.95,
             title,
-            fontsize=12,
+            fontsize=14,
             va="top",
             ha="center",
             transform=ax.transAxes,
