@@ -17,10 +17,10 @@ from jormi.ww_plots.color_palette import DivergingPalette
 
 
 def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
-    x = numpy.linspace(value_min, value_max, 200)
-    y = numpy.linspace(value_min, value_max, 200)
-    xx, yy = numpy.meshgrid(x, y)
-    return xx + yy * 0.0  # horizontal gradient
+    x_values = numpy.linspace(value_min, value_max, 200)
+    y_values = numpy.linspace(value_min, value_max, 200)
+    x_grid, y_grid = numpy.meshgrid(x_values, y_values)
+    return x_grid + y_grid * 0.0  # horizontal gradient
 
 
 ##
@@ -34,16 +34,16 @@ def main() -> None:
 
     palettes = [
         (
-            "from_name: blue-red",
+            "named colormap: blue-white-red",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
-                palette_name="blue-red",
+                palette_name="blue-white-red",
                 palette_range=(0.0, 1.0),
             ),
         ),
         (
-            "from_name: purple-green",
+            "named colormap: purple-green",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
@@ -52,7 +52,7 @@ def main() -> None:
             ),
         ),
         (
-            "from_colors",
+            "built from custom hex colors",
             DivergingPalette.from_colors(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
@@ -61,29 +61,29 @@ def main() -> None:
             ),
         ),
         (
-            "with_mid_value (-0.3)",
+            "shifted midpoint value",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
-                palette_name="blue-red",
+                palette_name="blue-white-red",
                 palette_range=(0.0, 1.0),
             ).with_mid_value(-0.3),
         ),
         (
-            "with_value_range (-0.5, 1.0)",
+            "clipped value range: (-0.5, 1.0)",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
-                palette_name="blue-red",
+                palette_name="blue-white-red",
                 palette_range=(0.0, 1.0),
             ).with_value_range((-0.5, 1.0)),
         ),
         (
-            "with_palette_range (0.2, 0.8)",
+            "clipped color range: (0.2, 0.8)",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
-                palette_name="blue-red",
+                palette_name="blue-white-red",
                 palette_range=(0.0, 1.0),
             ).with_palette_range((0.2, 0.8)),
         ),
@@ -107,12 +107,21 @@ def main() -> None:
             aspect="auto",
         )
         add_color.add_colorbar(ax, palette=palette)
-        ax.set_title(title, fontsize=12)
+        ax.text(
+            0.5,
+            0.95,
+            title,
+            fontsize=12,
+            va="top",
+            ha="center",
+            transform=ax.transAxes,
+            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+        )
         ax.set_xticks([])
         ax.set_yticks([])
 
     script_path = Path(__file__).parent
-    plot_manager.save_figure(fig, script_path / "demo_diverging_palette.png")
+    plot_manager.save_figure(fig, script_path / "diverging_palettes.png")
 
 
 ##

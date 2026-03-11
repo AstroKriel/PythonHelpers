@@ -9,7 +9,7 @@ import numpy
 from pathlib import Path
 
 from jormi.ww_plots import plot_manager, add_color
-from jormi.ww_plots.color_palette import SequentialPalette
+from jormi.ww_plots.color_palette import DiscretePalette
 
 ##
 ## === DEMO DATA
@@ -17,10 +17,10 @@ from jormi.ww_plots.color_palette import SequentialPalette
 
 
 def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
-    x = numpy.linspace(value_min, value_max, 200)
-    y = numpy.linspace(value_min, value_max, 200)
-    xx, yy = numpy.meshgrid(x, y)
-    return xx + yy * 0.0  # horizontal gradient
+    x_values = numpy.linspace(value_min, value_max, 200)
+    y_values = numpy.linspace(value_min, value_max, 200)
+    x_grid, y_grid = numpy.meshgrid(x_values, y_values)
+    return x_grid + y_grid * 0.0  # horizontal gradient
 
 
 ##
@@ -34,44 +34,47 @@ def main() -> None:
 
     palettes = [
         (
-            "from_name: cmr.arctic",
-            SequentialPalette.from_name(
+            "uniform binning: 5 equal intervals",
+            DiscretePalette.from_uniform_range(
                 value_range=(value_min, value_max),
+                num_bins=5,
                 palette_name="cmr.arctic",
                 palette_range=(0.0, 1.0),
             ),
         ),
         (
-            "from_name: white-brown",
-            SequentialPalette.from_name(
-                value_range=(value_min, value_max),
-                palette_name="white-brown",
+            "named colormap with custom bin edges",
+            DiscretePalette.from_name(
+                bin_edges=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
+                palette_name="cmr.arctic",
                 palette_range=(0.0, 1.0),
             ),
         ),
         (
-            "from_colors",
-            SequentialPalette.from_colors(
-                value_range=(value_min, value_max),
-                colors=["#1a1aff", "#ffffff", "#ff1a1a"],
+            "built from custom hex colors",
+            DiscretePalette.from_colors(
+                bin_edges=(0.0, 0.25, 0.5, 0.75, 1.0),
+                colors=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
                 palette_range=(0.0, 1.0),
             ),
         ),
         (
-            "with_palette_range (0.2, 0.8)",
-            SequentialPalette.from_name(
+            "bin edges modified after construction",
+            DiscretePalette.from_uniform_range(
                 value_range=(value_min, value_max),
+                num_bins=5,
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
+            ).with_bin_edges((0.0, 0.05, 0.2, 0.5, 0.9, 1.0)),
+        ),
+        (
+            "clipped color range: (0.2, 0.8)",
+            DiscretePalette.from_uniform_range(
+                value_range=(value_min, value_max),
+                num_bins=5,
                 palette_name="cmr.arctic",
                 palette_range=(0.0, 1.0),
             ).with_palette_range((0.2, 0.8)),
-        ),
-        (
-            "with_value_range (0.3, 0.7)",
-            SequentialPalette.from_name(
-                value_range=(value_min, value_max),
-                palette_name="cmr.arctic",
-                palette_range=(0.0, 1.0),
-            ).with_value_range((0.3, 0.7)),
         ),
     ]
 
@@ -93,12 +96,21 @@ def main() -> None:
             aspect="auto",
         )
         add_color.add_colorbar(ax, palette=palette)
-        ax.set_title(title, fontsize=12)
+        ax.text(
+            0.5,
+            0.95,
+            title,
+            fontsize=12,
+            va="top",
+            ha="center",
+            transform=ax.transAxes,
+            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+        )
         ax.set_xticks([])
         ax.set_yticks([])
 
     script_path = Path(__file__).parent
-    plot_manager.save_figure(fig, script_path / "demo_sequential_palette.png")
+    plot_manager.save_figure(fig, script_path / "discrete_palettes.png")
 
 
 ##
