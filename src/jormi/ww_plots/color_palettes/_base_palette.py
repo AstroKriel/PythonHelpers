@@ -102,26 +102,34 @@ def subset_palette(
 ## === BUILTIN PALETTES
 ##
 
-_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
-    "blue-white-red":
-    mpl_colors.LinearSegmentedColormap.from_list(
+
+def _make_builtin_palette(
+    name: str,
+    colors: list[str],
+) -> tuple[str, mpl_colors.Colormap]:
+    """Create a named colormap and return (name, cmap) for use as a _BUILTIN_PALETTES entry."""
+    cmap = mpl_colors.LinearSegmentedColormap.from_list(
+        name=name,
+        colors=colors,
+        N=256,
+    )
+    return (name, cmap)
+
+
+_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict([
+    _make_builtin_palette(
         name="blue-white-red",
         colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
-        N=256,
     ),
-    "white-brown":
-    mpl_colors.LinearSegmentedColormap.from_list(
+    _make_builtin_palette(
         name="white-brown",
         colors=["#fdfdfd", "#f49325", "#010101"],
-        N=256,
     ),
-    "purple-white-green":
-    mpl_colors.LinearSegmentedColormap.from_list(
+    _make_builtin_palette(
         name="purple-white-green",
         colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
-        N=256,
     ),
-}
+])
 
 ##
 ## === BASE PALETTE
