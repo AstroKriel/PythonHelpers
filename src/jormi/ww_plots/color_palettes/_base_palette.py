@@ -83,7 +83,7 @@ def subset_palette(
     )
     if (palette_min == 0.0) and (palette_max == 1.0):
         return palette_cmap
-    ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
+    ## look-up table size should have 256 values; match 8-bit color depth (this exceeds perceptual resolution)
     sampled_colors = palette_cmap(
         numpy.linspace(
             start=palette_min,
