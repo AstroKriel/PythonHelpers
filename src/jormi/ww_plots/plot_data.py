@@ -8,14 +8,17 @@ import numpy
 from typing import Literal
 
 from jormi.ww_types import type_checks, array_checks, box_positions
-from jormi.ww_plots import plot_manager, add_color, color_palettes
+from jormi.ww_plots import plot_manager, add_color
 
 ##
 ## === DATA TYPES
 ##
 
 DataFormat = Literal["xy", "ij"]
-AxisBounds = tuple[tuple[float, float], tuple[float, float]]  # ((min_x_value, max_x_value), (min_y_value, max_y_value))
+AxisBounds = tuple[
+    tuple[float, float],  # ((min_x_value, max_x_value)
+    tuple[float, float],  # (min_y_value, max_y_value)
+]
 
 ##
 ## === FUNCTIONS
@@ -123,11 +126,12 @@ def plot_2d_array(
     axis_aspect_ratio: Literal["equal", "auto"] = "equal",
     axis_bounds: AxisBounds | None = None,
     cbar_bounds: tuple[float, float] | None = None,
-    cmap_name: str = "cmr.arctic",
+    palette_config: add_color.PaletteConfig = add_color.SequentialConfig(),
     add_cbar: bool = True,
     cbar_label: str | None = None,
     cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
 ):
+    add_color.ensure_continuous_config(palette_config)
     array_checks.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -140,8 +144,8 @@ def plot_2d_array(
         array_2d=array_view,
         cbar_bounds=cbar_bounds,
     )
-    palette = color_palettes.SequentialPalette.from_name(
-        palette_name=cmap_name,
+    palette = add_color.make_palette(
+        config=palette_config,
         value_range=(min_value, max_value),
     )
     axis_extent = _as_axis_extent(axis_bounds)
