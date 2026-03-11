@@ -13,7 +13,7 @@ from jormi.ww_types import type_checks
 from jormi.ww_plots.color_palette import _base_palette
 
 ##
-## === CLASS
+## === SEQUENTIAL PALETTE
 ##
 
 
@@ -24,10 +24,13 @@ class SequentialPalette(_base_palette.ColorPalette):
 
     Use `from_name` or `from_colors` to construct.
     """
-    value_range: tuple[float, float]              # data-space (vmin, vmax)
+
+    value_range: tuple[float, float]  # data-space (vmin, vmax)
     palette_range: tuple[float, float] = (0.0, 1.0)  # portion of palette to use, in [0, 1]
 
-    def __post_init__(self) -> None:
+    def __post_init__(
+        self,
+    ) -> None:
         type_checks.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
@@ -59,7 +62,7 @@ class SequentialPalette(_base_palette.ColorPalette):
         base_colormap = mpl_colors.LinearSegmentedColormap.from_list(
             name="custom",
             colors=colors,
-            N=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
         )
         return cls(
             value_range=value_range,
@@ -68,7 +71,9 @@ class SequentialPalette(_base_palette.ColorPalette):
         )
 
     @property
-    def _mpl_norm(self) -> mpl_colors.Normalize:
+    def _mpl_norm(
+        self,
+    ) -> mpl_colors.Normalize:
         value_min, value_max = float(self.value_range[0]), float(self.value_range[1])
         return mpl_colors.Normalize(
             vmin=value_min,
@@ -76,7 +81,9 @@ class SequentialPalette(_base_palette.ColorPalette):
         )
 
     @property
-    def _mpl_colormap(self) -> mpl_colors.Colormap:
+    def _mpl_colormap(
+        self,
+    ) -> mpl_colors.Colormap:
         return _base_palette.subset_palette(
             palette=self._base_colormap,
             palette_range=self.palette_range,

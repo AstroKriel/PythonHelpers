@@ -56,8 +56,8 @@ def resolve_palette(
 
 
 def subset_palette(
-    palette: mpl_colors.Colormap,
     *,
+    palette: mpl_colors.Colormap,
     palette_range: tuple[float, float],
     name: str,
 ) -> mpl_colors.Colormap:
@@ -84,13 +84,13 @@ def subset_palette(
         numpy.linspace(
             start=palette_min,
             stop=palette_max,
-            num=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            num=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
         ),
     )
     return mpl_colors.LinearSegmentedColormap.from_list(
         name=f"{name}_sub",
         colors=sampled_colors,
-        N=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+        N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
     )
 
 
@@ -120,7 +120,7 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
 }
 
 ##
-## === BASE CLASS
+## === BASE PALETTE
 ##
 
 
@@ -132,20 +132,25 @@ class ColorPalette(ABC):
     Subclasses must implement `_mpl_norm` and `_mpl_colormap`, and expose
     a `palette_range` field.
     """
+
     _base_colormap: mpl_colors.Colormap = dataclasses.field(
-        hash=False,    # colormaps are not hashable; including this field would raise TypeError in __hash__
-        compare=False, # equality should reflect construction args, not colormap object identity
-        repr=False,    # colormap repr is large and uninformative; exclude to keep __repr__ clean
+        hash=False,  # colormaps are not hashable; including this field would raise TypeError in __hash__
+        compare=False,  # equality should reflect construction args, not colormap object identity
+        repr=False,  # colormap repr is large and uninformative; exclude to keep __repr__ clean
     )
 
     @property
     @abstractmethod
-    def _mpl_norm(self) -> mpl_colors.Normalize:
+    def _mpl_norm(
+        self,
+    ) -> mpl_colors.Normalize:
         ...
 
     @property
     @abstractmethod
-    def _mpl_colormap(self) -> mpl_colors.Colormap:
+    def _mpl_colormap(
+        self,
+    ) -> mpl_colors.Colormap:
         ...
 
     def with_palette_range(

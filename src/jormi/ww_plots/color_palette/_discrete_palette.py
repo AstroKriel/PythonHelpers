@@ -14,7 +14,7 @@ from jormi.ww_types import type_checks
 from jormi.ww_plots.color_palette import _base_palette
 
 ##
-## === CLASS
+## === DISCRETE PALETTE
 ##
 
 
@@ -25,10 +25,13 @@ class DiscretePalette(_base_palette.ColorPalette):
 
     Use `from_name`, `from_colors`, or `from_uniform_range` to construct.
     """
-    bin_edges: tuple[float, ...]                 # strictly increasing bin edges; N edges define N-1 bins
+
+    bin_edges: tuple[float, ...]  # strictly increasing bin edges; N edges define N-1 bins
     palette_range: tuple[float, float] = (0.0, 1.0)  # portion of palette to use, in [0, 1]
 
-    def __post_init__(self) -> None:
+    def __post_init__(
+        self,
+    ) -> None:
         type_checks.ensure_tuple_of_numbers(
             param=self.bin_edges,
             param_name="bin_edges",
@@ -69,7 +72,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         base_colormap = mpl_colors.LinearSegmentedColormap.from_list(
             name="custom",
             colors=colors,
-            N=256, # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
         )
         return cls(
             bin_edges=bin_edges,
@@ -88,11 +91,13 @@ class DiscretePalette(_base_palette.ColorPalette):
     ) -> "DiscretePalette":
         """Construct with evenly spaced bin_edges across value_range."""
         value_min, value_max = value_range
-        bin_edges = tuple(float(v) for v in numpy.linspace(
-            start=value_min,
-            stop=value_max,
-            num=num_bins + 1,
-        ))
+        bin_edges = tuple(
+            float(v) for v in numpy.linspace(
+                start=value_min,
+                stop=value_max,
+                num=num_bins + 1,
+            )
+        )
         return cls.from_name(
             bin_edges=bin_edges,
             palette_name=palette_name,
@@ -100,11 +105,15 @@ class DiscretePalette(_base_palette.ColorPalette):
         )
 
     @property
-    def value_range(self) -> tuple[float, float]:
+    def value_range(
+        self,
+    ) -> tuple[float, float]:
         return (self.bin_edges[0], self.bin_edges[-1])
 
     @property
-    def _mpl_norm(self) -> mpl_colors.BoundaryNorm:
+    def _mpl_norm(
+        self,
+    ) -> mpl_colors.BoundaryNorm:
         num_bins = len(self.bin_edges) - 1
         return mpl_colors.BoundaryNorm(
             boundaries=list(self.bin_edges),
@@ -112,7 +121,9 @@ class DiscretePalette(_base_palette.ColorPalette):
         )
 
     @property
-    def _mpl_colormap(self) -> mpl_colors.ListedColormap:
+    def _mpl_colormap(
+        self,
+    ) -> mpl_colors.ListedColormap:
         num_bins = len(self.bin_edges) - 1
         continuous_colormap = _base_palette.subset_palette(
             palette=self._base_colormap,
