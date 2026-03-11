@@ -71,15 +71,16 @@ def add_colorbar(
     palette: ColorPalette,
     label: str | None = None,
     cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
-    cbar_size: float = 0.1,
+    cbar_thickness: float = 0.1,
+    cbar_length: float = 1.0,
     cbar_pad: float = 0.02,
     label_pad: float = 10.0,
     label_size: float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
     type_checks.ensure_finite_float(
-        param=cbar_size,
-        param_name="cbar_size",
+        param=cbar_thickness,
+        param_name="cbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
@@ -110,7 +111,8 @@ def add_colorbar(
     ax_bounds = compute_adjacent_ax_bounds(
         ax=ax,
         side=cbar_side,
-        thickness=cbar_size,
+        thickness=cbar_thickness,
+        length=cbar_length,
         gap=cbar_pad,
     )
     cbar_ax = ax.figure.add_axes((
