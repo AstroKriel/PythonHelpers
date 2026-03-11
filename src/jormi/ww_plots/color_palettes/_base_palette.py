@@ -146,9 +146,9 @@ class ColorPalette(ABC):
     """
 
     _base_cmap: mpl_colors.Colormap = dataclasses.field(
-        hash=False,  # colormaps are not hashable; including this field would raise TypeError in __hash__
-        compare=False,  # equality should reflect construction args, not colormap object identity
-        repr=False,  # colormap repr is large and uninformative; exclude to keep __repr__ clean
+        hash=False,  # colormaps are not hashable
+        compare=False,  # equality should reflect construction args
+        repr=False,  # colormap repr is large and uninformative
     )
 
     @property
