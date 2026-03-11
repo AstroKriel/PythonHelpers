@@ -631,8 +631,11 @@ def ensure_ordered_pair(
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
+    strict_ordering: bool = False,
 ) -> None:
-    """Ensure `param` is a 2-element numeric tuple where param[0] <= param[1]."""
+    """Ensure `param` is a 2-element numeric tuple where param[0] <= param[1].
+    If strict_ordering=True, enforce param[0] < param[1] (equal values not allowed).
+    """
     if (param is None) and allow_none:
         return
     ensure_tuple_of_numbers(
@@ -641,8 +644,13 @@ def ensure_ordered_pair(
         seq_length=2,
         allow_none=False,
     )
-    if not (float(param[0]) <= float(param[1])):
-        raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {param}.")
+    min_value, max_value = float(param[0]), float(param[1])
+    if strict_ordering:
+        if not (min_value < max_value):
+            raise ValueError(f"`{param_name}` must satisfy [0] < [1] (strict), got {param}.")
+    else:
+        if not (min_value <= max_value):
+            raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {param}.")
 
 
 def ensure_tuple_of_floats(
