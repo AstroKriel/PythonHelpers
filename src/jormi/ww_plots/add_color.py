@@ -10,79 +10,54 @@ import matplotlib.colorbar as mpl_colorbar
 
 from jormi.ww_types import type_checks, box_positions
 from jormi.ww_plots.color_palette import ColorPalette
+from jormi.ww_plots.plot_manager import compute_adjacent_ax_bounds
 
 ##
 ## === INTERNAL HELPERS
 ##
 
+_Side = box_positions.TypeHints.Box.Side
 
-def _compute_cbar_bounds(
-    box,
-    anchor_side_str: str,
-    ax_percentage: float,
-    cbar_padding: float,
-) -> tuple[str, tuple[float, float, float, float]]:
-    if anchor_side_str in ("left", "right"):
-        orientation = "vertical"
-        cbar_size = box.width * ax_percentage
-        if anchor_side_str == "right":
-            bounds = (
-                box.x1 + cbar_padding,
-                box.y0,
-                cbar_size,
-                box.height,
-            )
-        else:
-            bounds = (
-                box.x0 - cbar_size - cbar_padding,
-                box.y0,
-                cbar_size,
-                box.height,
-            )
-    else:
-        orientation = "horizontal"
-        cbar_size = box.height * ax_percentage
-        if anchor_side_str == "top":
-            bounds = (
-                box.x0,
-                box.y1 + cbar_padding,
-                box.width,
-                cbar_size,
-            )
-        else:
-            bounds = (
-                box.x0,
-                box.y0 - cbar_size - cbar_padding,
-                box.width,
-                cbar_size,
-            )
-    return orientation, bounds
+_SIDE_TO_ORIENTATION: dict[_Side, str] = {
+    _Side.Top: "horizontal",
+    _Side.Left: "vertical",
+    _Side.Right: "vertical",
+    _Side.Bottom: "horizontal",
+}
 
 
-def _apply_cbar_label(
+def _label_cbar(
     cbar: mpl_colorbar.Colorbar,
     *,
     label: str | None,
-    orientation: str,
-    anchor_side_str: str,
-    fontsize: float,
-    label_padding: float,
+    cbar_side: _Side,
+    label_size: float,
+    label_pad: float,
 ) -> None:
-    if orientation not in ("horizontal", "vertical"):
-        raise ValueError(f"Expected orientation to be 'horizontal' or 'vertical', got: {orientation!r}")
-    if orientation == "horizontal":
-        axis = cbar.ax.xaxis
-        if label:
-            cbar.set_label(label=label, fontsize=fontsize, labelpad=label_padding)
-            axis.set_label_position(anchor_side_str)  # type: ignore[arg-type]
-        axis.set_ticks_position(anchor_side_str)  # type: ignore[arg-type]
-    else:
+    if cbar_side in (_Side.Left, _Side.Right):
         axis = cbar.ax.yaxis
         if label:
-            cbar.set_label(label=label, fontsize=fontsize, labelpad=label_padding, rotation=90)
-            axis.set_label_position(anchor_side_str)  # type: ignore[arg-type]
-        axis.set_ticks_position(anchor_side_str)  # type: ignore[arg-type]
+            cbar.set_label(
+                label=label,
+                fontsize=label_size,
+                labelpad=label_pad,
+                rotation=90,
+            )
+            axis.set_label_position(cbar_side)  # type: ignore[arg-type]
+        axis.set_ticks_position(cbar_side)  # type: ignore[arg-type]
         axis.label.set_verticalalignment("center")
+    elif cbar_side in (_Side.Top, _Side.Bottom):
+        axis = cbar.ax.xaxis
+        if label:
+            cbar.set_label(
+                label=label,
+                fontsize=label_size,
+                labelpad=label_pad,
+            )
+            axis.set_label_position(cbar_side)  # type: ignore[arg-type]
+        axis.set_ticks_position(cbar_side)  # type: ignore[arg-type]
+    else:
+        raise ValueError(f"Unexpected cbar_side: {cbar_side!r}")  # type: ignore[unreachable]
 
 
 ##
@@ -95,67 +70,72 @@ def add_colorbar(
     *,
     palette: ColorPalette,
     label: str | None = None,
-    anchor_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
-    ax_percentage: float = 0.1,
-    cbar_padding: float = 0.02,
-    label_padding: float = 10.0,
-    fontsize: float = 20.0,
+    cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
+    cbar_size: float = 0.1,
+    cbar_pad: float = 0.02,
+    label_pad: float = 10.0,
+    label_size: float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
     type_checks.ensure_finite_float(
-        param=ax_percentage,
-        param_name="ax_percentage",
+        param=cbar_size,
+        param_name="cbar_size",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
     type_checks.ensure_finite_float(
-        param=cbar_padding,
-        param_name="cbar_padding",
+        param=cbar_pad,
+        param_name="cbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
     type_checks.ensure_finite_float(
-        param=label_padding,
-        param_name="label_padding",
+        param=label_pad,
+        param_name="label_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
     type_checks.ensure_finite_float(
-        param=fontsize,
-        param_name="fontsize",
+        param=label_size,
+        param_name="label_size",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    anchor_side = box_positions.as_box_side(side=anchor_side)
-    anchor_side_str = anchor_side.value
-    orientation, cbar_bounds = _compute_cbar_bounds(
-        box=ax.get_position(),
-        anchor_side_str=anchor_side_str,
-        ax_percentage=float(ax_percentage),
-        cbar_padding=float(cbar_padding),
+    cbar_side = box_positions.as_box_side(side=cbar_side)
+    cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
+    ax_bounds = compute_adjacent_ax_bounds(
+        ax=ax,
+        side=cbar_side,
+        thickness=cbar_size,
+        gap=cbar_pad,
     )
-    ax_cbar = ax.figure.add_axes(cbar_bounds)
-    mappable = mpl_cm.ScalarMappable(
+    cbar_ax = ax.figure.add_axes((
+        ax_bounds.x_min,
+        ax_bounds.y_min,
+        ax_bounds.x_width,
+        ax_bounds.y_width,
+    ))
+    cbar_mappable = mpl_cm.ScalarMappable(
         norm=palette.mpl_norm,
         cmap=palette.mpl_cmap,
     )
-    mappable.set_array([])
+    ## required by mpl to suppress warning when ScalarMappable has no data
+    cbar_mappable.set_array([])
     cbar = ax.figure.colorbar(
-        mappable=mappable,
-        cax=ax_cbar,
-        orientation=orientation,
+        mappable=cbar_mappable,
+        cax=cbar_ax,
+        orientation=cbar_orientation,
     )
-    _apply_cbar_label(
+    _label_cbar(
         cbar,
         label=label,
-        orientation=orientation,
-        anchor_side_str=anchor_side_str,
-        fontsize=float(fontsize),
-        label_padding=float(label_padding),
+        cbar_side=cbar_side,
+        label_size=label_size,
+        label_pad=label_pad,
     )
     return cbar
 
