@@ -58,7 +58,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         return cls(
             bin_edges=bin_edges,
             palette_range=palette_range,
-            _cmap=_base_palette.resolve_palette(palette_name),
+            _base_cmap=_base_palette.resolve_palette(palette_name),
         )
 
     @classmethod
@@ -69,15 +69,16 @@ class DiscretePalette(_base_palette.ColorPalette):
         colors: list[str],
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DiscretePalette":
+        ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
         cmap = mpl_colors.LinearSegmentedColormap.from_list(
-            name="custom",
+            name="custom-discrete-cmap",
             colors=colors,
-            N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            N=256,
         )
         return cls(
             bin_edges=bin_edges,
             palette_range=palette_range,
-            _cmap=cmap,
+            _base_cmap=cmap,
         )
 
     @classmethod
@@ -92,7 +93,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         """Construct with evenly spaced bin_edges across value_range."""
         value_min, value_max = value_range
         bin_edges = tuple(
-            float(v) for v in numpy.linspace(
+            float(value) for value in numpy.linspace(
                 start=value_min,
                 stop=value_max,
                 num=num_bins + 1,
@@ -108,7 +109,10 @@ class DiscretePalette(_base_palette.ColorPalette):
     def value_range(
         self,
     ) -> tuple[float, float]:
-        return (self.bin_edges[0], self.bin_edges[-1])
+        return (
+            self.bin_edges[0],
+            self.bin_edges[-1],
+        )
 
     @property
     def mpl_norm(
@@ -125,12 +129,12 @@ class DiscretePalette(_base_palette.ColorPalette):
         self,
     ) -> mpl_colors.ListedColormap:
         num_bins = len(self.bin_edges) - 1
-        continuous_colormap = _base_palette.subset_palette(
-            palette_cmap=self._cmap,
+        continuous_cmap = _base_palette.subset_palette(
+            palette_cmap=self._base_cmap,
             palette_range=self.palette_range,
             palette_label="subset-discrete-cmap",
         )
-        sampled_colors = continuous_colormap(
+        sampled_colors = continuous_cmap(
             numpy.linspace(
                 start=0.0,
                 stop=1.0,

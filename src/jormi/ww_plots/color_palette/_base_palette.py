@@ -103,7 +103,7 @@ def subset_palette(
 ##
 
 _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
-    "blue-red":
+    "blue-white-red":
     mpl_colors.LinearSegmentedColormap.from_list(
         name="blue-red",
         colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
@@ -117,7 +117,7 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
     ),
     "purple-green":
     mpl_colors.LinearSegmentedColormap.from_list(
-        name="purple-green",
+        name="purple-white-green",
         colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
         N=256,
     ),
@@ -137,7 +137,7 @@ class ColorPalette(ABC):
     a `palette_range` field.
     """
 
-    _cmap: mpl_colors.Colormap = dataclasses.field(
+    _base_cmap: mpl_colors.Colormap = dataclasses.field(
         hash=False,  # colormaps are not hashable; including this field would raise TypeError in __hash__
         compare=False,  # equality should reflect construction args, not colormap object identity
         repr=False,  # colormap repr is large and uninformative; exclude to keep __repr__ clean

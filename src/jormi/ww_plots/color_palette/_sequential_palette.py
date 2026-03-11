@@ -48,7 +48,7 @@ class SequentialPalette(_base_palette.ColorPalette):
         return cls(
             value_range=value_range,
             palette_range=palette_range,
-            _cmap=_base_palette.resolve_palette(palette_name),
+            _base_cmap=_base_palette.resolve_palette(palette_name),
         )
 
     @classmethod
@@ -59,15 +59,16 @@ class SequentialPalette(_base_palette.ColorPalette):
         colors: list[str],
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "SequentialPalette":
+        ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
         cmap = mpl_colors.LinearSegmentedColormap.from_list(
-            name="custom",
+            name="custom-sequential-cmap",
             colors=colors,
-            N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            N=256,
         )
         return cls(
             value_range=value_range,
             palette_range=palette_range,
-            _cmap=cmap,
+            _base_cmap=cmap,
         )
 
     @property
@@ -85,7 +86,7 @@ class SequentialPalette(_base_palette.ColorPalette):
         self,
     ) -> mpl_colors.Colormap:
         return _base_palette.subset_palette(
-            palette_cmap=self._cmap,
+            palette_cmap=self._base_cmap,
             palette_range=self.palette_range,
             palette_label="subset-sequential-cmap",
         )
