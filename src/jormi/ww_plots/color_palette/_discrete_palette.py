@@ -21,7 +21,7 @@ from jormi.ww_plots.color_palette import _base_palette
 @dataclass(frozen=True, kw_only=True)
 class DiscretePalette(_base_palette.ColorPalette):
     """
-    A discrete color palette defined by explicit bin bin_edges.
+    A discrete color palette defined by explicit bin edges.
 
     Use `from_name`, `from_colors`, or `from_uniform_range` to construct.
     """
@@ -58,7 +58,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         return cls(
             bin_edges=bin_edges,
             palette_range=palette_range,
-            _base_colormap=_base_palette.resolve_palette(palette_name),
+            _cmap=_base_palette.resolve_palette(palette_name),
         )
 
     @classmethod
@@ -69,7 +69,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         colors: list[str],
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DiscretePalette":
-        base_colormap = mpl_colors.LinearSegmentedColormap.from_list(
+        cmap = mpl_colors.LinearSegmentedColormap.from_list(
             name="custom",
             colors=colors,
             N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
@@ -77,7 +77,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         return cls(
             bin_edges=bin_edges,
             palette_range=palette_range,
-            _base_colormap=base_colormap,
+            _cmap=cmap,
         )
 
     @classmethod
@@ -111,7 +111,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         return (self.bin_edges[0], self.bin_edges[-1])
 
     @property
-    def _mpl_norm(
+    def mpl_norm(
         self,
     ) -> mpl_colors.BoundaryNorm:
         num_bins = len(self.bin_edges) - 1
@@ -121,14 +121,14 @@ class DiscretePalette(_base_palette.ColorPalette):
         )
 
     @property
-    def _mpl_colormap(
+    def mpl_cmap(
         self,
     ) -> mpl_colors.ListedColormap:
         num_bins = len(self.bin_edges) - 1
         continuous_colormap = _base_palette.subset_palette(
-            palette=self._base_colormap,
+            palette_cmap=self._cmap,
             palette_range=self.palette_range,
-            palette_name="subset-discrete-cmap",
+            palette_label="subset-discrete-cmap",
         )
         sampled_colors = continuous_colormap(
             numpy.linspace(

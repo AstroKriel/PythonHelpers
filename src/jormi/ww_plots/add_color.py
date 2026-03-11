@@ -9,10 +9,10 @@ import matplotlib.cm as mpl_cm
 import matplotlib.colorbar as mpl_colorbar
 
 from jormi.ww_types import type_checks, box_positions
-from jormi.ww_plots.color_palette._base import ColorPalette
+from jormi.ww_plots.color_palette._base_palette import ColorPalette
 
 ##
-## === FUNCTIONS
+## === ADD COLORBAR
 ##
 
 
@@ -95,8 +95,8 @@ def add_colorbar(
             ]
     ax_cbar = fig.add_axes(cbar_bounds)
     mappable = mpl_cm.ScalarMappable(
-        norm=palette._mpl_norm,
-        cmap=palette._mpl_colormap,
+        norm=palette.mpl_norm,
+        cmap=palette.mpl_cmap,
     )
     mappable.set_array([])
     cbar = fig.colorbar(

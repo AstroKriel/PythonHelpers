@@ -16,9 +16,9 @@ from jormi.ww_plots.color_palette import SequentialPalette
 ##
 
 
-def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
-    x = numpy.linspace(vmin, vmax, 200)
-    y = numpy.linspace(vmin, vmax, 200)
+def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
+    x = numpy.linspace(value_min, value_max, 200)
+    y = numpy.linspace(value_min, value_max, 200)
     xx, yy = numpy.meshgrid(x, y)
     return xx + yy * 0.0  # horizontal gradient
 
@@ -29,35 +29,49 @@ def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
 
 
 def main() -> None:
-    vmin, vmax = 0.0, 1.0
-    data = _make_gradient(vmin, vmax)
+    value_min, value_max = 0.0, 1.0
+    data = _make_gradient(value_min, value_max)
 
     palettes = [
         (
             "from_name: cmr.arctic",
             SequentialPalette.from_name(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "from_name: white-brown",
             SequentialPalette.from_name(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
                 palette_name="white-brown",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "from_colors",
             SequentialPalette.from_colors(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
                 colors=["#1a1aff", "#ffffff", "#ff1a1a"],
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "with_palette_range (0.2, 0.8)",
             SequentialPalette.from_name(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
             ).with_palette_range((0.2, 0.8)),
+        ),
+        (
+            "with_value_range (0.3, 0.7)",
+            SequentialPalette.from_name(
+                value_range=(value_min, value_max),
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
+            ).with_value_range((0.3, 0.7)),
         ),
     ]
 
@@ -73,8 +87,8 @@ def main() -> None:
         ax = axs[col_idx, 0]
         ax.imshow(
             data,
-            norm=palette._mpl_norm,
-            cmap=palette._mpl_colormap,
+            norm=palette.mpl_norm,
+            cmap=palette.mpl_cmap,
             origin="lower",
             aspect="auto",
         )

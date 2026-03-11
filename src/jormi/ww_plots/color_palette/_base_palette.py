@@ -60,9 +60,9 @@ def resolve_palette(
 
 def subset_palette(
     *,
-    palette: mpl_colors.Colormap,
+    palette_cmap: mpl_colors.Colormap,
     palette_range: tuple[float, float],
-    palette_name: str,
+    palette_label: str,
 ) -> mpl_colors.Colormap:
     palette_min, palette_max = palette_range
     type_checks.ensure_in_bounds(
@@ -82,9 +82,9 @@ def subset_palette(
         param_name="palette_range",
     )
     if (palette_min == 0.0) and (palette_max == 1.0):
-        return palette
+        return palette_cmap
     ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
-    sampled_colors = palette(
+    sampled_colors = palette_cmap(
         numpy.linspace(
             start=palette_min,
             stop=palette_max,
@@ -92,7 +92,7 @@ def subset_palette(
         ),
     )
     return mpl_colors.LinearSegmentedColormap.from_list(
-        name=palette_name,
+        name=palette_label,
         colors=sampled_colors,
         N=256,
     )
@@ -133,11 +133,11 @@ class ColorPalette(ABC):
     """
     Abstract base for all color palette types.
 
-    Subclasses must implement `_mpl_norm` and `_mpl_colormap`, and expose
+    Subclasses must implement `mpl_norm` and `mpl_cmap`, and expose
     a `palette_range` field.
     """
 
-    _base_colormap: mpl_colors.Colormap = dataclasses.field(
+    _cmap: mpl_colors.Colormap = dataclasses.field(
         hash=False,  # colormaps are not hashable; including this field would raise TypeError in __hash__
         compare=False,  # equality should reflect construction args, not colormap object identity
         repr=False,  # colormap repr is large and uninformative; exclude to keep __repr__ clean
@@ -145,14 +145,14 @@ class ColorPalette(ABC):
 
     @property
     @abstractmethod
-    def _mpl_norm(
+    def mpl_norm(
         self,
     ) -> mpl_colors.Normalize:
         ...
 
     @property
     @abstractmethod
-    def _mpl_colormap(
+    def mpl_cmap(
         self,
     ) -> mpl_colors.Colormap:
         ...
@@ -161,10 +161,7 @@ class ColorPalette(ABC):
         self,
         palette_range: tuple[float, float],
     ) -> "ColorPalette":
-        return dataclasses.replace(
-            obj=self, # type: ignore[call-overload]
-            palette_range=palette_range,
-        )
+        return dataclasses.replace(self, palette_range=palette_range)
 
 
 ## } MODULE

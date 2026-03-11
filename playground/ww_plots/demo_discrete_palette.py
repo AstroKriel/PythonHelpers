@@ -16,9 +16,9 @@ from jormi.ww_plots.color_palette import DiscretePalette
 ##
 
 
-def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
-    x = numpy.linspace(vmin, vmax, 200)
-    y = numpy.linspace(vmin, vmax, 200)
+def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
+    x = numpy.linspace(value_min, value_max, 200)
+    y = numpy.linspace(value_min, value_max, 200)
     xx, yy = numpy.meshgrid(x, y)
     return xx + yy * 0.0  # horizontal gradient
 
@@ -29,21 +29,25 @@ def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
 
 
 def main() -> None:
-    vmin, vmax = 0.0, 1.0
-    data = _make_gradient(vmin, vmax)
+    value_min, value_max = 0.0, 1.0
+    data = _make_gradient(value_min, value_max)
 
     palettes = [
         (
             "uniform (5 bins)",
             DiscretePalette.from_uniform_range(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
                 num_bins=5,
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "from_name: explicit bin_edges",
             DiscretePalette.from_name(
                 bin_edges=(0.0, 0.1, 0.3, 0.6, 0.8, 1.0),
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
@@ -51,14 +55,26 @@ def main() -> None:
             DiscretePalette.from_colors(
                 bin_edges=(0.0, 0.25, 0.5, 0.75, 1.0),
                 colors=["#264653", "#2a9d8f", "#e9c46a", "#f4a261"],
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "with_bin_edges",
             DiscretePalette.from_uniform_range(
-                value_range=(vmin, vmax),
+                value_range=(value_min, value_max),
                 num_bins=5,
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
             ).with_bin_edges((0.0, 0.05, 0.2, 0.5, 0.9, 1.0)),
+        ),
+        (
+            "with_palette_range (0.2, 0.8)",
+            DiscretePalette.from_uniform_range(
+                value_range=(value_min, value_max),
+                num_bins=5,
+                palette_name="cmr.arctic",
+                palette_range=(0.0, 1.0),
+            ).with_palette_range((0.2, 0.8)),
         ),
     ]
 
@@ -74,8 +90,8 @@ def main() -> None:
         ax = axs[col_idx, 0]
         ax.imshow(
             data,
-            norm=palette._mpl_norm,
-            cmap=palette._mpl_colormap,
+            norm=palette.mpl_norm,
+            cmap=palette.mpl_cmap,
             origin="lower",
             aspect="auto",
         )

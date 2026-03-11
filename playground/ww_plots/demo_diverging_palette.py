@@ -16,9 +16,9 @@ from jormi.ww_plots.color_palette import DivergingPalette
 ##
 
 
-def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
-    x = numpy.linspace(vmin, vmax, 200)
-    y = numpy.linspace(vmin, vmax, 200)
+def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
+    x = numpy.linspace(value_min, value_max, 200)
+    y = numpy.linspace(value_min, value_max, 200)
     xx, yy = numpy.meshgrid(x, y)
     return xx + yy * 0.0  # horizontal gradient
 
@@ -29,39 +29,63 @@ def _make_gradient(vmin: float, vmax: float) -> numpy.ndarray:
 
 
 def main() -> None:
-    vmin, vmax, vmid = -1.0, 1.0, 0.0
-    data = _make_gradient(vmin, vmax)
+    value_min, value_max, value_mid = -1.0, 1.0, 0.0
+    data = _make_gradient(value_min, value_max)
 
     palettes = [
         (
             "from_name: blue-red",
             DivergingPalette.from_name(
-                value_range=(vmin, vmax),
-                mid_value=vmid,
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
+                palette_name="blue-red",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "from_name: purple-green",
             DivergingPalette.from_name(
-                value_range=(vmin, vmax),
-                mid_value=vmid,
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
                 palette_name="purple-green",
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "from_colors",
             DivergingPalette.from_colors(
-                value_range=(vmin, vmax),
-                mid_value=vmid,
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
                 colors=["#0a3d62", "#d6eaf8", "#f9f9f9", "#fadbd8", "#922b21"],
+                palette_range=(0.0, 1.0),
             ),
         ),
         (
             "with_mid_value (-0.3)",
             DivergingPalette.from_name(
-                value_range=(vmin, vmax),
-                mid_value=vmid,
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
+                palette_name="blue-red",
+                palette_range=(0.0, 1.0),
             ).with_mid_value(-0.3),
+        ),
+        (
+            "with_value_range (-0.5, 1.0)",
+            DivergingPalette.from_name(
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
+                palette_name="blue-red",
+                palette_range=(0.0, 1.0),
+            ).with_value_range((-0.5, 1.0)),
+        ),
+        (
+            "with_palette_range (0.2, 0.8)",
+            DivergingPalette.from_name(
+                value_range=(value_min, value_max),
+                mid_value=value_mid,
+                palette_name="blue-red",
+                palette_range=(0.0, 1.0),
+            ).with_palette_range((0.2, 0.8)),
         ),
     ]
 
@@ -77,8 +101,8 @@ def main() -> None:
         ax = axs[col_idx, 0]
         ax.imshow(
             data,
-            norm=palette._mpl_norm,
-            cmap=palette._mpl_colormap,
+            norm=palette.mpl_norm,
+            cmap=palette.mpl_cmap,
             origin="lower",
             aspect="auto",
         )

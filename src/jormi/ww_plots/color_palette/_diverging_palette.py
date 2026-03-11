@@ -61,7 +61,7 @@ class DivergingPalette(_base_palette.ColorPalette):
             value_range=value_range,
             mid_value=mid_value,
             palette_range=palette_range,
-            _base_colormap=_base_palette.resolve_palette(palette_name),
+            _cmap=_base_palette.resolve_palette(palette_name),
         )
 
     @classmethod
@@ -73,7 +73,7 @@ class DivergingPalette(_base_palette.ColorPalette):
         colors: list[str],
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DivergingPalette":
-        base_colormap = mpl_colors.LinearSegmentedColormap.from_list(
+        cmap = mpl_colors.LinearSegmentedColormap.from_list(
             name="custom",
             colors=colors,
             N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
@@ -82,11 +82,11 @@ class DivergingPalette(_base_palette.ColorPalette):
             value_range=value_range,
             mid_value=mid_value,
             palette_range=palette_range,
-            _base_colormap=base_colormap,
+            _cmap=cmap,
         )
 
     @property
-    def _mpl_norm(
+    def mpl_norm(
         self,
     ) -> mpl_colors.TwoSlopeNorm:
         type_checks.ensure_ordered_pair(
@@ -106,13 +106,13 @@ class DivergingPalette(_base_palette.ColorPalette):
         )
 
     @property
-    def _mpl_colormap(
+    def mpl_cmap(
         self,
     ) -> mpl_colors.Colormap:
         return _base_palette.subset_palette(
-            palette=self._base_colormap,
+            palette_cmap=self._cmap,
             palette_range=self.palette_range,
-            palette_name="subset-diverging-cmap",
+            palette_label="subset-diverging-cmap",
         )
 
     def with_value_range(
