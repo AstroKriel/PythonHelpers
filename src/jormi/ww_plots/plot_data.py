@@ -8,14 +8,14 @@ import numpy
 from typing import Literal
 
 from jormi.ww_types import type_checks, array_checks, box_positions
-from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_plots import plot_manager, add_color, color_palettes
 
 ##
 ## === DATA TYPES
 ##
 
 DataFormat = Literal["xy", "ij"]
-AxisBounds = tuple[tuple[float, float], tuple[float, float]]  # ((xmin, xmax), (ymin, ymax))
+AxisBounds = tuple[tuple[float, float], tuple[float, float]]  # ((min_x_value, max_x_value), (min_y_value, max_y_value))
 
 ##
 ## === FUNCTIONS
@@ -27,9 +27,9 @@ def as_plot_view(
     data_format: DataFormat,
 ) -> numpy.ndarray:
     """
-    Convert a 2D array to a plot-ready array[rows, cols].
-        - data_format="xy": is indexed [x, y]
-        - data_format="ij": is indexed [i:rows, j:cols]
+    Convert a 2D array to a plot-ready array[rows, cols], given its current indexing format.
+        - `data_format="xy"`: array is currently indexed [x, y] -> transpose to [rows, cols]
+        - `data_format="ij"`: array is currently indexed [i=rows, j=cols] -> pass through unchanged
     """
     match data_format:
         case "xy":
@@ -43,6 +43,10 @@ def as_plot_view(
 def _as_axis_extent(
     axis_bounds: AxisBounds | None,
 ) -> tuple[float, float, float, float] | None:
+    """
+    Convert AxisBounds to the flat (xmin, xmax, ymin, ymax) extent format expected by matplotlib.
+    Returns None if `axis_bounds` is None.
+    """
     if axis_bounds is None:
         return None
     type_checks.ensure_nested_tuple(
@@ -53,29 +57,24 @@ def _as_axis_extent(
         valid_elem_types=type_checks.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
-    ## ensure booleans are rejected (bool is a subclass of int)
-    type_checks.ensure_tuple_of_numbers(
+    type_checks.ensure_ordered_pair(
         param=axis_bounds[0],
         param_name="axis_bounds[0]",
-        seq_length=2,
         allow_none=False,
+        strict_ordering=True,
     )
-    type_checks.ensure_tuple_of_numbers(
+    type_checks.ensure_ordered_pair(
         param=axis_bounds[1],
         param_name="axis_bounds[1]",
-        seq_length=2,
         allow_none=False,
+        strict_ordering=True,
     )
-    (xmin, xmax), (ymin, ymax) = axis_bounds
-    if not (xmin < xmax):
-        raise ValueError(f"`axis_bounds[0]` must satisfy xmin < xmax, got ({xmin}, {xmax}).")
-    if not (ymin < ymax):
-        raise ValueError(f"`axis_bounds[1]` must satisfy ymin < ymax, got ({ymin}, {ymax}).")
+    (min_x_value, max_x_value), (min_y_value, max_y_value) = axis_bounds
     return (
-        float(xmin),
-        float(xmax),
-        float(ymin),
-        float(ymax),
+        float(min_x_value),
+        float(max_x_value),
+        float(min_y_value),
+        float(max_y_value),
     )
 
 
@@ -83,30 +82,34 @@ def _get_value_range(
     array_2d: numpy.ndarray,
     cbar_bounds: tuple[float, float] | None,
 ) -> tuple[float, float]:
+    """
+    Calculate the (min, max) value range for colorbar scaling.
+    
+    If `cbar_bounds` is provided, validate and use it directly. Otherwise, infer from the finite
+    values in `array_2d`, with a small pad applied.
+    """
+    ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
-        type_checks.ensure_tuple_of_numbers(
+        type_checks.ensure_ordered_pair(
             param=cbar_bounds,
             param_name="cbar_bounds",
-            seq_length=2,
             allow_none=False,
         )
-        min_value, max_value = cbar_bounds
-        min_value = float(min_value)
-        max_value = float(max_value)
+        min_value, max_value = float(cbar_bounds[0]), float(cbar_bounds[1])
         if not (numpy.isfinite(min_value) and numpy.isfinite(max_value)):
             raise ValueError(f"`cbar_bounds` must be finite, got ({min_value}, {max_value}).")
-        if not (min_value <= max_value):
-            raise ValueError(f"`cbar_bounds` must satisfy min <= max, got ({min_value}, {max_value}).")
         return (min_value, max_value)
+    ## infer bounds from data, with a small pad to avoid degenerate colormaps
     finite_mask = numpy.isfinite(array_2d)
     if not numpy.any(finite_mask):
         raise ValueError("Array contains no finite values; cannot infer colorbar bounds.")
     min_value = float(numpy.min(array_2d[finite_mask]))
     max_value = float(numpy.max(array_2d[finite_mask]))
     if min_value == max_value:
-        value_pad = 1e-12 if (min_value == 0.0) else 1e-12 * abs(min_value)
-        min_value -= value_pad
-        max_value += value_pad
+        pad_value = 1e-12 if (min_value == 0.0) else 1e-12 * abs(min_value)
+        min_value -= pad_value
+        max_value += pad_value
+    ## return with a slightly clipped range
     return (
         0.99 * min_value,
         1.01 * max_value,
@@ -137,9 +140,9 @@ def plot_2d_array(
         array_2d=array_view,
         cbar_bounds=cbar_bounds,
     )
-    cmap_obj = add_color.CMap(
+    palette = color_palettes.SequentialPalette.from_name(
+        palette_name=cmap_name,
         value_range=(min_value, max_value),
-        cmap_name=cmap_name,
     )
     axis_extent = _as_axis_extent(axis_bounds)
     im_obj = ax.imshow(
@@ -147,19 +150,19 @@ def plot_2d_array(
         extent=axis_extent,
         aspect=axis_aspect_ratio,
         origin="lower",
-        cmap=cmap_obj.cmap,
-        norm=cmap_obj.norm,
+        cmap=palette.mpl_cmap,
+        norm=palette.mpl_norm,
     )
     if axis_extent is not None:
-        xmin, xmax, ymin, ymax = axis_extent
-        ax.set_xlim((xmin, xmax))
-        ax.set_ylim((ymin, ymax))
+        min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
+        ax.set_xlim((min_x_value, max_x_value))
+        ax.set_ylim((min_y_value, max_y_value))
     if add_cbar:
-        add_color.add_cbar_from_cmap(
+        add_color.add_colorbar(
             ax=ax,
-            cmap=cmap_obj,
+            palette=palette,
             label=cbar_label,
-            anchor_side=cbar_side,
+            cbar_side=cbar_side,
         )
     return im_obj
 
@@ -171,10 +174,10 @@ def _generate_grid(
     axis_extent = _as_axis_extent(axis_bounds)
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
-    xmin, xmax, ymin, ymax = axis_extent
+    min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     num_rows, num_cols = field_shape
-    coords_x = numpy.linspace(xmin, xmax, num_cols)
-    coords_y = numpy.linspace(ymin, ymax, num_rows)
+    coords_x = numpy.linspace(min_x_value, max_x_value, num_cols)
+    coords_y = numpy.linspace(min_y_value, max_y_value, num_rows)
     grid_x, grid_y = numpy.meshgrid(coords_x, coords_y, indexing="xy")
     return grid_x, grid_y
 
@@ -217,9 +220,9 @@ def plot_2d_quiver(
         width=quiver_width,
         color=field_color,
     )
-    xmin, xmax, ymin, ymax = axis_extent
-    ax.set_xlim((xmin, xmax))
-    ax.set_ylim((ymin, ymax))
+    min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
+    ax.set_xlim((min_x_value, max_x_value))
+    ax.set_ylim((min_y_value, max_y_value))
     return quiver_obj
 
 
@@ -260,9 +263,9 @@ def plot_2d_streamlines(
         density=streamline_density,
         arrowsize=arrow_size,
     )
-    xmin, xmax, ymin, ymax = axis_extent
-    ax.set_xlim((xmin, xmax))
-    ax.set_ylim((ymin, ymax))
+    min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
+    ax.set_xlim((min_x_value, max_x_value))
+    ax.set_ylim((min_y_value, max_y_value))
     return stream_obj
 
 
