@@ -21,7 +21,7 @@ AxisBounds = tuple[
 ]
 
 ##
-## === FUNCTIONS
+## === INTERNAL HELPERS
 ##
 
 
@@ -125,6 +125,11 @@ def _get_value_range(
     )
 
 
+##
+## === PLOT FUNCTIONS
+##
+
+
 def plot_2d_array(
     ax: plot_manager.PlotAxis,
     array_2d: numpy.ndarray,
@@ -196,7 +201,7 @@ def plot_2d_quiver(
     axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
     num_quivers: int = 25,
     quiver_width: float = 5e-3,
-    field_color: str = "white",
+    color: str = "white",
 ):
     array_checks.ensure_dims(
         array=array_2d_rows,
@@ -227,7 +232,7 @@ def plot_2d_quiver(
         array_2d_cols[::quiver_step_rows, ::quiver_step_cols],
         array_2d_rows[::quiver_step_rows, ::quiver_step_cols],
         width=quiver_width,
-        color=field_color,
+        color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     ax.set_xlim((min_x_value, max_x_value))
@@ -239,11 +244,11 @@ def plot_2d_streamlines(
     ax: plot_manager.PlotAxis,
     array_2d_rows: numpy.ndarray,
     array_2d_cols: numpy.ndarray,
-    axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
+    axis_bounds: AxisBounds = ((0.0, 1.0), (0.0, 1.0)),
     streamline_width: float = 1.0,
-    field_color: str = "white",
     streamline_density: float = 2.0,
     arrow_size: float = 1.0,
+    color: str = "white",
 ):
     array_checks.ensure_dims(
         array=array_2d_rows,
@@ -271,10 +276,10 @@ def plot_2d_streamlines(
         grid_y,
         array_2d_cols,
         array_2d_rows,
-        color=field_color,
         linewidth=streamline_width,
         density=streamline_density,
         arrowsize=arrow_size,
+        color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     ax.set_xlim((min_x_value, max_x_value))
