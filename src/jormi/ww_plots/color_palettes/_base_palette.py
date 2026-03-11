@@ -116,20 +116,22 @@ def _make_builtin_palette(
     return (name, cmap)
 
 
-_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict([
-    _make_builtin_palette(
-        name="blue-white-red",
-        colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
-    ),
-    _make_builtin_palette(
-        name="white-brown",
-        colors=["#fdfdfd", "#f49325", "#010101"],
-    ),
-    _make_builtin_palette(
-        name="purple-white-green",
-        colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
-    ),
-])
+_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict(
+    [
+        _make_builtin_palette(
+            name="blue-white-red",
+            colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
+        ),
+        _make_builtin_palette(
+            name="white-brown",
+            colors=["#fdfdfd", "#f49325", "#010101"],
+        ),
+        _make_builtin_palette(
+            name="purple-white-green",
+            colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
+        ),
+    ]
+)
 
 ##
 ## === BASE PALETTE
