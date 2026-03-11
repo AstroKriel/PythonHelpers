@@ -54,7 +54,7 @@ class DivergingPalette(_base_palette.ColorPalette):
         *,
         value_range: tuple[float, float],
         mid_value: float,
-        palette_name: str = "blue-red",
+        palette_name: str = "blue-white-red",
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DivergingPalette":
         return cls(

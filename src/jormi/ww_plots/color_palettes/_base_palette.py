@@ -105,7 +105,7 @@ def subset_palette(
 _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
     "blue-white-red":
     mpl_colors.LinearSegmentedColormap.from_list(
-        name="blue-red",
+        name="blue-white-red",
         colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
         N=256,
     ),
@@ -115,7 +115,7 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
         colors=["#fdfdfd", "#f49325", "#010101"],
         N=256,
     ),
-    "purple-green":
+    "purple-white-green":
     mpl_colors.LinearSegmentedColormap.from_list(
         name="purple-white-green",
         colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
