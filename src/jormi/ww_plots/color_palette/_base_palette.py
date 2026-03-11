@@ -25,21 +25,24 @@ from jormi.ww_types import type_checks
 def validate_palette_range(
     palette_range: tuple[float, float],
 ) -> None:
-    type_checks.ensure_in_bounds(
-        param=palette_range[0],
-        min_value=0.0,
-        max_value=1.0,
-        param_name="palette_range[0]",
-    )
-    type_checks.ensure_in_bounds(
-        param=palette_range[1],
-        min_value=0.0,
-        max_value=1.0,
-        param_name="palette_range[1]",
-    )
     type_checks.ensure_ordered_pair(
         param=palette_range,
         param_name="palette_range",
+        allow_none=False,
+    )
+    type_checks.ensure_in_bounds(
+        param=palette_range[0],
+        param_name="palette_range[0]",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
+    )
+    type_checks.ensure_in_bounds(
+        param=palette_range[1],
+        param_name="palette_range[1]",
+        allow_none=False,
+        min_value=0.0,
+        max_value=1.0,
     )
 
 
@@ -59,7 +62,7 @@ def subset_palette(
     *,
     palette: mpl_colors.Colormap,
     palette_range: tuple[float, float],
-    name: str,
+    palette_name: str,
 ) -> mpl_colors.Colormap:
     palette_min, palette_max = palette_range
     type_checks.ensure_in_bounds(
@@ -80,17 +83,18 @@ def subset_palette(
     )
     if (palette_min == 0.0) and (palette_max == 1.0):
         return palette
+    ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
     sampled_colors = palette(
         numpy.linspace(
             start=palette_min,
             stop=palette_max,
-            num=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+            num=256,
         ),
     )
     return mpl_colors.LinearSegmentedColormap.from_list(
-        name=f"{name}_sub",
+        name=palette_name,
         colors=sampled_colors,
-        N=256,  # LUT size: 256 matches 8-bit color depth and exceeds perceptual resolution
+        N=256,
     )
 
 

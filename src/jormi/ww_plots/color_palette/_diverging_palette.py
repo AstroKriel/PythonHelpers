@@ -112,7 +112,7 @@ class DivergingPalette(_base_palette.ColorPalette):
         return _base_palette.subset_palette(
             palette=self._base_colormap,
             palette_range=self.palette_range,
-            name="diverging",
+            palette_name="subset-diverging-cmap",
         )
 
     def with_value_range(

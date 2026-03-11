@@ -128,7 +128,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         continuous_colormap = _base_palette.subset_palette(
             palette=self._base_colormap,
             palette_range=self.palette_range,
-            name="discrete",
+            palette_name="subset-discrete-cmap",
         )
         sampled_colors = continuous_colormap(
             numpy.linspace(
