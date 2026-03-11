@@ -9,7 +9,7 @@ import numpy
 from pathlib import Path
 
 from jormi.ww_plots import plot_manager, add_color
-from jormi.ww_plots.color_palette import SequentialPalette
+from jormi.ww_plots.color_palettes import SequentialPalette
 
 ##
 ## === DEMO DATA

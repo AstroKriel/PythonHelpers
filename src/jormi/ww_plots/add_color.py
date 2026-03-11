@@ -9,7 +9,7 @@ import matplotlib.axes as mpl_axes
 import matplotlib.colorbar as mpl_colorbar
 
 from jormi.ww_types import type_checks, box_positions
-from jormi.ww_plots.color_palette import ColorPalette
+from jormi.ww_plots.color_palettes import ColorPalette
 from jormi.ww_plots.plot_manager import compute_adjacent_ax_bounds
 
 ##

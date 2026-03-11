@@ -11,7 +11,7 @@ import matplotlib.colors as mpl_colors
 from dataclasses import dataclass
 
 from jormi.ww_types import type_checks
-from jormi.ww_plots.color_palette import _base_palette
+from jormi.ww_plots.color_palettes import _base_palette
 
 ##
 ## === DISCRETE PALETTE
