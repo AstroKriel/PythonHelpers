@@ -6,7 +6,7 @@
 
 import numpy
 from jormi.ww_io import io_manager
-from jormi.ww_data import compute_stats
+from jormi.ww_arrays import compute_array_stats
 from jormi.ww_plots import plot_manager
 
 ##
@@ -14,23 +14,17 @@ from jormi.ww_plots import plot_manager
 ##
 
 
-def sample_from_ellipse(num_samples, ax=None):
-    center_x = 30
-    center_y = 100
+def sample_from_ellipse(num_samples, rng):
+    x_center = 30
+    y_center = 100
     semi_major_axis = 10
     semi_minor_axis = 3
     angle_deg = 90 / 2
     angle_rad = angle_deg * numpy.pi / 180
-    x_samples = numpy.random.normal(0, semi_major_axis, int(num_samples))
-    y_samples = numpy.random.normal(0, semi_minor_axis, int(num_samples))
-    x_rotated = center_x + x_samples * numpy.cos(angle_rad) - y_samples * numpy.sin(angle_rad)
-    y_rotated = center_y + x_samples * numpy.sin(angle_rad) + y_samples * numpy.cos(angle_rad)
-    slope = numpy.tan(angle_rad)
-    intercept = center_y - slope * center_x
-    str_sign = "-" if (intercept < 0) else "+"
-    label = f"true trend: $y = {slope:.1f} x {str_sign} {numpy.abs(intercept):.1f}$"
-    if ax is not None:
-        ax.text(0.05, 0.95, label, ha="left", va="top", transform=ax.transAxes, fontsize=20)
+    x_samples = rng.normal(0, semi_major_axis, int(num_samples))
+    y_samples = rng.normal(0, semi_minor_axis, int(num_samples))
+    x_rotated = x_center + x_samples * numpy.cos(angle_rad) - y_samples * numpy.sin(angle_rad)
+    y_rotated = y_center + x_samples * numpy.sin(angle_rad) + y_samples * numpy.cos(angle_rad)
     return x_rotated, y_rotated
 
 
@@ -40,51 +34,56 @@ def sample_from_ellipse(num_samples, ax=None):
 
 
 def main():
+    ## parameters
     num_points = int(3e5)
     num_bins = int(1e2)
-    plot_samples = False
-    integral_tolerance = 1e-2
-    fig, axs_grid = plot_manager.create_figure()
-    ax = axs_grid[0, 0]
-    x_samples, y_samples = sample_from_ellipse(num_points, ax)
-    result = compute_stats.estimate_jpdf(
+    plot_samples = False  # set True to overlay raw samples on the JPDF for debugging
+    integral_error_tol = 1e-2
+    ## sample data: rotated elliptical Gaussian
+    rng = numpy.random.default_rng(seed=42)
+    fig, ax = plot_manager.create_figure()
+    x_samples, y_samples = sample_from_ellipse(num_points, rng)
+    ## estimate JPDF
+    result = compute_array_stats.estimate_jpdf(
         data_x=x_samples,
         data_y=y_samples,
         num_bins=num_bins,
         smoothing_length=2.0,
     )
-    bin_centers_rows = result.bin_centers_rows
-    bin_centers_cols = result.bin_centers_cols
-    jpdf = result.density
-    bin_widths_x = numpy.diff(result.bin_edges_cols)
-    bin_widths_y = numpy.diff(result.bin_edges_rows)
+    ## compute integral for normalisation check: sum(jpdf * dA) should be ~1
+    bin_centers_rows = result.row_centers
+    bin_centers_cols = result.col_centers
+    jpdf = result.densities
+    bin_widths_x = numpy.diff(result.col_edges)
+    bin_widths_y = numpy.diff(result.row_edges)
     pdf_integral = numpy.sum(jpdf * bin_widths_y[:, numpy.newaxis] * bin_widths_x[numpy.newaxis, :])
+    ## plot JPDF (always saved so it can be inspected on failure)
     ax.imshow(
         jpdf,
-        extent=[
+        extent=(
             bin_centers_cols.min(),
             bin_centers_cols.max(),
             bin_centers_rows.min(),
             bin_centers_rows.max(),
-        ],
+        ),
         origin="lower",
         aspect="auto",
         cmap="Blues",
     )
-    # ax.contourf(bin_centers_cols, bin_centers_rows, jpdf, levels=20, cmap="Blues") # (x, y, value)
-    if plot_samples: ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
-    ## add annotations
+    if plot_samples:
+        ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$y$")
     ax.axhline(y=0.0, color="black", ls="--", zorder=1)
     ax.axvline(x=0.0, color="black", ls="--", zorder=1)
-    ax.set_xlim([numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)])
-    ax.set_ylim([numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)])
-    directory = io_manager.get_caller_directory()
-    file_name = "estimated_2d_jpdf.png"
-    file_path = io_manager.combine_file_path_parts([directory, file_name])
-    plot_manager.save_figure(fig, file_path)
-    assert abs(pdf_integral - 1.0) < integral_tolerance, (
+    ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
+    ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
+    file_dir = io_manager.get_caller_directory()
+    fig_name = "estimated_2d_jpdf.png"
+    fig_path = io_manager.combine_file_path_parts([file_dir, fig_name])
+    plot_manager.save_figure(fig, fig_path)
+    ## check
+    assert abs(pdf_integral - 1.0) < integral_error_tol, (
         f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
     )
     print("Test passed successfully!")
