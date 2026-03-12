@@ -283,13 +283,36 @@ class FitSummary:
 
 
 ##
+## === LINEAR FIT SUMMARY CLASS
+##
+
+
+class LinearFitSummary(FitSummary):
+    """FitSummary subclass for linear models, exposing slope and intercept directly."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        for required_key in ("slope", "intercept"):
+            if required_key not in self.fit_stats:
+                raise ValueError(f"LinearFitSummary requires '{required_key}' in fit_stats.")
+
+    @property
+    def slope(self) -> FitStatistic:
+        return self.fit_stats["slope"]
+
+    @property
+    def intercept(self) -> FitStatistic:
+        return self.fit_stats["intercept"]
+
+
+##
 ## === FIT FUNCTIONS
 ##
 
 
 def fit_linear_model(
     gaussian_series: GaussianSeries,
-) -> FitSummary:
+) -> LinearFitSummary:
     """Fit a linear model to a 1D gaussian_series using least squares."""
     type_checks.ensure_type(
         param=gaussian_series,
@@ -330,7 +353,7 @@ def fit_linear_model(
         gaussian_series.x_values,
         *fitted_vector,
     )
-    return FitSummary(
+    return LinearFitSummary(
         model=linear_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
@@ -343,7 +366,7 @@ def fit_linear_model(
 def fit_line_with_fixed_slope(
     gaussian_series: GaussianSeries,
     fixed_slope: float,
-) -> FitSummary:
+) -> LinearFitSummary:
     """Fit a line with a fixed slope to a 1D gaussian_series."""
     type_checks.ensure_type(
         param=gaussian_series,
@@ -392,7 +415,7 @@ def fit_line_with_fixed_slope(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,
     )
-    return FitSummary(
+    return LinearFitSummary(
         model=fixed_slope_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
