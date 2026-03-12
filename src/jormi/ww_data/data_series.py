@@ -23,54 +23,56 @@ class DataSeries:
 
     Fields
     ---
-    - `x_data_array`:
+    - `x_values`:
         1D array of x-values; must be finite and non-constant.
-    - `y_data_array`:
-        1D array of y-values; must be finite, non-constant, and same length as `x_data_array`.
-    - `x_sigma_array`:
+    - `y_values`:
+        1D array of y-values; must be finite, non-constant, and same length as `x_values`.
+    - `x_sigmas`:
         Optional 1D array of x-uncertainties; must be strictly positive.
-    - `y_sigma_array`:
+    - `y_sigmas`:
         Optional 1D array of y-uncertainties; must be strictly positive.
     """
 
-    x_data_array: numpy.ndarray
-    y_data_array: numpy.ndarray
-    x_sigma_array: numpy.ndarray | None = None
-    y_sigma_array: numpy.ndarray | None = None
+    x_values: numpy.ndarray
+    y_values: numpy.ndarray
+    x_sigmas: numpy.ndarray | None = None
+    y_sigmas: numpy.ndarray | None = None
 
     def __post_init__(
         self,
     ):
-        self._validate_data_array(self.x_data_array)
-        self._validate_data_array(self.y_data_array)
+        self._validate_data_array(self.x_values)
+        self._validate_data_array(self.y_values)
         array_checks.ensure_same_shape(
-            array_a=self.x_data_array,
-            array_b=self.y_data_array,
+            array_a=self.x_values,
+            array_b=self.y_values,
         )
-        if self.x_sigma_array is not None:
+        if self.x_sigmas is not None:
             self._validate_sigma_array(
-                sigma_array=self.x_sigma_array,
-                ref_array=self.x_data_array,
+                sigma_array=self.x_sigmas,
+                ref_array=self.x_values,
             )
-        if self.y_sigma_array is not None:
+        if self.y_sigmas is not None:
             self._validate_sigma_array(
-                sigma_array=self.y_sigma_array,
-                ref_array=self.y_data_array,
+                sigma_array=self.y_sigmas,
+                ref_array=self.y_values,
             )
 
     @staticmethod
     def _validate_data_array(
         array: numpy.ndarray,
+        rel_tol: float = 1e-2,
+        abs_tol: float = 1e-9,
     ):
         array_checks.ensure_nonempty(array)
         array_checks.ensure_finite(array)
         array_checks.ensure_1d(array)
         value_range = numpy.max(array) - numpy.min(array)
         ref_value = max(
-            1.0,
-            numpy.median(numpy.abs(array)),
+            1.0,  # clamp: prevents near-zero scale from inflating the ratio
+            numpy.median(numpy.abs(array)),  # robust estimate of typical data magnitude
         )
-        if (value_range / ref_value < 1e-2) and (value_range < 1e-9):
+        if (value_range / ref_value < rel_tol) and (value_range < abs_tol):
             raise ValueError("Data values are (nearly) identical.")
 
     @staticmethod
@@ -92,15 +94,15 @@ class DataSeries:
     def num_points(
         self,
     ) -> int:
-        return len(self.x_data_array)
+        return len(self.x_values)
 
     @cached_property
     def x_bounds(
         self,
     ) -> tuple[float, float]:
         return (
-            numpy.min(self.x_data_array),
-            numpy.max(self.x_data_array),
+            numpy.min(self.x_values),
+            numpy.max(self.x_values),
         )
 
     @cached_property
@@ -108,28 +110,17 @@ class DataSeries:
         self,
     ) -> tuple[float, float]:
         return (
-            numpy.min(self.y_data_array),
-            numpy.max(self.y_data_array),
+            numpy.min(self.y_values),
+            numpy.max(self.y_values),
         )
-
-    @cached_property
-    def has_x_uncertainty(
-        self,
-    ) -> bool:
-        return self.x_sigma_array is not None
-
-    @cached_property
-    def has_y_uncertainty(
-        self,
-    ) -> bool:
-        return self.y_sigma_array is not None
 
     def y_weights(
         self,
     ) -> numpy.ndarray:
-        if self.y_sigma_array is None:
-            return numpy.ones_like(self.y_data_array, dtype=float)
-        return 1.0 / numpy.square(self.y_sigma_array)
+        """Inverse-variance weights (1/sigma^2) for weighted least-squares. Returns ones if no `y_sigmas`."""
+        if self.y_sigmas is None:
+            return numpy.ones_like(self.y_values, dtype=float)
+        return 1.0 / numpy.square(self.y_sigmas)
 
 
 ## } MODULE
