@@ -13,7 +13,7 @@ from jormi.utils import list_utils
 ##
 
 
-class TestListUtils(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_cast_to_string(self):
         result = list_utils.as_string(["a", "b", "c"])

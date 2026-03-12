@@ -4,8 +4,9 @@
 ## === DEPENDENCIES
 ##
 
-import unittest
 import numpy
+import unittest
+
 from jormi.ww_arrays import compute_array_stats
 
 ##
@@ -13,7 +14,7 @@ from jormi.ww_arrays import compute_array_stats
 ##
 
 
-class Test_Compute_P_Norm(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_l2_norm(self):
         ## Euclidean distance

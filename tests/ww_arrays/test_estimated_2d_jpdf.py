@@ -5,6 +5,7 @@
 ##
 
 import numpy
+
 from jormi.ww_io import io_manager
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_plots import plot_manager

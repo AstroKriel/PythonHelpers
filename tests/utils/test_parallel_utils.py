@@ -113,7 +113,7 @@ def plot_task(
         return False
 
 
-class TestParallelExecution(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_parallel_plotting(self):
         script_directory = io_manager.get_caller_directory()
