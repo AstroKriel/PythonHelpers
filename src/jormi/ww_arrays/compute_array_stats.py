@@ -110,8 +110,15 @@ def suppress_divide_warnings() -> numpy.errstate:
 
 
 ##
-## === P-NORM DISTANCE METRIC
+## === ARRAY STATISTICS
 ##
+
+
+def compute_rms(
+    array: numpy.ndarray,
+) -> float:
+    """Compute the root-mean-square of a NumPy array."""
+    return float(numpy.sqrt(numpy.mean(numpy.square(array))))
 
 
 def compute_p_norm(
