@@ -83,7 +83,7 @@ def subset_palette(
     )
     if (palette_min == 0.0) and (palette_max == 1.0):
         return palette_cmap
-    ## look-up table size should be 256 to match 8-bit color depth (this exceeds perceptual resolution)
+    ## look-up table size should have 256 values; match 8-bit color depth (this exceeds perceptual resolution)
     sampled_colors = palette_cmap(
         numpy.linspace(
             start=palette_min,
@@ -102,26 +102,36 @@ def subset_palette(
 ## === BUILTIN PALETTES
 ##
 
-_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = {
-    "blue-white-red":
-    mpl_colors.LinearSegmentedColormap.from_list(
-        name="blue-red",
-        colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
+
+def _make_builtin_palette(
+    name: str,
+    colors: list[str],
+) -> tuple[str, mpl_colors.Colormap]:
+    """Create a named colormap and return (name, cmap) for use as a _BUILTIN_PALETTES entry."""
+    cmap = mpl_colors.LinearSegmentedColormap.from_list(
+        name=name,
+        colors=colors,
         N=256,
-    ),
-    "white-brown":
-    mpl_colors.LinearSegmentedColormap.from_list(
-        name="white-brown",
-        colors=["#fdfdfd", "#f49325", "#010101"],
-        N=256,
-    ),
-    "purple-green":
-    mpl_colors.LinearSegmentedColormap.from_list(
-        name="purple-white-green",
-        colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
-        N=256,
-    ),
-}
+    )
+    return (name, cmap)
+
+
+_BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict(
+    [
+        _make_builtin_palette(
+            name="blue-white-red",
+            colors=["#024f92", "#067bf1", "#d4d4d4", "#f65d25", "#A41409"],
+        ),
+        _make_builtin_palette(
+            name="white-brown",
+            colors=["#fdfdfd", "#f49325", "#010101"],
+        ),
+        _make_builtin_palette(
+            name="purple-white-green",
+            colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
+        ),
+    ],
+)
 
 ##
 ## === BASE PALETTE
@@ -138,9 +148,9 @@ class ColorPalette(ABC):
     """
 
     _base_cmap: mpl_colors.Colormap = dataclasses.field(
-        hash=False,  # colormaps are not hashable; including this field would raise TypeError in __hash__
-        compare=False,  # equality should reflect construction args, not colormap object identity
-        repr=False,  # colormap repr is large and uninformative; exclude to keep __repr__ clean
+        hash=False,  # colormaps are not hashable
+        compare=False,  # equality should reflect construction args
+        repr=False,  # colormap repr is large and uninformative
     )
 
     @property

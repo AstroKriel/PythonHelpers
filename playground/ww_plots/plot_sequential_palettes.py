@@ -9,7 +9,7 @@ import numpy
 from pathlib import Path
 
 from jormi.ww_plots import plot_manager, add_color
-from jormi.ww_plots.color_palette import SequentialPalette
+from jormi.ww_plots.color_palettes import SequentialPalette
 
 ##
 ## === DEMO DATA
@@ -42,7 +42,7 @@ def main() -> None:
             ),
         ),
         (
-            "built from custom hex colors",
+            "custom hex colors",
             SequentialPalette.from_colors(
                 value_range=(value_min, value_max),
                 colors=["#1a1aff", "#ffffff", "#ff1a1a"],
@@ -50,7 +50,7 @@ def main() -> None:
             ),
         ),
         (
-            "clipped color range: (0.2, 0.8)",
+            "clipped color range",
             SequentialPalette.from_name(
                 value_range=(value_min, value_max),
                 palette_name="cmr.arctic",
@@ -58,7 +58,7 @@ def main() -> None:
             ).with_palette_range((0.2, 0.8)),
         ),
         (
-            "clipped value range: (0.3, 0.7)",
+            "clipped value range",
             SequentialPalette.from_name(
                 value_range=(value_min, value_max),
                 palette_name="cmr.arctic",
@@ -84,12 +84,17 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_color.add_colorbar(ax, palette=palette)
+        add_color.add_colorbar(
+            ax=ax,
+            palette=palette,
+            cbar_length=0.95,
+            cbar_thickness=0.1,
+        )
         ax.text(
             0.5,
             0.95,
             title,
-            fontsize=12,
+            fontsize=14,
             va="top",
             ha="center",
             transform=ax.transAxes,

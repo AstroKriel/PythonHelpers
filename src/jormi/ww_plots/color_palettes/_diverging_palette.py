@@ -10,7 +10,7 @@ import matplotlib.colors as mpl_colors
 from dataclasses import dataclass
 
 from jormi.ww_types import type_checks
-from jormi.ww_plots.color_palette import _base_palette
+from jormi.ww_plots.color_palettes import _base_palette
 
 ##
 ## === DIVERGING PALETTE
@@ -54,7 +54,7 @@ class DivergingPalette(_base_palette.ColorPalette):
         *,
         value_range: tuple[float, float],
         mid_value: float,
-        palette_name: str = "blue-red",
+        palette_name: str = "blue-white-red",
         palette_range: tuple[float, float] = (0.0, 1.0),
     ) -> "DivergingPalette":
         return cls(

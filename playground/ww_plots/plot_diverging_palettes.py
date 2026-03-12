@@ -9,7 +9,7 @@ import numpy
 from pathlib import Path
 
 from jormi.ww_plots import plot_manager, add_color
-from jormi.ww_plots.color_palette import DivergingPalette
+from jormi.ww_plots.color_palettes import DivergingPalette
 
 ##
 ## === DEMO DATA
@@ -43,7 +43,7 @@ def main() -> None:
             ),
         ),
         (
-            "built from custom hex colors",
+            "custom hex colors",
             DivergingPalette.from_colors(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
@@ -61,7 +61,7 @@ def main() -> None:
             ).with_mid_value(-0.3),
         ),
         (
-            "clipped value range: (-0.5, 1.0)",
+            "clipped value range",
             DivergingPalette.from_name(
                 value_range=(value_min, value_max),
                 mid_value=value_mid,
@@ -88,12 +88,17 @@ def main() -> None:
             origin="lower",
             aspect="auto",
         )
-        add_color.add_colorbar(ax, palette=palette)
+        add_color.add_colorbar(
+            ax=ax,
+            palette=palette,
+            cbar_length=0.95,
+            cbar_thickness=0.1,
+        )
         ax.text(
             0.5,
             0.95,
             title,
-            fontsize=12,
+            fontsize=14,
             va="top",
             ha="center",
             transform=ax.transAxes,
