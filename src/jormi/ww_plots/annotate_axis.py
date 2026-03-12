@@ -7,6 +7,7 @@
 import numpy
 
 from matplotlib.lines import Line2D as mpl_line2d
+from matplotlib.legend import Legend as mpl_legend
 from matplotlib.collections import LineCollection
 
 from jormi.ww_types import box_positions, array_checks, type_checks
@@ -209,7 +210,9 @@ def add_custom_legend(
                 f"\t- Valid line styles: {_VALID_LINES}.",
             )
         artists_to_draw.append(artist_to_draw)
-    ax.legend(
+    ## draw legend; use Legend directly so multiple legends can coexist on the same axis
+    legend = mpl_legend(
+        ax,
         handles=artists_to_draw,
         labels=labels,
         bbox_to_anchor=anchor_point,
@@ -227,6 +230,7 @@ def add_custom_legend(
         columnspacing=spacing,
         markerfirst=marker_first,
     )
+    ax.add_artist(legend)
 
 
 def overlay_curve(
