@@ -15,7 +15,7 @@ from jormi.ww_io import log_manager
 from jormi.utils import list_utils
 from jormi.ww_types import type_checks, array_checks
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_data.series import GaussianSeries
+from jormi.ww_data.series_types import GaussianSeries
 
 ##
 ## === UTILITY FUNCTIONS
@@ -288,22 +288,22 @@ class FitSummary:
 
 
 def fit_linear_model(
-    series: GaussianSeries,
+    gaussian_series: GaussianSeries,
 ) -> FitSummary:
-    """Fit a linear model to a 1D data-series using least squares."""
+    """Fit a linear model to a 1D gaussian_series using least squares."""
     type_checks.ensure_type(
-        param=series,
+        param=gaussian_series,
         valid_types=GaussianSeries,
-        param_name="series",
+        param_name="gaussian_series",
     )
-    if series.num_points < 3:
+    if gaussian_series.num_points < 3:
         raise ValueError("Need at least 3 points to fit a line.")
     linear_model = Model(
         model_name="linear",
         param_names=("intercept", "slope"),
         model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
     )
-    if series.x_sigmas is not None:
+    if gaussian_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
                 "Note: SciPy `curve_fit` does not account for `x_sigmas` (it is ignored); "
@@ -313,10 +313,10 @@ def fit_linear_model(
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
             f=linear_model.model_fn,
-            xdata=series.x_values,
-            ydata=series.y_values,
-            sigma=series.y_sigmas,
-            absolute_sigma=series.y_sigmas is not None,
+            xdata=gaussian_series.x_values,
+            ydata=gaussian_series.y_values,
+            sigma=gaussian_series.y_sigmas,
+            absolute_sigma=gaussian_series.y_sigmas is not None,
         )
     except RuntimeError as err:
         raise RuntimeError(f"Fit failed to converge: {err}") from err
@@ -326,44 +326,44 @@ def fit_linear_model(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
-    residual_array = series.y_values - linear_model.model_fn(
-        series.x_values,
+    residual_array = gaussian_series.y_values - linear_model.model_fn(
+        gaussian_series.x_values,
         *fitted_vector,
     )
     return FitSummary(
         model=linear_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
-        num_points=series.num_points,
-        x_bounds=series.x_bounds,
-        y_bounds=series.y_bounds,
+        num_points=gaussian_series.num_points,
+        x_bounds=gaussian_series.x_bounds,
+        y_bounds=gaussian_series.y_bounds,
     )
 
 
 def fit_line_with_fixed_slope(
-    series: GaussianSeries,
+    gaussian_series: GaussianSeries,
     fixed_slope: float,
 ) -> FitSummary:
-    """Fit a line with a fixed slope to a 1D data-series."""
+    """Fit a line with a fixed slope to a 1D gaussian_series."""
     type_checks.ensure_type(
-        param=series,
+        param=gaussian_series,
         valid_types=GaussianSeries,
-        param_name="series",
+        param_name="gaussian_series",
     )
     type_checks.ensure_finite_float(
         param=fixed_slope,
         param_name="fixed_slope",
     )
-    if series.num_points < 2:
+    if gaussian_series.num_points < 2:
         raise ValueError("Need at least 2 points to estimate intercept.")
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         param_names=("intercept", "slope"),
         model_fn=(lambda x_data_array, intercept, _fixed_slope: intercept + _fixed_slope * x_data_array),
     )
-    weight_array = series.y_weights()
-    uses_absolute_sigma = series.y_sigmas is not None
-    if series.x_sigmas is not None:
+    weight_array = gaussian_series.y_weights()
+    uses_absolute_sigma = gaussian_series.y_sigmas is not None
+    if gaussian_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
                 "Note: `x_sigmas` is not used in the fixed-slope estimator; "
@@ -371,8 +371,8 @@ def fit_line_with_fixed_slope(
             ),
         )
     ## weighted intercept
-    x_values = series.x_values
-    y_values = series.y_values
+    x_values = gaussian_series.x_values
+    y_values = gaussian_series.y_values
     weight_sum = float(numpy.sum(weight_array))
     y_minus_mx_array = y_values - fixed_slope * x_values
     intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
@@ -382,7 +382,7 @@ def fit_line_with_fixed_slope(
     if uses_absolute_sigma:
         sigma_sq = 1.0
     else:
-        num_dof = series.num_points - 1
+        num_dof = gaussian_series.num_points - 1
         ssr_value = float(numpy.sum(weight_array * numpy.square(residual_array)))
         sigma_sq = ssr_value / num_dof
     intercept_std = float(numpy.sqrt(sigma_sq / weight_sum))
@@ -396,9 +396,9 @@ def fit_line_with_fixed_slope(
         model=fixed_slope_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
-        num_points=series.num_points,
-        x_bounds=series.x_bounds,
-        y_bounds=series.y_bounds,
+        num_points=gaussian_series.num_points,
+        x_bounds=gaussian_series.x_bounds,
+        y_bounds=gaussian_series.y_bounds,
     )
 
 

@@ -10,7 +10,7 @@ from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 
 from jormi.ww_io import log_manager
 from jormi.ww_types import type_checks, array_checks
-from jormi.ww_data.data_series import DataSeries
+from jormi.ww_data.series_types import DataSeries
 
 ##
 ## === INTERPOLATION FUNCTIONS
