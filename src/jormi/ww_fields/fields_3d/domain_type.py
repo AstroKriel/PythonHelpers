@@ -27,8 +27,10 @@ class UniformDomain_3D(_domain_type.UniformDomain):
     ---
     - `periodicity`:
         Per-axis periodicity flags as (P0, P1, P2).
+
     - `resolution`:
         Number of cells along each axis as (N0, N1, N2).
+
     - `domain_bounds`:
         Physical bounds as ((x0_min, x0_max), (x1_min, x1_max), (x2_min, x2_max)).
     """

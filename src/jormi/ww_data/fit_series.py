@@ -11,7 +11,9 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 
+from jormi.utils import list_utils
 from jormi.ww_types import type_checks, array_checks
+from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data import data_series
 from jormi.ww_io import log_manager
 
@@ -88,14 +90,19 @@ class FitSummary:
     ---
     - `model`:
         The fitted model (name, parameter names, model function).
+
     - `fit_stats`:
         Mapping from parameter name to its `FitStatistic` (value + optional sigma).
+
     - `residual_array`:
         1D array of (y_data - y_fit) residuals; length must equal `num_points`.
+
     - `num_points`:
         Number of data points used in the fit.
+
     - `x_bounds`:
         (min, max) of the x data used in the fit.
+
     - `y_bounds`:
         (min, max) of the y data used in the fit.
     """
@@ -110,7 +117,11 @@ class FitSummary:
     def __post_init__(self):
         missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
-            missing_string = ", ".join(sorted(missing_params))
+            missing_string = list_utils.as_string(
+                elems=sorted(missing_params),
+                wrap_in_quotes=True,
+                conjunction="and",
+            )
             raise ValueError(f"Missing parameter(s): {missing_string}")
         array_checks.ensure_array(self.residual_array)
         array_checks.ensure_1d(self.residual_array)
@@ -122,13 +133,19 @@ class FitSummary:
     def sum_squared_residual(
         self,
     ) -> float:
-        return float(numpy.sum(numpy.square(self.residual_array)))
+        return float(
+            numpy.sum(
+                numpy.square(
+                    self.residual_array,
+                ),
+            ),
+        )
 
     @cached_property
-    def root_mean_square_error(
+    def rms_error(
         self,
     ) -> float:
-        return float(numpy.sqrt(numpy.mean(numpy.square(self.residual_array))))
+        return compute_array_stats.compute_rms(self.residual_array)
 
     def get_param_values(
         self,
@@ -157,12 +174,12 @@ class FitSummary:
 
 
 ##
-## === FUNCTIONS
+## === FIT FUNCTIONS
 ##
 
 
 def fit_linear_model(
-    data_series: data_series.DataSeries,
+    data_series: data_series.GaussianSeries,
 ) -> FitSummary:
     """Fit a linear model to a 1D data-series using least squares."""
     if data_series.num_points < 3:
@@ -172,20 +189,20 @@ def fit_linear_model(
         param_names=("intercept", "slope"),
         model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
     )
-    if data_series.x_sigma_array is not None:
+    if data_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
-                "Note: SciPy `curve_fit` does not account for `x_sigma_array` (its ignored); "
-                "only `y_sigma_array` is supported in the standard least-squares formalism."
+                "Note: SciPy `curve_fit` does not account for `x_sigmas` (its ignored); "
+                "only `y_sigmas` is supported in the standard least-squares formalism."
             ),
         )
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
             f=linear_model.model_fn,
-            xdata=data_series.x_data_array,
-            ydata=data_series.y_data_array,
-            sigma=data_series.y_sigma_array if data_series.has_y_uncertainty else None,
-            absolute_sigma=True if data_series.has_y_uncertainty else False,
+            xdata=data_series.x_values,
+            ydata=data_series.y_values,
+            sigma=data_series.y_sigmas if data_series.y_sigmas is not None else None,
+            absolute_sigma=True if data_series.y_sigmas is not None else False,
         )
     except RuntimeError as err:
         raise RuntimeError(f"Fit failed to converge: {err}") from err
@@ -195,8 +212,8 @@ def fit_linear_model(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
-    residual_array = data_series.y_data_array - linear_model.model_fn(
-        data_series.x_data_array,
+    residual_array = data_series.y_values - linear_model.model_fn(
+        data_series.x_values,
         *fitted_vector,
     )
     return FitSummary(
@@ -210,7 +227,7 @@ def fit_linear_model(
 
 
 def fit_line_with_fixed_slope(
-    data_series: data_series.DataSeries,
+    data_series: data_series.GaussianSeries,
     fixed_slope: float,
 ) -> FitSummary:
     """Fit a line with a fixed slope to a 1D data-series."""
@@ -222,23 +239,23 @@ def fit_line_with_fixed_slope(
         model_fn=(lambda x_data_array, intercept, _fixed_slope: intercept + _fixed_slope * x_data_array),
     )
     weight_array = data_series.y_weights()
-    uses_absolute_sigma = data_series.has_y_uncertainty
-    if data_series.has_x_uncertainty:
+    uses_absolute_sigma = data_series.y_sigmas is not None
+    if data_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
-                "Note: `x_sigma_array` is not used in the fixed-slope estimator; "
-                "only `y_sigma_array` contributes to weighting."
+                "Note: `x_sigmas` is not used in the fixed-slope estimator; "
+                "only `y_sigmas` contributes to weighting."
             ),
         )
-    # weighted intercept
-    x_data_array = data_series.x_data_array
-    y_data_array = data_series.y_data_array
+    ## weighted intercept
+    x_values = data_series.x_values
+    y_values = data_series.y_values
     weight_sum = float(numpy.sum(weight_array))
-    y_minus_mx_array = y_data_array - fixed_slope * x_data_array
+    y_minus_mx_array = y_values - fixed_slope * x_values
     intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
-    # residuals
-    residual_array = y_data_array - (intercept_value + fixed_slope * x_data_array)
-    # intercept uncertainty
+    ## residuals
+    residual_array = y_values - (intercept_value + fixed_slope * x_values)
+    ## intercept uncertainty
     if uses_absolute_sigma:
         sigma_sq = 1.0
     else:
@@ -247,10 +264,10 @@ def fit_line_with_fixed_slope(
         sigma_sq = ssr_value / num_dof
     intercept_std = float(numpy.sqrt(sigma_sq / weight_sum))
     fitted_vector = numpy.array([intercept_value, fixed_slope], dtype=float)
-    errors_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
+    sigmas_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
     fit_stats = fixed_slope_model.create_fit_stats(
         values_vector=fitted_vector,
-        errors_vector=errors_vector,  # type: ignore
+        sigmas_vector=sigmas_vector,
     )
     return FitSummary(
         model=fixed_slope_model,

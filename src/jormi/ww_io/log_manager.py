@@ -95,14 +95,19 @@ class Message:
     ---
     - `message`:
         Main body text of the message.
+
     - `message_type`:
         Category of the message (e.g. TASK, NOTE, ACTION).
+
     - `message_title`:
         Optional title shown in block-style renderings.
+
     - `action_outcome`:
         Required when `message_type` is ACTION; describes success/failure/etc.
+
     - `message_notes`:
         Optional key-value pairs displayed as annotated notes inside a block.
+
     - `timestamp`:
         Optional ISO timestamp string; auto-generated if not provided.
     """

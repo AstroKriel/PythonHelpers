@@ -268,24 +268,34 @@ class ItemFilter:
     ---
     - `req_include_words`:
         Words that must appear in the item name; empty list means no requirement.
+
     - `req_exclude_words`:
         Words that must not appear in the item name; empty list means no exclusion.
+
     - `prefix`:
         Required name prefix, or None to skip.
+
     - `suffix`:
         Required name suffix, or None to skip.
+
     - `delimiter`:
         Character used to split the name into parts for value-range checks.
+
     - `num_parts`:
         Required number of name parts after splitting by `delimiter`, or None to skip.
+
     - `index_of_value`:
         Index of the name part (after splitting) that is parsed as an integer value, or None to skip.
+
     - `min_value`:
         Minimum inclusive integer value for the part at `index_of_value`.
+
     - `max_value`:
         Maximum inclusive integer value for the part at `index_of_value`.
+
     - `include_files`:
         Whether to include files in results.
+
     - `include_folders`:
         Whether to include directories in results.
     """

@@ -35,9 +35,11 @@ class FieldData:
           * 1 -> vector (one component axis)
           * 2 -> rank-2 tensor (two component axes)
           * ...
+
     - `num_comps`:
         Total number of components at each spatial location.
         A scalar field has `num_comps == 1` and a vector has `num_comps > 1`.
+
     - `num_sdims`:
         Number of spatial dimensions.
 
