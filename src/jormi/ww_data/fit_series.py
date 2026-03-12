@@ -18,6 +18,105 @@ from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data.data_series import GaussianSeries
 
 ##
+## === UTILITY FUNCTIONS
+##
+
+
+def get_linear_intercept(
+    slope: float,
+    x_ref: float,
+    y_ref: float,
+) -> float:
+    """
+    Compute the y-intercept (b) for a line y = slope * x + b
+    passing through a reference point (x_ref, y_ref).
+    """
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
+    return y_ref - slope * x_ref
+
+
+def get_powerlaw_coefficient(
+    exponent: float,
+    x_ref: float,
+    y_ref: float,
+) -> float:
+    """
+    Compute the coefficient `A` of a power law:
+        `y = A * x^exponent`
+    given a reference point `(x_ref, y_ref)`.
+    """
+    type_checks.ensure_finite_float(
+        param=exponent,
+        param_name="exponent",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
+    if numpy.isclose(x_ref, 0.0):
+        raise ValueError("`x_ref` must be nonzero.")
+    if (x_ref <= 0.0) and not numpy.isclose(exponent, numpy.round(exponent)):
+        raise ValueError("`x_ref` must be positive for non-integer `exponent`.")
+    return y_ref / x_ref**exponent
+
+
+def get_line_angle(
+    slope: float,
+    domain_bounds: tuple[float, float, float, float],
+    aspect_ratio: float = 1.0,
+) -> float:
+    """
+    Compute the apparent angle (in degrees) of a line with a particular slope
+    when plotted in a rectangular domain stretched to have a particular aspect ratio.
+    """
+    ## validate scalars
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=aspect_ratio,
+        param_name="aspect_ratio",
+    )
+    if aspect_ratio <= 0.0:
+        raise ValueError("`aspect_ratio` must be positive.")
+    ## validate domain_bounds
+    type_checks.ensure_sequence(
+        param=domain_bounds,
+        seq_length=4,
+        valid_seq_types=(tuple, list),
+        valid_elem_types=(int, float),
+        allow_none=False,
+    )
+    x_min, x_max, y_min, y_max = domain_bounds
+    if numpy.isclose(x_max, x_min):
+        raise ValueError("`x_min` and `x_max` must not be equal.")
+    if numpy.isclose(y_max, y_min):
+        raise ValueError("`y_min` and `y_max` must not be equal.")
+    ## compute angle
+    data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
+    scale_y = data_aspect_ratio / aspect_ratio
+    angle_rad = numpy.arctan2(slope * scale_y, 1.0)
+    angle_deg = angle_rad * 180 / numpy.pi
+    return angle_deg
+
+
+##
 ## === FIT STATISTIC CLASS
 ##
 
@@ -301,105 +400,6 @@ def fit_line_with_fixed_slope(
         x_bounds=data_series.x_bounds,
         y_bounds=data_series.y_bounds,
     )
-
-
-##
-## === UTILITY FUNCTIONS
-##
-
-
-def get_linear_intercept(
-    slope: float,
-    x_ref: float,
-    y_ref: float,
-) -> float:
-    """
-    Compute the y-intercept (b) for a line y = slope * x + b
-    passing through a reference point (x_ref, y_ref).
-    """
-    type_checks.ensure_finite_float(
-        param=slope,
-        param_name="slope",
-    )
-    type_checks.ensure_finite_float(
-        param=x_ref,
-        param_name="x_ref",
-    )
-    type_checks.ensure_finite_float(
-        param=y_ref,
-        param_name="y_ref",
-    )
-    return y_ref - slope * x_ref
-
-
-def get_powerlaw_coefficient(
-    exponent: float,
-    x_ref: float,
-    y_ref: float,
-) -> float:
-    """
-    Compute the coefficient `A` of a power law:
-        `y = A * x^exponent`
-    given a reference point `(x_ref, y_ref)`.
-    """
-    type_checks.ensure_finite_float(
-        param=exponent,
-        param_name="exponent",
-    )
-    type_checks.ensure_finite_float(
-        param=x_ref,
-        param_name="x_ref",
-    )
-    type_checks.ensure_finite_float(
-        param=y_ref,
-        param_name="y_ref",
-    )
-    if numpy.isclose(x_ref, 0.0):
-        raise ValueError("`x_ref` must be nonzero.")
-    if (x_ref <= 0.0) and not numpy.isclose(exponent, numpy.round(exponent)):
-        raise ValueError("`x_ref` must be positive for non-integer `exponent`.")
-    return y_ref / x_ref**exponent
-
-
-def get_line_angle(
-    slope: float,
-    domain_bounds: tuple[float, float, float, float],
-    aspect_ratio: float = 1.0,
-) -> float:
-    """
-    Compute the apparent angle (in degrees) of a line with a particular slope
-    when plotted in a rectangular domain stretched to have a particular aspect ratio.
-    """
-    ## validate scalars
-    type_checks.ensure_finite_float(
-        param=slope,
-        param_name="slope",
-    )
-    type_checks.ensure_finite_float(
-        param=aspect_ratio,
-        param_name="aspect_ratio",
-    )
-    if aspect_ratio <= 0.0:
-        raise ValueError("`aspect_ratio` must be positive.")
-    ## validate domain_bounds
-    type_checks.ensure_sequence(
-        param=domain_bounds,
-        seq_length=4,
-        valid_seq_types=(tuple, list),
-        valid_elem_types=(int, float),
-        allow_none=False,
-    )
-    x_min, x_max, y_min, y_max = domain_bounds
-    if numpy.isclose(x_max, x_min):
-        raise ValueError("`x_min` and `x_max` must not be equal.")
-    if numpy.isclose(y_max, y_min):
-        raise ValueError("`y_min` and `y_max` must not be equal.")
-    ## compute angle
-    data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
-    scale_y = data_aspect_ratio / aspect_ratio
-    angle_rad = numpy.arctan2(slope * scale_y, 1.0)
-    angle_deg = angle_rad * 180 / numpy.pi
-    return angle_deg
 
 
 ## } MODULE
