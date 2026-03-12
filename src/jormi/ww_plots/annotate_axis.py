@@ -26,10 +26,10 @@ _VALID_MARKERS: list[str] = [
     "v",  # triangle down
 ]
 _VALID_LINES: list[str] = [
-    "-",   # solid
+    "-",  # solid
     "--",  # dashed
     "-.",  # dash-dot
-    ":",   # dotted
+    ":",  # dotted
 ]
 
 ##
