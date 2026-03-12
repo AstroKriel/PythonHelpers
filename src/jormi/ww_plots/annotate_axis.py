@@ -209,7 +209,7 @@ def add_custom_legend(
                 f"\t- Valid line styles: {_VALID_LINES}.",
             )
         artists_to_draw.append(artist_to_draw)
-    legend = ax.legend(
+    ax.legend(
         handles=artists_to_draw,
         labels=labels,
         bbox_to_anchor=anchor_point,
@@ -227,7 +227,6 @@ def add_custom_legend(
         columnspacing=spacing,
         markerfirst=marker_first,
     )
-    ax.add_artist(legend)
 
 
 def overlay_curve(
