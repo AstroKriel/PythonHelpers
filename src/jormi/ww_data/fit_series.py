@@ -11,14 +11,14 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 
+from jormi.ww_io import log_manager
 from jormi.utils import list_utils
 from jormi.ww_types import type_checks, array_checks
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_data import data_series
-from jormi.ww_io import log_manager
+from jormi.ww_data.data_series import GaussianSeries
 
 ##
-## === DATA TYPES
+## === FIT STATISTIC CLASS
 ##
 
 
@@ -31,13 +31,18 @@ class FitStatistic:
     sigma: float | None = None
 
 
+##
+## === MODEL CLASS
+##
+
+
 @dataclass(frozen=True)
 class Model:
-    """A named curve-fit model: function, parameter names, and an index lookup helper."""
+    """A named model: function, parameter names, and an index lookup helper."""
 
     model_name: str
-    param_names: tuple[str, ...]
     model_fn: Callable[..., numpy.ndarray]
+    param_names: tuple[str, ...]
 
     def index_of(
         self,
@@ -79,6 +84,11 @@ class Model:
                 sigma=sigma,
             )
         return fit_stats
+
+
+##
+## === FIT SUMMARY CLASS
+##
 
 
 @dataclass(frozen=True)
@@ -179,9 +189,14 @@ class FitSummary:
 
 
 def fit_linear_model(
-    data_series: data_series.GaussianSeries,
+    data_series: GaussianSeries,
 ) -> FitSummary:
     """Fit a linear model to a 1D data-series using least squares."""
+    type_checks.ensure_type(
+        param=data_series,
+        valid_types=GaussianSeries,
+        param_name="data_series",
+    )
     if data_series.num_points < 3:
         raise ValueError("Need at least 3 points to fit a line.")
     linear_model = Model(
@@ -192,7 +207,7 @@ def fit_linear_model(
     if data_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
-                "Note: SciPy `curve_fit` does not account for `x_sigmas` (its ignored); "
+                "Note: SciPy `curve_fit` does not account for `x_sigmas` (it is ignored); "
                 "only `y_sigmas` is supported in the standard least-squares formalism."
             ),
         )
@@ -201,8 +216,8 @@ def fit_linear_model(
             f=linear_model.model_fn,
             xdata=data_series.x_values,
             ydata=data_series.y_values,
-            sigma=data_series.y_sigmas if data_series.y_sigmas is not None else None,
-            absolute_sigma=True if data_series.y_sigmas is not None else False,
+            sigma=data_series.y_sigmas,
+            absolute_sigma=data_series.y_sigmas is not None,
         )
     except RuntimeError as err:
         raise RuntimeError(f"Fit failed to converge: {err}") from err
@@ -227,10 +242,19 @@ def fit_linear_model(
 
 
 def fit_line_with_fixed_slope(
-    data_series: data_series.GaussianSeries,
+    data_series: GaussianSeries,
     fixed_slope: float,
 ) -> FitSummary:
     """Fit a line with a fixed slope to a 1D data-series."""
+    type_checks.ensure_type(
+        param=data_series,
+        valid_types=GaussianSeries,
+        param_name="data_series",
+    )
+    type_checks.ensure_finite_float(
+        param=fixed_slope,
+        param_name="fixed_slope",
+    )
     if data_series.num_points < 2:
         raise ValueError("Need at least 2 points to estimate intercept.")
     fixed_slope_model = Model(
@@ -279,6 +303,11 @@ def fit_line_with_fixed_slope(
     )
 
 
+##
+## === UTILITY FUNCTIONS
+##
+
+
 def get_linear_intercept(
     slope: float,
     x_ref: float,
@@ -288,10 +317,18 @@ def get_linear_intercept(
     Compute the y-intercept (b) for a line y = slope * x + b
     passing through a reference point (x_ref, y_ref).
     """
-    if not numpy.isfinite(slope):
-        raise ValueError("`slope` must be finite.")
-    if not numpy.isfinite(x_ref) or not numpy.isfinite(y_ref):
-        raise ValueError("Reference coordinates must be finite.")
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
     return y_ref - slope * x_ref
 
 
@@ -305,22 +342,46 @@ def get_powerlaw_coefficient(
         `y = A * x^exponent`
     given a reference point `(x_ref, y_ref)`.
     """
+    type_checks.ensure_finite_float(
+        param=exponent,
+        param_name="exponent",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
     if numpy.isclose(x_ref, 0.0):
-        raise ValueError("`x_ref` must be nonzero")
+        raise ValueError("`x_ref` must be nonzero.")
     if (x_ref <= 0.0) and not numpy.isclose(exponent, numpy.round(exponent)):
-        raise ValueError("`x_ref` must be positive for non-integer `exponent`")
+        raise ValueError("`x_ref` must be positive for non-integer `exponent`.")
     return y_ref / x_ref**exponent
 
 
 def get_line_angle(
     slope: float,
     domain_bounds: tuple[float, float, float, float],
-    fig_aspect_ratio: float = 1.0,
+    aspect_ratio: float = 1.0,
 ) -> float:
     """
     Compute the apparent angle (in degrees) of a line with a particular slope
-    when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
+    when plotted in a rectangular domain stretched to have a particular aspect ratio.
     """
+    ## validate scalars
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=aspect_ratio,
+        param_name="aspect_ratio",
+    )
+    if aspect_ratio <= 0.0:
+        raise ValueError("`aspect_ratio` must be positive.")
+    ## validate domain_bounds
     type_checks.ensure_sequence(
         param=domain_bounds,
         seq_length=4,
@@ -329,14 +390,14 @@ def get_line_angle(
         allow_none=False,
     )
     x_min, x_max, y_min, y_max = domain_bounds
+    if numpy.isclose(x_max, x_min):
+        raise ValueError("`x_min` and `x_max` must not be equal.")
     if numpy.isclose(y_max, y_min):
         raise ValueError("`y_min` and `y_max` must not be equal.")
+    ## compute angle
     data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
-    scale_x = 1.0
-    scale_y = data_aspect_ratio / fig_aspect_ratio
-    delta_x = 1.0 * scale_x
-    delta_y = slope * scale_y
-    angle_rad = numpy.arctan2(delta_y, delta_x)
+    scale_y = data_aspect_ratio / aspect_ratio
+    angle_rad = numpy.arctan2(slope * scale_y, 1.0)
     angle_deg = angle_rad * 180 / numpy.pi
     return angle_deg
 
