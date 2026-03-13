@@ -26,7 +26,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 sources = ["src"]
 
+[tool.pytest.ini_options]
+testpaths = ["unit_tests"]
+
 [tool.pyright]
-include = ["src", "tests", "playground"]
+include = ["src", "unit_tests", "validation", "playground"]
 reportMissingImports = true
 reportMissingTypeStubs = false
