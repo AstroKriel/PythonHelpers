@@ -110,8 +110,15 @@ def suppress_divide_warnings() -> numpy.errstate:
 
 
 ##
-## === P-NORM DISTANCE METRIC
+## === ARRAY STATISTICS
 ##
+
+
+def compute_rms(
+    array: numpy.ndarray,
+) -> float:
+    """Compute the root-mean-square of a NumPy array."""
+    return float(numpy.sqrt(numpy.mean(numpy.square(array))))
 
 
 def compute_p_norm(
@@ -373,6 +380,7 @@ class EstimatedPDF:
     ---
     - `bin_centers`:
         1D array of bin center positions; must be finite.
+
     - `densities`:
         1D array of probability densities at each bin center; must be finite,
         same length as `bin_centers`, and normalised so the integral equals 1.
@@ -586,8 +594,10 @@ class EstimatedJPDF:
     ---
     - `row_centers`:
         1D array of bin center positions along the row (y) axis; must be finite.
+
     - `col_centers`:
         1D array of bin center positions along the column (x) axis; must be finite.
+
     - `densities`:
         2D array of joint probability densities with shape (num_rows, num_cols);
         must be finite and normalised so the integral over bin areas equals 1.

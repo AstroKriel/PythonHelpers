@@ -9,7 +9,7 @@ import numpy
 from jormi.ww_types import type_checks
 
 ##
-## === FUNCTIONS
+## === ARRAY CHECKS
 ##
 
 
@@ -132,7 +132,11 @@ def ensure_1d(
     )
 
 
-## TODO: move to an array_utils module
+##
+## === ARRAY CONVERSIONS
+##
+
+
 def as_1d(
     array_like: tuple | list | numpy.ndarray,
     *,

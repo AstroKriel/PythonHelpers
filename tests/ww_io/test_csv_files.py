@@ -29,7 +29,7 @@ def read_csv_file_into_dict_wrapper(*args, **kwargs):
 ##
 
 
-class TestCsvUtils(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def setUp(self):
         self.test_file_path = Path("test_file.csv")

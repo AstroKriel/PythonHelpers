@@ -31,7 +31,7 @@ def read_json_file_into_dict(*args, **kwargs):
 ##
 
 
-class TestJsonUtils(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def setUp(self):
         self.test_file_path = Path("test_file.json")

@@ -12,7 +12,7 @@ from jormi.ww_types import type_manager
 ##
 
 
-class TestVarUtils(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_correct_type_single(self):
         ## typical case: variable is of the required type.

@@ -11,12 +11,113 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 
-from jormi.ww_types import type_checks, array_checks
-from jormi.ww_data import data_series
 from jormi.ww_io import log_manager
+from jormi.utils import list_utils
+from jormi.ww_types import type_checks, array_checks
+from jormi.ww_arrays import compute_array_stats
+from jormi.ww_data.series_types import GaussianSeries
 
 ##
-## === DATA TYPES
+## === UTILITY FUNCTIONS
+##
+
+
+def get_linear_intercept(
+    slope: float,
+    x_ref: float,
+    y_ref: float,
+) -> float:
+    """
+    Compute the y-intercept (b) for a line y = slope * x + b
+    passing through a reference point (x_ref, y_ref).
+    """
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
+    return y_ref - slope * x_ref
+
+
+def get_powerlaw_coefficient(
+    exponent: float,
+    x_ref: float,
+    y_ref: float,
+) -> float:
+    """
+    Compute the coefficient `A` of a power law:
+        `y = A * x^exponent`
+    given a reference point `(x_ref, y_ref)`.
+    """
+    type_checks.ensure_finite_float(
+        param=exponent,
+        param_name="exponent",
+    )
+    type_checks.ensure_finite_float(
+        param=x_ref,
+        param_name="x_ref",
+    )
+    type_checks.ensure_finite_float(
+        param=y_ref,
+        param_name="y_ref",
+    )
+    if numpy.isclose(x_ref, 0.0):
+        raise ValueError("`x_ref` must be nonzero.")
+    if (x_ref <= 0.0) and not numpy.isclose(exponent, numpy.round(exponent)):
+        raise ValueError("`x_ref` must be positive for non-integer `exponent`.")
+    return y_ref / x_ref**exponent
+
+
+def get_line_angle(
+    slope: float,
+    domain_bounds: tuple[float, float, float, float],
+    aspect_ratio: float = 1.0,
+) -> float:
+    """
+    Compute the apparent angle (in degrees) of a line with a particular slope
+    when plotted in a rectangular domain stretched to have a particular aspect ratio.
+    """
+    ## validate scalars
+    type_checks.ensure_finite_float(
+        param=slope,
+        param_name="slope",
+    )
+    type_checks.ensure_finite_float(
+        param=aspect_ratio,
+        param_name="aspect_ratio",
+    )
+    if aspect_ratio <= 0.0:
+        raise ValueError("`aspect_ratio` must be positive.")
+    ## validate domain_bounds
+    type_checks.ensure_sequence(
+        param=domain_bounds,
+        seq_length=4,
+        valid_seq_types=(tuple, list),
+        valid_elem_types=(int, float),
+        allow_none=False,
+    )
+    x_min, x_max, y_min, y_max = domain_bounds
+    if numpy.isclose(x_max, x_min):
+        raise ValueError("`x_min` and `x_max` must not be equal.")
+    if numpy.isclose(y_max, y_min):
+        raise ValueError("`y_min` and `y_max` must not be equal.")
+    ## compute angle
+    data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
+    scale_y = data_aspect_ratio / aspect_ratio
+    angle_rad = numpy.arctan2(slope * scale_y, 1.0)
+    angle_deg = angle_rad * 180 / numpy.pi
+    return angle_deg
+
+
+##
+## === FIT STATISTIC CLASS
 ##
 
 
@@ -29,13 +130,18 @@ class FitStatistic:
     sigma: float | None = None
 
 
+##
+## === MODEL CLASS
+##
+
+
 @dataclass(frozen=True)
 class Model:
-    """A named curve-fit model: function, parameter names, and an index lookup helper."""
+    """A named model: function, parameter names, and an index lookup helper."""
 
     model_name: str
-    param_names: tuple[str, ...]
     model_fn: Callable[..., numpy.ndarray]
+    param_names: tuple[str, ...]
 
     def index_of(
         self,
@@ -79,6 +185,11 @@ class Model:
         return fit_stats
 
 
+##
+## === FIT SUMMARY CLASS
+##
+
+
 @dataclass(frozen=True)
 class FitSummary:
     """
@@ -88,14 +199,19 @@ class FitSummary:
     ---
     - `model`:
         The fitted model (name, parameter names, model function).
+
     - `fit_stats`:
         Mapping from parameter name to its `FitStatistic` (value + optional sigma).
+
     - `residual_array`:
         1D array of (y_data - y_fit) residuals; length must equal `num_points`.
+
     - `num_points`:
         Number of data points used in the fit.
+
     - `x_bounds`:
         (min, max) of the x data used in the fit.
+
     - `y_bounds`:
         (min, max) of the y data used in the fit.
     """
@@ -110,7 +226,11 @@ class FitSummary:
     def __post_init__(self):
         missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
-            missing_string = ", ".join(sorted(missing_params))
+            missing_string = list_utils.as_string(
+                elems=sorted(missing_params),
+                wrap_in_quotes=True,
+                conjunction="and",
+            )
             raise ValueError(f"Missing parameter(s): {missing_string}")
         array_checks.ensure_array(self.residual_array)
         array_checks.ensure_1d(self.residual_array)
@@ -122,13 +242,19 @@ class FitSummary:
     def sum_squared_residual(
         self,
     ) -> float:
-        return float(numpy.sum(numpy.square(self.residual_array)))
+        return float(
+            numpy.sum(
+                numpy.square(
+                    self.residual_array,
+                ),
+            ),
+        )
 
     @cached_property
-    def root_mean_square_error(
+    def rms_error(
         self,
     ) -> float:
-        return float(numpy.sqrt(numpy.mean(numpy.square(self.residual_array))))
+        return compute_array_stats.compute_rms(self.residual_array)
 
     def get_param_values(
         self,
@@ -157,35 +283,63 @@ class FitSummary:
 
 
 ##
-## === FUNCTIONS
+## === LINEAR FIT SUMMARY CLASS
+##
+
+
+class LinearFitSummary(FitSummary):
+    """FitSummary subclass for linear models, exposing slope and intercept directly."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        for required_key in ("slope", "intercept"):
+            if required_key not in self.fit_stats:
+                raise ValueError(f"LinearFitSummary requires '{required_key}' in fit_stats.")
+
+    @property
+    def slope(self) -> FitStatistic:
+        return self.fit_stats["slope"]
+
+    @property
+    def intercept(self) -> FitStatistic:
+        return self.fit_stats["intercept"]
+
+
+##
+## === FIT FUNCTIONS
 ##
 
 
 def fit_linear_model(
-    data_series: data_series.DataSeries,
-) -> FitSummary:
-    """Fit a linear model to a 1D data-series using least squares."""
-    if data_series.num_points < 3:
+    gaussian_series: GaussianSeries,
+) -> LinearFitSummary:
+    """Fit a linear model to a 1D gaussian_series using least squares."""
+    type_checks.ensure_type(
+        param=gaussian_series,
+        valid_types=GaussianSeries,
+        param_name="gaussian_series",
+    )
+    if gaussian_series.num_points < 3:
         raise ValueError("Need at least 3 points to fit a line.")
     linear_model = Model(
         model_name="linear",
         param_names=("intercept", "slope"),
         model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
     )
-    if data_series.x_sigma_array is not None:
+    if gaussian_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
-                "Note: SciPy `curve_fit` does not account for `x_sigma_array` (its ignored); "
-                "only `y_sigma_array` is supported in the standard least-squares formalism."
+                "Note: SciPy `curve_fit` does not account for `x_sigmas` (it is ignored); "
+                "only `y_sigmas` is supported in the standard least-squares formalism."
             ),
         )
     try:
         fitted_vector, covariance_matrix = scipy_curve_fit(
             f=linear_model.model_fn,
-            xdata=data_series.x_data_array,
-            ydata=data_series.y_data_array,
-            sigma=data_series.y_sigma_array if data_series.has_y_uncertainty else None,
-            absolute_sigma=True if data_series.has_y_uncertainty else False,
+            xdata=gaussian_series.x_values,
+            ydata=gaussian_series.y_values,
+            sigma=gaussian_series.y_sigmas,
+            absolute_sigma=gaussian_series.y_sigmas is not None,
         )
     except RuntimeError as err:
         raise RuntimeError(f"Fit failed to converge: {err}") from err
@@ -195,133 +349,80 @@ def fit_linear_model(
         values_vector=fitted_vector,
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
-    residual_array = data_series.y_data_array - linear_model.model_fn(
-        data_series.x_data_array,
+    residual_array = gaussian_series.y_values - linear_model.model_fn(
+        gaussian_series.x_values,
         *fitted_vector,
     )
-    return FitSummary(
+    return LinearFitSummary(
         model=linear_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
-        num_points=data_series.num_points,
-        x_bounds=data_series.x_bounds,
-        y_bounds=data_series.y_bounds,
+        num_points=gaussian_series.num_points,
+        x_bounds=gaussian_series.x_bounds,
+        y_bounds=gaussian_series.y_bounds,
     )
 
 
 def fit_line_with_fixed_slope(
-    data_series: data_series.DataSeries,
+    gaussian_series: GaussianSeries,
     fixed_slope: float,
-) -> FitSummary:
-    """Fit a line with a fixed slope to a 1D data-series."""
-    if data_series.num_points < 2:
+) -> LinearFitSummary:
+    """Fit a line with a fixed slope to a 1D gaussian_series."""
+    type_checks.ensure_type(
+        param=gaussian_series,
+        valid_types=GaussianSeries,
+        param_name="gaussian_series",
+    )
+    type_checks.ensure_finite_float(
+        param=fixed_slope,
+        param_name="fixed_slope",
+    )
+    if gaussian_series.num_points < 2:
         raise ValueError("Need at least 2 points to estimate intercept.")
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         param_names=("intercept", "slope"),
         model_fn=(lambda x_data_array, intercept, _fixed_slope: intercept + _fixed_slope * x_data_array),
     )
-    weight_array = data_series.y_weights()
-    uses_absolute_sigma = data_series.has_y_uncertainty
-    if data_series.has_x_uncertainty:
+    weight_array = gaussian_series.y_weights()
+    uses_absolute_sigma = gaussian_series.y_sigmas is not None
+    if gaussian_series.x_sigmas is not None:
         log_manager.log_hint(
             text=(
-                "Note: `x_sigma_array` is not used in the fixed-slope estimator; "
-                "only `y_sigma_array` contributes to weighting."
+                "Note: `x_sigmas` is not used in the fixed-slope estimator; "
+                "only `y_sigmas` contributes to weighting."
             ),
         )
-    # weighted intercept
-    x_data_array = data_series.x_data_array
-    y_data_array = data_series.y_data_array
+    ## weighted intercept
+    x_values = gaussian_series.x_values
+    y_values = gaussian_series.y_values
     weight_sum = float(numpy.sum(weight_array))
-    y_minus_mx_array = y_data_array - fixed_slope * x_data_array
+    y_minus_mx_array = y_values - fixed_slope * x_values
     intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
-    # residuals
-    residual_array = y_data_array - (intercept_value + fixed_slope * x_data_array)
-    # intercept uncertainty
+    ## residuals
+    residual_array = y_values - (intercept_value + fixed_slope * x_values)
+    ## intercept uncertainty
     if uses_absolute_sigma:
         sigma_sq = 1.0
     else:
-        num_dof = data_series.num_points - 1
+        num_dof = gaussian_series.num_points - 1
         ssr_value = float(numpy.sum(weight_array * numpy.square(residual_array)))
         sigma_sq = ssr_value / num_dof
     intercept_std = float(numpy.sqrt(sigma_sq / weight_sum))
     fitted_vector = numpy.array([intercept_value, fixed_slope], dtype=float)
-    errors_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
+    sigmas_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
     fit_stats = fixed_slope_model.create_fit_stats(
         values_vector=fitted_vector,
-        errors_vector=errors_vector,  # type: ignore
+        sigmas_vector=sigmas_vector,
     )
-    return FitSummary(
+    return LinearFitSummary(
         model=fixed_slope_model,
         fit_stats=fit_stats,
         residual_array=residual_array,
-        num_points=data_series.num_points,
-        x_bounds=data_series.x_bounds,
-        y_bounds=data_series.y_bounds,
+        num_points=gaussian_series.num_points,
+        x_bounds=gaussian_series.x_bounds,
+        y_bounds=gaussian_series.y_bounds,
     )
-
-
-def get_linear_intercept(
-    slope: float,
-    x_ref: float,
-    y_ref: float,
-) -> float:
-    """
-    Compute the y-intercept (b) for a line y = slope * x + b
-    passing through a reference point (x_ref, y_ref).
-    """
-    if not numpy.isfinite(slope):
-        raise ValueError("`slope` must be finite.")
-    if not numpy.isfinite(x_ref) or not numpy.isfinite(y_ref):
-        raise ValueError("Reference coordinates must be finite.")
-    return y_ref - slope * x_ref
-
-
-def get_powerlaw_coefficient(
-    exponent: float,
-    x_ref: float,
-    y_ref: float,
-) -> float:
-    """
-    Compute the coefficient `A` of a power law:
-        `y = A * x^exponent`
-    given a reference point `(x_ref, y_ref)`.
-    """
-    if numpy.isclose(x_ref, 0.0):
-        raise ValueError("`x_ref` must be nonzero")
-    if (x_ref <= 0.0) and not numpy.isclose(exponent, numpy.round(exponent)):
-        raise ValueError("`x_ref` must be positive for non-integer `exponent`")
-    return y_ref / x_ref**exponent
-
-
-def get_line_angle(
-    slope: float,
-    domain_bounds: tuple[float, float, float, float],
-    fig_aspect_ratio: float = 1.0,
-) -> float:
-    """
-    Compute the apparent angle (in degrees) of a line with a particular slope
-    when plotted in a rectangular domain stretched over a figure axis with a particular aspect ratio.
-    """
-    type_checks.ensure_sequence(
-        param=domain_bounds,
-        seq_length=4,
-        valid_seq_types=(tuple, list),
-        valid_elem_types=(int, float),
-        allow_none=False,
-    )
-    x_min, x_max, y_min, y_max = domain_bounds
-    if numpy.isclose(y_max, y_min):
-        raise ValueError("`y_min` and `y_max` must not be equal.")
-    data_aspect_ratio = (x_max - x_min) / (y_max - y_min)
-    scale_x = 1.0
-    scale_y = data_aspect_ratio / fig_aspect_ratio
-    delta_x = 1.0 * scale_x
-    delta_y = slope * scale_y
-    angle_rad = numpy.arctan2(delta_y, delta_x)
-    angle_deg = angle_rad * 180 / numpy.pi
-    return angle_deg
 
 
 ## } MODULE

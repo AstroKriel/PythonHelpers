@@ -12,7 +12,7 @@ from jormi.utils import dict_utils
 ##
 
 
-class TestDictUtils(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_merge_dicts_basic(self):
         ## usual case 1: merging two dictionaries with a mix of nested and simple keys

@@ -6,59 +6,77 @@
 
 import numpy
 
-from scipy.interpolate import interp1d as scipy_interp1d
+from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 
-from jormi.utils import list_utils
+from jormi.ww_io import log_manager
+from jormi.ww_types import type_checks, array_checks
+from jormi.ww_data.series_types import DataSeries
 
 ##
-## === FUNCTIONS
+## === INTERPOLATION FUNCTIONS
 ##
 
 
 def interpolate_1d(
-    x_values: numpy.ndarray,
-    y_values: numpy.ndarray,
+    data_series: DataSeries,
     x_interp: numpy.ndarray,
-    kind: str = "cubic",
-) -> tuple[numpy.ndarray, numpy.ndarray]:
-    x_values = numpy.asarray(x_values, dtype=numpy.float64)
-    y_values = numpy.asarray(y_values, dtype=numpy.float64)
+    spline_order: int = 3,
+) -> DataSeries:
+    """
+    Interpolate a `DataSeries` at new x positions, clipping to the data domain.
+
+    `data_series.x_values` must be monotonically increasing. Any `x_interp` points
+    outside the data domain are dropped, with a hint logged. Raises if all
+    points are out of bounds.
+
+    Returns a new `DataSeries` of the in-bounds interpolated (x, y) values.
+    """
+    type_checks.ensure_type(
+        param=data_series,
+        valid_types=DataSeries,
+        param_name="data_series",
+    )
+    if spline_order not in (1, 2, 3):
+        raise ValueError(f"`spline_order` must be 1, 2, or 3; got {spline_order!r}.")
+    ## validate x_interp
     x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
-    if x_values.ndim != 1: raise ValueError("`x_values` should be a 1D array.")
-    if x_interp.ndim != 1: raise ValueError("`x_interp` should be a 1D array.")
-    if len(x_values) < 2: raise ValueError("Provided data should contain at least two points.")
-    if len(x_values) != len(y_values):
-        raise ValueError("`x_values` and `y_values` should have the same length.")
-    if not numpy.all(numpy.diff(x_values) > 0):
-        raise ValueError("`x_values` should be monotonically increasing.")
-    valid_kinds = ["linear", "quadratic", "cubic"]
-    if kind not in valid_kinds:
-        valid_kinds_string = list_utils.as_string(
-            elems=valid_kinds,
-            wrap_in_quotes=True,
-            conjunction="",
-        )
+    array_checks.ensure_nonempty(
+        array=x_interp,
+        param_name="x_interp",
+    )
+    array_checks.ensure_1d(
+        array=x_interp,
+        param_name="x_interp",
+    )
+    array_checks.ensure_finite(
+        array=x_interp,
+        param_name="x_interp",
+    )
+    ## require monotonically increasing x_values
+    if not numpy.all(numpy.diff(data_series.x_values) > 0):
+        raise ValueError("`data_series.x_values` must be monotonically increasing.")
+    ## clip x_interp to the data domain
+    x_min_data, x_max_data = data_series.x_bounds
+    in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_data)
+    num_out_of_bounds = int(numpy.sum(~in_bounds_mask))
+    if num_out_of_bounds == x_interp.size:
         raise ValueError(
-            f"Invalid interpolation `kind`: {kind}. Valid options include: {valid_kinds_string}",
+            f"All `x_interp` points are outside the data domain [{x_min_data}, {x_max_data}].",
         )
-    x_min_data = x_values[0]
-    x_max_values = x_values[-1]
-    in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_values)
-    num_out_of_bounds = numpy.sum(~in_bounds_mask)
     if num_out_of_bounds > 0:
-        print(
-            f"Removing {num_out_of_bounds} `x_interp` points that are outside the interpolated domain.",
-        )
-    interpolator = scipy_interp1d(
-        x_values,
-        y_values,
-        kind=kind,
-        bounds_error=False,
-        assume_sorted=True,
+        hint_text = f"Dropping {num_out_of_bounds} `x_interp` point(s) outside the data domain [{x_min_data}, {x_max_data}]."
+        log_manager.log_hint(text=hint_text)
+    ## interpolate
+    interpolator = scipy_make_interp_spline(
+        data_series.x_values,
+        data_series.y_values,
+        k=spline_order,
     )
     x_interp_in_bounds = x_interp[in_bounds_mask]
-    y_interp_in_bounds = interpolator(x_interp_in_bounds)
-    return (x_interp_in_bounds, y_interp_in_bounds)
+    return DataSeries(
+        x_values=x_interp_in_bounds,
+        y_values=interpolator(x_interp_in_bounds),
+    )
 
 
 ## } MODULE
