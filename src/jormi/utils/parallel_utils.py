@@ -94,7 +94,7 @@ def run_in_parallel(
                 task = pool.schedule(
                     _invoke_with_plotting,
                     args=[worker_fn, task_args],
-                    timeout=timeout_seconds,
+                    timeout=timeout_seconds, # type: ignore[arg-type]
                     kwargs={
                         "theme": theme,
                         "use_tex": use_tex,
@@ -104,7 +104,7 @@ def run_in_parallel(
                 task = pool.schedule(
                     function=worker_fn,
                     args=task_args,
-                    timeout=timeout_seconds,
+                    timeout=timeout_seconds, # type: ignore[arg-type]
                 )
             tasks.append((task_index, task))
         iterator = tqdm(tasks, total=len(tasks), desc="Processing", unit="tasks") if show_progress else tasks

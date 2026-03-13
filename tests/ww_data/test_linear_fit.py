@@ -84,7 +84,10 @@ def main():
             label=fit_label,
         )
         ax.set_ylabel("y")
-        ax.legend(loc="upper left")
+        ax.legend(
+            fontsize=20,
+            loc="upper left",
+        )
         if is_bottom_ax:
             ax.set_xlabel("x")
         else:
