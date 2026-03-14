@@ -27,9 +27,15 @@ build-backend = "hatchling.build"
 sources = ["src"]
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 testpaths = ["unit_tests"]
 
 [tool.pyright]
 include = ["src", "unit_tests", "validation", "playground"]
 reportMissingImports = true
 reportMissingTypeStubs = false
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

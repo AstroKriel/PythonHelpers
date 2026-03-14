@@ -4,8 +4,13 @@
 ## === DEPENDENCIES
 ##
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Self, Callable
+from typing import TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from typing import Self
 
 from jormi.ww_types import type_checks, array_checks
 from jormi.ww_fields import _fdata_type, _domain_type

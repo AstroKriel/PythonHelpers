@@ -8,7 +8,7 @@ import unittest
 import os
 import numpy as np
 from pathlib import Path
-from jormi.ww_io import json_io
+from jormi.ww_io import json_files as json_io
 from jormi.utils import dict_utils
 
 ##
