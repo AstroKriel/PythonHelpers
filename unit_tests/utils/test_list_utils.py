@@ -79,7 +79,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(output_index, 1)
         ## target value is None
         with self.assertRaises(Exception):
-            list_utils.get_index_of_closest_value(values=[1, 2, 3], target=None)
+            list_utils.get_index_of_closest_value(values=[1, 2, 3], target=None) # type: ignore
         ## target value is infinity
         output_index = list_utils.get_index_of_closest_value(values=[1, 5, 8], target=numpy.inf)
         self.assertEqual(output_index, 2)
@@ -139,7 +139,7 @@ class Tests(unittest.TestCase):
         ## invalid direction value (should raise)
         values = [0.1, 0.2, 0.3]
         with self.assertRaises(ValueError):
-            list_utils.get_index_of_first_crossing(values=values, target=0.2, direction="diagonal")
+            list_utils.get_index_of_first_crossing(values=values, target=0.2, direction="diagonal") # type: ignore
         ## exact min value match
         values = [0.1, 0.2, 0.3]
         index = list_utils.get_index_of_first_crossing(values=values, target=0.1)
