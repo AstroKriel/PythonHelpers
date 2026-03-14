@@ -109,12 +109,10 @@ class Tests(unittest.TestCase):
         expected = [1, 2, 3]
         self.assertEqual(output, expected)
         ## list of numpy-arrays: numpy arrays are not lists so they are not expanded
-        output = list_utils.flatten_list(
-            [
-                numpy.array([1, 2, 3]),
-                numpy.array([4, 5, 6, 7]),
-            ],
-        )
+        output = list_utils.flatten_list([
+            numpy.array([1, 2, 3]),
+            numpy.array([4, 5, 6, 7]),
+        ], )
         self.assertEqual(len(output), 2)
 
     def test_get_index_of_first_crossing(self):
