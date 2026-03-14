@@ -4,6 +4,7 @@
 ## === DEPENDENCIES
 ##
 
+import math
 import os
 import shutil
 import time
@@ -33,9 +34,9 @@ def cpu_heavy_task(
     block_of_values: list[float],
 ) -> float:
     total = 0.0
-    for _ in range(200):
+    for _ in range(500):
         for value in block_of_values:
-            total += value**1.00001
+            total += math.sin(math.log(abs(value) + 1.0))
     return total
 
 
@@ -53,7 +54,9 @@ def time_fn(
             worker_fn=worker_fn,
             grouped_args=grouped_args,
             num_workers=num_workers,
+            timeout_seconds=None,
             show_progress=False,
+            enable_plotting=False,
         )
         elapsed_times.append(time.perf_counter() - start_time)
     ave_elapsed_time = numpy.median(elapsed_times)
@@ -128,6 +131,7 @@ class Tests(unittest.TestCase):
             worker_fn=plot_task,
             grouped_args=grouped_args,
             show_progress=False,
+            enable_plotting=True,
         )
         self.assertEqual(all(result), True)
 
@@ -152,7 +156,7 @@ class Tests(unittest.TestCase):
 
     def test_parallel_scaling(self):
         ## compare 1-worker vs max-workers
-        num_values_per_block = 1000
+        num_values_per_block = 2000
         num_blocks = 64
         blocks = [[float(value) for value in range(num_values_per_block)] for _ in range(num_blocks)]
         grouped_args = [(block_of_values, ) for block_of_values in blocks]

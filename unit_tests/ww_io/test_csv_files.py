@@ -7,7 +7,7 @@
 import unittest
 import os
 from pathlib import Path
-from jormi.ww_io import csv_io
+from jormi.ww_io import csv_files as csv_io
 
 ##
 ## === FUNCTIONS WRAPPERS
@@ -68,7 +68,7 @@ class Tests(unittest.TestCase):
         data_1 = {"a": [1, 2], "b": [0.1, 0.2]}
         data_2 = {"a": [3, 4], "b": [0.3, 0.4], "c": [10, 20, 30, 40]}
         save_dict_to_csv_file_wrapper(self.test_file_path, data_1)
-        save_dict_to_csv_file_wrapper(self.test_file_path, data_2)
+        save_dict_to_csv_file_wrapper(self.test_file_path, data_2, overwrite=False)
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
         expected = {"a": [1, 2, 3, 4], "b": [0.1, 0.2, 0.3, 0.4], "c": [10, 20, 30, 40]}
         self.assertEqual(result, expected)
@@ -96,9 +96,9 @@ class Tests(unittest.TestCase):
         data_1 = {"x": [1, 2]}
         save_dict_to_csv_file_wrapper(self.test_file_path, data_1)
         data_2 = {"x": [3, 4]}
-        save_dict_to_csv_file_wrapper(self.test_file_path, data_2)
+        save_dict_to_csv_file_wrapper(self.test_file_path, data_2, overwrite=False)
         data_3 = {"y": [10, 20, 30, 40]}
-        save_dict_to_csv_file_wrapper(self.test_file_path, data_3)
+        save_dict_to_csv_file_wrapper(self.test_file_path, data_3, overwrite=False)
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
         expected = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
         self.assertEqual(result, expected)

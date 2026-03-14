@@ -78,6 +78,42 @@ class WarnIfUnused:
         self._result_was_used = True
         return repr(self._result)
 
+    def __eq__(
+        self,
+        other,
+    ):
+        self._result_was_used = True
+        if isinstance(other, WarnIfUnused):
+            return self._result == other._result
+        return self._result == other
+
+    def __ne__(
+        self,
+        other,
+    ):
+        return not self.__eq__(other)
+
+    def __hash__(
+        self,
+    ):
+        self._result_was_used = True
+        return hash(self._result)
+
+    def __getitem__(
+        self,
+        key,
+    ):
+        self._result_was_used = True
+        return self._result[key]
+
+    def __setitem__(
+        self,
+        key,
+        value,
+    ):
+        self._result_was_used = True
+        self._result[key] = value
+
 
 def warn_if_fn_result_is_unused(
     fn,

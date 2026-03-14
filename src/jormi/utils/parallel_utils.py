@@ -104,7 +104,7 @@ def run_in_parallel(
                 task = pool.schedule(
                     function=worker_fn,
                     args=task_args,
-                    timeout=timeout_seconds, # type: ignore[arg-type]
+                    timeout=timeout_seconds,  # type: ignore[arg-type]
                 )
             tasks.append((task_index, task))
         iterator = tqdm(tasks, total=len(tasks), desc="Processing", unit="tasks") if show_progress else tasks

@@ -70,7 +70,7 @@ def add_text(
         max_value=1.0,
     )
     ## validate text style
-    type_checks.ensure_finite_float(
+    type_checks.ensure_finite_scalar(
         param=text_size,
         param_name="text_size",
         allow_none=False,
@@ -250,7 +250,7 @@ def overlay_curve(
     `x_values` and `y_values` must be 1D and the same length, with at least two points.
     """
     ## validate line style
-    type_checks.ensure_finite_float(
+    type_checks.ensure_finite_scalar(
         param=linewidth,
         param_name="linewidth",
         allow_none=False,

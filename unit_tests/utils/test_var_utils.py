@@ -5,7 +5,7 @@
 ##
 
 import unittest
-from jormi.ww_types import type_manager
+from jormi.ww_types import type_checks as type_manager
 
 ##
 ## === TEST SUITE
@@ -85,7 +85,7 @@ class Tests(unittest.TestCase):
                 param=42,
                 valid_types=str,
             )
-        self.assertIn("name not provided", str(cm.exception))
+        self.assertIn("<param>", str(cm.exception))
         self.assertIn("str", str(cm.exception))
         self.assertIn("int", str(cm.exception))
 

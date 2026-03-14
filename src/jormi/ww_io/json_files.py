@@ -12,7 +12,7 @@ from pathlib import Path
 
 from jormi.ww_io import io_manager, log_manager
 from jormi.ww_types import type_checks
-from jormi.utils import dict_utils
+from jormi.utils import dict_utils, fn_utils
 
 ##
 ## === FUNCTIONS
@@ -72,6 +72,9 @@ class NumpyEncoder(json.JSONEncoder):
             return bool(param)
         elif isinstance(param, numpy.ndarray):
             return param.tolist()
+        elif isinstance(param, fn_utils.WarnIfUnused):
+            param._result_was_used = True
+            return param._result
         return super().default(param)
 
 

@@ -4,10 +4,15 @@
 ## === DEPENDENCIES
 ##
 
+from __future__ import annotations
+
 import numpy
 
-from typing import Self
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
+
+if TYPE_CHECKING:
+    from typing import Self
 
 from jormi.ww_types import type_checks
 from jormi.ww_fields import _field_type
