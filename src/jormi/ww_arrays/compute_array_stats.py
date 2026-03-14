@@ -9,10 +9,10 @@ import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_io import log_manager
-from jormi.ww_types import type_checks, array_checks
+from jormi.ww_io import manage_log
+from jormi.ww_types import check_types, check_arrays
 from jormi.ww_arrays import smooth_2d_arrays
-from jormi.utils import list_utils
+from jormi import ww_lists
 
 ##
 ## === ARRAY VALUE CHECKS
@@ -41,7 +41,7 @@ def check_zero_values(
     )
     if raise_error:
         raise ValueError(msg)
-    log_manager.log_alert(msg)
+    manage_log.log_alert(msg)
     return True
 
 
@@ -74,13 +74,13 @@ def check_nonfinite_values(
     if not troubled_findings:
         return False
     msg = (
-        f"{param_name} contains non-finite values ({list_utils.as_string(troubled_findings)}); "
+        f"{param_name} contains non-finite values ({ww_lists.as_string(troubled_findings)}); "
         "these will be zeroed automatically. "
         "Inspect your simulation data if this is unexpected."
     )
     if raise_error:
         raise ValueError(msg)
-    log_manager.log_alert(msg)
+    manage_log.log_alert(msg)
     return True
 
 
@@ -130,32 +130,32 @@ def compute_p_norm(
 ) -> float:
     """Compute the p-norm between two arrays and optionally normalise by num_points^(1/p_norm)."""
     ## validate input arrays and scalar options
-    array_a = array_checks.as_1d(
+    array_a = check_arrays.as_1d(
         array_like=array_a,
         param_name="array_a",
         check_finite=True,
     )
-    array_b = array_checks.as_1d(
+    array_b = check_arrays.as_1d(
         array_like=array_b,
         param_name="array_b",
         check_finite=True,
     )
-    array_checks.ensure_nonempty(
+    check_arrays.ensure_nonempty(
         array=array_a,
         param_name="array_a",
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=array_a,
         array_b=array_b,
         param_name_a="array_a",
         param_name_b="array_b",
     )
-    type_checks.ensure_numeric(
+    check_types.ensure_numeric(
         param=p_norm,
         param_name="p_norm",
         allow_none=False,
     )
-    type_checks.ensure_bool(
+    check_types.ensure_bool(
         param=normalise_by_length,
         param_name="normalise_by_length",
         allow_none=False,
@@ -216,18 +216,18 @@ def _create_uniformly_spaced_bin_centers(
     bin_range_percent: float = 1.0,
 ) -> numpy.ndarray:
     ## validate and canonicalise input values and bin configuration
-    values = array_checks.as_1d(
+    values = check_arrays.as_1d(
         array_like=values,
         param_name="values",
         check_finite=True,
     )
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=num_bins,
         param_name="num_bins",
         allow_none=False,
         require_positive=True,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=bin_range_percent,
         param_name="bin_range_percent",
         allow_none=False,
@@ -247,7 +247,7 @@ def _get_bin_edges_from_centers(
     bin_centers: numpy.ndarray,
 ) -> numpy.ndarray:
     ## validate centers and ordering
-    bin_centers = array_checks.as_1d(
+    bin_centers = check_arrays.as_1d(
         array_like=bin_centers,
         param_name="bin_centers",
         check_finite=True,
@@ -283,14 +283,14 @@ def _ensure_correct_pdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -307,7 +307,7 @@ def _ensure_correct_pdf_integral(
         ),
     )
     ## validate normalisation of the 1D PDF
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -328,14 +328,14 @@ def _ensure_correct_jpdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -355,7 +355,7 @@ def _ensure_correct_jpdf_integral(
         ),
     )
     ## validate normalisation of the 2D JPDF
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -393,23 +393,23 @@ class EstimatedPDF:
         self,
     ) -> None:
         ## validate input arrays and shapes
-        array_checks.ensure_1d(
+        check_arrays.ensure_1d(
             array=self.bin_centers,
             param_name="bin_centers",
         )
-        array_checks.ensure_finite(
+        check_arrays.ensure_finite(
             array=self.bin_centers,
             param_name="bin_centers",
         )
-        array_checks.ensure_1d(
+        check_arrays.ensure_1d(
             array=self.densities,
             param_name="densities",
         )
-        array_checks.ensure_finite(
+        check_arrays.ensure_finite(
             array=self.densities,
             param_name="densities",
         )
-        array_checks.ensure_same_shape(
+        check_arrays.ensure_same_shape(
             array_a=self.bin_centers,
             array_b=self.densities,
             param_name_a="bin_centers",
@@ -446,18 +446,18 @@ def estimate_pdf(
 ) -> EstimatedPDF:
     """Compute a 1D probability density function (PDF) for the provided `values`."""
     ## validate inputs
-    values = array_checks.as_1d(
+    values = check_arrays.as_1d(
         array_like=values,
         param_name="values",
         check_finite=False,
     )
     if weights is not None:
-        weights = array_checks.as_1d(
+        weights = check_arrays.as_1d(
             array_like=weights,
             param_name="weights",
             check_finite=False,
         )
-        array_checks.ensure_same_shape(
+        check_arrays.ensure_same_shape(
             array_a=values,
             array_b=weights,
             param_name_a="values",
@@ -466,7 +466,7 @@ def estimate_pdf(
         mask = numpy.isfinite(values) & numpy.isfinite(weights)
         values = values[mask]
         weights = weights[mask]
-        array_checks.ensure_nonempty(
+        check_arrays.ensure_nonempty(
             array=values,
             param_name="values[finite]",
         )
@@ -475,13 +475,13 @@ def estimate_pdf(
     else:
         mask = numpy.isfinite(values)
         values = values[mask]
-        array_checks.ensure_nonempty(
+        check_arrays.ensure_nonempty(
             array=values,
             param_name="values[finite]",
         )
         weights = None
     ## validate delta-threshold and detect near-delta distributions
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=delta_threshold,
         param_name="delta_threshold",
         allow_none=False,
@@ -539,7 +539,7 @@ def estimate_pdf(
             bin_range_percent=bin_range_percent,
         ).astype(numpy.float64)
     else:
-        bin_centers = array_checks.as_1d(
+        bin_centers = check_arrays.as_1d(
             array_like=bin_centers,
             param_name="bin_centers",
             check_finite=True,
@@ -611,36 +611,36 @@ class EstimatedJPDF:
         self,
     ) -> None:
         ## validate row centers
-        array_checks.ensure_1d(
+        check_arrays.ensure_1d(
             array=self.row_centers,
             param_name="row_centers",
         )
-        array_checks.ensure_finite(
+        check_arrays.ensure_finite(
             array=self.row_centers,
             param_name="row_centers",
         )
         ## validate column centers
-        array_checks.ensure_1d(
+        check_arrays.ensure_1d(
             array=self.col_centers,
             param_name="col_centers",
         )
-        array_checks.ensure_finite(
+        check_arrays.ensure_finite(
             array=self.col_centers,
             param_name="col_centers",
         )
         ## validate densities
-        array_checks.ensure_dims(
+        check_arrays.ensure_dims(
             array=self.densities,
             param_name="densities",
             num_dims=2,
         )
-        array_checks.ensure_finite(
+        check_arrays.ensure_finite(
             array=self.densities,
             param_name="densities",
         )
         num_rows = self.row_centers.shape[0]
         num_cols = self.col_centers.shape[0]
-        array_checks.ensure_shape(
+        check_arrays.ensure_shape(
             array=self.densities,
             param_name="densities",
             expected_shape=(num_rows, num_cols),
@@ -688,29 +688,29 @@ def estimate_jpdf(
 ) -> EstimatedJPDF:
     """Compute the 2D joint probability density function (JPDF)."""
     ## validate inputs
-    data_x = array_checks.as_1d(
+    data_x = check_arrays.as_1d(
         array_like=data_x,
         param_name="data_x",
         check_finite=True,
     )
-    data_y = array_checks.as_1d(
+    data_y = check_arrays.as_1d(
         array_like=data_y,
         param_name="data_y",
         check_finite=True,
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=data_x,
         array_b=data_y,
         param_name_a="data_x",
         param_name_b="data_y",
     )
     if data_weights is not None:
-        data_weights = array_checks.as_1d(
+        data_weights = check_arrays.as_1d(
             array_like=data_weights,
             param_name="data_weights",
             check_finite=True,
         )
-        array_checks.ensure_same_shape(
+        check_arrays.ensure_same_shape(
             array_a=data_x,
             array_b=data_weights,
             param_name_a="data_x",
@@ -736,7 +736,7 @@ def estimate_jpdf(
             bin_range_percent=bin_range_percent,
         ).astype(numpy.float64)
     else:
-        col_centers = array_checks.as_1d(
+        col_centers = check_arrays.as_1d(
             array_like=col_centers,
             param_name="col_centers",
             check_finite=True,
@@ -748,7 +748,7 @@ def estimate_jpdf(
             bin_range_percent=bin_range_percent,
         ).astype(numpy.float64)
     else:
-        row_centers = array_checks.as_1d(
+        row_centers = check_arrays.as_1d(
             array_like=row_centers,
             param_name="row_centers",
             check_finite=True,
@@ -793,7 +793,7 @@ def estimate_jpdf(
     estimated_jpdf = (bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts)
     ## optional smoothing and re-normalisation
     if smoothing_length is not None:
-        type_checks.ensure_finite_float(
+        check_types.ensure_finite_float(
             param=smoothing_length,
             param_name="smoothing_length",
             allow_none=False,

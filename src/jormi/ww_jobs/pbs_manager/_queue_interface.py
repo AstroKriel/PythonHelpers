@@ -6,7 +6,7 @@
 
 from pathlib import Path
 
-from jormi.ww_io import io_manager, shell_manager
+from jormi.ww_io import manage_io, manage_shell
 
 ##
 ## === FUNCTIONS
@@ -24,7 +24,7 @@ def submit_job(
         return False
     print("Submitting job:", file_name)
     try:
-        shell_manager.execute_shell_command(
+        manage_shell.execute_shell_command(
             command=f"qsub {file_name}",
             working_directory=directory,
         )
@@ -39,8 +39,8 @@ def is_job_already_in_queue(
     file_name: str,
 ) -> bool:
     """Checks if a job name is already in the queue."""
-    file_path = io_manager.combine_file_path_parts([directory, file_name])
-    if not io_manager.does_file_exist(file_path=file_path):
+    file_path = manage_io.combine_file_path_parts([directory, file_name])
+    if not manage_io.does_file_exist(file_path=file_path):
         print(f"`{file_name}` job file does not exist in: {directory}")
         return False
     job_tag = get_job_tag_from_pbs_script(file_path)
@@ -68,7 +68,7 @@ def get_job_tag_from_pbs_script(file_path: str | Path) -> str | None:
 def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
     """Collects all job (id, name) pairs currently in the queue."""
     try:
-        result = shell_manager.execute_shell_command(
+        result = manage_shell.execute_shell_command(
             command="qstat -f",
             timeout_seconds=60,
             capture_output=True,

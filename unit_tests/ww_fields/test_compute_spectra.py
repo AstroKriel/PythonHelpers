@@ -8,8 +8,8 @@ import numpy
 import unittest
 
 from jormi.ww_fields.fields_3d import (
-    domain_type,
-    field_type,
+    domain_types as domain_type,
+    field_types as field_type,
     compute_spectra,
 )
 

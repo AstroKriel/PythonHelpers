@@ -9,7 +9,7 @@ import matplotlib.colors as mpl_colors
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_checks
+from jormi.ww_types import check_types
 from jormi.ww_plots.color_palettes import _base_palette
 
 ##
@@ -32,11 +32,11 @@ class DivergingPalette(_base_palette.ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        type_checks.ensure_ordered_pair(
+        check_types.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )
-        type_checks.ensure_finite_float(
+        check_types.ensure_finite_float(
             param=self.mid_value,
             param_name="mid_value",
         )
@@ -90,7 +90,7 @@ class DivergingPalette(_base_palette.ColorPalette):
     def mpl_norm(
         self,
     ) -> mpl_colors.TwoSlopeNorm:
-        type_checks.ensure_ordered_pair(
+        check_types.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )

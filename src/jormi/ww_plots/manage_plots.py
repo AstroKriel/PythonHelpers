@@ -24,9 +24,9 @@ from matplotlib import pyplot as mpl_plot
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
 
-from jormi.ww_types import type_checks, box_positions
-from jormi.ww_io import io_manager, shell_manager
-from jormi.ww_plots import plot_styler
+from jormi.ww_types import check_types, box_positions
+from jormi.ww_io import manage_io, manage_shell
+from jormi.ww_plots import style_plots
 
 ##
 ## === TYPE ALIASES
@@ -71,7 +71,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
+    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
 ) -> tuple[mpl_Figure, PlotAxis]:
     ...
 
@@ -88,7 +88,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
+    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
 ) -> tuple[mpl_Figure, PlotAxesArray]:
     ...
 
@@ -104,7 +104,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: plot_styler.Theme | str = plot_styler.Theme.LIGHT,
+    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
 ) -> tuple[mpl_Figure, PlotAxis | PlotAxesArray]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
@@ -122,7 +122,7 @@ def create_figure(
     - Mixed None/int specifications are not allowed.
     """
     if auto_style:
-        plot_styler.set_theme(theme=theme)
+        style_plots.set_theme(theme=theme)
     if (num_rows is None) and (num_cols is None):
         fig_width, fig_height = _get_fig_shape(
             num_rows=1,
@@ -144,12 +144,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,
@@ -333,7 +333,7 @@ def animate_pngs_to_mp4(
 ) -> None:
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
-    io_manager.init_directory(mp4_path.parent, verbose=False)
+    manage_io.init_directory(mp4_path.parent, verbose=False)
     args = " ".join(
         [
             "-hide_banner",  # less stdout
@@ -349,7 +349,7 @@ def animate_pngs_to_mp4(
         ],
     )
     cmd = f'ffmpeg {args} "{mp4_path}"'
-    shell_manager.execute_shell_command(
+    manage_shell.execute_shell_command(
         command=cmd,
         working_directory=frames_dir,
         timeout_seconds=timeout_seconds,

@@ -5,7 +5,7 @@
 ##
 
 from pathlib import Path
-from jormi.ww_io import io_manager
+from jormi.ww_io import manage_io
 
 from . import _job_validation
 
@@ -78,7 +78,7 @@ def create_pbs_job_script(
     if email_on_finish:
         mail_options += "e"
     ## validate + open file
-    file_path = io_manager.combine_file_path_parts([directory, file_name])
+    file_path = manage_io.combine_file_path_parts([directory, file_name])
     _ensure_path_is_valid(file_path)
     with open(file_path, "w") as job_file:
         ## pbs header

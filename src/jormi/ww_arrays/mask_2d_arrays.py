@@ -9,7 +9,7 @@ import numpy
 from typing import TypeAlias
 from numpy.typing import NDArray
 
-from jormi.ww_types import array_checks, type_checks
+from jormi.ww_types import check_arrays, check_types
 from jormi.ww_types import box_positions
 
 ##
@@ -27,7 +27,7 @@ def get_2d_shape(
     array_2d: numpy.ndarray,
 ) -> tuple[int, int]:
     """Validate that array_2d is a 2D array and return it shape: (num_rows, num_cols)."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
         param_name="array_2d",
@@ -45,13 +45,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
     """Return (row_indices, col_indices) for a 2D grid."""
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

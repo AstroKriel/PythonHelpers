@@ -7,7 +7,7 @@
 from enum import Enum
 from typing import TypeAlias
 
-from jormi.ww_types import enum_checks
+from jormi.ww_types import check_enums
 
 ##
 ## === ENUM DEFINITIONS
@@ -55,7 +55,7 @@ class _Side(str, Enum):
 class TypeHints:
     """Type-hint groupings for box position and Matplotlib placement parameters."""
 
-    PositionLike: TypeAlias = enum_checks.EnumMemberLike
+    PositionLike: TypeAlias = check_enums.EnumMemberLike
 
     class Box:
 
@@ -76,16 +76,16 @@ class RuntimeTypes:
 
     class Box:
 
-        Center = enum_checks.as_runtime_type(TypeHints.Box.Center)
-        Corner = enum_checks.as_runtime_type(TypeHints.Box.Corner)
-        Edge = enum_checks.as_runtime_type(TypeHints.Box.Edge)
-        Side = enum_checks.as_runtime_type(TypeHints.Box.Side)
+        Center = check_enums.as_runtime_type(TypeHints.Box.Center)
+        Corner = check_enums.as_runtime_type(TypeHints.Box.Corner)
+        Edge = check_enums.as_runtime_type(TypeHints.Box.Edge)
+        Side = check_enums.as_runtime_type(TypeHints.Box.Side)
 
     class MPL:
         """Runtime enum tuples for mpl-style rules."""
 
-        AnchorLike = enum_checks.as_runtime_type(TypeHints.MPL.AnchorLike)
-        AlignLike = enum_checks.as_runtime_type(TypeHints.MPL.AlignLike)
+        AnchorLike = check_enums.as_runtime_type(TypeHints.MPL.AnchorLike)
+        AlignLike = check_enums.as_runtime_type(TypeHints.MPL.AlignLike)
 
 
 ##
@@ -98,7 +98,7 @@ def ensure_box_corner(
     *,
     param_name: str = "<param>",
 ) -> None:
-    enum_checks.ensure_valid_member(
+    check_enums.ensure_valid_member(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
         param_name=param_name,
@@ -110,7 +110,7 @@ def ensure_box_edge(
     *,
     param_name: str = "<param>",
 ) -> None:
-    enum_checks.ensure_valid_member(
+    check_enums.ensure_valid_member(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
         param_name=param_name,
@@ -122,7 +122,7 @@ def ensure_box_center(
     *,
     param_name: str = "<param>",
 ) -> None:
-    enum_checks.ensure_valid_member(
+    check_enums.ensure_valid_member(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
         param_name=param_name,
@@ -134,7 +134,7 @@ def ensure_box_side(
     *,
     param_name: str = "<param>",
 ) -> None:
-    enum_checks.ensure_valid_member(
+    check_enums.ensure_valid_member(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
         param_name=param_name,
@@ -148,7 +148,7 @@ def as_box_corner(
         corner=corner,
         param_name="corner",
     )
-    resolved_corner = enum_checks.resolve_member(
+    resolved_corner = check_enums.resolve_member(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
     )
@@ -162,7 +162,7 @@ def as_box_edge(
         edge=edge,
         param_name="edge",
     )
-    resolved_edge = enum_checks.resolve_member(
+    resolved_edge = check_enums.resolve_member(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
     )
@@ -176,7 +176,7 @@ def as_box_center(
         center=center,
         param_name="center",
     )
-    resolved_center = enum_checks.resolve_member(
+    resolved_center = check_enums.resolve_member(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
     )
@@ -190,7 +190,7 @@ def as_box_side(
         side=side,
         param_name="side",
     )
-    resolved_side = enum_checks.resolve_member(
+    resolved_side = check_enums.resolve_member(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
     )
@@ -208,7 +208,7 @@ def ensure_mpl_anchor(
     param_name: str = "<param>",
 ) -> None:
     """Ensure `position` is valid for mpl-loc placement."""
-    enum_checks.ensure_valid_member(
+    check_enums.ensure_valid_member(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,
         param_name=param_name,
@@ -221,7 +221,7 @@ def ensure_mpl_ha(
     param_name: str = "<param>",
 ) -> None:
     """Ensure `ha` is valid for mpl-ha."""
-    enum_checks.ensure_member_in(
+    check_enums.ensure_member_in(
         member=ha,
         valid_members=(
             TypeHints.Box.Side.Left,
@@ -238,7 +238,7 @@ def ensure_mpl_va(
     param_name: str = "<param>",
 ) -> None:
     """Ensure `va` is valid for mpl-va."""
-    enum_checks.ensure_member_in(
+    check_enums.ensure_member_in(
         member=va,
         valid_members=(
             TypeHints.Box.Side.Top,
@@ -257,7 +257,7 @@ def as_mpl_anchor(
         position=position,
         param_name="position",
     )
-    resolved_position = enum_checks.resolve_member(
+    resolved_position = check_enums.resolve_member(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,
     )
@@ -273,7 +273,7 @@ def as_mpl_ha(
         param_name="ha",
     )
     ## the previous check already ensured the correct set
-    resolved_ha = enum_checks.resolve_member(
+    resolved_ha = check_enums.resolve_member(
         member=ha,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
@@ -289,7 +289,7 @@ def as_mpl_va(
         param_name="va",
     )
     ## the previous check already ensured the correct set
-    resolved_va = enum_checks.resolve_member(
+    resolved_va = check_enums.resolve_member(
         member=va,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )

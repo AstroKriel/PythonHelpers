@@ -1,25 +1,25 @@
-from jormi.ww_io import log_manager as lm
+from jormi.ww_io import manage_log
 
 
 def demo_lines() -> None:
-    lm.log_section("Demo: line helpers", add_spacing=True)
-    lm.log_task("Prepare environment", show_time=True)
-    lm.log_note("Using cache at /gdata/user/cache", show_time=True)
-    lm.log_hint("This may take a while")
-    lm.log_alert("Running with default settings")
-    lm.log_debug("rank=0 seed=42")
-    lm.log_outcome("Initialized MPI", outcome=lm.ActionOutcome.SUCCESS)
-    lm.log_outcome("Optional step skipped", outcome=lm.ActionOutcome.SKIPPED)
-    lm.log_outcome("Post-check failed", outcome=lm.ActionOutcome.FAILURE)
-    lm.log_task("printing 2 empty lines...")
-    lm.log_empty_lines(lines=2)
-    lm.log_task("^there are two empty lines above^", show_time=False)
-    lm.log_empty_lines()
+    manage_log.log_section("Demo: line helpers", add_spacing=True)
+    manage_log.log_task("Prepare environment", show_time=True)
+    manage_log.log_note("Using cache at /gdata/user/cache", show_time=True)
+    manage_log.log_hint("This may take a while")
+    manage_log.log_alert("Running with default settings")
+    manage_log.log_debug("rank=0 seed=42")
+    manage_log.log_outcome("Initialized MPI", outcome=manage_log.ActionOutcome.SUCCESS)
+    manage_log.log_outcome("Optional step skipped", outcome=manage_log.ActionOutcome.SKIPPED)
+    manage_log.log_outcome("Post-check failed", outcome=manage_log.ActionOutcome.FAILURE)
+    manage_log.log_task("printing 2 empty lines...")
+    manage_log.log_empty_lines(lines=2)
+    manage_log.log_task("^there are two empty lines above^", show_time=False)
+    manage_log.log_empty_lines()
 
 
 def demo_blocks() -> None:
-    lm.log_section("Demo: block helpers", add_spacing=True)
-    lm.log_action(
+    manage_log.log_section("Demo: block helpers", add_spacing=True)
+    manage_log.log_action(
         title="Copy File",
         succeeded=True,
         message="File copied successfully.",
@@ -29,7 +29,7 @@ def demo_blocks() -> None:
             "To": "/made/up/address/N=64_Nbo=32_Nbl=32_bopr=1_mpir=8",
         },
     )
-    lm.log_action(
+    manage_log.log_action(
         title="Create PBS Job",
         succeeded=True,
         message="Submit with: qsub /path/to/job.sh",
@@ -41,24 +41,24 @@ def demo_blocks() -> None:
             "Walltime": "02:00:00",
         },
     )
-    lm.log_action(
+    manage_log.log_action(
         title="Create Directory",
         succeeded=None,
         message="Directory already exists; nothing to do.",
         notes={"Path": "/tmp/sim/OT_N32"},
     )
-    lm.log_warning(
+    manage_log.log_warning(
         "Existing file was overwritten.",
         notes={
             "Path": "/tmp/sim/OT_N64/sim_params.json",
             "Format": "json",
         },
     )
-    lm.log_error(
+    manage_log.log_error(
         "Command not found on PATH.",
         notes={"Command": "qstat -f"},
     )
-    lm.log_action(
+    manage_log.log_action(
         title="Run Simulation",
         succeeded=False,
         message="One or more checks failed (dry-run validation).",
@@ -68,7 +68,7 @@ def demo_blocks() -> None:
         },
         message_position="top",
     )
-    lm.log_context(
+    manage_log.log_context(
         title="System Info",
         message="Environment detected.",
         notes={
@@ -78,15 +78,15 @@ def demo_blocks() -> None:
         },
         message_position="bottom",
     )
-    lm.log_context(
+    manage_log.log_context(
         title="Usage Hint",
         message="Run with --help to list all CLI options.",
     )
-    lm.log_context(
+    manage_log.log_context(
         title="Configuration Notice",
         message="Using default settings; performance may be suboptimal.",
     )
-    lm.log_items(
+    manage_log.log_items(
         title="Available Datasets",
         items=[
             "orszag_tang_N64",
@@ -96,7 +96,7 @@ def demo_blocks() -> None:
         message="A few datasets are available.",
         message_position="top",
     )
-    lm.log_summary(
+    manage_log.log_summary(
         title="Run Summary",
         notes={
             "jobs_submitted": 3,
@@ -109,16 +109,16 @@ def demo_blocks() -> None:
 
 
 def demo_renderers() -> None:
-    lm.log_section("Demo: raw renderers (internal)")
-    lm.render_line(
-        lm.Message("raw line (NOTE)", message_type=lm.MessageType.NOTE),
+    manage_log.log_section("Demo: raw renderers (internal)")
+    manage_log.render_line(
+        manage_log.Message("raw line (NOTE)", message_type=manage_log.MessageType.NOTE),
         show_time=True,
         add_spacing=True,
     )
-    lm.render_block(
-        lm.Message(
+    manage_log.render_block(
+        manage_log.Message(
             message_title="Raw block (NOTE)",
-            message_type=lm.MessageType.NOTE,
+            message_type=manage_log.MessageType.NOTE,
             message="Called via render_block directly.",
             message_notes={
                 "why": "demonstration",
@@ -127,14 +127,14 @@ def demo_renderers() -> None:
         ),
         show_time=True,
     )
-    lm.log_empty_lines()
+    manage_log.log_empty_lines()
 
 
 def main() -> None:
     demo_lines()
     demo_blocks()
     demo_renderers()
-    lm.log_note("finished!", show_time=True)
+    manage_log.log_note("finished!", show_time=True)
 
 
 if __name__ == "__main__":

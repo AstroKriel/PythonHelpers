@@ -10,14 +10,14 @@ import matplotlib.colorbar as mpl_colorbar
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_checks, box_positions
+from jormi.ww_types import check_types, box_positions
 from jormi.ww_plots.color_palettes import (
     ColorPalette,
     SequentialPalette,
     DivergingPalette,
     DiscretePalette,
 )
-from jormi.ww_plots.plot_manager import compute_adjacent_ax_bounds
+from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
 
 ##
 ## === PALETTE CONFIGS
@@ -185,28 +185,28 @@ def add_colorbar(
     label_size: float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=cbar_thickness,
         param_name="cbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=cbar_pad,
         param_name="cbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=label_pad,
         param_name="label_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=label_size,
         param_name="label_size",
         allow_none=False,

@@ -8,8 +8,8 @@ import numpy
 
 from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 
-from jormi.ww_io import log_manager
-from jormi.ww_types import type_checks, array_checks
+from jormi.ww_io import manage_log
+from jormi.ww_types import check_types, check_arrays
 from jormi.ww_data.series_types import DataSeries
 
 ##
@@ -31,7 +31,7 @@ def interpolate_1d(
 
     Returns a new `DataSeries` of the in-bounds interpolated (x, y) values.
     """
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=data_series,
         valid_types=DataSeries,
         param_name="data_series",
@@ -40,15 +40,15 @@ def interpolate_1d(
         raise ValueError(f"`spline_order` must be 1, 2, or 3; got {spline_order!r}.")
     ## validate x_interp
     x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
-    array_checks.ensure_nonempty(
+    check_arrays.ensure_nonempty(
         array=x_interp,
         param_name="x_interp",
     )
-    array_checks.ensure_1d(
+    check_arrays.ensure_1d(
         array=x_interp,
         param_name="x_interp",
     )
-    array_checks.ensure_finite(
+    check_arrays.ensure_finite(
         array=x_interp,
         param_name="x_interp",
     )
@@ -65,7 +65,7 @@ def interpolate_1d(
         )
     if num_out_of_bounds > 0:
         hint_text = f"Dropping {num_out_of_bounds} `x_interp` point(s) outside the data domain [{x_min_data}, {x_max_data}]."
-        log_manager.log_hint(text=hint_text)
+        manage_log.log_hint(text=hint_text)
     ## interpolate
     interpolator = scipy_make_interp_spline(
         data_series.x_values,

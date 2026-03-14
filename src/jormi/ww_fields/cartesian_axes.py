@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Literal, TypeAlias, cast
 from dataclasses import dataclass
 
-from jormi.ww_types import enum_checks, type_checks
+from jormi.ww_types import check_enums, check_types
 
 ##
 ## === DATA TYPES
@@ -52,16 +52,16 @@ class CartesianAxis_3D(str, Enum):
         cls,
         axis_params: AxisParams,
     ) -> "CartesianAxis_3D":
-        type_checks.ensure_type(
+        check_types.ensure_type(
             param=axis_params.axis_label,
-            valid_types=type_checks.RuntimeTypes.Strings.StringLike,
+            valid_types=check_types.RuntimeTypes.Strings.StringLike,
             param_name="axis_label",
         )
         if axis_params.axis_label not in VALID_3D_AXIS_LABELS:
             raise ValueError(f"`axis_label` is invalid: {axis_params.axis_label!r}")
-        type_checks.ensure_type(
+        check_types.ensure_type(
             param=axis_params.axis_index,
-            valid_types=type_checks.RuntimeTypes.Numerics.IntLike,
+            valid_types=check_types.RuntimeTypes.Numerics.IntLike,
             param_name="axis_index",
         )
         if axis_params.axis_index not in VALID_3D_AXIS_INDICES:
@@ -110,7 +110,7 @@ def as_axis(
           * the axis label: "x_0", "x_1", "x_2"
           * the Enum member name: "X0", "X1", "X2"
     """
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=axis,
         valid_types=(int, str, CartesianAxis_3D),
         param_name=param_name,
@@ -122,7 +122,7 @@ def as_axis(
         if axis == VALID_3D_AXIS_INDICES[1]: return CartesianAxis_3D.X1
         if axis == VALID_3D_AXIS_INDICES[2]: return CartesianAxis_3D.X2
         raise ValueError(f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}.")
-    return enum_checks.resolve_member(
+    return check_enums.resolve_member(
         member=axis,
         valid_enums=CartesianAxis_3D,
     )  # type: ignore[return-value]

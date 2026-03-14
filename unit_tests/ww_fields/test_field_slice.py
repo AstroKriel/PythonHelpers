@@ -9,11 +9,11 @@ import unittest
 
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
-    field_type as field_type_2d,
+    field_types as field_type_2d,
 )
 from jormi.ww_fields.fields_3d import (
-    domain_type as domain_type_3d,
-    field_type as field_type_3d,
+    domain_types as domain_type_3d,
+    field_types as field_type_3d,
     slice_fields,
 )
 

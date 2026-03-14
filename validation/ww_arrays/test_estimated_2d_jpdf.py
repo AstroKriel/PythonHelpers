@@ -6,9 +6,9 @@
 
 import numpy
 
-from jormi.ww_io import io_manager
+from jormi.ww_io import manage_io
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_plots import plot_manager
+from jormi.ww_plots import manage_plots
 
 ##
 ## === HELPER FUNCTIONS
@@ -42,7 +42,7 @@ def main():
     integral_error_tol = 1e-2
     ## sample data: rotated elliptical Gaussian
     rng = numpy.random.default_rng(seed=42)
-    fig, ax = plot_manager.create_figure()
+    fig, ax = manage_plots.create_figure()
     x_samples, y_samples = sample_from_ellipse(num_points, rng)
     ## estimate JPDF
     result = compute_array_stats.estimate_jpdf(
@@ -79,10 +79,10 @@ def main():
     ax.axvline(x=0.0, color="black", ls="--", zorder=1)
     ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
     ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
-    file_dir = io_manager.get_caller_directory()
+    file_dir = manage_io.get_caller_directory()
     fig_name = "estimated_2d_jpdf.png"
-    fig_path = io_manager.combine_file_path_parts([file_dir, fig_name])
-    plot_manager.save_figure(fig, fig_path)
+    fig_path = manage_io.combine_file_path_parts([file_dir, fig_name])
+    manage_plots.save_figure(fig, fig_path)
     ## check
     assert abs(pdf_integral - 1.0) < integral_error_tol, (
         f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"

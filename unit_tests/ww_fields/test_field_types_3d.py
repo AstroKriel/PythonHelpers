@@ -9,7 +9,7 @@ import unittest
 import dataclasses
 
 from jormi.ww_fields import cartesian_axes
-from jormi.ww_fields.fields_3d import domain_type, field_type
+from jormi.ww_fields.fields_3d import domain_types, field_types
 
 ##
 ## === HELPERS
@@ -18,8 +18,8 @@ from jormi.ww_fields.fields_3d import domain_type, field_type
 
 def _make_3d_udomain(
     resolution: tuple = (4, 4, 4),
-) -> domain_type.UniformDomain_3D:
-    return domain_type.UniformDomain_3D(
+) -> domain_types.UniformDomain_3D:
+    return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -30,8 +30,8 @@ def _make_sfield_3d(
     resolution: tuple = (4, 4, 4),
     label: str = "test_scalar",
     sim_time: float | None = None,
-) -> field_type.ScalarField_3D:
-    return field_type.ScalarField_3D.from_3d_sarray(
+) -> field_types.ScalarField_3D:
+    return field_types.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=_make_3d_udomain(resolution),
         field_label=label,
@@ -43,8 +43,8 @@ def _make_vfield_3d(
     resolution: tuple = (4, 4, 4),
     label: str = "test_vector",
     sim_time: float | None = None,
-) -> field_type.VectorField_3D:
-    return field_type.VectorField_3D.from_3d_varray(
+) -> field_types.VectorField_3D:
+    return field_types.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=_make_3d_udomain(resolution),
         field_label=label,
@@ -72,7 +72,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
         sfield = _make_sfield_3d()
         self.assertIsInstance(
             sfield,
-            field_type.ScalarField_3D,
+            field_types.ScalarField_3D,
         )
 
     def test_label_is_stored(self):
@@ -95,7 +95,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
 
     def test_udomain_is_stored(self):
         domain = _make_3d_udomain()
-        sfield = field_type.ScalarField_3D.from_3d_sarray(
+        sfield = field_types.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones((4, 4, 4)),
             udomain_3d=domain,
             field_label="f",
@@ -107,7 +107,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
 
     def test_empty_label_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.ScalarField_3D.from_3d_sarray(
+            field_types.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
                 field_label="",
@@ -115,7 +115,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
 
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.ScalarField_3D.from_3d_sarray(
+            field_types.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4)),  # type: ignore[arg-type]
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
@@ -123,7 +123,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
 
     def test_resolution_mismatch_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.ScalarField_3D.from_3d_sarray(
+            field_types.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
                 udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
                 field_label="bad",
@@ -188,7 +188,7 @@ class TestScalarField3D_Properties(unittest.TestCase):
     def test_fdata_array_values_preserved(self):
         sarray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
         domain = _make_3d_udomain(resolution=(2, 3, 4))
-        sfield = field_type.ScalarField_3D.from_3d_sarray(
+        sfield = field_types.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
             udomain_3d=domain,
             field_label="f",
@@ -207,7 +207,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         vfield = _make_vfield_3d()
         self.assertIsInstance(
             vfield,
-            field_type.VectorField_3D,
+            field_types.VectorField_3D,
         )
 
     def test_label_is_stored(self):
@@ -226,7 +226,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
 
     def test_wrong_leading_dim_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.VectorField_3D.from_3d_varray(
+            field_types.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((2, 4, 4, 4)),  # type: ignore[arg-type]
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
@@ -234,7 +234,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
 
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.VectorField_3D.from_3d_varray(
+            field_types.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4)),  # type: ignore[arg-type]
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
@@ -242,7 +242,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
 
     def test_resolution_mismatch_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.VectorField_3D.from_3d_varray(
+            field_types.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
                 udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
                 field_label="bad",
@@ -250,7 +250,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
 
     def test_empty_label_raises(self):
         with self.assertRaises((TypeError, ValueError)):
-            field_type.VectorField_3D.from_3d_varray(
+            field_types.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
                 field_label="",
@@ -326,7 +326,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self._resolution = (4, 5, 6)
         rng = numpy.random.default_rng(0)
         self._varray = rng.standard_normal((3, ) + self._resolution)
-        self._vfield = field_type.VectorField_3D.from_3d_varray(
+        self._vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=self._varray,
             udomain_3d=_make_3d_udomain(self._resolution),
             field_label="v",
@@ -404,8 +404,8 @@ class TestUnitVectorField3D(unittest.TestCase):
     def _make_unit_vfield(
         self,
         resolution: tuple = (4, 4, 4),
-    ) -> field_type.VectorField_3D:
-        return field_type.VectorField_3D.from_3d_varray(
+    ) -> field_types.VectorField_3D:
+        return field_types.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d(resolution),
             udomain_3d=_make_3d_udomain(resolution),
             field_label="unit_v",
@@ -413,41 +413,41 @@ class TestUnitVectorField3D(unittest.TestCase):
 
     def test_valid_unit_vectors_accepted(self):
         vfield = self._make_unit_vfield()
-        uvfield = field_type.UnitVectorField_3D.from_3d_vfield(vfield)
+        uvfield = field_types.UnitVectorField_3D.from_3d_vfield(vfield)
         self.assertIsInstance(
             uvfield,
-            field_type.UnitVectorField_3D,
+            field_types.UnitVectorField_3D,
         )
 
     def test_non_unit_vectors_raise(self):
         vfield = _make_vfield_3d()  # magnitude = sqrt(3), not 1
         with self.assertRaises(ValueError):
-            field_type.UnitVectorField_3D.from_3d_vfield(vfield)
+            field_types.UnitVectorField_3D.from_3d_vfield(vfield)
 
     def test_as_3d_uvfield_function_accepts_unit_field(self):
         vfield = self._make_unit_vfield()
-        uvfield = field_type.as_3d_uvfield(vfield)
+        uvfield = field_types.as_3d_uvfield(vfield)
         self.assertIsInstance(
             uvfield,
-            field_type.UnitVectorField_3D,
+            field_types.UnitVectorField_3D,
         )
 
     def test_uvfield_is_subtype_of_vfield(self):
         vfield = self._make_unit_vfield()
-        uvfield = field_type.UnitVectorField_3D.from_3d_vfield(vfield)
+        uvfield = field_types.UnitVectorField_3D.from_3d_vfield(vfield)
         self.assertIsInstance(
             uvfield,
-            field_type.VectorField_3D,
+            field_types.VectorField_3D,
         )
 
     def test_from_3d_vfield_preserves_label_and_sim_time(self):
-        vfield = field_type.VectorField_3D.from_3d_varray(
+        vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d((4, 4, 4)),
             udomain_3d=_make_3d_udomain(),
             field_label="my_label",
             sim_time=2.5,
         )
-        uvfield = field_type.UnitVectorField_3D.from_3d_vfield(vfield)
+        uvfield = field_types.UnitVectorField_3D.from_3d_vfield(vfield)
         self.assertEqual(
             uvfield.field_label,
             "my_label",
@@ -464,30 +464,30 @@ class TestUnitVectorField3D(unittest.TestCase):
     def test_custom_tolerance_accepts_slightly_off_unit(self):
         varray = _make_unit_varray_3d((4, 4, 4))
         varray[0] *= 1.0001  # 0.01 percent deviation
-        vfield = field_type.VectorField_3D.from_3d_varray(
+        vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
             field_label="approx_unit",
         )
-        uvfield = field_type.UnitVectorField_3D.from_3d_vfield(
+        uvfield = field_types.UnitVectorField_3D.from_3d_vfield(
             vfield,
             tol=1e-2,
         )
         self.assertIsInstance(
             uvfield,
-            field_type.UnitVectorField_3D,
+            field_types.UnitVectorField_3D,
         )
 
     def test_tight_tolerance_rejects_slightly_off_unit(self):
         varray = _make_unit_varray_3d((4, 4, 4))
         varray[0] *= 1.01  # 1 percent deviation
-        vfield = field_type.VectorField_3D.from_3d_varray(
+        vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
             field_label="approx_unit",
         )
         with self.assertRaises(ValueError):
-            field_type.UnitVectorField_3D.from_3d_vfield(
+            field_types.UnitVectorField_3D.from_3d_vfield(
                 vfield,
                 tol=1e-6,
             )

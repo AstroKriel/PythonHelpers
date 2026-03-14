@@ -7,7 +7,7 @@
 import unittest
 import os
 from pathlib import Path
-from jormi.ww_io import csv_files as csv_io
+from jormi.ww_io import csv_io
 
 ##
 ## === FUNCTIONS WRAPPERS

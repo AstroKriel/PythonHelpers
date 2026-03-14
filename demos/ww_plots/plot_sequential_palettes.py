@@ -8,7 +8,7 @@ import numpy
 
 from pathlib import Path
 
-from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_plots import manage_plots, add_color
 from jormi.ww_plots.color_palettes import SequentialPalette
 
 ##
@@ -68,7 +68,7 @@ def main() -> None:
     ]
 
     num_panels = len(palettes)
-    fig, axs = plot_manager.create_figure(
+    fig, axs = manage_plots.create_figure(
         num_rows=num_panels,
         num_cols=1,
         axis_shape=(4, 4),
@@ -104,7 +104,7 @@ def main() -> None:
         ax.set_yticks([])
 
     script_path = Path(__file__).parent
-    plot_manager.save_figure(fig, script_path / "sequential_palettes.png")
+    manage_plots.save_figure(fig, script_path / "sequential_palettes.png")
 
 
 ##

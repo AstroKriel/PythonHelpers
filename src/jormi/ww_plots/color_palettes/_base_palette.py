@@ -15,7 +15,7 @@ import cmasher  # noqa: F401
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from jormi.ww_types import type_checks
+from jormi.ww_types import check_types
 
 ##
 ## === INTERNAL HELPERS
@@ -25,19 +25,19 @@ from jormi.ww_types import type_checks
 def validate_palette_range(
     palette_range: tuple[float, float],
 ) -> None:
-    type_checks.ensure_ordered_pair(
+    check_types.ensure_ordered_pair(
         param=palette_range,
         param_name="palette_range",
         allow_none=False,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=palette_range[0],
         param_name="palette_range[0]",
         allow_none=False,
         min_value=0.0,
         max_value=1.0,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=palette_range[1],
         param_name="palette_range[1]",
         allow_none=False,
@@ -49,7 +49,7 @@ def validate_palette_range(
 def resolve_palette(
     palette_name: str,
 ) -> mpl_colors.Colormap:
-    type_checks.ensure_nonempty_string(
+    check_types.ensure_nonempty_string(
         param=palette_name,
         param_name="palette_name",
     )
@@ -65,19 +65,19 @@ def subset_palette(
     palette_label: str,
 ) -> mpl_colors.Colormap:
     palette_min, palette_max = palette_range
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=palette_min,
         min_value=0.0,
         max_value=1.0,
         param_name="palette_range[0]",
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=palette_max,
         min_value=0.0,
         max_value=1.0,
         param_name="palette_range[1]",
     )
-    type_checks.ensure_ordered_pair(
+    check_types.ensure_ordered_pair(
         param=palette_range,
         param_name="palette_range",
     )

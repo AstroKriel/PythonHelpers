@@ -9,7 +9,7 @@ import numpy
 from functools import cached_property
 from dataclasses import dataclass
 
-from jormi.ww_types import array_checks
+from jormi.ww_types import check_arrays
 
 ##
 ## === DATA SERIES
@@ -38,7 +38,7 @@ class DataSeries:
     ):
         self._validate_data_array(self.x_values)
         self._validate_data_array(self.y_values)
-        array_checks.ensure_same_shape(
+        check_arrays.ensure_same_shape(
             array_a=self.x_values,
             array_b=self.y_values,
         )
@@ -49,9 +49,9 @@ class DataSeries:
         rel_tol: float = 1e-2,
         abs_tol: float = 1e-9,
     ):
-        array_checks.ensure_nonempty(array)
-        array_checks.ensure_finite(array)
-        array_checks.ensure_1d(array)
+        check_arrays.ensure_nonempty(array)
+        check_arrays.ensure_finite(array)
+        check_arrays.ensure_1d(array)
         value_range = numpy.max(array) - numpy.min(array)
         ref_value = max(
             1.0,  # clamp: prevents near-zero scale from inflating the ratio
@@ -65,10 +65,10 @@ class DataSeries:
         sigma_array: numpy.ndarray,
         ref_array: numpy.ndarray,
     ):
-        array_checks.ensure_nonempty(sigma_array)
-        array_checks.ensure_finite(sigma_array)
-        array_checks.ensure_1d(sigma_array)
-        array_checks.ensure_same_shape(
+        check_arrays.ensure_nonempty(sigma_array)
+        check_arrays.ensure_finite(sigma_array)
+        check_arrays.ensure_1d(sigma_array)
+        check_arrays.ensure_same_shape(
             array_a=sigma_array,
             array_b=ref_array,
         )

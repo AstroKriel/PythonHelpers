@@ -8,8 +8,8 @@ import unittest
 import os
 import numpy as np
 from pathlib import Path
-from jormi.ww_io import json_files as json_io
-from jormi.utils import dict_utils
+from jormi.ww_io import json_io
+from jormi import ww_dicts
 
 ##
 ## === FUNCTIONS WRAPPERS
@@ -52,7 +52,7 @@ class Tests(unittest.TestCase):
     def test_add_dict_to_existing_json_file(self):
         data1 = {"a": 1}
         data2 = {"b": 2}
-        expected = dict_utils.merge_dicts(data1, data2)
+        expected = ww_dicts.merge_dicts(data1, data2)
         save_dict_to_json_file(self.test_file_path, data1)
         save_dict_to_json_file(self.test_file_path, data2)
         result = read_json_file_into_dict(self.test_file_path)
@@ -96,7 +96,7 @@ class Tests(unittest.TestCase):
         d2 = {"a": {"y": 3}, "c": 4}
         save_dict_to_json_file(self.test_file_path, d1)
         save_dict_to_json_file(self.test_file_path, d2)
-        expected = dict_utils.merge_dicts(d1, d2)
+        expected = ww_dicts.merge_dicts(d1, d2)
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, expected)
 

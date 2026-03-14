@@ -7,8 +7,8 @@
 from enum import Enum
 from typing import get_args
 
-from jormi.utils import list_utils
-from jormi.ww_types import type_checks
+from jormi import ww_lists
+from jormi.ww_types import check_types
 
 ##
 ## === TYPE DEFINITIONS
@@ -68,7 +68,7 @@ def _enum_member_names(
 ) -> str:
     member_names = [member.name for enum_type in enum_types for member in enum_type]
     member_names = sorted(set(member_names))
-    return list_utils.as_quoted_string(member_names)
+    return ww_lists.as_quoted_string(member_names)
 
 
 ##
@@ -99,11 +99,11 @@ def ensure_sequence_of_enums(
     param_name: str = "param",
 ) -> None:
     """Ensure `param` is a non-empty sequence of Enum types."""
-    type_checks.ensure_sequence(
+    check_types.ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
-        valid_seq_types=type_checks.RuntimeTypes.Sequences.SequenceLike,
+        valid_seq_types=check_types.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=type,
     )
     ## reject empty sequences
@@ -120,7 +120,7 @@ def resolve_member(
     valid_enums: EnumTypesLike,
 ) -> Enum:
     """Return `member` as an Enum member from one of `valid_enums`."""
-    valid_enums = type_checks.as_tuple(
+    valid_enums = check_types.as_tuple(
         param=valid_enums,
         param_name="valid_enums",
     )
@@ -135,7 +135,7 @@ def resolve_member(
             return member
         raise ValueError(f"Enum member {member!r} is not in the set of valid Enum types.")
     ## otherwise search for a unique instance of the string the user passed in valid_enums name or value
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=member,
         param_name="member",
         valid_types=str,
@@ -173,7 +173,7 @@ def ensure_member_in(
     valid_members: tuple[Enum, ...] | list[Enum],
     param_name: str = "<param>",
 ) -> None:
-    valid_members = type_checks.as_tuple(
+    valid_members = check_types.as_tuple(
         param=valid_members,
         param_name="valid_members",
     )
@@ -187,7 +187,7 @@ def ensure_member_in(
         valid_enums=valid_enums,
     )
     if resolved_member not in valid_members:
-        valid_members_string = list_utils.as_quoted_string(
+        valid_members_string = ww_lists.as_quoted_string(
             [valid_member.name for valid_member in valid_members],
         )
         raise ValueError(
