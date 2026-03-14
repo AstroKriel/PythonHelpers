@@ -6,25 +6,25 @@
 
 import copy
 
-from jormi.utils import fn_utils
-from jormi.ww_types import type_checks
+from jormi.ww_fns import fn_decorators
+from jormi.ww_types import check_types
 
 ##
 ## === FUNCTIONS
 ##
 
 
-@fn_utils.warn_if_fn_result_is_unused
+@fn_decorators.warn_if_fn_result_is_unused
 def merge_dicts(
     dict_a: dict,
     dict_b: dict,
 ) -> dict:
     """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=dict_a,
         valid_types=dict,
     )
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=dict_b,
         valid_types=dict,
     )

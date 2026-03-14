@@ -7,8 +7,8 @@
 import numpy
 from typing import Literal
 
-from jormi.ww_types import type_checks, array_checks, box_positions
-from jormi.ww_plots import plot_manager, add_color
+from jormi.ww_types import check_types, check_arrays, box_positions
+from jormi.ww_plots import manage_plots, add_color
 
 ##
 ## === DATA TYPES
@@ -52,21 +52,21 @@ def _as_axis_extent(
     """
     if axis_bounds is None:
         return None
-    type_checks.ensure_nested_tuple(
+    check_types.ensure_nested_tuple(
         param=axis_bounds,
         param_name="axis_bounds",
         outer_length=2,
         inner_length=2,
-        valid_elem_types=type_checks.RuntimeTypes.Numerics.NumericLike,
+        valid_elem_types=check_types.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
-    type_checks.ensure_ordered_pair(
+    check_types.ensure_ordered_pair(
         param=axis_bounds[0],
         param_name="axis_bounds[0]",
         allow_none=False,
         strict_ordering=True,
     )
-    type_checks.ensure_ordered_pair(
+    check_types.ensure_ordered_pair(
         param=axis_bounds[1],
         param_name="axis_bounds[1]",
         allow_none=False,
@@ -94,7 +94,7 @@ def _get_value_range(
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
-        type_checks.ensure_ordered_pair(
+        check_types.ensure_ordered_pair(
             param=cbar_bounds,
             param_name="cbar_bounds",
             allow_none=False,
@@ -131,7 +131,7 @@ def _get_value_range(
 
 
 def plot_2d_array(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     array_2d: numpy.ndarray,
     data_format: DataFormat,
     axis_aspect_ratio: Literal["equal", "auto"] = "equal",
@@ -143,7 +143,7 @@ def plot_2d_array(
     cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
 ):
     add_color.ensure_continuous_config(palette_config)
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
     )
@@ -195,7 +195,7 @@ def _generate_grid(
 
 
 def plot_2d_quiver(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     array_2d_rows: numpy.ndarray,
     array_2d_cols: numpy.ndarray,
     axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
@@ -203,15 +203,15 @@ def plot_2d_quiver(
     quiver_width: float = 5e-3,
     color: str = "white",
 ):
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d_rows,
         num_dims=2,
     )
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d_cols,
         num_dims=2,
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=array_2d_rows,
         array_b=array_2d_cols,
         param_name_a="array_2d_rows",
@@ -241,7 +241,7 @@ def plot_2d_quiver(
 
 
 def plot_2d_streamlines(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     array_2d_rows: numpy.ndarray,
     array_2d_cols: numpy.ndarray,
     axis_bounds: AxisBounds = ((0.0, 1.0), (0.0, 1.0)),
@@ -250,15 +250,15 @@ def plot_2d_streamlines(
     arrow_size: float = 1.0,
     color: str = "white",
 ):
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d_rows,
         num_dims=2,
     )
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=array_2d_cols,
         num_dims=2,
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=array_2d_rows,
         array_b=array_2d_cols,
         param_name_a="array_2d_rows",

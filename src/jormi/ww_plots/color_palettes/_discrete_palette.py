@@ -10,7 +10,7 @@ import matplotlib.colors as mpl_colors
 
 from dataclasses import dataclass
 
-from jormi.ww_types import type_checks
+from jormi.ww_types import check_types
 from jormi.ww_plots.color_palettes import _base_palette
 
 ##
@@ -32,7 +32,7 @@ class DiscretePalette(_base_palette.ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        type_checks.ensure_tuple_of_numbers(
+        check_types.ensure_tuple_of_numbers(
             param=self.bin_edges,
             param_name="bin_edges",
         )

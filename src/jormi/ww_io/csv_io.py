@@ -8,8 +8,8 @@ import csv
 
 from pathlib import Path
 
-from jormi.ww_io import io_manager, log_manager
-from jormi.ww_types import type_checks
+from jormi.ww_io import manage_io, manage_log
+from jormi.ww_types import check_types
 
 ##
 ## === FUNCTIONS
@@ -20,7 +20,7 @@ def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
     """Ensure `file_path` is a valid .csv path and return it as an absolute Path."""
-    type_checks.ensure_not_none(
+    check_types.ensure_not_none(
         param=file_path,
         param_name="file_path",
     )
@@ -34,7 +34,7 @@ def _validate_input_dict(
     input_dict: dict,
 ) -> None:
     """Validate that `input_dict` is a dict with string keys."""
-    type_checks.ensure_dict(
+    check_types.ensure_dict(
         param=input_dict,
         param_name="input_dict",
         allow_none=False,
@@ -42,7 +42,7 @@ def _validate_input_dict(
     if not input_dict:
         return
     keys_as_list = list(input_dict.keys())
-    type_checks.ensure_list_of_strings(
+    check_types.ensure_list_of_strings(
         param=keys_as_list,
         param_name="input_dict keys",
         allow_none=False,
@@ -54,21 +54,21 @@ def read_csv_file_into_dict(
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
-    type_checks.ensure_bool(
+    check_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
-    type_checks.ensure_char(
+    check_types.ensure_char(
         param=delimiter,
         param_name="delimiter",
         allow_none=False,
     )
     file_path = _ensure_path_is_valid(file_path)
-    if not io_manager.does_file_exist(file_path):
+    if not manage_io.does_file_exist(file_path):
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
-        log_manager.log_task(f"Reading csv-file: {file_path}")
+        manage_log.log_task(f"Reading csv-file: {file_path}")
     with open(file_path, "r", newline="", encoding="utf-8") as file_pointer:
         csv_reader = csv.DictReader(
             file_pointer,
@@ -98,19 +98,19 @@ def save_dict_to_csv_file(
     overwrite: bool = True,
     verbose: bool = True,
 ) -> None:
-    type_checks.ensure_bool(
+    check_types.ensure_bool(
         param=overwrite,
         param_name="overwrite",
         allow_none=False,
     )
-    type_checks.ensure_bool(
+    check_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
     file_path = _ensure_path_is_valid(file_path)
     _validate_input_dict(input_dict)
-    file_exists = io_manager.does_file_exist(file_path)
+    file_exists = manage_io.does_file_exist(file_path)
     if file_exists:
         if overwrite:
             _write_csv(
@@ -118,9 +118,9 @@ def save_dict_to_csv_file(
                 input_dict=input_dict,
             )
             if verbose:
-                log_manager.log_action(
+                manage_log.log_action(
                     title="Save CSV file",
-                    outcome=log_manager.ActionOutcome.SUCCESS,
+                    outcome=manage_log.ActionOutcome.SUCCESS,
                     message="Overwrote csv-file.",
                     notes={
                         "file": str(file_path),
@@ -133,9 +133,9 @@ def save_dict_to_csv_file(
                 input_dict=input_dict,
             )
             if verbose:
-                log_manager.log_action(
+                manage_log.log_action(
                     title="Save CSV file",
-                    outcome=log_manager.ActionOutcome.SUCCESS,
+                    outcome=manage_log.ActionOutcome.SUCCESS,
                     message="Extended csv-file.",
                     notes={
                         "file": str(file_path),
@@ -148,9 +148,9 @@ def save_dict_to_csv_file(
             input_dict=input_dict,
         )
         if verbose:
-            log_manager.log_action(
+            manage_log.log_action(
                 title="Save CSV file",
-                outcome=log_manager.ActionOutcome.SUCCESS,
+                outcome=manage_log.ActionOutcome.SUCCESS,
                 message="Saved csv-file.",
                 notes={
                     "file": str(file_path),

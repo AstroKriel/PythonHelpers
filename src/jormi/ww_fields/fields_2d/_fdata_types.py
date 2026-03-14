@@ -8,8 +8,8 @@ import numpy
 
 from dataclasses import dataclass
 
-from jormi.ww_types import array_checks
-from jormi.ww_fields import _fdata_type
+from jormi.ww_types import check_arrays
+from jormi.ww_fields import _fdata_types
 
 ##
 ## === 2D SCALAR / VECTOR NDARRAY
@@ -17,13 +17,13 @@ from jormi.ww_fields import _fdata_type
 
 
 @dataclass(frozen=True, init=False)
-class ScalarFieldData_2D(_fdata_type.FieldData):
+class ScalarFieldData_2D(_fdata_types.FieldData):
     """2D scalar field data: ndarray of shape (Nx, Ny)."""
 
     def __init__(
         self,
         *,
-        farray: _fdata_type.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<sdata_2d>",
     ) -> None:
         super().__init__(
@@ -36,13 +36,13 @@ class ScalarFieldData_2D(_fdata_type.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class VectorFieldData_2D(_fdata_type.FieldData):
+class VectorFieldData_2D(_fdata_types.FieldData):
     """2D vector field data: ndarray of shape (2, Nx, Ny)."""
 
     def __init__(
         self,
         *,
-        farray: _fdata_type.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<vdata_2d>",
     ) -> None:
         super().__init__(
@@ -69,7 +69,7 @@ def ensure_2d_sdata(
         raise TypeError(
             f"`{param_name}` must be ScalarFieldData_2D; got type={type(sdata_2d)}.",
         )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=sdata_2d,
         num_comps=1,
         num_sdims=2,
@@ -88,7 +88,7 @@ def ensure_2d_vdata(
         raise TypeError(
             f"`{param_name}` must be VectorFieldData_2D; got type={type(vdata_2d)}.",
         )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=vdata_2d,
         num_comps=2,
         num_sdims=2,
@@ -108,7 +108,7 @@ def ensure_2d_sarray(
     param_name: str = "<sarray_2d>",
 ) -> None:
     """Ensure `sarray_2d` is a 2D scalar ndarray with shape (Nx, Ny)."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=sarray_2d,
         param_name=param_name,
         num_dims=2,
@@ -121,7 +121,7 @@ def ensure_2d_varray(
     param_name: str = "<varray_2d>",
 ) -> None:
     """Ensure `varray_2d` is a 3D vector ndarray with leading axis of length 2."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=varray_2d,
         param_name=param_name,
         num_dims=3,

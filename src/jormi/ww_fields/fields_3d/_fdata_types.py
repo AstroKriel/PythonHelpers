@@ -9,8 +9,8 @@ import numpy
 from dataclasses import dataclass
 from numpy.typing import DTypeLike
 
-from jormi.ww_types import array_checks
-from jormi.ww_fields import _fdata_type
+from jormi.ww_types import check_arrays
+from jormi.ww_fields import _fdata_types
 
 ##
 ## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY
@@ -18,13 +18,13 @@ from jormi.ww_fields import _fdata_type
 
 
 @dataclass(frozen=True, init=False)
-class ScalarFieldData_3D(_fdata_type.FieldData):
+class ScalarFieldData_3D(_fdata_types.FieldData):
     """3D scalar field data: ndarray of shape (Nx, Ny, Nz)."""
 
     def __init__(
         self,
         *,
-        farray: _fdata_type.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<sdata_3d>",
     ) -> None:
         super().__init__(
@@ -37,13 +37,13 @@ class ScalarFieldData_3D(_fdata_type.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class VectorFieldData_3D(_fdata_type.FieldData):
+class VectorFieldData_3D(_fdata_types.FieldData):
     """3D vector field data: ndarray of shape (3, Nx, Ny, Nz)."""
 
     def __init__(
         self,
         *,
-        farray: _fdata_type.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<vdata_3d>",
     ) -> None:
         super().__init__(
@@ -56,13 +56,13 @@ class VectorFieldData_3D(_fdata_type.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class Rank2TensorData_3D(_fdata_type.FieldData):
+class Rank2TensorData_3D(_fdata_types.FieldData):
     """3D rank-2 tensor data: ndarray of shape (3, 3, Nx, Ny, Nz)."""
 
     def __init__(
         self,
         *,
-        farray: _fdata_type.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<r2tdata_3d>",
     ) -> None:
         super().__init__(
@@ -111,7 +111,7 @@ def ensure_3d_sdata(
         raise TypeError(
             f"`{param_name}` must be ScalarFieldData_3D; got type={type(sdata_3d)}.",
         )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=sdata_3d,
         num_comps=1,
         num_sdims=3,
@@ -130,7 +130,7 @@ def ensure_3d_vdata(
         raise TypeError(
             f"`{param_name}` must be VectorFieldData_3D; got type={type(vdata_3d)}.",
         )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=vdata_3d,
         num_comps=3,
         num_sdims=3,
@@ -149,7 +149,7 @@ def ensure_3d_r2tdata(
         raise TypeError(
             f"`{param_name}` must be Rank2TensorData_3D; got type={type(r2tdata_3d)}.",
         )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=r2tdata_3d,
         num_comps=9,
         num_sdims=3,
@@ -169,7 +169,7 @@ def ensure_3d_sarray(
     param_name: str = "<sarray_3d>",
 ) -> None:
     """Ensure `sarray_3d` is a 3D scalar ndarray with shape (Nx, Ny, Nz)."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=sarray_3d,
         param_name=param_name,
         num_dims=3,
@@ -182,7 +182,7 @@ def ensure_3d_varray(
     param_name: str = "<varray_3d>",
 ) -> None:
     """Ensure `varray_3d` is a 4D vector ndarray with leading axis of length 3."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=varray_3d,
         param_name=param_name,
         num_dims=4,
@@ -201,7 +201,7 @@ def ensure_3d_r2tarray(
     param_name: str = "<r2tarray_3d>",
 ) -> None:
     """Ensure `r2tarray_3d` is a 5D rank-2 tensor ndarray with two leading axes of length 3."""
-    array_checks.ensure_dims(
+    check_arrays.ensure_dims(
         array=r2tarray_3d,
         param_name=param_name,
         num_dims=5,

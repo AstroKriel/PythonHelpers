@@ -10,8 +10,8 @@ import inspect
 
 from pathlib import Path
 
-from jormi.utils import list_utils
-from jormi.ww_io import log_manager
+from jormi import ww_lists
+from jormi.ww_io import manage_log
 
 ##
 ## === FUNCTIONS
@@ -29,8 +29,8 @@ def combine_file_path_parts(
     file_path_parts: list[str | Path],
 ) -> Path:
     return Path(
-        *list_utils.flatten_list(
-            list_utils.filter_out_nones(file_path_parts),
+        *ww_lists.flatten_list(
+            ww_lists.filter_out_nones(file_path_parts),
         ),
     ).absolute()
 
@@ -47,14 +47,14 @@ def resolve_file_path(
         if file_name is None:
             missing_params.append("file_name")
         if missing_params:
-            missing_params_string = list_utils.as_string(missing_params)
+            missing_params_string = ww_lists.as_string(missing_params)
             raise ValueError(
                 "You have not provided enough information about the file and where it is."
                 f" You are missing: {missing_params_string}."
                 " Alternatively, provide `file_path` directly.",
             )
         file_path = combine_file_path_parts(
-            list_utils.filter_out_nones([directory, file_name]),
+            ww_lists.filter_out_nones([directory, file_name]),
         )
     else:
         file_path = Path(file_path).absolute()
@@ -80,16 +80,16 @@ def init_directory(
     if not does_directory_exist(directory):
         directory.mkdir(parents=True)
         if verbose:
-            log_manager.log_action(
+            manage_log.log_action(
                 title="Initialise directory",
-                outcome=log_manager.ActionOutcome.SUCCESS,
+                outcome=manage_log.ActionOutcome.SUCCESS,
                 message="Created directory.",
                 notes={"directory": str(directory)},
             )
     elif verbose:
-        log_manager.log_action(
+        manage_log.log_action(
             title="Initialise directory",
-            outcome=log_manager.ActionOutcome.SKIPPED,
+            outcome=manage_log.ActionOutcome.SKIPPED,
             message="Directory already exists.",
             notes={"directory": str(directory)},
         )
@@ -135,9 +135,9 @@ def _resolve_and_validate_file_operation(
                 verbose=False,
             )
         else:
-            log_manager.log_action(
+            manage_log.log_action(
                 title="Create directory",
-                outcome=log_manager.ActionOutcome.SKIPPED,
+                outcome=manage_log.ActionOutcome.SKIPPED,
                 message="Dry-run: Would create directory.",
                 notes={"directory": str(directory_to)},
             )
@@ -159,16 +159,16 @@ def _log_file_action(
     *,
     is_dry_run: bool,
 ) -> None:
-    """Log a file operation using the log_manager API."""
+    """Log a file operation using the logging API."""
     notes: dict[str, str] = {
         "file": file_name,
         "source": str(directory_from),
     }
     if directory_to is not None:
         notes["target"] = str(directory_to)
-    log_manager.log_action(
+    manage_log.log_action(
         title=action,
-        outcome=(log_manager.ActionOutcome.SKIPPED if is_dry_run else log_manager.ActionOutcome.SUCCESS),
+        outcome=(manage_log.ActionOutcome.SKIPPED if is_dry_run else manage_log.ActionOutcome.SUCCESS),
         message="",
         notes=notes,
     )

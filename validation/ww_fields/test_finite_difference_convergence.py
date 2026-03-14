@@ -6,10 +6,10 @@
 
 import sys
 import numpy
-from jormi.utils import list_utils
-from jormi.ww_io import io_manager
-from jormi.ww_plots import plot_manager
-from jormi.ww_fields.fields_3d import _finite_difference_sarrays
+from jormi import ww_lists
+from jormi.ww_io import manage_io
+from jormi.ww_plots import manage_plots
+from jormi.ww_fields.fields_3d import _difference_sarrays
 
 ##
 ## === HELPER FUNCTIONS
@@ -62,19 +62,19 @@ class TestFiniteDifferenceConvergence:
         self.num_points_to_test = [10, 20, 50, 1e2, 2e2, 5e2]
         self.grad_methods = [
             {
-                "worker_fn": _finite_difference_sarrays.second_order_centered_difference,
+                "worker_fn": _difference_sarrays.second_order_centered_difference,
                 "expected_scaling": -2,
                 "label": "2nd order",
                 "color": "red",
             },
             {
-                "worker_fn": _finite_difference_sarrays.fourth_order_centered_difference,
+                "worker_fn": _difference_sarrays.fourth_order_centered_difference,
                 "expected_scaling": -4,
                 "label": "4th order",
                 "color": "forestgreen",
             },
             {
-                "worker_fn": _finite_difference_sarrays.sixth_order_centered_difference,
+                "worker_fn": _difference_sarrays.sixth_order_centered_difference,
                 "expected_scaling": -6,
                 "label": "6th order",
                 "color": "royalblue",
@@ -82,7 +82,7 @@ class TestFiniteDifferenceConvergence:
         ]
 
     def run(self):
-        fig, self.axs_grid = plot_manager.create_figure(
+        fig, self.axs_grid = manage_plots.create_figure(
             num_rows=2,
             num_cols=2,
             fig_scale=1.35,
@@ -91,13 +91,13 @@ class TestFiniteDifferenceConvergence:
         self._plot_exact_soln()
         failed_methods = self._test_method_scaling()
         self._annotate_figure()
-        directory = io_manager.get_caller_directory()
+        directory = manage_io.get_caller_directory()
         file_name = "finite_difference_convergence.png"
-        file_path = io_manager.combine_file_path_parts([directory, file_name])
-        plot_manager.save_figure(fig, file_path)
+        file_path = manage_io.combine_file_path_parts([directory, file_name])
+        manage_plots.save_figure(fig, file_path)
         assert len(
             failed_methods,
-        ) == 0, f"Convergence test failed for the following method(s): {list_utils.as_string(failed_methods)}"
+        ) == 0, f"Convergence test failed for the following method(s): {ww_lists.as_string(failed_methods)}"
         print("Test passed successfully!")
 
     def _plot_exact_soln(self):

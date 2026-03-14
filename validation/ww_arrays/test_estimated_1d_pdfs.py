@@ -6,10 +6,10 @@
 
 import numpy
 
-from jormi.utils import list_utils
-from jormi.ww_io import io_manager
+from jormi import ww_lists
+from jormi.ww_io import manage_io
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_plots import plot_manager
+from jormi.ww_plots import manage_plots
 
 ##
 ## === BINNING CONVERGENCE TEST
@@ -30,7 +30,7 @@ def main():
         "exponential": rng.exponential(scale=1, size=num_samples),
     }
     num_pdfs = len(pdfs_to_test)
-    fig, axs_grid = plot_manager.create_figure(
+    fig, axs_grid = manage_plots.create_figure(
         num_rows=num_pdfs,
         num_cols=1,
         y_spacing=0.25,
@@ -76,12 +76,12 @@ def main():
     axs_grid[-1, 0].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
     axs_grid[-1, 0].set_xlabel(r"$x$")
     ## save figure always so it can be inspected on failure
-    file_dir = io_manager.get_caller_directory()
+    file_dir = manage_io.get_caller_directory()
     fig_name = "estimated_1d_pdfs.png"
-    fig_path = io_manager.combine_file_path_parts([file_dir, fig_name])
-    plot_manager.save_figure(fig, fig_path)
+    fig_path = manage_io.combine_file_path_parts([file_dir, fig_name])
+    manage_plots.save_figure(fig, fig_path)
     assert len(pdfs_that_failed) == 0, (
-        f"Test failed for the following distributions: {list_utils.as_string(pdfs_that_failed)}"
+        f"Test failed for the following distributions: {ww_lists.as_string(pdfs_that_failed)}"
     )
     print("All tests passed successfully!")
 

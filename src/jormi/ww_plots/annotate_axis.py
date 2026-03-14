@@ -10,8 +10,8 @@ from matplotlib.lines import Line2D as mpl_line2d
 from matplotlib.legend import Legend as mpl_legend
 from matplotlib.collections import LineCollection
 
-from jormi.ww_types import box_positions, array_checks, type_checks
-from jormi.ww_plots import plot_manager
+from jormi.ww_types import box_positions, check_arrays, check_types
+from jormi.ww_plots import manage_plots
 
 ##
 ## === VALID ARTISTS
@@ -38,7 +38,7 @@ _VALID_LINES: list[str] = [
 
 
 def add_text(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     x_pos: float,
     y_pos: float,
     label: str,
@@ -55,14 +55,14 @@ def add_text(
     A background box is drawn when `box_alpha > 0`.
     """
     ## validate position in axes coordinates [0, 1]
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=x_pos,
         param_name="x_pos",
         allow_none=False,
         min_value=0.0,
         max_value=1.0,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=y_pos,
         param_name="y_pos",
         allow_none=False,
@@ -70,7 +70,7 @@ def add_text(
         max_value=1.0,
     )
     ## validate text style
-    type_checks.ensure_finite_scalar(
+    check_types.ensure_finite_scalar(
         param=text_size,
         param_name="text_size",
         allow_none=False,
@@ -78,7 +78,7 @@ def add_text(
         allow_zero=False,
     )
     ## validate box opacity; box is not drawn if alpha is zero
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=box_alpha,
         param_name="box_alpha",
         allow_none=False,
@@ -86,7 +86,7 @@ def add_text(
         max_value=1.0,
     )
     ## validate optional rotation
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=rotate_deg,
         param_name="rotate_deg",
         allow_none=True,
@@ -116,7 +116,7 @@ def add_text(
 
 
 def add_custom_legend(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     artists: list[str],
     labels: list[str],
     colors: list[str],
@@ -139,22 +139,22 @@ def add_custom_legend(
     when `frame_alpha > 0`.
     """
     ## validate parallel lists
-    type_checks.ensure_list_of_strings(
+    check_types.ensure_list_of_strings(
         param=artists,
         param_name="artists",
     )
-    type_checks.ensure_list_of_strings(
+    check_types.ensure_list_of_strings(
         param=labels,
         param_name="labels",
     )
-    type_checks.ensure_list_of_strings(
+    check_types.ensure_list_of_strings(
         param=colors,
         param_name="colors",
     )
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("`artists`, `labels`, and `colors` must all have the same length.")
     ## validate frame opacity; frame is skipped when alpha is zero
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=frame_alpha,
         param_name="frame_alpha",
         allow_none=False,
@@ -162,19 +162,19 @@ def add_custom_legend(
         max_value=1.0,
     )
     ## validate anchor position in axes coordinates [0, 1]
-    type_checks.ensure_tuple_of_numbers(
+    check_types.ensure_tuple_of_numbers(
         param=anchor_point,
         param_name="anchor_point",
         seq_length=2,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=anchor_point[0],
         param_name="anchor_point[0]",
         allow_none=False,
         min_value=0.0,
         max_value=1.0,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=anchor_point[1],
         param_name="anchor_point[1]",
         allow_none=False,
@@ -234,7 +234,7 @@ def add_custom_legend(
 
 
 def overlay_curve(
-    ax: plot_manager.PlotAxis,
+    ax: manage_plots.PlotAxis,
     x_values: list[float] | numpy.ndarray,
     y_values: list[float] | numpy.ndarray,
     color: str = "black",
@@ -250,14 +250,14 @@ def overlay_curve(
     `x_values` and `y_values` must be 1D and the same length, with at least two points.
     """
     ## validate line style
-    type_checks.ensure_finite_scalar(
+    check_types.ensure_finite_scalar(
         param=linewidth,
         param_name="linewidth",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    type_checks.ensure_in_bounds(
+    check_types.ensure_in_bounds(
         param=alpha,
         param_name="alpha",
         allow_none=False,
@@ -265,15 +265,15 @@ def overlay_curve(
         max_value=1.0,
     )
     ## validate curve data
-    x_array = array_checks.as_1d(
+    x_array = check_arrays.as_1d(
         array_like=x_values,
         param_name="x_values",
     )
-    y_array = array_checks.as_1d(
+    y_array = check_arrays.as_1d(
         array_like=y_values,
         param_name="y_values",
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=x_array,
         array_b=y_array,
         param_name_a="x_values",

@@ -9,7 +9,7 @@ import numpy
 from dataclasses import dataclass
 from typing import TypeAlias
 
-from jormi.ww_types import type_checks, array_checks
+from jormi.ww_types import check_types, check_arrays
 
 ##
 ## === TYPE ALIASES
@@ -56,19 +56,19 @@ class FieldData:
     def __post_init__(
         self,
     ) -> None:
-        type_checks.ensure_finite_int(
+        check_types.ensure_finite_int(
             param=self.num_comps,
             param_name=f"{self.param_name}.num_comps",
             allow_none=False,
             require_positive=True,
         )
-        type_checks.ensure_finite_int(
+        check_types.ensure_finite_int(
             param=self.num_sdims,
             param_name=f"{self.param_name}.num_sdims",
             allow_none=False,
             require_positive=True,
         )
-        type_checks.ensure_finite_int(
+        check_types.ensure_finite_int(
             param=self.num_ranks,
             param_name=f"{self.param_name}.num_ranks",
             allow_none=False,
@@ -80,7 +80,7 @@ class FieldData:
                 f"`{self.param_name}` has num_ranks=0 (scalar) but num_comps={self.num_comps};"
                 f" expected num_comps == 1.",
             )
-        array_checks.ensure_dims(
+        check_arrays.ensure_dims(
             array=self.farray,
             param_name=self.param_name,
             num_dims=self._total_num_dims(),

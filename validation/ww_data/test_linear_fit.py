@@ -5,10 +5,10 @@
 ##
 
 import numpy
-from jormi.ww_io import io_manager
+from jormi.ww_io import manage_io
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_data import fit_series
-from jormi.ww_plots import plot_manager
+from jormi.ww_plots import manage_plots
 
 ##
 ## === FIT ACCURACY TEST
@@ -42,7 +42,7 @@ def main():
     }
     ## plot: column stack, one row per fit method, shared x axis
     num_fits = len(fits_to_test)
-    fig, axs_grid = plot_manager.create_figure(
+    fig, axs_grid = manage_plots.create_figure(
         num_rows=num_fits,
         num_cols=1,
         share_x=True,
@@ -102,10 +102,10 @@ def main():
                 f" (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
             )
     ## save figure always so it can be inspected on failure
-    file_dir = io_manager.get_caller_directory()
+    file_dir = manage_io.get_caller_directory()
     fig_name = "linear_fit.png"
-    fig_path = io_manager.combine_file_path_parts([file_dir, fig_name])
-    plot_manager.save_figure(fig, fig_path)
+    fig_path = manage_io.combine_file_path_parts([file_dir, fig_name])
+    manage_plots.save_figure(fig, fig_path)
     assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
     print("All tests passed successfully!")
 

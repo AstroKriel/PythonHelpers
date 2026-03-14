@@ -11,9 +11,9 @@ from functools import cached_property
 from dataclasses import dataclass
 from scipy.optimize import curve_fit as scipy_curve_fit
 
-from jormi.ww_io import log_manager
-from jormi.utils import list_utils
-from jormi.ww_types import type_checks, array_checks
+from jormi.ww_io import manage_log
+from jormi import ww_lists
+from jormi.ww_types import check_types, check_arrays
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data.series_types import GaussianSeries
 
@@ -31,15 +31,15 @@ def get_linear_intercept(
     Compute the y-intercept (b) for a line y = slope * x + b
     passing through a reference point (x_ref, y_ref).
     """
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=slope,
         param_name="slope",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -56,15 +56,15 @@ def get_powerlaw_coefficient(
         `y = A * x^exponent`
     given a reference point `(x_ref, y_ref)`.
     """
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=exponent,
         param_name="exponent",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -85,18 +85,18 @@ def get_line_angle(
     when plotted in a rectangular domain stretched to have a particular aspect ratio.
     """
     ## validate scalars
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=slope,
         param_name="slope",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=aspect_ratio,
         param_name="aspect_ratio",
     )
     if aspect_ratio <= 0.0:
         raise ValueError("`aspect_ratio` must be positive.")
     ## validate domain_bounds
-    type_checks.ensure_sequence(
+    check_types.ensure_sequence(
         param=domain_bounds,
         seq_length=4,
         valid_seq_types=(tuple, list),
@@ -154,7 +154,7 @@ class Model:
         values_vector: list | numpy.ndarray,
         sigmas_vector: list | numpy.ndarray | None = None,
     ) -> dict[str, FitStatistic]:
-        values_array = array_checks.as_1d(
+        values_array = check_arrays.as_1d(
             array_like=values_vector,
             check_finite=True,
         )
@@ -162,11 +162,11 @@ class Model:
             raise ValueError("`values_vector` length does not match `param_names`.")
         sigmas_array = None
         if sigmas_vector is not None:
-            sigmas_array = array_checks.as_1d(
+            sigmas_array = check_arrays.as_1d(
                 array_like=sigmas_vector,
                 check_finite=False,
             )
-            array_checks.ensure_same_shape(
+            check_arrays.ensure_same_shape(
                 array_a=values_array,
                 array_b=sigmas_array,
             )
@@ -226,15 +226,15 @@ class FitSummary:
     def __post_init__(self):
         missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
-            missing_string = list_utils.as_string(
+            missing_string = ww_lists.as_string(
                 elems=sorted(missing_params),
                 wrap_in_quotes=True,
                 conjunction="and",
             )
             raise ValueError(f"Missing parameter(s): {missing_string}")
-        array_checks.ensure_array(self.residual_array)
-        array_checks.ensure_1d(self.residual_array)
-        array_checks.ensure_finite(self.residual_array)
+        check_arrays.ensure_array(self.residual_array)
+        check_arrays.ensure_1d(self.residual_array)
+        check_arrays.ensure_finite(self.residual_array)
         if self.residual_array.size != self.num_points:
             raise ValueError("`num_points` must equal the length of `residual_array`.")
 
@@ -275,7 +275,7 @@ class FitSummary:
         self,
         x_values: list | numpy.ndarray,
     ) -> numpy.ndarray:
-        x_data_array = array_checks.as_1d(
+        x_data_array = check_arrays.as_1d(
             array_like=x_values,
             check_finite=True,
         )
@@ -314,7 +314,7 @@ def fit_linear_model(
     gaussian_series: GaussianSeries,
 ) -> LinearFitSummary:
     """Fit a linear model to a 1D gaussian_series using least squares."""
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
@@ -327,7 +327,7 @@ def fit_linear_model(
         model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
     )
     if gaussian_series.x_sigmas is not None:
-        log_manager.log_hint(
+        manage_log.log_hint(
             text=(
                 "Note: SciPy `curve_fit` does not account for `x_sigmas` (it is ignored); "
                 "only `y_sigmas` is supported in the standard least-squares formalism."
@@ -368,12 +368,12 @@ def fit_line_with_fixed_slope(
     fixed_slope: float,
 ) -> LinearFitSummary:
     """Fit a line with a fixed slope to a 1D gaussian_series."""
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
     )
-    type_checks.ensure_finite_float(
+    check_types.ensure_finite_float(
         param=fixed_slope,
         param_name="fixed_slope",
     )
@@ -387,7 +387,7 @@ def fit_line_with_fixed_slope(
     weight_array = gaussian_series.y_weights()
     uses_absolute_sigma = gaussian_series.y_sigmas is not None
     if gaussian_series.x_sigmas is not None:
-        log_manager.log_hint(
+        manage_log.log_hint(
             text=(
                 "Note: `x_sigmas` is not used in the fixed-slope estimator; "
                 "only `y_sigmas` contributes to weighting."

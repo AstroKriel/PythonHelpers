@@ -10,8 +10,8 @@ from typing import cast
 from functools import cached_property
 from dataclasses import dataclass, field
 
-from jormi.ww_types import type_checks
-from jormi.ww_fields import _domain_type
+from jormi.ww_types import check_types
+from jormi.ww_fields import _domain_types
 
 ##
 ## === 3D DOMAIN
@@ -19,7 +19,7 @@ from jormi.ww_fields import _domain_type
 
 
 @dataclass(frozen=True)
-class UniformDomain_3D(_domain_type.UniformDomain):
+class UniformDomain_3D(_domain_types.UniformDomain):
     """
     Uniform 3D domain: `num_sdims == 3`.
 
@@ -99,7 +99,7 @@ def ensure_3d_udomain(
     *,
     param_name: str = "<udomain_3d>",
 ) -> None:
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=udomain_3d,
         param_name=param_name,
         valid_types=UniformDomain_3D,

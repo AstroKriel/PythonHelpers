@@ -4,15 +4,15 @@
 ## === DEPENDENCIES
 ##
 
-from jormi.ww_types import type_checks
+from jormi.ww_types import check_types
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
-    domain_type as _2d_domain_type,
-    field_type as _2d_field_type,
+    domain_types as _2d_domain_type,
+    field_types as _2d_field_type,
 )
 from jormi.ww_fields.fields_3d import (
-    domain_type as _3d_domain_type,
-    field_type as _3d_field_type,
+    domain_types as _3d_domain_type,
+    field_types as _3d_field_type,
 )
 
 ##
@@ -33,7 +33,7 @@ def _slice_3d_udomain(
         param_name=f"{param_name}.out_of_plane_axis",
     )
     out_of_plane_axis_index = out_of_plane_axis.axis_index
-    type_checks.ensure_finite_int(
+    check_types.ensure_finite_int(
         param=slice_index,
         param_name=f"{param_name}.slice_index",
         allow_none=False,

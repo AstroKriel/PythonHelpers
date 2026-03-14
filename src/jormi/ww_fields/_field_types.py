@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     from typing import Self
 
-from jormi.ww_types import type_checks, array_checks
-from jormi.ww_fields import _fdata_type, _domain_type
+from jormi.ww_types import check_types, check_arrays
+from jormi.ww_fields import _fdata_types, _domain_types
 
 ##
 ## === BASE FIELD TYPE
@@ -29,8 +29,8 @@ class Field:
     add additional constraints on the underlying `FieldData` and metadata.
     """
 
-    fdata: _fdata_type.FieldData
-    udomain: _domain_type.UniformDomain
+    fdata: _fdata_types.FieldData
+    udomain: _domain_types.UniformDomain
     field_label: str
     sim_time: float | None = None
 
@@ -45,7 +45,7 @@ class Field:
     def _validate_fdata(
         self,
     ) -> None:
-        _fdata_type.ensure_fdata(
+        _fdata_types.ensure_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
@@ -53,7 +53,7 @@ class Field:
     def _validate_udomain(
         self,
     ) -> None:
-        _domain_type.ensure_udomain(
+        _domain_types.ensure_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -67,7 +67,7 @@ class Field:
     def _validate_label(
         self,
     ) -> None:
-        type_checks.ensure_nonempty_string(
+        check_types.ensure_nonempty_string(
             param=self.field_label,
             param_name="<field_label>",
         )
@@ -80,7 +80,7 @@ class Field:
     def _validate_sim_time(
         self,
     ) -> None:
-        type_checks.ensure_finite_float(
+        check_types.ensure_finite_float(
             param=self.sim_time,
             param_name="<sim_time>",
             allow_none=True,
@@ -91,10 +91,10 @@ class Field:
         cls,
         *,
         farray,
-        udomain: _domain_type.UniformDomain,
+        udomain: _domain_types.UniformDomain,
         field_label: str,
         sim_time: float | None = None,
-        fdata_fn: Callable[..., _fdata_type.FieldData],
+        fdata_fn: Callable[..., _fdata_types.FieldData],
         fdata_param_name: str = "<farray>",
         **fdata_kwargs,
     ) -> Self:
@@ -146,7 +146,7 @@ def _ensure_field(
     *,
     param_name: str = "<field>",
 ) -> None:
-    type_checks.ensure_type(
+    check_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=Field,
@@ -171,7 +171,7 @@ def ensure_field_metadata(
         field=field,
         param_name=param_name,
     )
-    _fdata_type.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,
@@ -183,12 +183,12 @@ def ensure_field_metadata(
 def ensure_udomain_matches_field(
     *,
     field: Field,
-    udomain: _domain_type.UniformDomain,
+    udomain: _domain_types.UniformDomain,
     domain_name: str = "<udomain>",
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    _domain_type.ensure_udomain(
+    _domain_types.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
     )
@@ -228,7 +228,7 @@ def ensure_same_field_shape(
         field=field_b,
         param_name=field_name_b,
     )
-    array_checks.ensure_same_shape(
+    check_arrays.ensure_same_shape(
         array_a=field_a.fdata.farray,
         array_b=field_b.fdata.farray,
         param_name_a=f"{field_name_a}.fdata.farray",

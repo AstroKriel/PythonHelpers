@@ -45,7 +45,7 @@ def _enable_plotting(
     os.environ.setdefault("TEXMFOUTPUT", tempfile.mkdtemp(prefix="mpl_tex_"))
     import matplotlib
     matplotlib.use("Agg", force=True)
-    from jormi.ww_plots.plot_styler import set_theme
+    from jormi.ww_plots.style_plots import set_theme
     set_theme(
         theme=theme,
         use_tex=use_tex,
