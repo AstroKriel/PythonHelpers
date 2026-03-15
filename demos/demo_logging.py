@@ -21,7 +21,7 @@ def demo_blocks() -> None:
     manage_log.log_section("Demo: block helpers", add_spacing=True)
     manage_log.log_action(
         title="Copy File",
-        succeeded=True,
+        outcome=manage_log.ActionOutcome.SUCCESS,
         message="File copied successfully.",
         notes={
             "File": "orszag_tang.in",
@@ -31,7 +31,7 @@ def demo_blocks() -> None:
     )
     manage_log.log_action(
         title="Create PBS Job",
-        succeeded=True,
+        outcome=manage_log.ActionOutcome.SUCCESS,
         message="Submit with: qsub /path/to/job.sh",
         notes={
             "Script": "this/is/a/really/long/path/to/the/simulation/job.sh",
@@ -43,7 +43,7 @@ def demo_blocks() -> None:
     )
     manage_log.log_action(
         title="Create Directory",
-        succeeded=None,
+        outcome=manage_log.ActionOutcome.SKIPPED,
         message="Directory already exists; nothing to do.",
         notes={"Path": "/tmp/sim/OT_N32"},
     )
@@ -60,7 +60,7 @@ def demo_blocks() -> None:
     )
     manage_log.log_action(
         title="Run Simulation",
-        succeeded=False,
+        outcome=manage_log.ActionOutcome.FAILURE,
         message="One or more checks failed (dry-run validation).",
         notes={
             "Executable": "/path/to/test_orszag_tang",
