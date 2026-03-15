@@ -1,13 +1,13 @@
 # jormi (Jormungandr; the World Serpent)
 
 jormi is a Python utility library for computing all things plasma physics, including:
-- Helmholtz decomposition
-- computing power spectra
-- estimating probability density functions
+- decomposition (e.g., Helmholtz and Frenet-Serret basis)
+- power spectra
+- probability density functions
 - differential operators (e.g., curl, divergence, gradient)
-- field slicing and interpolation
+- field slices and interpolation
 
-as well as general utilities for figure management, data fitting, type-safe I/O, and runtime type checking. It is used directly by analysis scripts, and as a base layer by simulation-specific libraries that add code-specific interfaces on top.
+as well as general utilities for managing figures, fitting data, safe I/O, and runtime type checking. It serves as a base layer for many of my simulation-specific libraries that add interfaces on top of this.
 
 ## Getting setup
 
