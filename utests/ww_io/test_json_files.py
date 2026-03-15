@@ -4,12 +4,14 @@
 ## === DEPENDENCIES
 ##
 
-import unittest
 import os
-import numpy as np
+import numpy
+import unittest
+
 from pathlib import Path
-from jormi.ww_io import json_io
+
 from jormi import ww_dicts
+from jormi.ww_io import json_io
 
 ##
 ## === FUNCTIONS WRAPPERS
@@ -81,10 +83,10 @@ class Tests(unittest.TestCase):
 
     def test_numpy_serialization(self):
         data = {
-            "int": np.int32(42),
-            "float": np.float64(3.14),
-            "bool": np.bool_(True),
-            "array": np.array([1, 2, 3]),
+            "int": numpy.int32(42),
+            "float": numpy.float64(3.14),
+            "bool": numpy.bool_(True),
+            "array": numpy.array([1, 2, 3]),
         }
         save_dict_to_json_file(self.test_file_path, data)
         result = read_json_file_into_dict(self.test_file_path)
