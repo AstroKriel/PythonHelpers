@@ -1,20 +1,20 @@
-# jormi
+# jormi (short for Jormungandr; the World Serpent of Norse mythology)
 
-jormi (short for Jormungandr, the World Serpent of Norse mythology) is a Python utility library for computing all things plasma physics, including:
+jormi is a Python utility library for computing all things plasma physics, including:
 - Helmholtz decomposition
 - computing power spectra
 - estimating probability density functions
-- differential operators (curl, divergence, gradient) on uniform Cartesian grids
+- differential operators (e.g., curl, divergence, gradient)
 - field slicing and interpolation
 
 as well as general utilities for figure management, data fitting, type-safe I/O, and runtime type checking. It is used directly by analysis scripts, and as a base layer by simulation-specific libraries that add code-specific interfaces on top.
 
 ## Getting setup
 
-jormi is typically used as a submodule within the [Asgard](https://github.com/AstroKriel/Asgard) project. You can, however, clone this reposititor directly for standalone development:
+jormi is typically used as a submodule within the [Asgard](https://github.com/AstroKriel/Asgard) project. You can, however, clone this repository directly for standalone development:
 
 ```bash
-git clone git@github.com:AstroKriel/PythonHelpers.git
+git clone git@github.com:AstroKriel/PythonHelpers.git jormi  # clone and name the folder
 cd jormi
 uv sync
 ```
@@ -45,8 +45,8 @@ jormi/
 │       ├── ww_io/              # file I/O (CSV, JSON), logging, shell commands
 │       ├── ww_jobs/            # HPC (PBS) job submission
 │       ├── ww_plots/           # mpl figures, styling, colormaps, annotations
-│       ├── ww_dicts.py         # helpers
-│       ├── ww_lists.py         # helpers
+│       ├── ww_dicts.py         # dict helpers
+│       ├── ww_lists.py         # list helpers
 │       └── ww_stats.py         # statistics
 ├── utests/                     # unit tests
 ├── vtests/                     # validation tests
