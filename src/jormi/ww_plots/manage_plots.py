@@ -33,7 +33,7 @@ from jormi.ww_plots import style_plots
 ##
 
 PlotAxis: TypeAlias = mpl_Axes
-PlotAxesArray: TypeAlias = NDArray[numpy.object_]
+PlotAxesGrid: TypeAlias = NDArray[numpy.object_]
 
 ##
 ## === INTERNAL HELPERS
@@ -89,7 +89,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxesArray]:
+) -> tuple[mpl_Figure, PlotAxesGrid]:
     ...
 
 
@@ -105,7 +105,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxis | PlotAxesArray]:
+) -> tuple[mpl_Figure, PlotAxis | PlotAxesGrid]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
 
@@ -177,8 +177,49 @@ def create_figure(
         wspace=x_spacing,
         hspace=y_spacing,
     )
-    axs_array: PlotAxesArray = numpy.asarray(axs, dtype=object)
-    return fig, axs_array
+    axs_grid: PlotAxesGrid = numpy.asarray(axs, dtype=object)
+    return fig, axs_grid
+
+
+def create_figure_grid(
+    *,
+    num_rows: int = 1,
+    num_cols: int = 1,
+    fig_scale: float = 1.0,
+    axis_shape: tuple[float, float] = (4, 6),
+    x_spacing: float = 0.05,
+    y_spacing: float = 0.05,
+    share_x: bool = False,
+    share_y: bool = False,
+    auto_style: bool = True,
+    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
+) -> tuple[mpl_Figure, PlotAxesGrid]:
+    """
+    Like `create_figure`, but always returns a 2D axes grid of shape (num_rows, num_cols), so
+    callers can always index axes as axs_grid[row, col].
+    """
+    if (num_rows == 1) and (num_cols == 1):
+        fig, ax = create_figure(
+            fig_scale=fig_scale,
+            axis_shape=axis_shape,
+            auto_style=auto_style,
+            theme=theme,
+        )
+        axs_grid: PlotAxesGrid = numpy.asarray([[ax]], dtype=object)
+        return fig, axs_grid
+    fig, axs_grid = create_figure(
+        num_rows=num_rows,
+        num_cols=num_cols,
+        fig_scale=fig_scale,
+        axis_shape=axis_shape,
+        x_spacing=x_spacing,
+        y_spacing=y_spacing,
+        share_x=share_x,
+        share_y=share_y,
+        auto_style=auto_style,
+        theme=theme,
+    )
+    return fig, axs_grid
 
 
 ##
