@@ -58,7 +58,7 @@ def generate_gaussian_random_3d_sfield(
     field_label: str = "G(x)",
     sim_time: float | None = None,
 ) -> field_types.ScalarField_3D:
-    """Generate a 3D scalar field_type with a Gaussian correlation length."""
+    """Generate a 3D scalar field with a Gaussian correlation length."""
     domain_types.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
@@ -148,7 +148,7 @@ def generate_powerlaw_random_3d_sfield(
     field_label: str = "P(x)",
     sim_time: float | None = None,
 ) -> field_types.ScalarField_3D:
-    """Generate a 3D scalar field_type with a power-law power spectrum."""
+    """Generate a 3D scalar field with a power-law power spectrum."""
     domain_types.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",

@@ -83,7 +83,7 @@ class ScalarField_2D(_field_types.Field):
     def is_sliced_from_3d(
         self,
     ) -> bool:
-        """Return True if the underlying domain is a 3D-sliced 2D domain_type."""
+        """Return True if the underlying domain is a 3D-sliced 2D domain."""
         return isinstance(self.udomain, domain_types.UniformDomain_2D_Sliced3D)
 
 
@@ -144,7 +144,7 @@ class VectorField_2D(_field_types.Field):
     def is_sliced_from_3d(
         self,
     ) -> bool:
-        """Return True if the underlying domain is a 3D-sliced 2D domain_type."""
+        """Return True if the underlying domain is a 3D-sliced 2D domain."""
         return isinstance(self.udomain, domain_types.UniformDomain_2D_Sliced3D)
 
 
@@ -182,7 +182,7 @@ def ensure_2d_sfield_sliced_from_3d(
     *,
     param_name: str = "<sfield_2d>",
 ) -> None:
-    """Ensure `sfield_2d` is ScalarField_2D with a 3D-sliced 2D domain_type."""
+    """Ensure `sfield_2d` is ScalarField_2D with a 3D-sliced 2D domain."""
     ensure_2d_sfield(
         sfield_2d=sfield_2d,
         param_name=param_name,
@@ -198,7 +198,7 @@ def ensure_2d_vfield_sliced_from_3d(
     *,
     param_name: str = "<vfield_2d>",
 ) -> None:
-    """Ensure `vfield_2d` is VectorField_2D with a 3D-sliced 2D domain_type."""
+    """Ensure `vfield_2d` is VectorField_2D with a 3D-sliced 2D domain."""
     ensure_2d_vfield(
         vfield_2d=vfield_2d,
         param_name=param_name,

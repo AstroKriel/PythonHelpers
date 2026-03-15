@@ -28,10 +28,16 @@ sources = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["unit_tests"]
+testpaths = ["utests"]
 
 [tool.pyright]
-include = ["src", "unit_tests", "validation", "playground"]
+include = [
+    "src",
+    "utests",
+    "vtests",
+    "demos",
+]
+extraPaths = ["src"]
 reportMissingImports = true
 reportMissingTypeStubs = false
 

@@ -5,6 +5,7 @@
 ##
 
 import unittest
+
 from jormi import ww_dicts
 
 ##

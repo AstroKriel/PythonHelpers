@@ -4,11 +4,11 @@
 ## === DEPENDENCIES
 ##
 
-import math
 import os
-import shutil
+import math
 import time
 import numpy
+import shutil
 import unittest
 
 from typing import Any
@@ -16,8 +16,8 @@ from collections.abc import Callable
 from pathlib import Path
 
 from jormi.ww_io import manage_io
-from jormi.ww_plots import manage_plots, annotate_axis
 from jormi.ww_fns import parallel_dispatch
+from jormi.ww_plots import manage_plots, annotate_axis
 
 ##
 ## === WORKER FUNCTIONS

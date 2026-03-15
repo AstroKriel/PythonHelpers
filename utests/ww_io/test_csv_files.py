@@ -4,9 +4,11 @@
 ## === DEPENDENCIES
 ##
 
-import unittest
 import os
+import unittest
+
 from pathlib import Path
+
 from jormi.ww_io import csv_io
 
 ##

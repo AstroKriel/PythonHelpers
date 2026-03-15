@@ -8,8 +8,8 @@ import numpy
 import unittest
 
 from jormi.ww_fields.fields_3d import (
-    domain_types as domain_type,
-    field_types as field_type,
+    domain_types,
+    field_types,
     compute_spectra,
 )
 
@@ -20,8 +20,8 @@ from jormi.ww_fields.fields_3d import (
 
 def _make_3d_udomain(
     resolution: tuple[int, int, int],
-) -> domain_type.UniformDomain_3D:
-    return domain_type.UniformDomain_3D(
+) -> domain_types.UniformDomain_3D:
+    return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -30,9 +30,9 @@ def _make_3d_udomain(
 
 def _make_sfield(
     sarray_3d: numpy.ndarray,
-) -> field_type.ScalarField_3D:
+) -> field_types.ScalarField_3D:
     resolution = sarray_3d.shape
-    return field_type.ScalarField_3D.from_3d_sarray(
+    return field_types.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=_make_3d_udomain(resolution),
         field_label="f",

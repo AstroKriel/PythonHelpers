@@ -7,7 +7,10 @@
 import numpy
 import unittest
 
-from jormi.ww_fields import cartesian_axes, _domain_types
+from jormi.ww_fields import (
+    cartesian_axes,
+    _domain_types,
+)
 
 ##
 ## === TEST SUITES

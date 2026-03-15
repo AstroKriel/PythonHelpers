@@ -7,7 +7,10 @@
 import numpy
 import unittest
 
-from jormi.ww_fields.fields_3d import domain_types, field_types
+from jormi.ww_fields.fields_3d import (
+    domain_types,
+    field_types,
+)
 
 ##
 ## === HELPERS

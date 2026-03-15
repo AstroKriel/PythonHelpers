@@ -5,6 +5,7 @@
 ##
 
 import unittest
+
 from enum import Enum
 
 from jormi.ww_types import check_enums

@@ -5,6 +5,7 @@
 ##
 
 import unittest
+
 from jormi.ww_types import check_types
 
 ##

@@ -6,6 +6,7 @@
 
 import numpy
 import unittest
+
 from jormi import ww_lists
 
 ##
@@ -79,7 +80,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(output_index, 1)
         ## target value is None
         with self.assertRaises(Exception):
-            ww_lists.get_index_of_closest_value(values=[1, 2, 3], target=None) # type: ignore
+            ww_lists.get_index_of_closest_value(values=[1, 2, 3], target=None)  # type: ignore
         ## target value is infinity
         output_index = ww_lists.get_index_of_closest_value(values=[1, 5, 8], target=numpy.inf)
         self.assertEqual(output_index, 2)
@@ -139,7 +140,9 @@ class Tests(unittest.TestCase):
         ## invalid direction value (should raise)
         values = [0.1, 0.2, 0.3]
         with self.assertRaises(ValueError):
-            ww_lists.get_index_of_first_crossing(values=values, target=0.2, direction="diagonal") # type: ignore
+            ww_lists.get_index_of_first_crossing(
+                values=values, target=0.2, direction="diagonal"
+            )  # type: ignore
         ## exact min value match
         values = [0.1, 0.2, 0.3]
         index = ww_lists.get_index_of_first_crossing(values=values, target=0.1)
