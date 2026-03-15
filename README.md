@@ -1,1 +1,75 @@
-# Python library for computing plasma statistics
+# jormi
+
+jormi (short for Jormungandr, the World Serpent of Norse mythology) is a Python utility library for computing all things plasma physics, including:
+- Helmholtz decomposition
+- computing power spectra
+- estimating probability density functions
+- differential operators (curl, divergence, gradient) on uniform Cartesian grids
+- field slicing and interpolation
+
+as well as general utilities for figure management, data fitting, type-safe I/O, and runtime type checking. It is used directly by analysis scripts, and as a base layer by simulation-specific libraries that add code-specific interfaces on top.
+
+## Getting setup
+
+jormi is typically used as a submodule within the [Asgard](https://github.com/AstroKriel/Asgard) project. You can, however, clone this reposititor directly for standalone development:
+
+```bash
+git clone git@github.com:AstroKriel/PythonHelpers.git
+cd jormi
+uv sync
+```
+
+To make jormi importable from other projects in editable mode:
+
+```bash
+uv pip install -e .
+```
+
+Run any script through the managed environment with:
+
+```bash
+uv run path/to/script.py
+```
+
+## File structure
+
+```
+jormi/
+├── src/
+│   └── jormi/                  # package root (ww_ = "working with")
+│       ├── ww_fields/          # 2D/3D scalar+vector fields; differential operators, spectra, decomposition
+│       ├── ww_arrays/          # array operations (norms, masking, probability density functions)
+│       ├── ww_types/           # type hints and runtime type checking
+│       ├── ww_data/            # fitting and interpolating data series
+│       ├── ww_fns/             # function decorators and parallel dispatch
+│       ├── ww_io/              # file I/O (CSV, JSON), logging, shell commands
+│       ├── ww_jobs/            # HPC (PBS) job submission
+│       ├── ww_plots/           # mpl figures, styling, colormaps, annotations
+│       ├── ww_dicts.py         # helpers
+│       ├── ww_lists.py         # helpers
+│       └── ww_stats.py         # statistics
+├── utests/                     # unit tests
+├── vtests/                     # validation tests
+├── demos/                      # example scripts
+├── pyproject.toml              # project metadata and dependencies
+├── uv.lock                     # pinned dependency versions
+└── README.md                   # this file
+```
+
+## Running tests
+
+Run the suite of unit-tests:
+
+```bash
+uv run pytest utests/
+```
+
+Run the suite of validation-tests:
+
+```bash
+uv run vtests/run.py
+```
+
+## License
+
+See [LICENSE.md](./LICENSE.md).
