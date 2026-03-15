@@ -1,4 +1,4 @@
-# jormi (short for Jormungandr; the World Serpent of Norse mythology)
+# jormi (Jormungandr; the World Serpent)
 
 jormi is a Python utility library for computing all things plasma physics, including:
 - Helmholtz decomposition
