@@ -4,10 +4,9 @@ jormi is a utility library for computing all kinds of MHD turbulence related sta
 - decompositions (e.g., Helmholtz and Frenet-Serret basis)
 - power spectra
 - probability density functions
-- differential operators (e.g., curl, divergence, gradient)
-- field slices and interpolations
+- differential operators (e.g., curl, divergence)
 
-as well as general utilities for managing figures, fitting data, type-safe I/O, and runtime type checking. It serves as a base layer for many of my simulation-specific libraries that add interfaces on top of this.
+as well as providing general utilities for fitting data series, managing figures, type-safe I/O, and runtime type checking. It serves as a base layer for many of my simulation-specific libraries that add interfaces on top.
 
 ## Getting setup
 
