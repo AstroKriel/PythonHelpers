@@ -4,9 +4,11 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from typing import get_args
+
+## third-party
+import numpy
 
 ##
 ## === TYPE DEFINITIONS
@@ -148,7 +150,7 @@ def ensure_not_none(
 
 
 ##
-## === INTERNAL HELPER
+## === INTERNAL HELPERS
 ##
 
 

@@ -4,13 +4,15 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     field_types,
 )
+from jormi.ww_types import check_types
 
 ##
 ## === OPERATORS WORKING ON SCALAR FIELDS

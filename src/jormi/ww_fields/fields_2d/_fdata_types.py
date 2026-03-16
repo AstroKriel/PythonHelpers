@@ -4,12 +4,15 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from dataclasses import dataclass
 
-from jormi.ww_types import check_arrays
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields import _fdata_types
+from jormi.ww_types import check_arrays
 
 ##
 ## === 2D SCALAR / VECTOR NDARRAY

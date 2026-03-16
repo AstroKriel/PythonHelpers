@@ -4,12 +4,18 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from dataclasses import dataclass
 from typing import TypeAlias
 
-from jormi.ww_types import check_types, check_arrays
+## third-party
+import numpy
+
+## local
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === TYPE ALIASES

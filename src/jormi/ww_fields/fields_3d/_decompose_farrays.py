@@ -4,16 +4,19 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from dataclasses import dataclass
 
-from jormi.ww_types import check_types
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields.fields_3d import (
-    _farray_operators,
     _difference_sarrays,
+    _farray_operators,
     _fdata_types,
 )
+from jormi.ww_types import check_types
 
 ##
 ## === HELMHOLTZ DECOMPOSITION

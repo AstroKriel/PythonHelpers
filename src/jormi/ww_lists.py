@@ -4,10 +4,13 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from typing import Literal
 
+## third-party
+import numpy
+
+## local
 from jormi.ww_types import check_types
 
 ##

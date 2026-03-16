@@ -4,13 +4,17 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import dataclasses
-import matplotlib.colors as mpl_colors
 
 from dataclasses import dataclass
 
-from jormi.ww_types import check_types
+## third-party
+import matplotlib.colors as mpl_colors
+
+## local
 from jormi.ww_plots.color_palettes import _base_palette
+from jormi.ww_types import check_types
 
 ##
 ## === DIVERGING PALETTE

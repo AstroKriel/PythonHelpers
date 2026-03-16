@@ -4,12 +4,16 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-import shutil
+## stdlib
 import inspect
+import shutil
 
 from pathlib import Path
 
+## third-party
+import numpy
+
+## local
 from jormi import ww_lists
 from jormi.ww_io import manage_log
 

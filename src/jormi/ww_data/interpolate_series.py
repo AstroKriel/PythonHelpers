@@ -4,13 +4,17 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
-
 from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 
-from jormi.ww_io import manage_log
-from jormi.ww_types import check_types, check_arrays
+## local
 from jormi.ww_data.series_types import DataSeries
+from jormi.ww_io import manage_log
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === INTERPOLATION FUNCTIONS

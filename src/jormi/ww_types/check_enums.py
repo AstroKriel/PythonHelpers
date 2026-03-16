@@ -4,9 +4,11 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 from enum import Enum
 from typing import get_args
 
+## local
 from jormi import ww_lists
 from jormi.ww_types import check_types
 

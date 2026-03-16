@@ -4,11 +4,15 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import unittest
 
-from jormi.ww_types import box_positions
+## third-party
+import numpy
+
+## local
 from jormi.ww_arrays import mask_2d_arrays
+from jormi.ww_types import box_positions
 
 ##
 ## === TEST SUITES

@@ -4,8 +4,10 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import copy
 
+## local
 from jormi.ww_fns import fn_decorators
 from jormi.ww_types import check_types
 

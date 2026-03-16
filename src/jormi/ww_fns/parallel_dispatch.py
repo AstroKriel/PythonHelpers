@@ -4,16 +4,26 @@
 ## === DEPENDENCIES
 ##
 
-import os
+## stdlib
 import multiprocessing
+import os
 
-from tqdm import tqdm
-from typing import Callable, Any, Iterable
-from pebble import ProcessPool, ProcessExpired
 from concurrent.futures import TimeoutError
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+)
+
+## third-party
+from pebble import (
+    ProcessExpired,
+    ProcessPool,
+)
+from tqdm import tqdm
 
 ##
-## === HELPER FUNCTIONS
+## === HELPERS
 ##
 
 
@@ -66,7 +76,7 @@ def _invoke_with_plotting(
 
 
 ##
-## === OPERATOR FUNCTION
+## === OPERATOR FUNCTIONS
 ##
 
 

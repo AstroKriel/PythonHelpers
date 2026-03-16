@@ -4,10 +4,12 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields.fields_3d import _fdata_types
+from jormi.ww_types import check_types
 
 ##
 ## === INTERNAL HELPERS

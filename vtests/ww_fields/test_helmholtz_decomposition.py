@@ -4,12 +4,20 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
+
+## local
 from jormi import ww_lists
-from jormi.ww_types import check_types
+from jormi.ww_fields.fields_3d import (
+    decompose_fields,
+    domain_types,
+    field_operators,
+    field_types,
+)
 from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
-from jormi.ww_fields.fields_3d import domain_types, field_types, field_operators, decompose_fields
+from jormi.ww_types import check_types
 
 ##
 ## === EXAMPLE VECTOR FIELDS

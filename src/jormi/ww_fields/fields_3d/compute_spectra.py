@@ -4,19 +4,26 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_types import check_arrays, check_types
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields.fields_3d import (
     _fdata_types,
     field_types,
 )
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
-## === DATA STRUCTURE
+## === DATA STRUCTURES
 ##
 
 
@@ -49,7 +56,7 @@ class IsotropicPowerSpectrum:
 
 
 ##
-## === INTERNAL HELPERS (ARRAY LEVEL)
+## === INTERNAL HELPERS
 ##
 
 
@@ -189,7 +196,7 @@ def _compute_isotropic_power_spectrum_sarray(
 
 
 ##
-## === PUBLIC FUNCTION
+## === PUBLIC FUNCTIONS
 ##
 
 

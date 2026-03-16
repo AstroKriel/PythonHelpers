@@ -4,13 +4,19 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from typing import TypeAlias
+
+## third-party
+import numpy
 from numpy.typing import NDArray
 
-from jormi.ww_types import check_arrays, check_types
-from jormi.ww_types import box_positions
+## local
+from jormi.ww_types import (
+    box_positions,
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === DATA TYPES
@@ -36,7 +42,7 @@ def get_2d_shape(
 
 
 ##
-## === HELPER FUNCTIONS
+## === HELPERS
 ##
 
 
@@ -65,7 +71,7 @@ def _get_grid_indices(
 
 
 ##
-## === USER-FACING: HALF MASKS
+## === HALF MASKS
 ##
 
 
@@ -94,7 +100,7 @@ class HalfMasks2D:
 
 
 ##
-## === USER-FACING: QUADRANTS
+## === QUADRANTS
 ##
 
 
@@ -125,7 +131,7 @@ class QuadrantMasks2D:
 
 
 ##
-## === USER-FACING: DIAGONALS & WEDGES
+## === DIAGONALS AND WEDGES
 ##
 
 
@@ -206,7 +212,7 @@ class WedgeMasks2D:
 
 
 ##
-## === USER-FACING: CIRCULAR REGIONS
+## === CIRCULAR REGIONS
 ##
 
 

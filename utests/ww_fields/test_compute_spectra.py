@@ -4,13 +4,17 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import unittest
 
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields.fields_3d import (
+    compute_spectra,
     domain_types,
     field_types,
-    compute_spectra,
 )
 
 ##

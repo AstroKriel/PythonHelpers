@@ -4,10 +4,12 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
 from scipy.special import erfinv as scipy_erfinv
 
+## local
 from jormi.ww_types import check_types
 
 ##

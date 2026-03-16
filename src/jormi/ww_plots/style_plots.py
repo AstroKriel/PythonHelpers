@@ -4,11 +4,15 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import shutil
-import matplotlib
 
 from enum import Enum
 from typing import Mapping
+
+## third-party
+import matplotlib
+
 from cycler import cycler
 
 ##
@@ -123,7 +127,7 @@ THEMES: Mapping[Theme, dict[str, object]] = {
 }
 
 ##
-## === HELPER FUNCTIONS
+## === HELPERS
 ##
 
 

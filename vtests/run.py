@@ -4,12 +4,14 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+import subprocess
 import sys
 import time
-import subprocess
 
 from pathlib import Path
 
+## local
 from jormi.ww_io import manage_log
 
 ##

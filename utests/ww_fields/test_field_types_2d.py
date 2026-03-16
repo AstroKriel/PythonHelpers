@@ -4,10 +4,14 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-import unittest
+## stdlib
 import dataclasses
+import unittest
 
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
     domain_types,

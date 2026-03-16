@@ -4,11 +4,16 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import csv
 
 from pathlib import Path
 
-from jormi.ww_io import manage_io, manage_log
+## local
+from jormi.ww_io import (
+    manage_io,
+    manage_log,
+)
 from jormi.ww_types import check_types
 
 ##

@@ -4,8 +4,10 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import unittest
 
+## local
 from jormi.ww_types import check_types
 
 ##

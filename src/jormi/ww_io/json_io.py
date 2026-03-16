@@ -4,16 +4,23 @@
 ## === DEPENDENCIES
 ##
 
-import json
+## stdlib
 import copy
-import numpy
+import json
 
 from pathlib import Path
 
-from jormi.ww_io import manage_io, manage_log
-from jormi.ww_types import check_types
+## third-party
+import numpy
+
+## local
 from jormi.ww_dicts import merge_dicts
 from jormi.ww_fns import fn_decorators
+from jormi.ww_io import (
+    manage_io,
+    manage_log,
+)
+from jormi.ww_types import check_types
 
 ##
 ## === FUNCTIONS

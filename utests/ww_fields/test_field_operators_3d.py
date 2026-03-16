@@ -4,13 +4,17 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import unittest
 
+## third-party
+import numpy
+
+## local
 from jormi.ww_fields.fields_3d import (
     domain_types,
-    field_types,
     field_operators,
+    field_types,
 )
 
 ##

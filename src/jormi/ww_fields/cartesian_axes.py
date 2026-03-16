@@ -4,11 +4,20 @@
 ## === DEPENDENCIES
 ##
 
-from enum import Enum
-from typing import Literal, TypeAlias, cast
+## stdlib
 from dataclasses import dataclass
+from enum import Enum
+from typing import (
+    Literal,
+    TypeAlias,
+    cast,
+)
 
-from jormi.ww_types import check_enums, check_types
+## local
+from jormi.ww_types import (
+    check_enums,
+    check_types,
+)
 
 ##
 ## === DATA TYPES

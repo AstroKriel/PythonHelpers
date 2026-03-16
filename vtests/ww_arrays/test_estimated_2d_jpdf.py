@@ -4,10 +4,12 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
-from jormi.ww_io import manage_io
+## local
 from jormi.ww_arrays import compute_array_stats
+from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##

@@ -4,9 +4,14 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 from pathlib import Path
 
-from jormi.ww_io import manage_io, manage_shell
+## local
+from jormi.ww_io import (
+    manage_io,
+    manage_shell,
+)
 
 ##
 ## === FUNCTIONS

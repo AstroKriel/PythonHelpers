@@ -4,23 +4,24 @@
 ## === DEPENDENCIES
 ##
 
-from __future__ import annotations
+## stdlib
+from dataclasses import dataclass
+from typing import Self
 
+## third-party
 import numpy
 
-from typing import TYPE_CHECKING
-from dataclasses import dataclass
-
-if TYPE_CHECKING:
-    from typing import Self
-
-from jormi.ww_types import check_types
-from jormi.ww_fields import cartesian_axes, _field_types
+## local
+from jormi.ww_fields import (
+    _field_types,
+    cartesian_axes,
+)
 from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _fdata_types,
     domain_types,
 )
+from jormi.ww_types import check_types
 
 ##
 ## === 3D FIELD TYPES

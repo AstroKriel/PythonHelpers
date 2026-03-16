@@ -4,12 +4,17 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import sys
+
+## third-party
 import numpy
+
+## local
 from jormi import ww_lists
+from jormi.ww_fields.fields_3d import _difference_sarrays
 from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
-from jormi.ww_fields.fields_3d import _difference_sarrays
 
 ##
 ## === HELPER FUNCTIONS

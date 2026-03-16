@@ -4,11 +4,22 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 from typing import Literal
 
-from jormi.ww_types import check_types, check_arrays, box_positions
-from jormi.ww_plots import manage_plots, add_color
+## third-party
+import numpy
+
+## local
+from jormi.ww_plots import (
+    add_color,
+    manage_plots,
+)
+from jormi.ww_types import (
+    box_positions,
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === DATA TYPES

@@ -4,9 +4,13 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import unittest
 
+## third-party
+import numpy
+
+## local
 from jormi import ww_lists
 
 ##

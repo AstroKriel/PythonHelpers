@@ -4,20 +4,26 @@
 ## === DEPENDENCIES
 ##
 
-import matplotlib.cm as mpl_cm
-import matplotlib.axes as mpl_axes
-import matplotlib.colorbar as mpl_colorbar
-
+## stdlib
 from dataclasses import dataclass
 
-from jormi.ww_types import check_types, box_positions
+## third-party
+import matplotlib.axes as mpl_axes
+import matplotlib.cm as mpl_cm
+import matplotlib.colorbar as mpl_colorbar
+
+## local
 from jormi.ww_plots.color_palettes import (
     ColorPalette,
-    SequentialPalette,
-    DivergingPalette,
     DiscretePalette,
+    DivergingPalette,
+    SequentialPalette,
 )
 from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
+from jormi.ww_types import (
+    box_positions,
+    check_types,
+)
 
 ##
 ## === PALETTE CONFIGS

@@ -4,13 +4,16 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from dataclasses import dataclass
+
+## third-party
+import numpy
 from numpy.typing import DTypeLike
 
-from jormi.ww_types import check_arrays
+## local
 from jormi.ww_fields import _fdata_types
+from jormi.ww_types import check_arrays
 
 ##
 ## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY

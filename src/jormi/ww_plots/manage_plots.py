@@ -12,21 +12,33 @@ matplotlib.use("Agg", force=True)
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from dataclasses import dataclass
+from pathlib import Path
+from typing import (
+    TypeAlias,
+    overload,
+)
+
+## third-party
 import numpy
 
-from typing import TypeAlias, overload
-from pathlib import Path
-from dataclasses import dataclass
-from numpy.typing import NDArray
-
-from matplotlib import rcParams
 from matplotlib import pyplot as mpl_plot
+from matplotlib import rcParams
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
+from numpy.typing import NDArray
 
-from jormi.ww_types import check_types, box_positions
-from jormi.ww_io import manage_io, manage_shell
+## local
+from jormi.ww_io import (
+    manage_io,
+    manage_shell,
+)
 from jormi.ww_plots import style_plots
+from jormi.ww_types import (
+    box_positions,
+    check_types,
+)
 
 ##
 ## === TYPE ALIASES

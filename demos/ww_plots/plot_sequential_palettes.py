@@ -4,11 +4,17 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
+## stdlib
 from pathlib import Path
 
-from jormi.ww_plots import manage_plots, add_color
+## third-party
+import numpy
+
+## local
+from jormi.ww_plots import (
+    add_color,
+    manage_plots,
+)
 from jormi.ww_plots.color_palettes import SequentialPalette
 
 ##

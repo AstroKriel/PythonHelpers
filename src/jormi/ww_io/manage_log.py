@@ -4,15 +4,22 @@
 ## === DEPENDENCIES
 ##
 
-from enum import Enum
-from typing import Mapping, Any, Literal, Iterable
-from datetime import datetime
+## stdlib
 from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import (
+    Any,
+    Iterable,
+    Literal,
+    Mapping,
+)
 
+## third-party
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
-from rich import box
 
 ##
 ## === TYPES + CONSTANTS

@@ -4,12 +4,17 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
-from jormi.ww_types import check_types, check_arrays
+## local
 from jormi.ww_fields.fields_3d import (
     _difference_sarrays,
     _fdata_types,
+)
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
 )
 
 ##

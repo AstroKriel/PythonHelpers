@@ -4,16 +4,22 @@
 ## === DEPENDENCIES
 ##
 
-from __future__ import annotations
-
+## stdlib
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import (
+    Callable,
+    Self,
+)
 
-if TYPE_CHECKING:
-    from typing import Self
-
-from jormi.ww_types import check_types, check_arrays
-from jormi.ww_fields import _fdata_types, _domain_types
+## local
+from jormi.ww_fields import (
+    _domain_types,
+    _fdata_types,
+)
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === BASE FIELD TYPE

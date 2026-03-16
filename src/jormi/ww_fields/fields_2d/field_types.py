@@ -4,22 +4,20 @@
 ## === DEPENDENCIES
 ##
 
-from __future__ import annotations
+## stdlib
+from dataclasses import dataclass
+from typing import Self
 
+## third-party
 import numpy
 
-from typing import TYPE_CHECKING
-from dataclasses import dataclass
-
-if TYPE_CHECKING:
-    from typing import Self
-
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields import _field_types
 from jormi.ww_fields.fields_2d import (
-    domain_types,
     _fdata_types,
+    domain_types,
 )
+from jormi.ww_types import check_types
 
 ##
 ## === 2D FIELD TYPES

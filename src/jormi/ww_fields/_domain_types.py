@@ -4,13 +4,16 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from dataclasses import dataclass
+from functools import cached_property
+
+## third-party
 import numpy
 
-from functools import cached_property
-from dataclasses import dataclass
-
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields import cartesian_axes
+from jormi.ww_types import check_types
 
 ##
 ## === DATA STRUCTURES

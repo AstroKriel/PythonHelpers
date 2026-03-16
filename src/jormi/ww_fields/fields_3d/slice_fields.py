@@ -4,7 +4,7 @@
 ## === DEPENDENCIES
 ##
 
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
     domain_types as _2d_domain_type,
@@ -14,6 +14,7 @@ from jormi.ww_fields.fields_3d import (
     domain_types as _3d_domain_type,
     field_types as _3d_field_type,
 )
+from jormi.ww_types import check_types
 
 ##
 ## === SLICE HELPERS

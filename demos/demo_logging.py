@@ -1,4 +1,15 @@
+## { MODULE
+
+##
+## === DEPENDENCIES
+##
+
+## local
 from jormi.ww_io import manage_log
+
+##
+## === DEMOS
+##
 
 
 def demo_lines() -> None:
@@ -130,6 +141,11 @@ def demo_renderers() -> None:
     manage_log.log_empty_lines()
 
 
+##
+## === PROGRAM MAIN
+##
+
+
 def main() -> None:
     demo_lines()
     demo_blocks()
@@ -139,3 +155,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+## } MODULE

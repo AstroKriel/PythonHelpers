@@ -4,12 +4,16 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import os
-import numpy
 import unittest
 
 from pathlib import Path
 
+## third-party
+import numpy
+
+## local
 from jormi import ww_dicts
 from jormi.ww_io import json_io
 

@@ -4,9 +4,11 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 from pathlib import Path
-from jormi.ww_io import manage_io
 
+## local
+from jormi.ww_io import manage_io
 from . import _job_validation
 
 ##

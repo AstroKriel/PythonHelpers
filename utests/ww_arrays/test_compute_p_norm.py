@@ -4,9 +4,13 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import unittest
 
+## third-party
+import numpy
+
+## local
 from jormi.ww_arrays import compute_array_stats
 
 ##

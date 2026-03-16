@@ -4,18 +4,24 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
-
-from typing import Callable
-from functools import cached_property
+## stdlib
 from dataclasses import dataclass
+from functools import cached_property
+from typing import Callable
+
+## third-party
+import numpy
 from scipy.optimize import curve_fit as scipy_curve_fit
 
-from jormi.ww_io import manage_log
+## local
 from jormi import ww_lists
-from jormi.ww_types import check_types, check_arrays
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data.series_types import GaussianSeries
+from jormi.ww_io import manage_log
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === UTILITY FUNCTIONS

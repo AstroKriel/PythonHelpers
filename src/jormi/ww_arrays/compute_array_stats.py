@@ -4,15 +4,22 @@
 ## === DEPENDENCIES
 ##
 
-import numpy
+## stdlib
 import functools
 
 from dataclasses import dataclass
 
-from jormi.ww_io import manage_log
-from jormi.ww_types import check_types, check_arrays
-from jormi.ww_arrays import smooth_2d_arrays
+## third-party
+import numpy
+
+## local
 from jormi import ww_lists
+from jormi.ww_arrays import smooth_2d_arrays
+from jormi.ww_io import manage_log
+from jormi.ww_types import (
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === ARRAY VALUE CHECKS

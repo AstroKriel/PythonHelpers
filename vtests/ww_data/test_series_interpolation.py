@@ -4,10 +4,13 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
-from jormi.ww_io import manage_io
-from jormi.ww_data.series_types import DataSeries
+
+## local
 from jormi.ww_data import interpolate_series
+from jormi.ww_data.series_types import DataSeries
+from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##

@@ -4,11 +4,14 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from dataclasses import dataclass
+from functools import cached_property
+
+## third-party
 import numpy
 
-from functools import cached_property
-from dataclasses import dataclass
-
+## local
 from jormi.ww_types import check_arrays
 
 ##

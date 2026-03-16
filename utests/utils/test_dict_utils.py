@@ -4,8 +4,10 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import unittest
 
+## local
 from jormi import ww_dicts
 
 ##

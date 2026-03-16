@@ -4,8 +4,10 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
+## local
 from jormi.ww_types import check_types
 
 ##

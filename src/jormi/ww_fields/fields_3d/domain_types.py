@@ -4,14 +4,20 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from dataclasses import (
+    dataclass,
+    field,
+)
+from functools import cached_property
+from typing import cast
+
+## third-party
 import numpy
 
-from typing import cast
-from functools import cached_property
-from dataclasses import dataclass, field
-
-from jormi.ww_types import check_types
+## local
 from jormi.ww_fields import _domain_types
+from jormi.ww_types import check_types
 
 ##
 ## === 3D DOMAIN

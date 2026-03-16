@@ -4,10 +4,12 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
 import unittest
 
 from enum import Enum
 
+## local
 from jormi.ww_types import check_enums
 
 ##

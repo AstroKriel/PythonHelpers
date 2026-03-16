@@ -4,14 +4,20 @@
 ## === DEPENDENCIES
 ##
 
+## third-party
 import numpy
 
-from matplotlib.lines import Line2D as mpl_line2d
-from matplotlib.legend import Legend as mpl_legend
 from matplotlib.collections import LineCollection
+from matplotlib.legend import Legend as mpl_legend
+from matplotlib.lines import Line2D as mpl_line2d
 
-from jormi.ww_types import box_positions, check_arrays, check_types
+## local
 from jormi.ww_plots import manage_plots
+from jormi.ww_types import (
+    box_positions,
+    check_arrays,
+    check_types,
+)
 
 ##
 ## === VALID ARTISTS
