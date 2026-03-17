@@ -66,7 +66,7 @@ uv run pytest utests/
 Run the suite of validation tests:
 
 ```bash
-uv run vtests/run.py
+uv run vtests/run_all.py
 ```
 
 ## License
