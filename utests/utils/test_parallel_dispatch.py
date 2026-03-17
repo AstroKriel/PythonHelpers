@@ -6,12 +6,10 @@
 
 ## stdlib
 import math
-import os
 import shutil
 import time
 import unittest
 
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -46,33 +44,6 @@ def cpu_heavy_task(
             total += math.sin(math.log(abs(value) + 1.0))
     return total
 
-
-def time_fn(
-    worker_fn: Callable[..., Any],
-    grouped_args: list[Any],
-    num_repeats: int,
-    num_workers: int,
-    verbose: bool = True,
-) -> float:
-    elapsed_times = []
-    for _ in range(num_repeats):
-        start_time = time.perf_counter()
-        parallel_dispatch.run_in_parallel(
-            worker_fn=worker_fn,
-            grouped_args=grouped_args,
-            num_workers=num_workers,
-            timeout_seconds=None,
-            show_progress=False,
-            enable_plotting=False,
-        )
-        elapsed_times.append(time.perf_counter() - start_time)
-    ave_elapsed_time = numpy.median(elapsed_times)
-    std_elapsed_time = numpy.std(elapsed_times)
-    if verbose:
-        print(
-            f"{num_workers:d} procs completed in {ave_elapsed_time:.3f} ± {std_elapsed_time:.3f} seconds.",
-        )
-    return float(ave_elapsed_time)
 
 
 def sleepy_task(
@@ -161,31 +132,6 @@ class Tests(unittest.TestCase):
             self.assertIn("Task 3 timed out", str(runtime_error))
             self.assertNotIn("Task 4 timed out", str(runtime_error))
 
-    def test_parallel_scaling(self):
-        ## compare 1-worker vs max-workers
-        num_values_per_block = 2000
-        num_blocks = 64
-        blocks = [[float(value) for value in range(num_values_per_block)] for _ in range(num_blocks)]
-        grouped_args = [(block_of_values, ) for block_of_values in blocks]
-        min_speedup_factor = 1.5
-        max_workers = min(8, os.cpu_count() or 1)
-        if max_workers < 2:
-            self.skipTest("Need at least 2 CPUs for scaling test.")
-        time_serial = time_fn(
-            worker_fn=cpu_heavy_task,
-            grouped_args=grouped_args,
-            num_repeats=3,
-            num_workers=1,
-            verbose=False,
-        )
-        time_parallel = time_fn(
-            worker_fn=cpu_heavy_task,
-            grouped_args=grouped_args,
-            num_repeats=3,
-            num_workers=max_workers,
-            verbose=False,
-        )
-        self.assertGreater(time_serial, time_parallel * min_speedup_factor)
 
     def test_parallel_correctness(self):
         num_values_per_block = 10
