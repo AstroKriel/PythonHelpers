@@ -55,7 +55,7 @@ jormi/
 └── README.md                   # this file
 ```
 
-## Running tests
+## Validate implementations
 
 Run the suite of unit tests:
 
