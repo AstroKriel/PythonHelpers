@@ -1,8 +1,8 @@
 # jormi (Jormungandr; the World Serpent)
 
 jormi is a utility library for computing all kinds of MHD turbulence related statistics, including:
-- decompositions (e.g., Helmholtz and Frenet-Serret basis)
-- power spectra
+- vector field decompositions (e.g., Helmholtz and Frenet-Serret basis)
+- 1D and 3D power spectra
 - probability density functions
 - differential operators (e.g., curl, divergence)
 
