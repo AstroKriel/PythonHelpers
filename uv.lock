@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11"
 
 [[package]]
@@ -174,7 +174,6 @@ dependencies = [
     { name = "h5py" },
     { name = "matplotlib" },
     { name = "memory-profiler" },
-    { name = "mpi4py" },
     { name = "numpy" },
     { name = "pebble" },
     { name = "psutil" },
@@ -194,7 +193,6 @@ requires-dist = [
     { name = "h5py", specifier = ">=3.13.0" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "memory-profiler", specifier = ">=0.61.0" },
-    { name = "mpi4py", specifier = ">=4.0.3" },
     { name = "numpy", specifier = ">=2.2.4" },
     { name = "pebble", specifier = ">=5.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
@@ -346,17 +344,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b2/88/e1907e1ca3488f2d9507ca8b0ae1add7b1cd5d3ca2bc8e5b329382ea2c7b/memory_profiler-0.61.0.tar.gz", hash = "sha256:4e5b73d7864a1d1292fb76a03e82a3e78ef934d06828a698d9dada76da2067b0", size = 35935, upload-time = "2022-11-15T17:57:28.994Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/26/aaca612a0634ceede20682e692a6c55e35a94c21ba36b807cc40fe910ae1/memory_profiler-0.61.0-py3-none-any.whl", hash = "sha256:400348e61031e3942ad4d4109d18753b2fb08c2f6fb8290671c5513a34182d84", size = 31803, upload-time = "2022-11-15T17:57:27.031Z" },
-]
-
-[[package]]
-name = "mpi4py"
-version = "4.0.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/0d/b6/833caa35145efa52c698c50bc76dd9cd2d30527193a9b54004a76c9d99b4/mpi4py-4.0.3.tar.gz", hash = "sha256:de2710d73e25e115865a3ab63d34a54b2d8608b724f761c567b6ad58dd475609", size = 466338, upload-time = "2025-02-13T18:35:50.548Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/3e/6b26012cc62a29b294fbce135fb0a107a00af05e69cfd69ee23546d5c073/mpi4py-4.0.3-cp311-cp311-win_amd64.whl", hash = "sha256:26d9e70081f3c69c74c81306b6ad33918b710980bd1732ab577702909b2db3e8", size = 1597891, upload-time = "2025-02-13T18:36:55.257Z" },
-    { url = "https://files.pythonhosted.org/packages/6d/1e/d5be898722f74faf0b19c60ed3783b6b59bf0f1056f6d0cdc65ccae6ab8f/mpi4py-4.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:b709c410ab5f3f3f12f44514a18fb392e49b9e3185acb11e0dd8557a4ad1fe40", size = 1725596, upload-time = "2025-02-13T18:37:00.286Z" },
-    { url = "https://files.pythonhosted.org/packages/03/d3/b7cfecd793597b18d81dba63a5d9a1ff022a36417be7dead7b5565cd8fc9/mpi4py-4.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:7b026914b498dd40a28eb1d78494f266446f22894c0e91500f5f035daefb3fda", size = 1724108, upload-time = "2025-02-13T18:37:03.521Z" },
 ]
 
 [[package]]
