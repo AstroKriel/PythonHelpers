@@ -26,7 +26,11 @@ from jormi.ww_types import (
 AxisLabel_3D: TypeAlias = Literal["x_0", "x_1", "x_2"]
 AxisIndex_3D: TypeAlias = Literal[0, 1, 2]
 
-VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = ("x_0", "x_1", "x_2")
+VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = (
+    "x_0",
+    "x_1",
+    "x_2",
+)
 VALID_3D_AXIS_INDICES: tuple[AxisIndex_3D, AxisIndex_3D, AxisIndex_3D] = (0, 1, 2)
 
 
@@ -127,14 +131,22 @@ def as_axis(
     if isinstance(axis, CartesianAxis_3D):
         return axis
     if isinstance(axis, int):
-        if axis == VALID_3D_AXIS_INDICES[0]: return CartesianAxis_3D.X0
-        if axis == VALID_3D_AXIS_INDICES[1]: return CartesianAxis_3D.X1
-        if axis == VALID_3D_AXIS_INDICES[2]: return CartesianAxis_3D.X2
-        raise ValueError(f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}.")
-    return cast(CartesianAxis_3D, check_enums.resolve_member(
-        member=axis,
-        valid_enums=CartesianAxis_3D,
-    ))
+        if axis == VALID_3D_AXIS_INDICES[0]:
+            return CartesianAxis_3D.X0
+        if axis == VALID_3D_AXIS_INDICES[1]:
+            return CartesianAxis_3D.X1
+        if axis == VALID_3D_AXIS_INDICES[2]:
+            return CartesianAxis_3D.X2
+        raise ValueError(
+            f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}."
+        )
+    return cast(
+        CartesianAxis_3D,
+        check_enums.resolve_member(
+            member=axis,
+            valid_enums=CartesianAxis_3D,
+        ),
+    )
 
 
 def get_axis_label(
