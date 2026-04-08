@@ -10,6 +10,8 @@ from functools import cached_property
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_types import check_arrays
@@ -33,8 +35,8 @@ class DataSeries:
         1D array of y-values; must be finite, non-constant, and same length as `x_values`.
     """
 
-    x_values: numpy.ndarray
-    y_values: numpy.ndarray
+    x_values: NDArray[Any]
+    y_values: NDArray[Any]
 
     def __post_init__(
         self,
@@ -48,7 +50,7 @@ class DataSeries:
 
     @staticmethod
     def _validate_data_array(
-        array: numpy.ndarray,
+        array: NDArray[Any],
         rel_tol: float = 1e-2,
         abs_tol: float = 1e-9,
     ):
@@ -65,8 +67,8 @@ class DataSeries:
 
     @staticmethod
     def _validate_sigma_array(
-        sigma_array: numpy.ndarray,
-        ref_array: numpy.ndarray,
+        sigma_array: NDArray[Any],
+        ref_array: NDArray[Any],
     ):
         check_arrays.ensure_nonempty(sigma_array)
         check_arrays.ensure_finite(sigma_array)
@@ -125,8 +127,8 @@ class GaussianSeries(DataSeries):
         Optional 1D array of y-uncertainties; must be strictly positive.
     """
 
-    x_sigmas: numpy.ndarray | None = None
-    y_sigmas: numpy.ndarray | None = None
+    x_sigmas: NDArray[Any] | None = None
+    y_sigmas: NDArray[Any] | None = None
 
     def __post_init__(
         self,
@@ -145,7 +147,7 @@ class GaussianSeries(DataSeries):
 
     def y_weights(
         self,
-    ) -> numpy.ndarray:
+    ) -> NDArray[Any]:
         """Inverse-variance weights (1/sigma^2) for weighted least-squares. Returns ones if no `y_sigmas`."""
         if self.y_sigmas is None:
             return numpy.ones_like(self.y_values, dtype=float)
@@ -186,10 +188,10 @@ class DistributionSeries(DataSeries):
     - `y_p16_values` and `y_p84_values` must be provided together or not at all.
     """
 
-    x_p16_values: numpy.ndarray | None = None
-    x_p84_values: numpy.ndarray | None = None
-    y_p16_values: numpy.ndarray | None = None
-    y_p84_values: numpy.ndarray | None = None
+    x_p16_values: NDArray[Any] | None = None
+    x_p84_values: NDArray[Any] | None = None
+    y_p16_values: NDArray[Any] | None = None
+    y_p84_values: NDArray[Any] | None = None
 
     def __post_init__(
         self,

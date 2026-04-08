@@ -5,7 +5,7 @@
 ##
 
 ## stdlib
-from typing import TypeAlias
+from typing import Any, TypeAlias, cast
 
 ## third-party
 import numpy
@@ -30,7 +30,7 @@ Mask2D: TypeAlias = NDArray[numpy.bool_]
 
 
 def get_2d_shape(
-    array_2d: numpy.ndarray,
+    array_2d: NDArray[Any],
 ) -> tuple[int, int]:
     """Validate that array_2d is a 2D array and return it shape: (num_rows, num_cols)."""
     check_arrays.ensure_dims(
@@ -38,7 +38,7 @@ def get_2d_shape(
         num_dims=2,
         param_name="array_2d",
     )
-    return array_2d.shape
+    return cast(tuple[int, int], array_2d.shape)
 
 
 ##

@@ -5,7 +5,7 @@
 ##
 
 ## stdlib
-from typing import Literal
+from typing import Any, Literal, cast
 
 ## third-party
 import numpy
@@ -20,9 +20,9 @@ from jormi.ww_types import check_types
 
 def sample_list(
     *,
-    elems: list,
+    elems: list[Any],
     max_elems: int,
-) -> list:
+) -> list[Any]:
     """Return at most `max_elems` samples from `elems`, spread across the list."""
     check_types.ensure_sequence(
         param=elems,
@@ -48,8 +48,8 @@ def sample_list(
 
 
 def filter_out_nones(
-    elems: list,
-) -> list:
+    elems: list[Any],
+) -> list[Any]:
     """Return a copy of `elems` with all `None` entries removed."""
     check_types.ensure_sequence(
         param=elems,
@@ -61,7 +61,7 @@ def filter_out_nones(
 
 def get_index_of_closest_value(
     *,
-    values: list,
+    values: list[Any],
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value in a list."""
@@ -154,7 +154,7 @@ def get_index_of_first_crossing(
 
 
 def as_string(
-    elems: list,
+    elems: list[Any],
     *,
     wrap_in_quotes: bool = False,
     conjunction: str = "",
@@ -188,7 +188,7 @@ def as_string(
 
 
 def as_quoted_string(
-    elems: list,
+    elems: list[Any],
 ) -> str:
     """Return a comma-separated string of elements wrapped in backticks."""
     return as_string(
@@ -199,7 +199,7 @@ def as_quoted_string(
 
 
 def get_preview_string(
-    elems: list,
+    elems: list[Any],
     *,
     preview_length: int = 5,
     wrap_in_quotes: bool = False,
@@ -233,10 +233,10 @@ def get_preview_string(
 
 def get_intersect_of_lists(
     *,
-    list_a: list,
-    list_b: list,
+    list_a: list[Any],
+    list_b: list[Any],
     sort_values: bool = False,
-) -> list:
+) -> list[Any]:
     """Find the intersection of two lists (optionally sorted)."""
     check_types.ensure_sequence(
         param=list_a,
@@ -263,10 +263,10 @@ def get_intersect_of_lists(
 
 def get_union_of_lists(
     *,
-    list_a: list,
-    list_b: list,
+    list_a: list[Any],
+    list_b: list[Any],
     sort_values: bool = False,
-) -> list:
+) -> list[Any]:
     """Find the union of two lists (optionally sorted)."""
     check_types.ensure_sequence(
         param=list_a,
@@ -292,18 +292,18 @@ def get_union_of_lists(
 
 
 def flatten_list(
-    elems: list,
-) -> list:
+    elems: list[Any],
+) -> list[Any]:
     """Flatten a nested list into a single list."""
     check_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=check_types.RuntimeTypes.Sequences.ListLike,
     )
-    flat_elems: list = []
+    flat_elems: list[Any] = []
     for elem in elems:
         if isinstance(elem, list):
-            flat_elems.extend(flatten_list(elem))
+            flat_elems.extend(flatten_list(cast(list[Any], elem)))
         else:
             flat_elems.append(elem)
     return flat_elems

@@ -10,6 +10,8 @@ from functools import cached_property
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import cartesian_axes
@@ -177,16 +179,16 @@ class UniformDomain:
     @cached_property
     def cell_centers(
         self,
-    ) -> tuple[numpy.ndarray, ...]:
+    ) -> tuple[NDArray[Any], ...]:
 
         def _get_cell_centers(
             axis_min: float,
             cell_width: float,
             num_cells: int,
-        ) -> numpy.ndarray:
+        ) -> NDArray[Any]:
             return axis_min + (numpy.arange(num_cells, dtype=float) + 0.5) * cell_width
 
-        cell_centers_per_axis: list[numpy.ndarray] = []
+        cell_centers_per_axis: list[NDArray[Any]] = []
         for (axis_min, _), cell_width, num_cells in zip(
                 self.domain_bounds,
                 self.cell_widths,

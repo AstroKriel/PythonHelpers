@@ -6,7 +6,7 @@
 
 ## stdlib
 from enum import Enum
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 ## local
 from jormi.ww_types import check_enums
@@ -154,7 +154,7 @@ def as_box_corner(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
     )
-    return resolved_corner  # type: ignore[return-value]
+    return cast(TypeHints.Box.Corner, resolved_corner)
 
 
 def as_box_edge(
@@ -168,7 +168,7 @@ def as_box_edge(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
     )
-    return resolved_edge  # type: ignore[return-value]
+    return cast(TypeHints.Box.Edge, resolved_edge)
 
 
 def as_box_center(
@@ -182,7 +182,7 @@ def as_box_center(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
     )
-    return resolved_center  # type: ignore[return-value]
+    return cast(TypeHints.Box.Center, resolved_center)
 
 
 def as_box_side(
@@ -196,7 +196,7 @@ def as_box_side(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
     )
-    return resolved_side  # type: ignore[return-value]
+    return cast(TypeHints.Box.Side, resolved_side)
 
 
 ##
@@ -263,7 +263,7 @@ def as_mpl_anchor(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,
     )
-    return resolved_position  # type: ignore[return-value]
+    return cast(TypeHints.MPL.AnchorLike, resolved_position)
 
 
 def as_mpl_ha(
@@ -279,7 +279,7 @@ def as_mpl_ha(
         member=ha,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
-    return resolved_ha  # type: ignore[return-value]
+    return cast(TypeHints.MPL.AlignLike, resolved_ha)
 
 
 def as_mpl_va(
@@ -295,7 +295,7 @@ def as_mpl_va(
         member=va,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
-    return resolved_va  # type: ignore[return-value]
+    return cast(TypeHints.MPL.AlignLike, resolved_va)
 
 
 ## } MODULE

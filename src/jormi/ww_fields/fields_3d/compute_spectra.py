@@ -11,6 +11,8 @@ from dataclasses import dataclass
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -31,8 +33,8 @@ from jormi.ww_types import (
 class IsotropicPowerSpectrum:
     """Shell-integrated 1D power spectrum."""
 
-    k_bin_centers_1d: numpy.ndarray
-    spectrum_1d: numpy.ndarray
+    k_bin_centers_1d: NDArray[Any]
+    spectrum_1d: NDArray[Any]
 
     def __post_init__(
         self,
@@ -63,7 +65,7 @@ class IsotropicPowerSpectrum:
 @functools.lru_cache(maxsize=10)
 def _compute_3d_radial_k_magnitude(
     num_cells_per_dim: tuple[int, int, int],
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Return a 3D scalar array of radial wave-mode indices for a cubic-domain
     with shape `num_cells_per_dim`.
@@ -95,9 +97,9 @@ def _compute_3d_radial_k_magnitude(
 
 def _compute_3d_power_spectrum_sarray(
     *,
-    sarray_3d_q: numpy.ndarray,
+    sarray_3d_q: NDArray[Any],
     resolution_3d: tuple[int, int, int],
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Compute the 3D power spectrum |F(k)|^2 of a scalar array (Nx, Ny, Nz)."""
     _fdata_types.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
@@ -139,7 +141,7 @@ def _compute_3d_power_spectrum_sarray(
 
 def _integrate_spectrum_over_spherical_shells(
     *,
-    centered_3d_spectrum: numpy.ndarray,
+    centered_3d_spectrum: NDArray[Any],
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Integrate a 3D power spectrum over spherical shells in index-space."""
@@ -181,7 +183,7 @@ def _integrate_spectrum_over_spherical_shells(
 
 def _compute_isotropic_power_spectrum_sarray(
     *,
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a 3D scalar array."""

@@ -77,8 +77,8 @@ class CartesianAxis_3D(str, Enum):
             raise ValueError(f"`axis_index` is invalid: {axis_params.axis_index!r}")
         obj = str.__new__(cls, axis_params.axis_label)
         obj._value_ = axis_params.axis_label
-        obj._axis_label = cast(AxisLabel_3D, axis_params.axis_label)
-        obj._axis_index = cast(AxisIndex_3D, axis_params.axis_index)
+        obj._axis_label = cast(AxisLabel_3D, axis_params.axis_label)  # pyright: ignore[reportUnnecessaryCast]
+        obj._axis_index = cast(AxisIndex_3D, axis_params.axis_index)  # pyright: ignore[reportUnnecessaryCast]
         return obj
 
     @property
@@ -131,10 +131,10 @@ def as_axis(
         if axis == VALID_3D_AXIS_INDICES[1]: return CartesianAxis_3D.X1
         if axis == VALID_3D_AXIS_INDICES[2]: return CartesianAxis_3D.X2
         raise ValueError(f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}.")
-    return check_enums.resolve_member(
+    return cast(CartesianAxis_3D, check_enums.resolve_member(
         member=axis,
         valid_enums=CartesianAxis_3D,
-    )  # type: ignore[return-value]
+    ))
 
 
 def get_axis_label(

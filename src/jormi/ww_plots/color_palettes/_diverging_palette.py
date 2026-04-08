@@ -13,7 +13,13 @@ from dataclasses import dataclass
 import matplotlib.colors as mpl_colors
 
 ## local
-from jormi.ww_plots.color_palettes import _base_palette
+## import directly from the module file (not via the package __init__) to avoid a static import cycle
+from jormi.ww_plots.color_palettes._base_palette import (
+    ColorPalette,
+    validate_palette_range,
+    resolve_palette,
+    subset_palette,
+)
 from jormi.ww_types import check_types
 
 ##
@@ -22,7 +28,7 @@ from jormi.ww_types import check_types
 
 
 @dataclass(frozen=True, kw_only=True)
-class DivergingPalette(_base_palette.ColorPalette):
+class DivergingPalette(ColorPalette):
     """
     A continuous, two-sided color palette anchored at a midpoint.
 
@@ -50,7 +56,7 @@ class DivergingPalette(_base_palette.ColorPalette):
             raise ValueError(
                 f"`mid_value` must satisfy min_value < mid_value < max_value, got ({min_value}, {mid_value}, {max_value}).",
             )
-        _base_palette.validate_palette_range(self.palette_range)
+        validate_palette_range(self.palette_range)
 
     @classmethod
     def from_name(
@@ -65,7 +71,7 @@ class DivergingPalette(_base_palette.ColorPalette):
             value_range=value_range,
             mid_value=mid_value,
             palette_range=palette_range,
-            _base_cmap=_base_palette.resolve_palette(palette_name),
+            _base_cmap=resolve_palette(palette_name),
         )
 
     @classmethod
@@ -114,7 +120,7 @@ class DivergingPalette(_base_palette.ColorPalette):
     def mpl_cmap(
         self,
     ) -> mpl_colors.Colormap:
-        return _base_palette.subset_palette(
+        return subset_palette(
             palette_cmap=self._base_cmap,
             palette_range=self.palette_range,
             palette_label="subset-diverging-cmap",

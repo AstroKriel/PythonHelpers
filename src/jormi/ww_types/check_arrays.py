@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
+from typing import Any
 
 ## local
 from jormi.ww_types import check_types
@@ -16,7 +18,7 @@ from jormi.ww_types import check_types
 
 
 def ensure_array(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
@@ -28,7 +30,7 @@ def ensure_array(
 
 
 def ensure_nonempty(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
@@ -42,7 +44,7 @@ def ensure_nonempty(
 
 
 def ensure_finite(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
@@ -56,7 +58,7 @@ def ensure_finite(
 
 
 def ensure_shape(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     *,
     expected_shape: tuple[int, ...],
     param_name: str = "<array>",
@@ -78,8 +80,8 @@ def ensure_shape(
 
 def ensure_same_shape(
     *,
-    array_a: numpy.ndarray,
-    array_b: numpy.ndarray,
+    array_a: NDArray[Any],
+    array_b: NDArray[Any],
     param_name_a: str = "<array_a>",
     param_name_b: str = "<array_b>",
 ) -> None:
@@ -100,7 +102,7 @@ def ensure_same_shape(
 
 
 def ensure_dims(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     num_dims: int,
     *,
     param_name: str = "<array>",
@@ -122,7 +124,7 @@ def ensure_dims(
 
 
 def ensure_1d(
-    array: numpy.ndarray,
+    array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
@@ -140,11 +142,11 @@ def ensure_1d(
 
 
 def as_1d(
-    array_like: tuple | list | numpy.ndarray,
+    array_like: tuple[Any, ...] | list[Any] | NDArray[Any],
     *,
     param_name: str = "<array_like>",
     check_finite: bool = True,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Convert `array_like` to a 1D ndarray[float64]."""
     check_types.ensure_not_none(
         param=array_like,

@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 from matplotlib.collections import LineCollection
 from matplotlib.legend import Legend as mpl_legend
@@ -241,8 +243,8 @@ def add_custom_legend(
 
 def overlay_curve(
     ax: manage_plots.PlotAxis,
-    x_values: list[float] | numpy.ndarray,
-    y_values: list[float] | numpy.ndarray,
+    x_values: list[float] | NDArray[Any],
+    y_values: list[float] | NDArray[Any],
     color: str = "black",
     linestyle: str = ":",
     linewidth: float = 1.0,

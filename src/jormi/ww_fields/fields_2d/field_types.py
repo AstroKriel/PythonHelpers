@@ -6,10 +6,11 @@
 
 ## stdlib
 from dataclasses import dataclass
-from typing import Self
+from typing import Any, Self
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _field_types
@@ -56,7 +57,7 @@ class ScalarField_2D(_field_types.Field):
     def from_2d_sarray(
         cls,
         *,
-        sarray_2d: numpy.ndarray,
+        sarray_2d: NDArray[Any],
         udomain_2d: domain_types.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
@@ -117,7 +118,7 @@ class VectorField_2D(_field_types.Field):
     def from_2d_varray(
         cls,
         *,
-        varray_2d: numpy.ndarray,
+        varray_2d: NDArray[Any],
         udomain_2d: domain_types.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
@@ -216,7 +217,7 @@ def extract_2d_sarray(
     sfield_2d: ScalarField_2D,
     *,
     param_name: str = "<sfield_2d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Return the underlying (Nx, Ny) ndarray for a 2D scalar field."""
     ensure_2d_sfield(
         sfield_2d=sfield_2d,
@@ -229,7 +230,7 @@ def extract_2d_varray(
     vfield_2d: VectorField_2D,
     *,
     param_name: str = "<vfield_2d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Return the underlying (2, Nx, Ny) ndarray for a 2D vector field."""
     ensure_2d_vfield(
         vfield_2d=vfield_2d,

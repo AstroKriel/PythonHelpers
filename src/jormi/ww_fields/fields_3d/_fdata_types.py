@@ -6,10 +6,11 @@
 
 ## stdlib
 from dataclasses import dataclass
+from typing import Any
 
 ## third-party
 import numpy
-from numpy.typing import DTypeLike
+from numpy.typing import NDArray, DTypeLike
 
 ## local
 from jormi.ww_fields import _fdata_types
@@ -85,9 +86,9 @@ class Rank2TensorData_3D(_fdata_types.FieldData):
 def ensure_farray_metadata(
     *,
     farray_shape: tuple[int, ...],
-    farray: numpy.ndarray | None = None,
+    farray: NDArray[Any] | None = None,
     dtype: DTypeLike | None = None,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Return a farray with the requested shape/dtype, reusing the provided farray
     if compatible, otherwise allocate a new farray.
@@ -110,8 +111,8 @@ def ensure_3d_sdata(
     param_name: str = "<sdata_3d>",
 ) -> None:
     """Ensure `sdata_3d` is ScalarFieldData_3D with 3D scalar layout."""
-    if not isinstance(sdata_3d, ScalarFieldData_3D):
-        raise TypeError(
+    if not isinstance(sdata_3d, ScalarFieldData_3D):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_3D; got type={type(sdata_3d)}.",
         )
     _fdata_types.ensure_fdata_metadata(
@@ -129,8 +130,8 @@ def ensure_3d_vdata(
     param_name: str = "<vdata_3d>",
 ) -> None:
     """Ensure `vdata_3d` is VectorFieldData_3D with 3 components in 3D."""
-    if not isinstance(vdata_3d, VectorFieldData_3D):
-        raise TypeError(
+    if not isinstance(vdata_3d, VectorFieldData_3D):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_3D; got type={type(vdata_3d)}.",
         )
     _fdata_types.ensure_fdata_metadata(
@@ -148,8 +149,8 @@ def ensure_3d_r2tdata(
     param_name: str = "<r2tdata_3d>",
 ) -> None:
     """Ensure `r2tdata_3d` is Rank2TensorData_3D with 3x3 components in 3D."""
-    if not isinstance(r2tdata_3d, Rank2TensorData_3D):
-        raise TypeError(
+    if not isinstance(r2tdata_3d, Rank2TensorData_3D):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be Rank2TensorData_3D; got type={type(r2tdata_3d)}.",
         )
     _fdata_types.ensure_fdata_metadata(
@@ -167,7 +168,7 @@ def ensure_3d_r2tdata(
 
 
 def ensure_3d_sarray(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     *,
     param_name: str = "<sarray_3d>",
 ) -> None:
@@ -180,7 +181,7 @@ def ensure_3d_sarray(
 
 
 def ensure_3d_varray(
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     *,
     param_name: str = "<varray_3d>",
 ) -> None:
@@ -199,7 +200,7 @@ def ensure_3d_varray(
 
 
 def ensure_3d_r2tarray(
-    r2tarray_3d: numpy.ndarray,
+    r2tarray_3d: NDArray[Any],
     *,
     param_name: str = "<r2tarray_3d>",
 ) -> None:
@@ -226,7 +227,7 @@ def extract_3d_sarray(
     sdata_3d: ScalarFieldData_3D,
     *,
     param_name: str = "<sdata_3d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Normalise `sdata_3d` to a 3D scalar ndarray and validate its structure."""
     ensure_3d_sdata(
         sdata_3d=sdata_3d,
@@ -244,7 +245,7 @@ def extract_3d_varray(
     vdata_3d: VectorFieldData_3D,
     *,
     param_name: str = "<vdata_3d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Normalise `vdata_3d` to a 3D vector ndarray and validate its structure."""
     ensure_3d_vdata(
         vdata_3d=vdata_3d,
@@ -262,7 +263,7 @@ def extract_3d_r2tarray(
     r2tdata_3d: Rank2TensorData_3D,
     *,
     param_name: str = "<r2tdata_3d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Normalise `r2tdata_3d` to a 3D rank-2 tensor ndarray and validate its structure."""
     ensure_3d_r2tdata(
         r2tdata_3d=r2tdata_3d,

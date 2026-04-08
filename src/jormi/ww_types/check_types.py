@@ -5,10 +5,11 @@
 ##
 
 ## stdlib
-from typing import get_args
+from typing import Any, cast, get_args
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ##
 ## === TYPE DEFINITIONS
@@ -44,7 +45,7 @@ class TypeHints:
 
 
 def _as_runtime_type(
-    type_hint,
+    type_hint: Any,
 ) -> tuple[type, ...]:
     """
     Convert a type-hint alias (possibly a union) into a tuple of runtime
@@ -92,17 +93,17 @@ class RuntimeTypes:
 
 
 def as_tuple(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
-) -> tuple:
+) -> tuple[Any, ...]:
     """Return `param` as a tuple."""
     if param is None:
         raise ValueError(f"`{param_name}` must not be None.")
     if isinstance(param, tuple):
-        return param
+        return cast(tuple[Any, ...], param)
     if isinstance(param, list):
-        return tuple(param)
+        return tuple(cast(list[Any], param))
     return (param, )
 
 
@@ -112,17 +113,17 @@ def _types_to_tuple(
     """Canonicalize a type or sequence of types to a (type, ...) tuple."""
     if isinstance(valid_types, type):
         return (valid_types, )
-    if isinstance(valid_types, (tuple, list)):
+    if isinstance(valid_types, (tuple, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if not valid_types:
             raise ValueError("Empty type specification.")
-        if not all(isinstance(valid_type, type) for valid_type in valid_types):
+        if not all(isinstance(valid_type, type) for valid_type in valid_types):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("`valid_types` entries must be valid Python types.")
         return tuple(valid_types)
-    raise TypeError("`valid_types` must be a type or a tuple/list of types.")
+    raise TypeError("`valid_types` must be a type or a tuple/list of types.")  # pyright: ignore[reportUnreachable]
 
 
 def ensure_type(
-    param,
+    param: object,
     *,
     valid_types: type | tuple[type, ...] | list[type],
     param_name: str = "<param>",
@@ -140,7 +141,7 @@ def ensure_type(
 
 
 def ensure_not_none(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -174,7 +175,7 @@ def _preview_indices(
 
 
 def ensure_string(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -204,7 +205,7 @@ def ensure_nonempty_string(
 
 
 def ensure_char(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -217,9 +218,9 @@ def ensure_char(
         param_name=param_name,
         allow_none=False,
     )
-    if len(param) != 1:
+    if len(cast(str, param)) != 1:
         raise ValueError(
-            f"`{param_name}` must be a single-character string, got length {len(param)}.",
+            f"`{param_name}` must be a single-character string, got length {len(cast(str, param))}.",
         )
 
 
@@ -229,7 +230,7 @@ def ensure_char(
 
 
 def ensure_bool(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -244,7 +245,7 @@ def ensure_bool(
 
 
 def ensure_true(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -259,7 +260,7 @@ def ensure_true(
 
 
 def ensure_false(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -274,7 +275,7 @@ def ensure_false(
 
 
 def ensure_not_bool(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -289,7 +290,7 @@ def ensure_not_bool(
 
 
 def ensure_numeric(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -310,7 +311,7 @@ def ensure_numeric(
 
 
 def ensure_finite_numeric(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     valid_types: tuple[type, ...],
@@ -340,16 +341,17 @@ def ensure_finite_numeric(
         raise TypeError(
             f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.",
         )
-    if not numpy.isfinite(param):
+    _numeric = cast(float | int, param)
+    if not numpy.isfinite(_numeric):
         raise ValueError(f"`{param_name}` must be finite, got {param}.")
-    if not (param >= 0) and (require_positive and allow_zero):
+    if not (_numeric >= 0) and (require_positive and allow_zero):
         raise ValueError(f"`{param_name}` must be non-negative (>= 0), got {param}.")
-    if not (param > 0) and (require_positive and not allow_zero):
+    if not (_numeric > 0) and (require_positive and not allow_zero):
         raise ValueError(f"`{param_name}` must be positive (> 0), got {param}.")
 
 
 def ensure_finite_float(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -368,7 +370,7 @@ def ensure_finite_float(
 
 
 def ensure_finite_int(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -387,7 +389,7 @@ def ensure_finite_int(
 
 
 def ensure_finite_scalar(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -406,7 +408,7 @@ def ensure_finite_scalar(
 
 
 def ensure_in_bounds(
-    param,
+    param: object,
     *,
     min_value: float,
     max_value: float,
@@ -421,7 +423,8 @@ def ensure_in_bounds(
         param_name=param_name,
         allow_none=False,
     )
-    if not (float(min_value) <= float(param) <= float(max_value)):
+    _param_f = cast(float, param)
+    if not (float(min_value) <= float(_param_f) <= float(max_value)):
         raise ValueError(f"`{param_name}` must lie in [{min_value}, {max_value}], got {param}.")
 
 
@@ -431,7 +434,7 @@ def ensure_in_bounds(
 
 
 def ensure_container(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -451,7 +454,7 @@ def ensure_container(
 
 
 def ensure_sequence(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -467,14 +470,15 @@ def ensure_sequence(
     if not isinstance(param, valid_seq_types):
         valid_container_string = ", ".join(valid_container.__name__ for valid_container in valid_seq_types)
         raise TypeError(f"`{param_name}` must be one of ({valid_container_string}).")
+    _param_seq = cast(list[Any] | tuple[Any, ...], param)
     ## enforce number of elements
-    if (seq_length is not None) and (len(param) != seq_length):
-        raise ValueError(f"`{param_name}` must have length {seq_length}, got {len(param)}.")
+    if (seq_length is not None) and (len(_param_seq) != seq_length):
+        raise ValueError(f"`{param_name}` must have length {seq_length}, got {len(_param_seq)}.")
     ## enforce uniform element types
     if valid_elem_types is not None:
         valid_elem_types = _types_to_tuple(valid_elem_types)
         bad_indices = [
-            elem_index for elem_index, elem in enumerate(param) if not isinstance(elem, valid_elem_types)
+            elem_index for elem_index, elem in enumerate(_param_seq) if not isinstance(elem, valid_elem_types)
         ]
         if bad_indices:
             valid_elem_types_string = ", ".join(valid_type.__name__ for valid_type in valid_elem_types)
@@ -486,7 +490,7 @@ def ensure_sequence(
 
 
 def ensure_nested_sequence(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     outer_length: int | None = None,
@@ -507,7 +511,7 @@ def ensure_nested_sequence(
         valid_seq_types=valid_outer_types,
         valid_elem_types=valid_inner_types,
     )
-    for outer_index, inner_seq in enumerate(param):
+    for outer_index, inner_seq in enumerate(cast(list[Any] | tuple[Any, ...], param)):
         ensure_sequence(
             param=inner_seq,
             param_name=f"{param_name}[{outer_index}]",
@@ -524,7 +528,7 @@ def ensure_nested_sequence(
 
 
 def ensure_flat_tuple(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -544,7 +548,8 @@ def ensure_flat_tuple(
     )
     invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(param) if isinstance(elem, invalid_elem_types)
+        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
+        if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)
@@ -555,7 +560,7 @@ def ensure_flat_tuple(
 
 
 def ensure_nested_tuple(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     outer_length: int | None = None,
@@ -581,7 +586,7 @@ def ensure_nested_tuple(
 
 
 def ensure_tuple_of_strings(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -599,7 +604,7 @@ def ensure_tuple_of_strings(
 
 
 def ensure_tuple_of_numbers(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -617,7 +622,7 @@ def ensure_tuple_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(param)
+        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
         if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:
@@ -629,7 +634,7 @@ def ensure_tuple_of_numbers(
 
 
 def ensure_ordered_pair(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -646,7 +651,8 @@ def ensure_ordered_pair(
         seq_length=2,
         allow_none=False,
     )
-    min_value, max_value = float(param[0]), float(param[1])
+    _param_t = cast(tuple[Any, ...], param)
+    min_value, max_value = float(_param_t[0]), float(_param_t[1])
     if strict_ordering:
         if not (min_value < max_value):
             raise ValueError(f"`{param_name}` must satisfy [0] < [1] (strict), got {param}.")
@@ -656,7 +662,7 @@ def ensure_ordered_pair(
 
 
 def ensure_tuple_of_floats(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -674,7 +680,7 @@ def ensure_tuple_of_floats(
 
 
 def ensure_tuple_of_ints(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -692,7 +698,7 @@ def ensure_tuple_of_ints(
 
 
 def ensure_tuple_of_bools(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -715,7 +721,7 @@ def ensure_tuple_of_bools(
 
 
 def ensure_flat_list(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -735,7 +741,8 @@ def ensure_flat_list(
     )
     invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(param) if isinstance(elem, invalid_elem_types)
+        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
+        if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)
@@ -746,7 +753,7 @@ def ensure_flat_list(
 
 
 def ensure_list_of_strings(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -764,7 +771,7 @@ def ensure_list_of_strings(
 
 
 def ensure_list_of_numbers(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -782,7 +789,7 @@ def ensure_list_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(param)
+        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
         if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:
@@ -794,7 +801,7 @@ def ensure_list_of_numbers(
 
 
 def ensure_list_of_floats(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -812,7 +819,7 @@ def ensure_list_of_floats(
 
 
 def ensure_list_of_ints(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -830,7 +837,7 @@ def ensure_list_of_ints(
 
 
 def ensure_list_of_bools(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     seq_length: int | None = None,
@@ -853,7 +860,7 @@ def ensure_list_of_bools(
 
 
 def ensure_dict(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -873,7 +880,7 @@ def ensure_dict(
 
 
 def ensure_ndarray(
-    param,
+    param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
@@ -888,7 +895,7 @@ def ensure_ndarray(
 
 
 def ensure_ndarray_ndim(
-    param,
+    param: object,
     *,
     ndim: int,
     param_name: str = "<param>",
@@ -904,8 +911,8 @@ def ensure_ndarray_ndim(
         param_name=param_name,
         allow_none=False,
     )
-    if param.ndim != ndim:
-        raise ValueError(f"`{param_name}` must have ndim={ndim}, got {param.ndim}.")
+    if cast(NDArray[Any], param).ndim != ndim:
+        raise ValueError(f"`{param_name}` must have ndim={ndim}, got {cast(NDArray[Any], param).ndim}.")
 
 
 ## } MODULE

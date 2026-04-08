@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ##
 ## === FUNCTIONS
@@ -13,9 +15,9 @@ import numpy
 
 
 def _apply_2d_convolution(
-    data: numpy.ndarray,
-    smoothing_kernel: numpy.ndarray,
-) -> numpy.ndarray:
+    data: NDArray[Any],
+    smoothing_kernel: NDArray[Any],
+) -> NDArray[Any]:
     num_kernel_rows, num_kernel_cols = smoothing_kernel.shape
     num_pad_rows = num_kernel_rows // 2
     num_pad_cols = num_kernel_cols // 2
@@ -39,7 +41,7 @@ def _apply_2d_convolution(
 def _define_2d_gaussian_kernel(
     size: int,
     sigma: float,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     x_values = numpy.linspace(-(size // 2), size // 2, size)
     y_values = numpy.linspace(-(size // 2), size // 2, size)
     grid_x, grid_y = numpy.meshgrid(x_values, y_values)
@@ -49,9 +51,9 @@ def _define_2d_gaussian_kernel(
 
 
 def smooth_2d_array(
-    data: numpy.ndarray,
+    data: NDArray[Any],
     sigma: float,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     kernel_size = int(6 * sigma) + 1
     smoothing_kernel = _define_2d_gaussian_kernel(kernel_size, sigma)
     smoothed_data = _apply_2d_convolution(data, smoothing_kernel)

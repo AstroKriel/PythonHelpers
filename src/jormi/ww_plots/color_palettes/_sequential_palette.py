@@ -13,7 +13,13 @@ from dataclasses import dataclass
 import matplotlib.colors as mpl_colors
 
 ## local
-from jormi.ww_plots.color_palettes import _base_palette
+## import directly from the module file (not via the package __init__) to avoid a static import cycle
+from jormi.ww_plots.color_palettes._base_palette import (
+    ColorPalette,
+    validate_palette_range,
+    resolve_palette,
+    subset_palette,
+)
 from jormi.ww_types import check_types
 
 ##
@@ -22,7 +28,7 @@ from jormi.ww_types import check_types
 
 
 @dataclass(frozen=True, kw_only=True)
-class SequentialPalette(_base_palette.ColorPalette):
+class SequentialPalette(ColorPalette):
     """
     A continuous, single-direction color palette.
 
@@ -39,7 +45,7 @@ class SequentialPalette(_base_palette.ColorPalette):
             param=self.value_range,
             param_name="value_range",
         )
-        _base_palette.validate_palette_range(self.palette_range)
+        validate_palette_range(self.palette_range)
 
     @classmethod
     def from_name(
@@ -52,7 +58,7 @@ class SequentialPalette(_base_palette.ColorPalette):
         return cls(
             value_range=value_range,
             palette_range=palette_range,
-            _base_cmap=_base_palette.resolve_palette(palette_name),
+            _base_cmap=resolve_palette(palette_name),
         )
 
     @classmethod
@@ -89,7 +95,7 @@ class SequentialPalette(_base_palette.ColorPalette):
     def mpl_cmap(
         self,
     ) -> mpl_colors.Colormap:
-        return _base_palette.subset_palette(
+        return subset_palette(
             palette_cmap=self._base_cmap,
             palette_range=self.palette_range,
             palette_label="subset-sequential-cmap",

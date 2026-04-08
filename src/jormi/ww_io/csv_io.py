@@ -6,6 +6,7 @@
 
 ## stdlib
 import csv
+from typing import Any
 
 from pathlib import Path
 
@@ -36,7 +37,7 @@ def _ensure_path_is_valid(
 
 
 def _validate_input_dict(
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     """Validate that `input_dict` is a dict with string keys."""
     check_types.ensure_dict(
@@ -99,7 +100,7 @@ def read_csv_file_into_dict(
 
 def save_dict_to_csv_file(
     file_path: str | Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
     overwrite: bool = True,
     verbose: bool = True,
 ) -> None:
@@ -166,7 +167,7 @@ def save_dict_to_csv_file(
 
 def _write_csv(
     file_path: Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     dataset_shape = [len(column) for column in input_dict.values()]
     if len(set(dataset_shape)) != 1:
@@ -182,7 +183,7 @@ def _write_csv(
 
 def _update_csv(
     file_path: Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     existing_dataset = read_csv_file_into_dict(
         file_path=file_path,

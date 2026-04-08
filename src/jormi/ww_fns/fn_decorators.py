@@ -7,6 +7,7 @@
 ## stdlib
 import time
 import warnings
+from typing import Any, Callable
 
 ##
 ## === FUNCTION DECORATORS
@@ -14,8 +15,8 @@ import warnings
 
 
 def time_fn(
-    fn,
-):
+    fn: Callable[..., Any],
+) -> Callable[..., Any]:
     """Decorator to measure and log a function's execution time."""
 
     def wrapper(
@@ -41,8 +42,8 @@ class WarnIfUnused:
 
     def __init__(
         self,
-        result,
-        fn_name,
+        result: Any,
+        fn_name: str,
     ):
         self._result = result
         self._fn_name = fn_name
@@ -60,8 +61,8 @@ class WarnIfUnused:
 
     def __getattr__(
         self,
-        name,
-    ):
+        name: str,
+    ) -> Any:
         self._result_was_used = True
         return getattr(self._result, name)
 
@@ -81,8 +82,8 @@ class WarnIfUnused:
 
     def __eq__(
         self,
-        other,
-    ):
+        other: object,
+    ) -> bool:
         self._result_was_used = True
         if isinstance(other, WarnIfUnused):
             return self._result == other._result
@@ -90,8 +91,8 @@ class WarnIfUnused:
 
     def __ne__(
         self,
-        other,
-    ):
+        other: object,
+    ) -> bool:
         return not self.__eq__(other)
 
     def __hash__(
@@ -102,23 +103,30 @@ class WarnIfUnused:
 
     def __getitem__(
         self,
-        key,
-    ):
+        key: Any,
+    ) -> Any:
         self._result_was_used = True
         return self._result[key]
 
     def __setitem__(
         self,
-        key,
-        value,
-    ):
+        key: Any,
+        value: Any,
+    ) -> None:
         self._result_was_used = True
         self._result[key] = value
 
+    def unwrap(
+        self,
+    ) -> Any:
+        """Mark the result as used and return the underlying value."""
+        self._result_was_used = True
+        return self._result
+
 
 def warn_if_fn_result_is_unused(
-    fn,
-):
+    fn: Callable[..., Any],
+) -> Callable[..., Any]:
     """Decorator to warn when a non-None result is ignored by the caller."""
 
     def wrapper(

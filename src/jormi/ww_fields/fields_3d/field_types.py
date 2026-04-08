@@ -6,10 +6,11 @@
 
 ## stdlib
 from dataclasses import dataclass
-from typing import Self
+from typing import Any, Self
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import (
@@ -60,7 +61,7 @@ class ScalarField_3D(_field_types.Field):
     def from_3d_sarray(
         cls,
         *,
-        sarray_3d: numpy.ndarray,
+        sarray_3d: NDArray[Any],
         udomain_3d: domain_types.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
@@ -130,7 +131,7 @@ class VectorField_3D(_field_types.Field):
     def from_3d_varray(
         cls,
         *,
-        varray_3d: numpy.ndarray,
+        varray_3d: NDArray[Any],
         udomain_3d: domain_types.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
@@ -148,7 +149,7 @@ class VectorField_3D(_field_types.Field):
     def get_vcomp_3d_sarray(
         self,
         comp_axis: cartesian_axes.AxisLike_3D,
-    ) -> numpy.ndarray:
+    ) -> NDArray[Any]:
         """Return a (Nx, Ny, Nz) view of the requested component."""
         comp_index = cartesian_axes.get_axis_index(comp_axis)
         varray_3d = extract_3d_varray(
@@ -373,7 +374,7 @@ def extract_3d_sarray(
     sfield_3d: ScalarField_3D,
     *,
     param_name: str = "<sfield_3d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Validate and extract the underlying (Nx, Ny, Nz) ndarray from a 3D scalar field."""
     ensure_3d_sfield(
         sfield_3d=sfield_3d,
@@ -389,7 +390,7 @@ def extract_3d_varray(
     vfield_3d: VectorField_3D,
     *,
     param_name: str = "<vfield_3d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Validate and extract the underlying (3, Nx, Ny, Nz) ndarray from a 3D vector field."""
     ensure_3d_vfield(
         vfield_3d=vfield_3d,

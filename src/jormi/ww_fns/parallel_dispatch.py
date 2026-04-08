@@ -8,11 +8,12 @@
 import multiprocessing
 import os
 
+from collections.abc import Iterable
 from concurrent.futures import TimeoutError
 from typing import (
     Any,
     Callable,
-    Iterable,
+    cast,
 )
 
 ## third-party
@@ -40,7 +41,7 @@ def _normalise_grouped_args(
     _grouped_args: list[list[Any]] = []
     for args in grouped_args:
         if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
-            _grouped_args.append(list(args))
+            _grouped_args.append(list(cast(list[Any] | tuple[Any, ...], args)))
         else:
             _grouped_args.append([args])
     return _grouped_args
@@ -50,7 +51,8 @@ def _enable_plotting(
     theme: str = "light",
     use_tex: bool = True,
 ) -> None:
-    import os, tempfile
+    import os
+    import tempfile
     os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mpl_cfg_"))
     os.environ.setdefault("TEXMFOUTPUT", tempfile.mkdtemp(prefix="mpl_tex_"))
     import matplotlib
@@ -98,23 +100,21 @@ def run_in_parallel(
     task_results: list[Any] = [None] * len(grouped_args)
     failed_tasks: list[tuple[int, str]] = []
     with ProcessPool(max_workers=num_workers) as pool:
-        tasks = []
+        tasks: list[tuple[int, Any]] = []
         for task_index, task_args in enumerate(grouped_args):
             if enable_plotting:
-                task = pool.schedule(
-                    _invoke_with_plotting,
+                task: Any = pool.schedule(                    _invoke_with_plotting,
                     args=[worker_fn, task_args],
-                    timeout=timeout_seconds, # type: ignore[arg-type]
+                    timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                     kwargs={
                         "theme": theme,
                         "use_tex": use_tex,
                     },
                 )
             else:
-                task = pool.schedule(
-                    function=worker_fn,
+                task = pool.schedule(                    function=worker_fn,
                     args=task_args,
-                    timeout=timeout_seconds,  # type: ignore[arg-type]
+                    timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                 )
             tasks.append((task_index, task))
         iterator = tqdm(tasks, total=len(tasks), desc="Processing", unit="tasks") if show_progress else tasks

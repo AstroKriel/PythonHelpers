@@ -22,7 +22,6 @@ from typing import (
 
 ## third-party
 import numpy
-
 from matplotlib import pyplot as mpl_plot
 from matplotlib import rcParams
 from matplotlib.axes import Axes as mpl_Axes
@@ -84,8 +83,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxis]:
-    ...
+) -> tuple[mpl_Figure, PlotAxis]: ...
 
 
 @overload
@@ -101,8 +99,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxesGrid]:
-    ...
+) -> tuple[mpl_Figure, PlotAxesGrid]: ...
 
 
 def create_figure(
@@ -299,7 +296,7 @@ def compute_adjacent_ax_bounds(
                 y_width=y_width,
             )
     else:
-        raise ValueError(f"Unexpected side: {side!r}")  # type: ignore[unreachable]
+        raise ValueError(f"Unexpected side: {side!r}")  # pyright: ignore[reportUnreachable]
 
 
 def add_inset_axis(
@@ -322,13 +319,13 @@ def add_inset_axis(
             xlabel=x_label,
             fontsize=fontsize,
         )
-        ax_inset.xaxis.set_label_position(x_label_side.value)  # type: ignore[arg-type]
+        ax_inset.xaxis.set_label_position(x_label_side.value)  # pyright: ignore[reportArgumentType]
     if y_label is not None:
         ax_inset.set_ylabel(
             ylabel=y_label,
             fontsize=fontsize,
         )
-        ax_inset.yaxis.set_label_position(y_label_side.value)  # type: ignore[arg-type]
+        ax_inset.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
     ax_inset.tick_params(
         axis="x",
         labeltop=(x_label_side is box_positions.TypeHints.Box.Side.Top),
@@ -369,7 +366,9 @@ def save_figure(
         print(f"PermissionError: You do not have permission to save to: {fig_path}")
         print(f"Details: {exception}")
     except IOError as exception:
-        print(f"IOError: An error occurred while trying to save the figure to: {fig_path}")
+        print(
+            f"IOError: An error occurred while trying to save the figure to: {fig_path}"
+        )
         print(f"Details: {exception}")
     except Exception as exception:
         print(f"Unexpected error while saving the figure to {fig_path}: {exception}")

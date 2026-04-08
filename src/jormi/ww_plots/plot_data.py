@@ -5,10 +5,11 @@
 ##
 
 ## stdlib
-from typing import Literal
+from typing import Any, Literal, cast
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_plots import (
@@ -37,9 +38,9 @@ AxisBounds = tuple[
 
 
 def as_plot_view(
-    data_array: numpy.ndarray,
+    data_array: NDArray[Any],
     data_format: DataFormat,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Convert a 2D array to a plot-ready array[rows, cols], given its current indexing format.
         - `data_format="xy"`: array is currently indexed [x, y] -> transpose to [rows, cols]
@@ -50,8 +51,8 @@ def as_plot_view(
             return data_array.T
         case "ij":
             return data_array
-        case _:
-            raise ValueError(f"Data format `{data_format}` is not supported. Use 'xy' or 'ij'.")
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            raise ValueError(f"Data format `{data_format}` is not supported. Use 'xy' or 'ij'.")  # pyright: ignore[reportUnreachable]
 
 
 def _as_axis_extent(
@@ -93,7 +94,7 @@ def _as_axis_extent(
 
 
 def _get_value_range(
-    array_2d: numpy.ndarray,
+    array_2d: NDArray[Any],
     cbar_bounds: tuple[float, float] | None,
 ) -> tuple[float, float]:
     """
@@ -143,16 +144,18 @@ def _get_value_range(
 
 def plot_2d_array(
     ax: manage_plots.PlotAxis,
-    array_2d: numpy.ndarray,
+    array_2d: NDArray[Any],
     data_format: DataFormat,
     axis_aspect_ratio: Literal["equal", "auto"] = "equal",
     axis_bounds: AxisBounds | None = None,
     cbar_bounds: tuple[float, float] | None = None,
-    palette_config: add_color.PaletteConfig = add_color.SequentialConfig(),
+    palette_config: add_color.PaletteConfig | None = None,
     add_cbar: bool = True,
     cbar_label: str | None = None,
     cbar_side: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Side.Right,
 ):
+    if palette_config is None:
+        palette_config = add_color.SequentialConfig()
     add_color.ensure_continuous_config(palette_config)
     check_arrays.ensure_dims(
         array=array_2d,
@@ -196,7 +199,7 @@ def plot_2d_array(
 def _generate_grid(
     field_shape: tuple[int, int],
     axis_extent: tuple[float, float, float, float],
-) -> tuple[numpy.ndarray, numpy.ndarray]:
+) -> tuple[NDArray[Any], NDArray[Any]]:
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     num_rows, num_cols = field_shape
     coords_x = numpy.linspace(min_x_value, max_x_value, num_cols)
@@ -207,8 +210,8 @@ def _generate_grid(
 
 def plot_2d_quiver(
     ax: manage_plots.PlotAxis,
-    array_2d_rows: numpy.ndarray,
-    array_2d_cols: numpy.ndarray,
+    array_2d_rows: NDArray[Any],
+    array_2d_cols: NDArray[Any],
     axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
     num_quivers: int = 25,
     quiver_width: float = 5e-3,
@@ -232,7 +235,7 @@ def plot_2d_quiver(
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
     grid_x, grid_y = _generate_grid(
-        field_shape=array_2d_rows.shape,
+        field_shape=cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
     )
     quiver_step_rows = max(1, array_2d_rows.shape[0] // num_quivers)
@@ -253,8 +256,8 @@ def plot_2d_quiver(
 
 def plot_2d_streamlines(
     ax: manage_plots.PlotAxis,
-    array_2d_rows: numpy.ndarray,
-    array_2d_cols: numpy.ndarray,
+    array_2d_rows: NDArray[Any],
+    array_2d_cols: NDArray[Any],
     axis_bounds: AxisBounds = ((0.0, 1.0), (0.0, 1.0)),
     streamline_width: float = 1.0,
     streamline_density: float = 2.0,
@@ -279,7 +282,7 @@ def plot_2d_streamlines(
     if axis_extent is None:
         raise ValueError("`axis_bounds` must not be None.")
     grid_x, grid_y = _generate_grid(
-        field_shape=array_2d_rows.shape,
+        field_shape=cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
     )
     stream_obj = ax.streamplot(

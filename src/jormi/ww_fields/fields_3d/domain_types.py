@@ -10,10 +10,11 @@ from dataclasses import (
     field,
 )
 from functools import cached_property
-from typing import cast
+from typing import Any, cast
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _domain_types
@@ -76,9 +77,9 @@ class UniformDomain_3D(_domain_types.UniformDomain):
     @cached_property
     def cell_centers(
         self,
-    ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+    ) -> tuple[NDArray[Any], NDArray[Any], NDArray[Any]]:
         return cast(
-            tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray],
+            tuple[NDArray[Any], NDArray[Any], NDArray[Any]],
             super().cell_centers,
         )
 

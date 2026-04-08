@@ -6,9 +6,10 @@
 
 ## stdlib
 from dataclasses import dataclass
+from typing import Any
 
 ## third-party
-import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _fdata_types
@@ -68,8 +69,8 @@ def ensure_2d_sdata(
     param_name: str = "<sdata_2d>",
 ) -> None:
     """Ensure `sdata_2d` is ScalarFieldData_2D with 2D scalar layout."""
-    if not isinstance(sdata_2d, ScalarFieldData_2D):
-        raise TypeError(
+    if not isinstance(sdata_2d, ScalarFieldData_2D):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_2D; got type={type(sdata_2d)}.",
         )
     _fdata_types.ensure_fdata_metadata(
@@ -87,8 +88,8 @@ def ensure_2d_vdata(
     param_name: str = "<vdata_2d>",
 ) -> None:
     """Ensure `vdata_2d` is VectorFieldData_2D with 2 components in 2D."""
-    if not isinstance(vdata_2d, VectorFieldData_2D):
-        raise TypeError(
+    if not isinstance(vdata_2d, VectorFieldData_2D):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_2D; got type={type(vdata_2d)}.",
         )
     _fdata_types.ensure_fdata_metadata(
@@ -106,7 +107,7 @@ def ensure_2d_vdata(
 
 
 def ensure_2d_sarray(
-    sarray_2d: numpy.ndarray,
+    sarray_2d: NDArray[Any],
     *,
     param_name: str = "<sarray_2d>",
 ) -> None:
@@ -119,7 +120,7 @@ def ensure_2d_sarray(
 
 
 def ensure_2d_varray(
-    varray_2d: numpy.ndarray,
+    varray_2d: NDArray[Any],
     *,
     param_name: str = "<varray_2d>",
 ) -> None:
@@ -146,7 +147,7 @@ def extract_2d_sarray(
     sdata_2d: ScalarFieldData_2D,
     *,
     param_name: str = "<sdata_2d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Normalise `sdata_2d` to a 2D scalar ndarray and validate its structure."""
     ensure_2d_sdata(
         sdata_2d=sdata_2d,
@@ -164,7 +165,7 @@ def extract_2d_varray(
     vdata_2d: VectorFieldData_2D,
     *,
     param_name: str = "<vdata_2d>",
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Normalise `vdata_2d` to a 2D vector ndarray and validate its structure."""
     ensure_2d_vdata(
         vdata_2d=vdata_2d,

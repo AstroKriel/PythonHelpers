@@ -11,6 +11,8 @@ from dataclasses import dataclass
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi import ww_lists
@@ -28,7 +30,7 @@ from jormi.ww_types import (
 
 def check_zero_values(
     *,
-    array: numpy.ndarray,
+    array: NDArray[Any],
     param_name: str = "<array>",
     raise_error: bool = True,
 ) -> bool:
@@ -54,7 +56,7 @@ def check_zero_values(
 
 def check_nonfinite_values(
     *,
-    array: numpy.ndarray,
+    array: NDArray[Any],
     param_name: str = "<array>",
     check_nan: bool = True,
     check_posinf: bool = True,
@@ -93,7 +95,7 @@ def check_nonfinite_values(
 
 def make_nonfinites_zero(
     *,
-    array: numpy.ndarray,
+    array: NDArray[Any],
     zero_nan: bool = True,
     zero_posinf: bool = True,
     zero_neginf: bool = True,
@@ -122,7 +124,7 @@ def suppress_divide_warnings() -> numpy.errstate:
 
 
 def compute_rms(
-    array: numpy.ndarray,
+    array: NDArray[Any],
 ) -> float:
     """Compute the root-mean-square of a NumPy array."""
     return float(numpy.sqrt(numpy.mean(numpy.square(array))))
@@ -130,8 +132,8 @@ def compute_rms(
 
 def compute_p_norm(
     *,
-    array_a: numpy.ndarray | list[float],
-    array_b: numpy.ndarray | list[float],
+    array_a: NDArray[Any] | list[float],
+    array_b: NDArray[Any] | list[float],
     p_norm: float = 2,
     normalise_by_length: bool = False,
 ) -> float:
@@ -218,10 +220,10 @@ def compute_p_norm(
 
 def _create_uniformly_spaced_bin_centers(
     *,
-    values: numpy.ndarray,
+    values: NDArray[Any],
     num_bins: int,
     bin_range_percent: float = 1.0,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     ## validate and canonicalise input values and bin configuration
     values = check_arrays.as_1d(
         array_like=values,
@@ -251,8 +253,8 @@ def _create_uniformly_spaced_bin_centers(
 
 
 def _get_bin_edges_from_centers(
-    bin_centers: numpy.ndarray,
-) -> numpy.ndarray:
+    bin_centers: NDArray[Any],
+) -> NDArray[Any]:
     ## validate centers and ordering
     bin_centers = check_arrays.as_1d(
         array_like=bin_centers,
@@ -283,8 +285,8 @@ def _get_bin_edges_from_centers(
 
 def _ensure_correct_pdf_integral(
     *,
-    bin_centers: numpy.ndarray,
-    densities: numpy.ndarray,
+    bin_centers: NDArray[Any],
+    densities: NDArray[Any],
     param_name: str = "<EstimatedPDF>",
     relative_tol: float = 1e-6,
     absolute_tol: float = 1e-12,
@@ -327,9 +329,9 @@ def _ensure_correct_pdf_integral(
 
 def _ensure_correct_jpdf_integral(
     *,
-    row_centers: numpy.ndarray,
-    col_centers: numpy.ndarray,
-    densities: numpy.ndarray,
+    row_centers: NDArray[Any],
+    col_centers: NDArray[Any],
+    densities: NDArray[Any],
     param_name: str = "<EstimatedJPDF>",
     relative_tol: float = 1e-6,
     absolute_tol: float = 1e-12,
@@ -393,8 +395,8 @@ class EstimatedPDF:
         same length as `bin_centers`, and normalised so the integral equals 1.
     """
 
-    bin_centers: numpy.ndarray
-    densities: numpy.ndarray
+    bin_centers: NDArray[Any]
+    densities: NDArray[Any]
 
     def __post_init__(
         self,
@@ -432,7 +434,7 @@ class EstimatedPDF:
     @functools.cached_property
     def bin_edges(
         self,
-    ) -> numpy.ndarray:
+    ) -> NDArray[Any]:
         return _get_bin_edges_from_centers(self.bin_centers)
 
     @property
@@ -444,10 +446,10 @@ class EstimatedPDF:
 
 def estimate_pdf(
     *,
-    values: numpy.ndarray,
-    weights: numpy.ndarray | None = None,
+    values: NDArray[Any],
+    weights: NDArray[Any] | None = None,
     num_bins: int | None = None,
-    bin_centers: numpy.ndarray | None = None,
+    bin_centers: NDArray[Any] | None = None,
     bin_range_percent: float = 1.0,
     delta_threshold: float = 1e-5,
 ) -> EstimatedPDF:
@@ -610,9 +612,9 @@ class EstimatedJPDF:
         must be finite and normalised so the integral over bin areas equals 1.
     """
 
-    row_centers: numpy.ndarray
-    col_centers: numpy.ndarray
-    densities: numpy.ndarray
+    row_centers: NDArray[Any]
+    col_centers: NDArray[Any]
+    densities: NDArray[Any]
 
     def __post_init__(
         self,
@@ -663,13 +665,13 @@ class EstimatedJPDF:
     @functools.cached_property
     def row_edges(
         self,
-    ) -> numpy.ndarray:
+    ) -> NDArray[Any]:
         return _get_bin_edges_from_centers(self.row_centers)
 
     @functools.cached_property
     def col_edges(
         self,
-    ) -> numpy.ndarray:
+    ) -> NDArray[Any]:
         return _get_bin_edges_from_centers(self.col_centers)
 
     @property
@@ -684,11 +686,11 @@ class EstimatedJPDF:
 
 def estimate_jpdf(
     *,
-    data_x: numpy.ndarray,
-    data_y: numpy.ndarray,
-    data_weights: numpy.ndarray | None = None,
-    col_centers: numpy.ndarray | None = None,
-    row_centers: numpy.ndarray | None = None,
+    data_x: NDArray[Any],
+    data_y: NDArray[Any],
+    data_weights: NDArray[Any] | None = None,
+    col_centers: NDArray[Any] | None = None,
+    row_centers: NDArray[Any] | None = None,
     num_bins: int | None = None,
     bin_range_percent: float = 1.0,
     smoothing_length: float | None = None,

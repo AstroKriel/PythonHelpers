@@ -5,14 +5,13 @@
 ##
 
 ## stdlib
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import (
     Any,
-    Iterable,
     Literal,
-    Mapping,
 )
 
 ## third-party
@@ -231,7 +230,7 @@ def render_block(
         body_lines.append(Text(f"{row_prefix} {message.message}", style=message_style.colour))
     ## include notes as "— key : value" entries
     if message.message_notes:
-        if not isinstance(message.message_notes, dict):
+        if not isinstance(message.message_notes, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("Message.message_notes must be a dict[str, Any] if provided.")
         for key_label, value in message.message_notes.items():
             note_line = Text(f"{row_prefix} ", style=_Colours.GREY.value)

@@ -9,7 +9,11 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_io
-from . import _job_validation
+## import directly from the module file (not via the package __init__) to avoid a static import cycle
+from jormi.ww_jobs.pbs_manager._job_validation import (
+    QueueValidationError,
+    validate_job_params,
+)
 
 ##
 ## === FUNCTIONS
@@ -71,8 +75,8 @@ def create_pbs_job_script(
     wall_time_string = f"{wall_time_hours:02}:00:00"
     memory_limit = num_procs * 4
     try:
-        _job_validation.validate_job_params(system_name, queue_name, num_procs, wall_time_hours)
-    except _job_validation.QueueValidationError as e:
+        validate_job_params(system_name, queue_name, num_procs, wall_time_hours)
+    except QueueValidationError as e:
         raise ValueError(f"Invalid job parameters: {e}")
     mail_options = "a"  # notify on failure
     if email_on_start:

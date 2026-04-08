@@ -10,6 +10,9 @@ import json
 
 from pathlib import Path
 
+## stdlib (typing)
+from typing import Any
+
 ## third-party
 import numpy
 
@@ -45,7 +48,7 @@ def read_json_file_into_dict(
     file_path: str | Path,
     *,
     verbose: bool = True,
-):
+) -> dict[str, Any]:
     check_types.ensure_bool(
         param=verbose,
         param_name="verbose",
@@ -68,27 +71,26 @@ def read_json_file_into_dict(
 
 class NumpyEncoder(json.JSONEncoder):
 
-    def default(  # type: ignore
+    def default(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
-        param,
-    ):
+        param: Any,
+    ) -> Any:
         if isinstance(param, numpy.integer):
-            return int(param)
+            return int(param)  # pyright: ignore[reportUnknownArgumentType]
         elif isinstance(param, numpy.floating):
-            return float(param)
+            return float(param)  # pyright: ignore[reportUnknownArgumentType]
         elif isinstance(param, numpy.bool_):
             return bool(param)
         elif isinstance(param, numpy.ndarray):
             return param.tolist()
         elif isinstance(param, fn_decorators.WarnIfUnused):
-            param._result_was_used = True
-            return param._result
+            return param.unwrap()
         return super().default(param)
 
 
 def save_dict_to_json_file(
     file_path: str | Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
     *,
     overwrite: bool = False,
     verbose: bool = True,
@@ -146,7 +148,7 @@ def save_dict_to_json_file(
 
 def _dump_dict_to_json(
     file_path: str | Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     file_path = _ensure_path_is_valid(file_path)
     with open(file_path, "w", encoding="utf-8") as file_pointer:
@@ -161,7 +163,7 @@ def _dump_dict_to_json(
 
 def _create_json_file_from_dict(
     file_path: str | Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     """Create (or overwrite) a JSON file from `input_dict`."""
     _dump_dict_to_json(
@@ -172,7 +174,7 @@ def _create_json_file_from_dict(
 
 def _add_dict_to_json_file(
     file_path: str | Path,
-    input_dict: dict,
+    input_dict: dict[str, Any],
 ) -> None:
     """Merge `input_dict` into an existing JSON file."""
     old_dict = read_json_file_into_dict(

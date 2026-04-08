@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -23,8 +25,8 @@ from jormi.ww_types import (
 
 
 def _as_float_view(
-    farray: numpy.ndarray,
-) -> numpy.ndarray:
+    farray: NDArray[Any],
+) -> NDArray[Any]:
     """Promote from integers/low-precision to float64 for safe reductions."""
     check_arrays.ensure_array(
         array=farray,
@@ -64,7 +66,7 @@ def _validate_3d_cell_widths(
 
 
 def compute_sarray_rms(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
 ) -> float:
     """Compute the RMS of a 3D scalar array."""
     _fdata_types.ensure_3d_sarray(
@@ -77,7 +79,7 @@ def compute_sarray_rms(
 
 def compute_sarray_volume_integral(
     *,
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     cell_volume: float,
 ) -> float:
     """Compute the volume integral of a 3D scalar array."""
@@ -97,11 +99,11 @@ def compute_sarray_volume_integral(
 
 def compute_sarray_grad(
     *,
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    varray_3d_out: numpy.ndarray | None = None,
+    varray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Compute the gradient of a 3D scalar array.
 
@@ -148,7 +150,7 @@ def compute_sarray_grad(
 
 def scale_sarray_inplace(
     *,
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     scale: float,
 ) -> None:
     """Scale a 3D scalar array in-place by a scalar factor."""
@@ -160,7 +162,7 @@ def scale_sarray_inplace(
 
 
 def sqrt_sarray_inplace(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
 ) -> None:
     """Take the square-root of a 3D scalar array in-place."""
     _fdata_types.ensure_3d_sarray(
@@ -176,11 +178,11 @@ def sqrt_sarray_inplace(
 
 
 def sum_of_varray_comps_squared(
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     *,
-    sarray_3d_out: numpy.ndarray | None = None,
-    sarray_3d_tmp: numpy.ndarray | None = None,
-) -> numpy.ndarray:
+    sarray_3d_out: NDArray[Any] | None = None,
+    sarray_3d_tmp: NDArray[Any] | None = None,
+) -> NDArray[Any]:
     """
     Compute sum_i (v_i v_i) per cell for a 3D vector field.
 
@@ -213,11 +215,11 @@ def sum_of_varray_comps_squared(
 
 def dot_over_varray_comps(
     *,
-    varray_3d_a: numpy.ndarray,
-    varray_3d_b: numpy.ndarray,
-    sarray_3d_out: numpy.ndarray | None = None,
-    sarray_3d_tmp: numpy.ndarray | None = None,
-) -> numpy.ndarray:
+    varray_3d_a: NDArray[Any],
+    varray_3d_b: NDArray[Any],
+    sarray_3d_out: NDArray[Any] | None = None,
+    sarray_3d_tmp: NDArray[Any] | None = None,
+) -> NDArray[Any]:
     """
     Compute vec(a) dot vec(b) per cell for 3D vector fields.
 
@@ -260,11 +262,11 @@ def dot_over_varray_comps(
 
 def compute_varray_grad(
     *,
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_gradf: numpy.ndarray | None = None,
+    r2tarray_3d_gradf: NDArray[Any] | None = None,
     grad_order: int = 2,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Compute gradient of a 3D vector field.
 
@@ -316,11 +318,11 @@ def compute_varray_grad(
 
 def compute_varray_cross_product(
     *,
-    varray_3d_a: numpy.ndarray,
-    varray_3d_b: numpy.ndarray,
-    varray_3d_out: numpy.ndarray | None = None,
-    sarray_3d_tmp: numpy.ndarray | None = None,
-) -> numpy.ndarray:
+    varray_3d_a: NDArray[Any],
+    varray_3d_b: NDArray[Any],
+    varray_3d_out: NDArray[Any] | None = None,
+    sarray_3d_tmp: NDArray[Any] | None = None,
+) -> NDArray[Any]:
     """
     Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector fields.
 
@@ -369,11 +371,11 @@ def compute_varray_cross_product(
 
 def compute_varray_curl(
     *,
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    varray_3d_out: numpy.ndarray | None = None,
+    varray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Compute the curl epsilon_ijk d_j f_k of a 3D vector field.
 
@@ -444,11 +446,11 @@ def compute_varray_curl(
 
 def compute_varray_divergence(
     *,
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    sarray_3d_out: numpy.ndarray | None = None,
+    sarray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Compute the divergence d_i f_i of a 3D vector field.
 
@@ -502,10 +504,10 @@ def compute_varray_divergence(
 
 def compute_varray_magnitude(
     *,
-    varray_3d: numpy.ndarray,
-    sarray_3d_out: numpy.ndarray | None = None,
-    sarray_3d_tmp: numpy.ndarray | None = None,
-) -> numpy.ndarray:
+    varray_3d: NDArray[Any],
+    sarray_3d_out: NDArray[Any] | None = None,
+    sarray_3d_tmp: NDArray[Any] | None = None,
+) -> NDArray[Any]:
     """
     Compute |v| = sqrt(v_i v_i) per cell for a 3D vector field.
 
@@ -530,7 +532,7 @@ def compute_varray_magnitude(
 
 
 def ensure_uvarray_magnitude(
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     *,
     tol: float = 1e-6,
     param_name: str = "<varray_3d>",

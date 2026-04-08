@@ -6,10 +6,10 @@
 
 ## stdlib
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 ## third-party
-import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_types import (
@@ -21,7 +21,7 @@ from jormi.ww_types import (
 ## === TYPE ALIASES
 ##
 
-FieldArray: TypeAlias = numpy.ndarray
+FieldArray: TypeAlias = NDArray[Any]
 
 ##
 ## === DATA CLASSES
@@ -175,8 +175,8 @@ def ensure_fdata(
     param_name: str = "<fdata>",
 ) -> None:
     """Ensure `fdata` is a `FieldData` instance."""
-    if not isinstance(fdata, FieldData):
-        raise TypeError(
+    if not isinstance(fdata, FieldData):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be a `FieldData` instance; got type={type(fdata)}.",
         )
 

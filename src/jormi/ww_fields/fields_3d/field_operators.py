@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -50,7 +52,7 @@ def compute_sfield_volume_integral(
 def compute_sfield_gradient(
     *,
     sfield_3d: field_types.ScalarField_3D,
-    varray_3d_out: numpy.ndarray | None = None,
+    varray_3d_out: NDArray[Any] | None = None,
     field_label: str = "d_i f",
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
@@ -146,8 +148,8 @@ def compute_vfield_cross_product(
     *,
     vfield_3d_a: field_types.VectorField_3D,
     vfield_3d_b: field_types.VectorField_3D,
-    varray_3d_out: numpy.ndarray | None = None,
-    sarray_3d_tmp: numpy.ndarray | None = None,
+    varray_3d_out: NDArray[Any] | None = None,
+    sarray_3d_tmp: NDArray[Any] | None = None,
     field_label: str = "epsilon_ijk a_j b_k",
 ) -> field_types.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector field_types."""
@@ -182,7 +184,7 @@ def compute_vfield_cross_product(
 def compute_vfield_curl(
     vfield_3d: field_types.VectorField_3D,
     *,
-    varray_3d_out: numpy.ndarray | None = None,
+    varray_3d_out: NDArray[Any] | None = None,
     field_label: str = "epsilon_ijk d_j f_k",
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
@@ -216,7 +218,7 @@ def compute_vfield_curl(
 def compute_vfield_divergence(
     vfield_3d: field_types.VectorField_3D,
     *,
-    sarray_3d_out: numpy.ndarray | None = None,
+    sarray_3d_out: NDArray[Any] | None = None,
     field_label: str = "d_i f_i",
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:

@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -81,10 +83,10 @@ def compute_total_magnetic_energy_value(
 
 def _compute_kinetic_dissipation_varray(
     *,
-    varray_3d_u: numpy.ndarray,
+    varray_3d_u: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Compute d_j S_ji for a 3D velocity varray u_j, where
 

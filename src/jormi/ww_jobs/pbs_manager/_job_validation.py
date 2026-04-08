@@ -1,3 +1,5 @@
+from typing import Any
+
 ## { MODULE
 
 ##
@@ -74,7 +76,7 @@ def validate_job_params(
 def _get_queue_config(
     system_name: str,
     queue_name: str,
-) -> dict:
+) -> dict[str, Any]:
     """Extract relevant system-queue constraints."""
     system_config = _QUEUE_CONFIGS.get(system_name)
     if system_config is None:
@@ -90,7 +92,7 @@ def _get_queue_config(
 def _validate_cpu_rules(
     queue_name: str,
     num_procs: int,
-    queue_config: dict,
+    queue_config: dict[str, Any],
 ) -> None:
     cpus_per_node = queue_config.get("cpus_per_node")
     if cpus_per_node is None:
@@ -106,7 +108,7 @@ def _validate_cpu_rules(
 def _validate_cpu_limit(
     queue_name: str,
     num_procs: int,
-    queue_config: dict,
+    queue_config: dict[str, Any],
 ) -> None:
     max_cpus = queue_config.get("max_cpus")
     if (max_cpus is not None) and (num_procs > max_cpus):
@@ -119,7 +121,7 @@ def _validate_wall_time_rules(
     queue_name: str,
     num_procs: int,
     wall_time_hours: int,
-    queue_config: dict,
+    queue_config: dict[str, Any],
 ) -> None:
     wall_time_limits = queue_config.get("wall_time_limits")
     if wall_time_limits:

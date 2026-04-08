@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 
 ## local
@@ -23,7 +25,7 @@ from jormi.ww_types import (
 
 def interpolate_1d(
     data_series: DataSeries,
-    x_interp: numpy.ndarray,
+    x_interp: NDArray[Any],
     spline_order: int = 3,
 ) -> DataSeries:
     """

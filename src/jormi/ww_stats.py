@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
+from typing import Any
 
 from scipy.special import erfinv as scipy_erfinv
 
@@ -22,8 +24,8 @@ def sample_gaussian_distribution_from_quantiles(
     q2: float,
     p1: float,
     p2: float,
-    num_samples=10**3,
-) -> numpy.ndarray:
+    num_samples: int = 10**3,
+) -> NDArray[Any]:
     """
     Sample a normal distribution where the quantile-levels 0 < q1 < q2 < 1 corresponds with
     probability-values 0 < p1 < p2 < 1.

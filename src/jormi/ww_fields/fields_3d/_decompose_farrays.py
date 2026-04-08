@@ -9,6 +9,8 @@ from dataclasses import dataclass
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -27,9 +29,9 @@ from jormi.ww_types import check_types
 class HelmholtzDecomposedFArrays_3D:
     """Helmholtz decomposition of a 3D vector farray into div/sol/bulk components."""
 
-    varray_3d_div: numpy.ndarray
-    varray_3d_sol: numpy.ndarray
-    varray_3d_bulk: numpy.ndarray
+    varray_3d_div: NDArray[Any]
+    varray_3d_sol: NDArray[Any]
+    varray_3d_bulk: NDArray[Any]
 
     def __post_init__(
         self,
@@ -60,7 +62,7 @@ class HelmholtzDecomposedFArrays_3D:
 
 def compute_helmholtz_decomposed_farrays(
     *,
-    varray_3d_q: numpy.ndarray,
+    varray_3d_q: NDArray[Any],
     resolution: tuple[int, int, int],
     cell_widths_3d: tuple[float, float, float],
 ) -> HelmholtzDecomposedFArrays_3D:
@@ -181,10 +183,10 @@ def compute_helmholtz_decomposed_farrays(
 class TNBDecomposedFArrays_3D:
     """TNB decomposition of a 3D vector farray into unit bases and curvature."""
 
-    uvarray_3d_tangent: numpy.ndarray
-    uvarray_3d_normal: numpy.ndarray
-    uvarray_3d_binormal: numpy.ndarray
-    sarray_3d_curvature: numpy.ndarray
+    uvarray_3d_tangent: NDArray[Any]
+    uvarray_3d_normal: NDArray[Any]
+    uvarray_3d_binormal: NDArray[Any]
+    sarray_3d_curvature: NDArray[Any]
 
     def __post_init__(
         self,
@@ -225,7 +227,7 @@ class TNBDecomposedFArrays_3D:
 
 def compute_tnb_farrays(
     *,
-    varray_3d: numpy.ndarray,
+    varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> TNBDecomposedFArrays_3D:
@@ -341,9 +343,9 @@ def compute_tnb_farrays(
 class MagneticCurvatureFArrays_3D:
     """Curvature, stretching, and compression scalar farrays derived from a 3D velocity field."""
 
-    sarray_3d_curvature: numpy.ndarray
-    sarray_3d_stretching: numpy.ndarray
-    sarray_3d_compression: numpy.ndarray
+    sarray_3d_curvature: NDArray[Any]
+    sarray_3d_stretching: NDArray[Any]
+    sarray_3d_compression: NDArray[Any]
 
     def __post_init__(
         self,
@@ -374,11 +376,11 @@ class MagneticCurvatureFArrays_3D:
 
 def compute_magnetic_curvature_farrays(
     *,
-    varray_3d_u: numpy.ndarray,
-    uvarray_3d_tangent: numpy.ndarray,
-    uvarray_3d_normal: numpy.ndarray,
+    varray_3d_u: NDArray[Any],
+    uvarray_3d_tangent: NDArray[Any],
+    uvarray_3d_normal: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_gradu: numpy.ndarray | None = None,
+    r2tarray_3d_gradu: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> MagneticCurvatureFArrays_3D:
     """
@@ -463,9 +465,9 @@ def compute_magnetic_curvature_farrays(
 class LorentzForceFArrays_3D:
     """Lorentz force decomposition: total force, magnetic tension, and perpendicular pressure gradient farrays."""
 
-    varray_3d_lorentz: numpy.ndarray
-    varray_3d_tension: numpy.ndarray
-    varray_3d_gradP_perp: numpy.ndarray
+    varray_3d_lorentz: NDArray[Any]
+    varray_3d_tension: NDArray[Any]
+    varray_3d_gradP_perp: NDArray[Any]
 
     def __post_init__(
         self,
@@ -496,7 +498,7 @@ class LorentzForceFArrays_3D:
 
 def compute_lorentz_force_farrays(
     *,
-    varray_3d_b: numpy.ndarray,
+    varray_3d_b: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> LorentzForceFArrays_3D:

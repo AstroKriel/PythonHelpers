@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import _fdata_types
@@ -18,7 +20,7 @@ from jormi.ww_types import check_types
 
 def _validate_args(
     *,
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     cell_width: float,
     grad_axis: int,
     sarray_name: str,
@@ -69,11 +71,11 @@ def get_grad_fn(
 
 
 def second_order_centered_difference(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     *,
     cell_width: float,
     grad_axis: int,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Second-order centered finite difference on a 3D scalar array."""
     _validate_args(
         sarray_3d=sarray_3d,
@@ -97,11 +99,11 @@ def second_order_centered_difference(
 
 
 def fourth_order_centered_difference(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     *,
     cell_width: float,
     grad_axis: int,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Fourth-order centered finite difference on a 3D scalar array."""
     _validate_args(
         sarray_3d=sarray_3d,
@@ -135,11 +137,11 @@ def fourth_order_centered_difference(
 
 
 def sixth_order_centered_difference(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: NDArray[Any],
     *,
     cell_width: float,
     grad_axis: int,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Sixth-order centered finite difference on a 3D scalar array."""
     _validate_args(
         sarray_3d=sarray_3d,

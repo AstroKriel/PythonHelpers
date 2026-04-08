@@ -6,6 +6,8 @@
 
 ## third-party
 import numpy
+from typing import Any
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
@@ -23,7 +25,7 @@ def _generate_gaussian_random_3d_sarray(
     *,
     resolution: tuple[int, int, int],
     correlation_length: float,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Generate a 3D random scalar array with a Gaussian correlation length."""
     num_cells_x, num_cells_y, num_cells_z = resolution
     sarray_3d_white_noise = numpy.random.normal(
@@ -93,7 +95,7 @@ def _generate_powerlaw_random_3d_sarray(
     resolution: tuple[int, int, int],
     alpha_perp: float,
     alpha_para: float | None = None,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """
     Generate a 3D random scalar array with a power-law power spectrum.
 

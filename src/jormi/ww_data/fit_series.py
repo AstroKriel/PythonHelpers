@@ -7,10 +7,11 @@
 ## stdlib
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Callable
+from typing import Any, Callable
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 from scipy.optimize import curve_fit as scipy_curve_fit
 
 ## local
@@ -146,7 +147,7 @@ class Model:
     """A named model: function, parameter names, and an index lookup helper."""
 
     model_name: str
-    model_fn: Callable[..., numpy.ndarray]
+    model_fn: Callable[..., NDArray[Any]]
     param_names: tuple[str, ...]
 
     def index_of(
@@ -157,8 +158,8 @@ class Model:
 
     def create_fit_stats(
         self,
-        values_vector: list | numpy.ndarray,
-        sigmas_vector: list | numpy.ndarray | None = None,
+        values_vector: list[Any] | NDArray[Any],
+        sigmas_vector: list[Any] | NDArray[Any] | None = None,
     ) -> dict[str, FitStatistic]:
         values_array = check_arrays.as_1d(
             array_like=values_vector,
@@ -224,7 +225,7 @@ class FitSummary:
 
     model: Model
     fit_stats: dict[str, FitStatistic]
-    residual_array: numpy.ndarray
+    residual_array: NDArray[Any]
     num_points: int
     x_bounds: tuple[float, float]
     y_bounds: tuple[float, float]
@@ -279,8 +280,8 @@ class FitSummary:
 
     def evaluate_fit(
         self,
-        x_values: list | numpy.ndarray,
-    ) -> numpy.ndarray:
+        x_values: list[Any] | NDArray[Any],
+    ) -> NDArray[Any]:
         x_data_array = check_arrays.as_1d(
             array_like=x_values,
             check_finite=True,

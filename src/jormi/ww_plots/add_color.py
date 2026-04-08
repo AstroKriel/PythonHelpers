@@ -156,8 +156,8 @@ def _label_cbar(
                 labelpad=label_pad,
                 rotation=90,
             )
-            axis.set_label_position(cbar_side)  # type: ignore[arg-type]
-        axis.set_ticks_position(cbar_side)  # type: ignore[arg-type]
+            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
         axis.label.set_verticalalignment("center")
     elif cbar_side in (_Side.Top, _Side.Bottom):
         axis = cbar.ax.xaxis
@@ -167,10 +167,10 @@ def _label_cbar(
                 fontsize=label_size,
                 labelpad=label_pad,
             )
-            axis.set_label_position(cbar_side)  # type: ignore[arg-type]
-        axis.set_ticks_position(cbar_side)  # type: ignore[arg-type]
+            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
     else:
-        raise ValueError(f"Unexpected cbar_side: {cbar_side!r}")  # type: ignore[unreachable]
+        raise ValueError(f"Unexpected cbar_side: {cbar_side!r}")  # pyright: ignore[reportUnreachable]
 
 
 ##

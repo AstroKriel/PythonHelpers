@@ -14,7 +14,13 @@ import matplotlib.colors as mpl_colors
 import numpy
 
 ## local
-from jormi.ww_plots.color_palettes import _base_palette
+## import directly from the module file (not via the package __init__) to avoid a static import cycle
+from jormi.ww_plots.color_palettes._base_palette import (
+    ColorPalette,
+    validate_palette_range,
+    resolve_palette,
+    subset_palette,
+)
 from jormi.ww_types import check_types
 
 ##
@@ -23,7 +29,7 @@ from jormi.ww_types import check_types
 
 
 @dataclass(frozen=True, kw_only=True)
-class DiscretePalette(_base_palette.ColorPalette):
+class DiscretePalette(ColorPalette):
     """
     A discrete color palette defined by explicit bin edges.
 
@@ -49,7 +55,7 @@ class DiscretePalette(_base_palette.ColorPalette):
                     f" got bin_edges[{boundary_idx}]={self.bin_edges[boundary_idx]}"
                     f" >= bin_edges[{boundary_idx + 1}]={self.bin_edges[boundary_idx + 1]}.",
                 )
-        _base_palette.validate_palette_range(self.palette_range)
+        validate_palette_range(self.palette_range)
 
     @classmethod
     def from_name(
@@ -62,7 +68,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         return cls(
             bin_edges=bin_edges,
             palette_range=palette_range,
-            _base_cmap=_base_palette.resolve_palette(palette_name),
+            _base_cmap=resolve_palette(palette_name),
         )
 
     @classmethod
@@ -133,7 +139,7 @@ class DiscretePalette(_base_palette.ColorPalette):
         self,
     ) -> mpl_colors.ListedColormap:
         num_bins = len(self.bin_edges) - 1
-        continuous_cmap = _base_palette.subset_palette(
+        continuous_cmap = subset_palette(
             palette_cmap=self._base_cmap,
             palette_range=self.palette_range,
             palette_label="subset-discrete-cmap",
