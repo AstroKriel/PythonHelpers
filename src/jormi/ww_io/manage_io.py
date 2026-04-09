@@ -334,15 +334,15 @@ class ItemFilter:
 
     def _to_list(
         self,
-        value,
-    ):
+        value: str | list[str] | None,
+    ) -> list[str]:
         if value is None:
             return []
         if isinstance(value, str):
             return [value]
-        if isinstance(value, list):
+        if isinstance(value, list):  # pyright: ignore[reportUnnecessaryIsInstance]
             return value
-        raise ValueError("Expected a string or list of strings.")
+        raise ValueError("Expected a string or list of strings.")  # pyright: ignore[reportUnreachable]
 
     def _validate_inputs(
         self,
@@ -351,10 +351,11 @@ class ItemFilter:
             raise ValueError(
                 "At least one of `include_files` or `include_folders` must be enabled.",
             )
-        if not isinstance(self.min_value, (int, float)) or not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
-                self.max_value,
-            (int, float),
-        ):
+        if not isinstance(self.min_value,
+                          (int, float)) or not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+                              self.max_value,
+                              (int, float),
+                          ):
             raise TypeError("`min_value` and `max_value` must be numbers.")
         if self.min_value > self.max_value:
             raise ValueError("`min_value` cannot be greater than `max_value`.")

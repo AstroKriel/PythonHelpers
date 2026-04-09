@@ -313,6 +313,27 @@ class LinearFitSummary(FitSummary):
 
 
 ##
+## === MODEL FUNCTIONS
+##
+
+
+def _linear_model_fn(
+    x: NDArray[Any],
+    intercept: float,
+    slope: float,
+) -> NDArray[Any]:
+    return intercept + slope * x
+
+
+def _fixed_slope_model_fn(
+    x: NDArray[Any],
+    intercept: float,
+    _fixed_slope: float,
+) -> NDArray[Any]:
+    return intercept + _fixed_slope * x
+
+
+##
 ## === FIT FUNCTIONS
 ##
 
@@ -331,7 +352,7 @@ def fit_linear_model(
     linear_model = Model(
         model_name="linear",
         param_names=("intercept", "slope"),
-        model_fn=(lambda x_data_array, intercept, slope: intercept + slope * x_data_array),
+        model_fn=_linear_model_fn,
     )
     if gaussian_series.x_sigmas is not None:
         manage_log.log_hint(
@@ -389,7 +410,7 @@ def fit_line_with_fixed_slope(
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         param_names=("intercept", "slope"),
-        model_fn=(lambda x_data_array, intercept, _fixed_slope: intercept + _fixed_slope * x_data_array),
+        model_fn=_fixed_slope_model_fn,
     )
     weight_array = gaussian_series.y_weights()
     uses_absolute_sigma = gaussian_series.y_sigmas is not None

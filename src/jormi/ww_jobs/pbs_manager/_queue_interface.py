@@ -86,7 +86,8 @@ def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
         for line in result.stdout.splitlines():
             stripped = line.strip()
             if stripped.startswith("Job Id:"):
-                if job_id and job_tag: jobs.append((job_id, job_tag))
+                if job_id and job_tag:
+                    jobs.append((job_id, job_tag))
                 job_id = stripped.split("Job Id:")[-1].strip().split(".")[0]
                 job_tag = None  # reset
             elif "Job_Name =" in stripped:

@@ -112,7 +112,8 @@ def run_in_parallel(
                     },
                 )
             else:
-                task = pool.schedule(                    function=worker_fn,
+                task = pool.schedule(
+                    function=worker_fn,
                     args=task_args,
                     timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                 )

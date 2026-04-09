@@ -20,9 +20,9 @@ def time_fn(
     """Decorator to measure and log a function's execution time."""
 
     def wrapper(
-        *args,
-        **kwargs,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         start_time = time.time()
         try:
             result = fn(*args, **kwargs)
@@ -68,15 +68,15 @@ class WarnIfUnused:
 
     def __call__(
         self,
-        *args,
-        **kwargs,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         self._result_was_used = True
         return self._result(*args, **kwargs)
 
     def __repr__(
         self,
-    ):
+    ) -> str:
         self._result_was_used = True
         return repr(self._result)
 
@@ -97,7 +97,7 @@ class WarnIfUnused:
 
     def __hash__(
         self,
-    ):
+    ) -> int:
         self._result_was_used = True
         return hash(self._result)
 
@@ -130,9 +130,9 @@ def warn_if_fn_result_is_unused(
     """Decorator to warn when a non-None result is ignored by the caller."""
 
     def wrapper(
-        *args,
-        **kwargs,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         result = fn(*args, **kwargs)
         if result is not None:
             return WarnIfUnused(

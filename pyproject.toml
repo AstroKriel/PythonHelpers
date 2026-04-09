@@ -49,6 +49,7 @@ reportUnannotatedClassAttribute = "none" # flags class attributes without explic
 reportImplicitOverride = "none" # requires @override decorator on every overriding method; too verbose for this codebase
 reportUnknownMemberType = "none" # third-party stubs (matplotlib, numpy, scipy) use **kwargs: Unknown extensively; not actionable
 reportUnknownVariableType = "none" # cascade from third-party stubs returning Unknown types; not actionable
+reportUnknownArgumentType = "none" # cascade from third-party stubs; not actionable
 
 [dependency-groups]
 dev = [

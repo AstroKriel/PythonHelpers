@@ -90,10 +90,14 @@ class HalfMasks2D:
             num_rows=num_rows,
             num_cols=num_cols,
         )
-        if anchor_side is BoxSide.Top: return row_indices <= (num_rows - 1) // 2
-        if anchor_side is BoxSide.Left: return col_indices <= (num_cols - 1) // 2
-        if anchor_side is BoxSide.Right: return col_indices > (num_cols - 1) // 2
-        if anchor_side is BoxSide.Bottom: return row_indices > (num_rows - 1) // 2
+        if anchor_side is BoxSide.Top:
+            return row_indices <= (num_rows - 1) // 2
+        if anchor_side is BoxSide.Left:
+            return col_indices <= (num_cols - 1) // 2
+        if anchor_side is BoxSide.Right:
+            return col_indices > (num_cols - 1) // 2
+        if anchor_side is BoxSide.Bottom:
+            return row_indices > (num_rows - 1) // 2
         raise ValueError(
             f"HalfMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )
@@ -121,10 +125,14 @@ class QuadrantMasks2D:
         )
         mask_top = row_indices <= (num_rows - 1) // 2
         mask_left = col_indices <= (num_cols - 1) // 2
-        if anchor_corner is BoxCorner.TopLeft: return mask_top & mask_left
-        if anchor_corner is BoxCorner.TopRight: return mask_top & ~mask_left
-        if anchor_corner is BoxCorner.BottomLeft: return ~mask_top & mask_left
-        if anchor_corner is BoxCorner.BottomRight: return ~mask_top & ~mask_left
+        if anchor_corner is BoxCorner.TopLeft:
+            return mask_top & mask_left
+        if anchor_corner is BoxCorner.TopRight:
+            return mask_top & ~mask_left
+        if anchor_corner is BoxCorner.BottomLeft:
+            return ~mask_top & mask_left
+        if anchor_corner is BoxCorner.BottomRight:
+            return ~mask_top & ~mask_left
         raise ValueError(
             f"QuadrantMasks2D.get_mask: unrecognised Box Corner {anchor_corner!r}.",
         )
@@ -202,10 +210,14 @@ class WedgeMasks2D:
         is_below_main_diagonal = row_indices >= col_indices
         is_above_anti_diagonal = row_indices <= reflected_col_indices
         is_below_anti_diagonal = row_indices >= reflected_col_indices
-        if anchor_side is BoxSide.Top: return is_above_main_diagonal & is_above_anti_diagonal
-        if anchor_side is BoxSide.Left: return is_above_main_diagonal & is_below_anti_diagonal
-        if anchor_side is BoxSide.Right: return is_below_main_diagonal & is_above_anti_diagonal
-        if anchor_side is BoxSide.Bottom: return is_below_main_diagonal & is_below_anti_diagonal
+        if anchor_side is BoxSide.Top:
+            return is_above_main_diagonal & is_above_anti_diagonal
+        if anchor_side is BoxSide.Left:
+            return is_above_main_diagonal & is_below_anti_diagonal
+        if anchor_side is BoxSide.Right:
+            return is_below_main_diagonal & is_above_anti_diagonal
+        if anchor_side is BoxSide.Bottom:
+            return is_below_main_diagonal & is_below_anti_diagonal
         raise ValueError(
             f"WedgeMasks2D.get_mask: anchor must be a Box Side, got {anchor_side!r}.",
         )

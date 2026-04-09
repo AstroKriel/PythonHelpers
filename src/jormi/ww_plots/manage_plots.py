@@ -83,7 +83,8 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxis]: ...
+) -> tuple[mpl_Figure, PlotAxis]:
+    ...
 
 
 @overload
@@ -99,7 +100,8 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
-) -> tuple[mpl_Figure, PlotAxesGrid]: ...
+) -> tuple[mpl_Figure, PlotAxesGrid]:
+    ...
 
 
 def create_figure(
@@ -367,7 +369,7 @@ def save_figure(
         print(f"Details: {exception}")
     except IOError as exception:
         print(
-            f"IOError: An error occurred while trying to save the figure to: {fig_path}"
+            f"IOError: An error occurred while trying to save the figure to: {fig_path}",
         )
         print(f"Details: {exception}")
     except Exception as exception:

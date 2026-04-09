@@ -119,7 +119,9 @@ def _types_to_tuple(
         if not all(isinstance(valid_type, type) for valid_type in valid_types):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("`valid_types` entries must be valid Python types.")
         return tuple(valid_types)
-    raise TypeError("`valid_types` must be a type or a tuple/list of types.")  # pyright: ignore[reportUnreachable]
+    raise TypeError(
+        "`valid_types` must be a type or a tuple/list of types."
+    )  # pyright: ignore[reportUnreachable]
 
 
 def ensure_type(
@@ -478,7 +480,8 @@ def ensure_sequence(
     if valid_elem_types is not None:
         valid_elem_types = _types_to_tuple(valid_elem_types)
         bad_indices = [
-            elem_index for elem_index, elem in enumerate(_param_seq) if not isinstance(elem, valid_elem_types)
+            elem_index for elem_index, elem in enumerate(_param_seq)
+            if not isinstance(elem, valid_elem_types)
         ]
         if bad_indices:
             valid_elem_types_string = ", ".join(valid_type.__name__ for valid_type in valid_elem_types)

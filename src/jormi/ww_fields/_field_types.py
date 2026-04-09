@@ -7,9 +7,13 @@
 ## stdlib
 from dataclasses import dataclass
 from typing import (
+    Any,
     Callable,
     Self,
 )
+
+## third-party
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import (
@@ -96,13 +100,13 @@ class Field:
     def _from_farray(
         cls,
         *,
-        farray,
+        farray: NDArray[Any],
         udomain: _domain_types.UniformDomain,
         field_label: str,
         sim_time: float | None = None,
         fdata_fn: Callable[..., _fdata_types.FieldData],
         fdata_param_name: str = "<farray>",
-        **fdata_kwargs,
+        **fdata_kwargs: Any,
     ) -> Self:
         """
         Construct a Field (or subclass) from a raw data-array and a UniformDomain.

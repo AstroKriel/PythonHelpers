@@ -5,7 +5,6 @@
 ##
 
 ## third-party
-import numpy
 from typing import Any
 from numpy.typing import NDArray
 

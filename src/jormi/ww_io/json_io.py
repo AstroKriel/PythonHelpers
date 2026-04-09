@@ -76,9 +76,9 @@ class NumpyEncoder(json.JSONEncoder):
         param: Any,
     ) -> Any:
         if isinstance(param, numpy.integer):
-            return int(param)  # pyright: ignore[reportUnknownArgumentType]
+            return int(param)
         elif isinstance(param, numpy.floating):
-            return float(param)  # pyright: ignore[reportUnknownArgumentType]
+            return float(param)
         elif isinstance(param, numpy.bool_):
             return bool(param)
         elif isinstance(param, numpy.ndarray):

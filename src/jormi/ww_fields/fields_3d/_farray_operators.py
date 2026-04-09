@@ -36,7 +36,7 @@ def _as_float_view(
     return farray.astype(dtype, copy=False)
 
 
-def _validate_3d_cell_widths(
+def validate_3d_cell_widths(
     cell_widths_3d: tuple[float, float, float] | list[float],
     *,
     param_name: str = "<cell_widths_3d>",
@@ -113,7 +113,7 @@ def compute_sarray_grad(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
-    _validate_3d_cell_widths(cell_widths_3d)
+    validate_3d_cell_widths(cell_widths_3d)
     check_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -280,7 +280,7 @@ def compute_varray_grad(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    _validate_3d_cell_widths(cell_widths_3d)
+    validate_3d_cell_widths(cell_widths_3d)
     check_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -385,7 +385,7 @@ def compute_varray_curl(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    _validate_3d_cell_widths(cell_widths_3d)
+    validate_3d_cell_widths(cell_widths_3d)
     check_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -460,7 +460,7 @@ def compute_varray_divergence(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    _validate_3d_cell_widths(cell_widths_3d)
+    validate_3d_cell_widths(cell_widths_3d)
     check_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",

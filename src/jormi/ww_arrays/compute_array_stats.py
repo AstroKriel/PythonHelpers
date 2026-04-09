@@ -73,13 +73,16 @@ def check_nonfinite_values(
     troubled_findings: list[str] = []
     if check_nan:
         num_nans = int(numpy.count_nonzero(numpy.isnan(array)))
-        if num_nans > 0: troubled_findings.append(f"{num_nans} nan")
+        if num_nans > 0:
+            troubled_findings.append(f"{num_nans} nan")
     if check_posinf:
         num_posinf = int(numpy.count_nonzero(numpy.isposinf(array)))
-        if num_posinf > 0: troubled_findings.append(f"{num_posinf} +inf")
+        if num_posinf > 0:
+            troubled_findings.append(f"{num_posinf} +inf")
     if check_neginf:
         num_neginf = int(numpy.count_nonzero(numpy.isneginf(array)))
-        if num_neginf > 0: troubled_findings.append(f"{num_neginf} -inf")
+        if num_neginf > 0:
+            troubled_findings.append(f"{num_neginf} -inf")
     if not troubled_findings:
         return False
     msg = (
@@ -105,9 +108,12 @@ def make_nonfinites_zero(
 
     Each type is individually opt-in/out via `zero_nan`, `zero_posinf`, `zero_neginf`.
     """
-    if zero_nan: array[numpy.isnan(array)] = 0.0
-    if zero_posinf: array[numpy.isposinf(array)] = 0.0
-    if zero_neginf: array[numpy.isneginf(array)] = 0.0
+    if zero_nan:
+        array[numpy.isnan(array)] = 0.0
+    if zero_posinf:
+        array[numpy.isposinf(array)] = 0.0
+    if zero_neginf:
+        array[numpy.isneginf(array)] = 0.0
 
 
 def suppress_divide_warnings() -> numpy.errstate:

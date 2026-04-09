@@ -138,7 +138,7 @@ def as_axis(
         if axis == VALID_3D_AXIS_INDICES[2]:
             return CartesianAxis_3D.X2
         raise ValueError(
-            f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}."
+            f"`{param_name}` must be one of {VALID_3D_AXIS_INDICES}, got {axis!r}.",
         )
     return cast(
         CartesianAxis_3D,

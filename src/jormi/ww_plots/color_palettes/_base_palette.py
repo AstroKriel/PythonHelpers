@@ -19,7 +19,7 @@ import matplotlib.colors as mpl_colors
 import numpy
 
 ## side-effect import: registers cmasher colormaps with matplotlib
-import cmasher  # noqa: F401
+import cmasher  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
 ## local
 from jormi.ww_types import check_types

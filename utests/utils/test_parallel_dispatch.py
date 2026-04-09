@@ -46,7 +46,6 @@ def cpu_heavy_task(
     return total
 
 
-
 def sleepy_task(
     duration: float,
 ) -> None:
@@ -132,7 +131,6 @@ class Tests(unittest.TestCase):
             self.assertIn("Task 2 timed out", str(runtime_error))
             self.assertIn("Task 3 timed out", str(runtime_error))
             self.assertNotIn("Task 4 timed out", str(runtime_error))
-
 
     def test_parallel_correctness(self):
         num_values_per_block = 10
