@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import Any, Self
 
 ## third-party
-import numpy
 from numpy.typing import NDArray
 
 ## local

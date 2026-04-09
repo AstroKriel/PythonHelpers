@@ -13,7 +13,6 @@ from functools import cached_property
 from typing import Any, cast
 
 ## third-party
-import numpy
 from numpy.typing import NDArray
 
 ## local
