@@ -131,7 +131,9 @@ THEMES: Mapping[Theme, dict[str, object]] = {
 ##
 
 
-def _get_base_rc_params(use_tex: bool = True) -> dict[str, object]:
+def _get_base_rc_params(
+    use_tex: bool = True,
+) -> dict[str, object]:
     rc_params: dict[str, object] = {
         ## font
         "font.family": "serif",

@@ -28,6 +28,7 @@ class _VFieldEntry(TypedDict):
     label: str
     vfield: field_types.VectorField_3D
 
+
 ##
 ## === EXAMPLE VECTOR FIELDS
 ##
@@ -131,7 +132,9 @@ def generate_mixed_vfield(
 ##
 
 
-def _sfield_abs_median_std(sfield: field_types.ScalarField_3D) -> tuple[float, float]:
+def _sfield_abs_median_std(
+    sfield: field_types.ScalarField_3D,
+) -> tuple[float, float]:
     arr = numpy.abs(field_types.extract_3d_sarray(sfield))
     return float(numpy.median(arr)), float(numpy.std(arr))
 
@@ -249,12 +252,12 @@ def main():
         vfield = vfield_entry["vfield"]
         print(f"input: {vfield_name} field")
         ## decompose
-        decomp = decompose_fields.compute_helmholtz_decomposed_fields(
+        dfields = decompose_fields.compute_helmholtz_decomposed_fields(
             vfield_3d_q=vfield,
         )
-        vfield_3d_div = decomp.vfield_3d_div
-        vfield_3d_sol = decomp.vfield_3d_sol
-        vfield_3d_bulk = decomp.vfield_3d_bulk
+        vfield_3d_div = dfields.vfield_3d_div
+        vfield_3d_sol = dfields.vfield_3d_sol
+        vfield_3d_bulk = dfields.vfield_3d_bulk
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
         vfield_rec = field_types.VectorField_3D.from_3d_varray(
             varray_3d=(

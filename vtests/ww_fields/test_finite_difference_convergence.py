@@ -24,6 +24,7 @@ class _GradMethod(TypedDict):
     label: str
     color: str
 
+
 ##
 ## === HELPER FUNCTIONS
 ##
@@ -41,11 +42,15 @@ def sample_domain(
     )  # to ensure periodicity
 
 
-def evaluate_fntion_at_points(x_values: numpy.ndarray[Any, numpy.dtype[Any]]) -> numpy.ndarray[Any, numpy.dtype[Any]]:
+def evaluate_fntion_at_points(
+    x_values: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
 
 
-def evaluate_exact_fntion_derivative_at_points(x_values: numpy.ndarray[Any, numpy.dtype[Any]]) -> numpy.ndarray[Any, numpy.dtype[Any]]:
+def evaluate_exact_fntion_derivative_at_points(
+    x_values: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 

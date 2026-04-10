@@ -20,7 +20,9 @@ from jormi.ww_jobs.pbs_manager._job_validation import (
 ##
 
 
-def _ensure_path_is_valid(file_path: Path):
+def _ensure_path_is_valid(
+    file_path: Path,
+):
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".sh":
         raise ValueError(f"File should end with a .sh extension: {file_path}")

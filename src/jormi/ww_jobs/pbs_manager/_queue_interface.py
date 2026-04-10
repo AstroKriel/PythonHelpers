@@ -59,7 +59,9 @@ def is_job_already_in_queue(
     return job_tag in queued_job_tags
 
 
-def get_job_tag_from_pbs_script(file_path: str | Path) -> str | None:
+def get_job_tag_from_pbs_script(
+    file_path: str | Path,
+) -> str | None:
     """Gets the job name from a PBS job script."""
     file_path = Path(file_path)
     with file_path.open("r", encoding="utf-8") as file_pointer:

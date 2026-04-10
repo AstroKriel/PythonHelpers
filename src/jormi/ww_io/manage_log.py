@@ -210,7 +210,9 @@ def render_block(
 ) -> None:
     ## validate option
     if message_position not in ("top", "bottom"):
-        raise ValueError("render_block(message_position): expected 'top' or 'bottom'.")  # pyright: ignore[reportUnreachable]
+        raise ValueError(
+            "render_block(message_position): expected 'top' or 'bottom'."
+        )  # pyright: ignore[reportUnreachable]
     ## collect style and timestamp for this block
     message_style = message.style()
     timestamp_prefix = f"[{message.timestamp or get_timestamp()}]" if show_time else ""
@@ -268,7 +270,10 @@ def render_block(
 ##
 
 
-def log_empty_lines(*, lines: int = 1) -> None:
+def log_empty_lines(
+    *,
+    lines: int = 1,
+) -> None:
     render_blank(count=lines)
 
 
