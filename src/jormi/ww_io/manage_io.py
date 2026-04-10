@@ -351,11 +351,13 @@ class ItemFilter:
             raise ValueError(
                 "At least one of `include_files` or `include_folders` must be enabled.",
             )
-        if not isinstance(self.min_value,
-                          (int, float)) or not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
-                              self.max_value,
-                              (int, float),
-                          ):
+        if not isinstance(
+                self.min_value,
+            (int, float),
+        ) or not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+                self.max_value,
+            (int, float),
+        ):
             raise TypeError("`min_value` and `max_value` must be numbers.")
         if self.min_value > self.max_value:
             raise ValueError("`min_value` cannot be greater than `max_value`.")

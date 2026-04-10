@@ -91,7 +91,8 @@ def as_runtime_type(
         if not all(isinstance(arg, type) and issubclass(arg, Enum) for arg in args):
             raise TypeError(f"Non-Enum argument(s) in hint: {type_hint!r}")
         return tuple(args)
-    if isinstance(type_hint, type) and issubclass(type_hint, Enum):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if isinstance(type_hint, type) and issubclass(type_hint,
+                                                  Enum):  # pyright: ignore[reportUnnecessaryIsInstance]
         return (type_hint, )
     raise TypeError(f"Unsupported Enum type-hint: {type_hint!r}")
 
@@ -113,7 +114,8 @@ def ensure_sequence_of_enums(
     if not param:
         raise ValueError(f"`{param_name}` must be non-empty.")
     ## reject sequences containing non-Enum types
-    if not all(issubclass(enum_type, Enum) for enum_type in param):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if not all(issubclass(enum_type, Enum)
+               for enum_type in param):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise TypeError(f"All `{param_name}` entries must be Enum types.")
 
 
@@ -182,7 +184,8 @@ def ensure_member_in(
     )
     if not valid_members:
         raise ValueError("`valid_members` must be non-empty.")
-    if not all(isinstance(valid_member, Enum) for valid_member in valid_members):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if not all(isinstance(valid_member, Enum)
+               for valid_member in valid_members):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise TypeError("`valid_members` entries must be Enum members.")
     valid_enums = tuple({type(valid_member) for valid_member in valid_members})
     resolved_member = resolve_member(

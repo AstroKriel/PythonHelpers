@@ -53,7 +53,7 @@ def as_plot_view(
             return data_array
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             raise ValueError(
-                f"Data format `{data_format}` is not supported. Use 'xy' or 'ij'."
+                f"Data format `{data_format}` is not supported. Use 'xy' or 'ij'.",
             )  # pyright: ignore[reportUnreachable]
 
 

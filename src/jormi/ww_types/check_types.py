@@ -116,11 +116,12 @@ def _types_to_tuple(
     if isinstance(valid_types, (tuple, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if not valid_types:
             raise ValueError("Empty type specification.")
-        if not all(isinstance(valid_type, type) for valid_type in valid_types):  # pyright: ignore[reportUnnecessaryIsInstance]
+        if not all(isinstance(valid_type, type)
+                   for valid_type in valid_types):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("`valid_types` entries must be valid Python types.")
         return tuple(valid_types)
     raise TypeError(
-        "`valid_types` must be a type or a tuple/list of types."
+        "`valid_types` must be a type or a tuple/list of types.",
     )  # pyright: ignore[reportUnreachable]
 
 

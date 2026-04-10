@@ -23,7 +23,8 @@ from jormi.ww_fields.fields_3d import (
 
 def _make_3d_udomain(
     resolution: tuple[int, int, int] = (4, 4, 4),
-    domain_bounds: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
+    domain_bounds: tuple[tuple[float, float], tuple[float, float],
+                         tuple[float, float]] = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
 ) -> domain_types.UniformDomain_3D:
     return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
