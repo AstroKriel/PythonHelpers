@@ -22,7 +22,7 @@ from jormi.ww_types import check_arrays
 
 @dataclass(frozen=True, init=False)
 class ScalarFieldData_2D(_fdata_types.FieldData):
-    """2D scalar field data: ndarray of shape (Nx, Ny)."""
+    """2D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells)."""
 
     def __init__(
         self,
@@ -41,7 +41,7 @@ class ScalarFieldData_2D(_fdata_types.FieldData):
 
 @dataclass(frozen=True, init=False)
 class VectorFieldData_2D(_fdata_types.FieldData):
-    """2D vector field data: ndarray of shape (2, Nx, Ny)."""
+    """2D vector field data: ndarray of shape (2, num_x0_cells, num_x1_cells)."""
 
     def __init__(
         self,
@@ -111,7 +111,7 @@ def ensure_2d_sarray(
     *,
     param_name: str = "<sarray_2d>",
 ) -> None:
-    """Ensure `sarray_2d` is a 2D scalar ndarray with shape (Nx, Ny)."""
+    """Ensure `sarray_2d` is a 2D scalar ndarray with shape (num_x0_cells, num_x1_cells)."""
     check_arrays.ensure_dims(
         array=sarray_2d,
         param_name=param_name,

@@ -82,7 +82,7 @@ def _compute_3d_radial_k_magnitude(
     if not (num_cells_x == num_cells_y == num_cells_z):
         raise ValueError(
             "_compute_3d_radial_k_magnitude assumes a cubic grid:"
-            f" got num_cells_per_dim={num_cells_per_dim} (expected Nx=Ny=Nz).",
+            f" got num_cells_per_dim={num_cells_per_dim} (expected num_x0_cells=num_x1_cells=num_x2_cells).",
         )
     k_center = numpy.array(
         [num_cells // 2 for num_cells in num_cells_per_dim],
@@ -100,7 +100,7 @@ def _compute_3d_power_spectrum_sarray(
     sarray_3d_q: NDArray[Any],
     resolution_3d: tuple[int, int, int],
 ) -> NDArray[Any]:
-    """Compute the 3D power spectrum |F(k)|^2 of a scalar array (Nx, Ny, Nz)."""
+    """Compute the 3D power spectrum |F(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
     _fdata_types.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
@@ -121,7 +121,7 @@ def _compute_3d_power_spectrum_sarray(
     if not (num_cells_x == num_cells_y == num_cells_z):
         raise ValueError(
             "_compute_3d_power_spectrum_sarray assumes a cubic grid:"
-            f" got resolution_3d={resolution_3d} (expected Nx=Ny=Nz).",
+            f" got resolution_3d={resolution_3d} (expected num_x0_cells=num_x1_cells=num_x2_cells).",
         )
     sarray_3d_shifted_fft_q = numpy.fft.fftshift(
         numpy.fft.fftn(
@@ -160,7 +160,7 @@ def _integrate_spectrum_over_spherical_shells(
     if not (num_cells_x == num_cells_y == num_cells_z):
         raise ValueError(
             "_integrate_spectrum_over_spherical_shells assumes a cubic grid:"
-            f" got resolution_3d={resolution_3d} (expected Nx=Ny=Nz).",
+            f" got resolution_3d={resolution_3d} (expected num_x0_cells=num_x1_cells=num_x2_cells).",
         )
     num_modes = num_cells_x // 2
     k_bin_edges_1d = numpy.linspace(0.5, num_modes, num_modes + 1)

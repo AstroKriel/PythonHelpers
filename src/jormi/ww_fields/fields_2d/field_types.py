@@ -61,7 +61,7 @@ class ScalarField_2D(_field_types.Field):
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
-        """Construct a 2D scalar field from a (Nx, Ny) ndarray."""
+        """Construct a 2D scalar field from a (num_x0_cells, num_x1_cells) ndarray."""
         _fdata_types.ensure_2d_sarray(
             sarray_2d=sarray_2d,
             param_name="<sarray_2d>",
@@ -122,7 +122,7 @@ class VectorField_2D(_field_types.Field):
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
-        """Construct a 2D vector field from a (2, Nx, Ny) ndarray."""
+        """Construct a 2D vector field from a (2, num_x0_cells, num_x1_cells) ndarray."""
         _fdata_types.ensure_2d_varray(
             varray_2d=varray_2d,
             param_name="<varray_2d>",
@@ -217,7 +217,7 @@ def extract_2d_sarray(
     *,
     param_name: str = "<sfield_2d>",
 ) -> NDArray[Any]:
-    """Return the underlying (Nx, Ny) ndarray for a 2D scalar field."""
+    """Return the underlying (num_x0_cells, num_x1_cells) ndarray for a 2D scalar field."""
     ensure_2d_sfield(
         sfield_2d=sfield_2d,
         param_name=param_name,
@@ -230,7 +230,7 @@ def extract_2d_varray(
     *,
     param_name: str = "<vfield_2d>",
 ) -> NDArray[Any]:
-    """Return the underlying (2, Nx, Ny) ndarray for a 2D vector field."""
+    """Return the underlying (2, num_x0_cells, num_x1_cells) ndarray for a 2D vector field."""
     ensure_2d_vfield(
         vfield_2d=vfield_2d,
         param_name=param_name,

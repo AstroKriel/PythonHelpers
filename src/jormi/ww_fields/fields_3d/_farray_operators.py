@@ -107,7 +107,7 @@ def compute_sarray_grad(
     """
     Compute the gradient of a 3D scalar array.
 
-    Returns a 4D ndarray with shape (3, Nx, Ny, Nz).
+    Returns a 4D ndarray with shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_sarray(
         sarray_3d=sarray_3d,
@@ -129,7 +129,7 @@ def compute_sarray_grad(
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    ## fill d_i f vector: (gradient-dir-i, x, y, z)
+    ## fill d_i f vector: (gradient-dir-i, x0, x1, x2)
     varray_3d_gradf[0, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_x,
@@ -186,8 +186,8 @@ def sum_of_varray_comps_squared(
     """
     Compute sum_i (v_i v_i) per cell for a 3D vector field.
 
-    varray_3d has shape (3, Nx, Ny, Nz).
-    Returns a 3D ndarray with shape (Nx, Ny, Nz).
+    varray_3d has shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
+    Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -223,8 +223,8 @@ def dot_over_varray_comps(
     """
     Compute vec(a) dot vec(b) per cell for 3D vector fields.
 
-    Each input has shape (3, Nx, Ny, Nz).
-    Returns a 3D ndarray with shape (Nx, Ny, Nz).
+    Each input has shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
+    Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d_a,
@@ -270,10 +270,10 @@ def compute_varray_grad(
     """
     Compute gradient of a 3D vector field.
 
-    varray_3d has shape (3, Nx, Ny, Nz).
+    varray_3d has shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
 
     Returns:
-      - r2tarray_3d with shape (3, 3, Nx, Ny, Nz),
+      - r2tarray_3d with shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells),
         where grad[comp_j, grad_i, ...] = d_i v_j.
     """
     _fdata_types.ensure_3d_varray(
@@ -296,7 +296,7 @@ def compute_varray_grad(
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    ## fill d_i f_j tensor: (component-j, gradient-dir-i, x, y, z)
+    ## fill d_i f_j tensor: (component-j, gradient-dir-i, x0, x1, x2)
     for comp_j in range(3):
         r2tarray_3d_gradf[comp_j, 0, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
@@ -326,7 +326,7 @@ def compute_varray_cross_product(
     """
     Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector fields.
 
-    All arrays have shape (3, Nx, Ny, Nz).
+    All arrays have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d_a,
@@ -379,7 +379,7 @@ def compute_varray_curl(
     """
     Compute the curl epsilon_ijk d_j f_k of a 3D vector field.
 
-    varray_3d and varray_3d_out have shape (3, Nx, Ny, Nz).
+    varray_3d and varray_3d_out have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -454,7 +454,7 @@ def compute_varray_divergence(
     """
     Compute the divergence d_i f_i of a 3D vector field.
 
-    varray_3d has shape (3, Nx, Ny, Nz).
+    varray_3d has shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -511,7 +511,7 @@ def compute_varray_magnitude(
     """
     Compute |v| = sqrt(v_i v_i) per cell for a 3D vector field.
 
-    Returns a 3D ndarray with shape (Nx, Ny, Nz).
+    Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -538,7 +538,7 @@ def ensure_uvarray_magnitude(
     param_name: str = "<varray_3d>",
 ) -> None:
     """
-    Validate that every vector in a (3, Nx, Ny, Nz) array has unit magnitude.
+    Validate that every vector in a (3, num_x0_cells, num_x1_cells, num_x2_cells) array has unit magnitude.
 
     Raises ValueError if any element is non-finite, or if any magnitude deviates
     from 1.0 by more than `tol`.

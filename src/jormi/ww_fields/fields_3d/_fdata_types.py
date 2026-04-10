@@ -23,7 +23,7 @@ from jormi.ww_types import check_arrays
 
 @dataclass(frozen=True, init=False)
 class ScalarFieldData_3D(_fdata_types.FieldData):
-    """3D scalar field data: ndarray of shape (Nx, Ny, Nz)."""
+    """3D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
@@ -42,7 +42,7 @@ class ScalarFieldData_3D(_fdata_types.FieldData):
 
 @dataclass(frozen=True, init=False)
 class VectorFieldData_3D(_fdata_types.FieldData):
-    """3D vector field data: ndarray of shape (3, Nx, Ny, Nz)."""
+    """3D vector field data: ndarray of shape (3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
@@ -61,7 +61,7 @@ class VectorFieldData_3D(_fdata_types.FieldData):
 
 @dataclass(frozen=True, init=False)
 class Rank2TensorData_3D(_fdata_types.FieldData):
-    """3D rank-2 tensor data: ndarray of shape (3, 3, Nx, Ny, Nz)."""
+    """3D rank-2 tensor data: ndarray of shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
@@ -172,7 +172,7 @@ def ensure_3d_sarray(
     *,
     param_name: str = "<sarray_3d>",
 ) -> None:
-    """Ensure `sarray_3d` is a 3D scalar ndarray with shape (Nx, Ny, Nz)."""
+    """Ensure `sarray_3d` is a 3D scalar ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
     check_arrays.ensure_dims(
         array=sarray_3d,
         param_name=param_name,

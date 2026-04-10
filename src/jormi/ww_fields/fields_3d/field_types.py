@@ -65,7 +65,7 @@ class ScalarField_3D(_field_types.Field):
         field_label: str,
         sim_time: float | None = None,
     ) -> "ScalarField_3D":
-        """Construct a 3D scalar field directly from a (Nx, Ny, Nz) ndarray and a 3D UniformDomain."""
+        """Construct a 3D scalar field directly from a (num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=sarray_3d,
             udomain=udomain_3d,
@@ -135,7 +135,7 @@ class VectorField_3D(_field_types.Field):
         field_label: str,
         sim_time: float | None = None,
     ) -> "VectorField_3D":
-        """Construct a 3D vector field directly from a (3, Nx, Ny, Nz) ndarray and a 3D UniformDomain."""
+        """Construct a 3D vector field directly from a (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=varray_3d,
             udomain=udomain_3d,
@@ -149,7 +149,7 @@ class VectorField_3D(_field_types.Field):
         self,
         comp_axis: cartesian_axes.AxisLike_3D,
     ) -> NDArray[Any]:
-        """Return a (Nx, Ny, Nz) view of the requested component."""
+        """Return a (num_x0_cells, num_x1_cells, num_x2_cells) view of the requested component."""
         comp_index = cartesian_axes.get_axis_index(comp_axis)
         varray_3d = extract_3d_varray(
             vfield_3d=self,
@@ -374,7 +374,7 @@ def extract_3d_sarray(
     *,
     param_name: str = "<sfield_3d>",
 ) -> NDArray[Any]:
-    """Validate and extract the underlying (Nx, Ny, Nz) ndarray from a 3D scalar field."""
+    """Validate and extract the underlying (num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D scalar field."""
     ensure_3d_sfield(
         sfield_3d=sfield_3d,
         param_name=param_name,
@@ -390,7 +390,7 @@ def extract_3d_varray(
     *,
     param_name: str = "<vfield_3d>",
 ) -> NDArray[Any]:
-    """Validate and extract the underlying (3, Nx, Ny, Nz) ndarray from a 3D vector field."""
+    """Validate and extract the underlying (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D vector field."""
     ensure_3d_vfield(
         vfield_3d=vfield_3d,
         param_name=param_name,

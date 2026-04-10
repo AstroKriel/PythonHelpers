@@ -72,11 +72,11 @@ def compute_helmholtz_decomposed_farrays(
     Parameters
     ----------
     varray_3d_q : ndarray
-        3D vector field with shape (3, Nx, Ny, Nz).
+        3D vector field with shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     resolution : (int, int, int)
-        Spatial resolution (Nx, Ny, Nz).
+        Spatial resolution (num_x0_cells, num_x1_cells, num_x2_cells).
     cell_widths_3d : (float, float, float)
-        Cell widths (dx, dy, dz).
+        Cell widths (delta_x0, delta_x1, delta_x2).
 
     Returns
     -------
@@ -221,10 +221,10 @@ def compute_tnb_farrays(
     Compute T_i, N_i, B_i and curvature sqrt(kappa_i kappa_i) from a 3D vector farray.
 
     Returns:
-      - uvarray_3d_tangent   (3, Nx, Ny, Nz)
-      - uvarray_3d_normal    (3, Nx, Ny, Nz)
-      - uvarray_3d_binormal  (3, Nx, Ny, Nz)
-      - sarray_3d_curvature  (Nx, Ny, Nz)
+      - uvarray_3d_tangent   (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - uvarray_3d_normal    (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - uvarray_3d_binormal  (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - sarray_3d_curvature  (num_x0_cells, num_x1_cells, num_x2_cells)
     """
     _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -254,7 +254,7 @@ def compute_tnb_farrays(
         out=uvarray_3d_tangent,
         where=(sarray_3d_f_magn > 0),
     )
-    ## grad f: d_i f_j, layout (j, i, x, y, z)
+    ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
     r2tarray_3d_gradf = _farray_operators.compute_varray_grad(
         varray_3d=varray_3d,
         cell_widths_3d=cell_widths_3d,
@@ -400,7 +400,7 @@ def compute_magnetic_curvature_farrays(
         allow_none=False,
         require_positive=True,
     )
-    ## d_i u_j: (j, i, x, y, z)
+    ## d_i u_j: (j, i, x0, x1, x2)
     r2tarray_3d_gradu = _farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,

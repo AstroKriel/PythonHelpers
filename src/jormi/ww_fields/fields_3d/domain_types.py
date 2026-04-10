@@ -32,10 +32,10 @@ class UniformDomain_3D(_domain_types.UniformDomain):
     Fields
     ---
     - `periodicity`:
-        Per-axis periodicity flags as (P0, P1, P2).
+        Per-axis periodicity flags as (is_x0_periodic, is_x1_periodic, is_x2_periodic).
 
     - `resolution`:
-        Number of cells along each axis as (N0, N1, N2).
+        Number of cells along each axis as (num_x0_cells, num_x1_cells, num_x2_cells).
 
     - `domain_bounds`:
         Physical bounds as ((x0_min, x0_max), (x1_min, x1_max), (x2_min, x2_max)).
