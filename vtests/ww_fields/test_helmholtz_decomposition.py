@@ -136,7 +136,10 @@ def _sfield_abs_median_std(sfield: field_types.ScalarField_3D) -> tuple[float, f
     return float(numpy.median(arr)), float(numpy.std(arr))
 
 
-def compute_field_fraction(bin_edges: numpy.ndarray[Any, numpy.dtype[Any]], pdf: numpy.ndarray[Any, numpy.dtype[Any]]) -> float:
+def compute_field_fraction(
+    bin_edges: numpy.ndarray[Any, numpy.dtype[Any]],
+    pdf: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> float:
     nonzero_indices = numpy.where(pdf > 0)[0]
     if len(nonzero_indices) > 0:
         first_percent = float(bin_edges[nonzero_indices[0]])
@@ -145,7 +148,11 @@ def compute_field_fraction(bin_edges: numpy.ndarray[Any, numpy.dtype[Any]], pdf:
     return 0.0
 
 
-def plot_vfield_slice(ax: mpl_Axes, vfield: field_types.VectorField_3D, domain_bounds: tuple[float, float]) -> None:
+def plot_vfield_slice(
+    ax: mpl_Axes,
+    vfield: field_types.VectorField_3D,
+    domain_bounds: tuple[float, float],
+) -> None:
     varray = field_types.extract_3d_varray(vfield)
     num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
     index_x2 = num_cells_x2 // 2  # middle slice in the z-direction

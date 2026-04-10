@@ -29,7 +29,10 @@ class _GradMethod(TypedDict):
 ##
 
 
-def sample_domain(domain_bounds: list[float], num_points: float) -> numpy.ndarray[Any, numpy.dtype[Any]]:
+def sample_domain(
+    domain_bounds: list[float],
+    num_points: float,
+) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.linspace(
         domain_bounds[0],
         domain_bounds[1],
@@ -59,7 +62,11 @@ def estimate_fntion_derivative(
     )[:, 0, 0]
 
 
-def calculate_powerlaw_amplitude(x_0: float, y_0: float, b: float) -> float:
+def calculate_powerlaw_amplitude(
+    x_0: float,
+    y_0: float,
+    b: float,
+) -> float:
     """Solve for the amplitude of a power law y = a * x^b given a coordinate (x_0, y_0) that the power-law passed through."""
     if x_0 == 0:
         return y_0
@@ -133,7 +140,12 @@ class TestFiniteDifferenceConvergence:
             label=r"${\rm d}y^* / {\rm d}x$",
         )
 
-    def _plot_approx_soln(self, nabla: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]], color: str, label: str) -> None:
+    def _plot_approx_soln(
+        self,
+        nabla: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
+        color: str,
+        label: str,
+    ) -> None:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
         y_values = evaluate_fntion_at_points(x_values)
         dydx_values = estimate_fntion_derivative(x_values, y_values, nabla)
@@ -181,7 +193,13 @@ class TestFiniteDifferenceConvergence:
                 failed_methods.append(label)
         return failed_methods
 
-    def _check_convergence(self, rms_errors: list[float], expected_scaling: int, color: str, label: str) -> bool:
+    def _check_convergence(
+        self,
+        rms_errors: list[float],
+        expected_scaling: int,
+        color: str,
+        label: str,
+    ) -> bool:
         inverse_dx_values = numpy.array(
             self.num_points_to_test,
         ) / (self.domain_bounds[1] - self.domain_bounds[0])

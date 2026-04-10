@@ -309,7 +309,10 @@ class Tests(unittest.TestCase):
 
     def test_sample_returns_expected_length(self):
 
-        def _test(_input_length: int, _sampled_length: int) -> None:
+        def _test(
+            _input_length: int,
+            _sampled_length: int,
+        ) -> None:
             elems = list(range(_input_length))
             out_elems = ww_lists.sample_list(
                 elems=elems,

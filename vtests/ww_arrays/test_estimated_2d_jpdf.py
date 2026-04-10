@@ -20,7 +20,10 @@ from jormi.ww_plots import manage_plots
 ##
 
 
-def sample_from_ellipse(num_samples: int, rng: numpy.random.Generator) -> tuple[numpy.ndarray[Any, numpy.dtype[Any]], numpy.ndarray[Any, numpy.dtype[Any]]]:
+def sample_from_ellipse(
+    num_samples: int,
+    rng: numpy.random.Generator,
+) -> tuple[numpy.ndarray[Any, numpy.dtype[Any]], numpy.ndarray[Any, numpy.dtype[Any]]]:
     x_center = 30
     y_center = 100
     semi_major_axis = 10
