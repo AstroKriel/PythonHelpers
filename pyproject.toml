@@ -1,3 +1,7 @@
+##
+## === PACKAGE METADATA
+##
+
 [project]
 name = "jormi"
 version = "0.1.0"
@@ -5,6 +9,8 @@ description = "jormi (jormungandr): a utility python library"
 readme = "README.md"
 authors = [{ name = "Neco Kriel", email = "necokriel@gmail.com" }]
 requires-python = ">=3.11"
+
+## runtime dependencies (installed automatically with the package)
 dependencies = [
   "cmasher>=1.9.2",
   "h5py>=3.13.0",
@@ -18,45 +24,72 @@ dependencies = [
   "tqdm>=4.67.1",
 ]
 
+##
+## === BUILD SYSTEM
+##
+
+## hatchling packages the source into a distributable wheel
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+## point hatchling to the importable source code
 [tool.hatch.build]
 sources = ["src"]
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-testpaths = ["utests"]
+##
+## === DEVELOPMENT DEPENDENCIES
+##
 
+## development-only dependencies (not shipped with the package, but installed by uv sync)
+## to exclude them: uv sync --no-dev
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+
+##
+## === TEST RUNNER (pytest)
+##
+
+[tool.pytest.ini_options]
+pythonpath = ["src"] # makes src/ visible to pytest without installing the package
+testpaths = ["utests"] # vtests are run manually
+
+##
+## === TYPE CHECKER (basedpyright)
+##
+
+## for full config reference: https://docs.basedpyright.com/v1.20.0/configuration/config-files/
 [tool.pyright]
+
+## which directories to lint under
 include = [
     "src",
     "utests",
     "vtests",
     "demos",
 ]
+## where to look when resolving imports
 extraPaths = ["src"]
-## for more details: https://docs.basedpyright.com/v1.20.0/configuration/config-files/
-reportMissingImports = true # error on imports that cannot be resolved
-reportMissingTypeStubs = false # suppress warnings for third-party packages without type stubs (e.g. scipy)
-## suppress noisy (i.e., either unavoidable or not useful) rules by setting their severity to "none" (i.e. the lowest severity).
-reportExplicitAny = "none" # basedpyright-specific: flags every use of `Any`; unavoidable in numpy/scipy code
-reportAny = "none" # basedpyright-specific: flags values inferred as `Any`; noisy cascade of the above
-reportUnusedCallResult = "none" # flags calls whose return value is ignored; validation functions are intentionally called for side effects
-reportImplicitStringConcatenation = "none" # flags adjacent string literals; valid Python style used in long error messages
-reportUnannotatedClassAttribute = "none" # flags class attributes without explicit type annotations; TypeHints/RuntimeTypes classes are intentionally structured this way
-reportImplicitOverride = "none" # requires @override decorator on every overriding method; too verbose for this codebase
-reportUnknownMemberType = "none" # third-party stubs (matplotlib, numpy, scipy) use **kwargs: Unknown extensively; not actionable
-reportUnknownVariableType = "none" # cascade from third-party stubs returning Unknown types; not actionable
-reportUnknownArgumentType = "none" # cascade from third-party stubs; not actionable
-reportPrivateUsage = "none" # tests legitimately access private members to verify internal state
-reportUninitializedInstanceVariable = "none" # pyright does not track variables set in setUp(); false positive for unittest classes
-enableTypeIgnoreComments = true # honour "# type: ignore" comments (basedpyright defaults this to false)
-reportIgnoreCommentWithoutRule = "none" # test files use bare "# type: ignore" for intentional wrong-type calls
-reportUnnecessaryTypeIgnoreComment = "none" # suppress stale ignore comment warnings
 
-[dependency-groups]
-dev = [
-    "pytest>=9.0.2",
-]
+## --- rules to enforce
+reportMissingImports = true    # error on unresolvable imports
+reportMissingTypeStubs = false # suppress missing stub warnings for third-party packages (e.g. scipy)
+
+## --- rules to suppress
+## set to "none" to silence rules that are unavoidable or not useful in this codebase
+reportExplicitAny = "none"                   # basedpyright-specific: flags every `Any`; unavoidable in numpy/scipy code
+reportAny = "none"                           # basedpyright-specific: noisy cascade of the above
+reportUnusedCallResult = "none"              # validation functions are intentionally called for side effects
+reportImplicitStringConcatenation = "none"   # valid Python style used in long error messages
+reportUnannotatedClassAttribute = "none"     # TypeHints/RuntimeTypes classes are intentionally structured this way
+reportImplicitOverride = "none"              # too verbose to require @override on every overriding method
+reportUnknownMemberType = "none"             # third-party stubs use **kwargs: Unknown extensively; not actionable
+reportUnknownVariableType = "none"           # cascade from third-party stubs; not actionable
+reportUnknownArgumentType = "none"           # cascade from third-party stubs; not actionable
+reportPrivateUsage = "none"                  # tests legitimately access private members
+reportUninitializedInstanceVariable = "none" # false positive for unittest classes (pyright misses variables set in setUp())
+enableTypeIgnoreComments = true              # honour "# type: ignore" comments (basedpyright defaults this to false)
+reportIgnoreCommentWithoutRule = "none"      # test files use bare "# type: ignore" for intentional wrong-type calls
+reportUnnecessaryTypeIgnoreComment = "none"  # suppress stale ignore comment warnings
