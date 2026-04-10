@@ -7,6 +7,7 @@
 ## stdlib
 import dataclasses
 import unittest
+from typing import Any
 
 ## third-party
 import numpy
@@ -24,7 +25,7 @@ from jormi.ww_fields.fields_3d import (
 
 
 def _make_3d_udomain(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
 ) -> domain_types.UniformDomain_3D:
     return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
@@ -34,7 +35,7 @@ def _make_3d_udomain(
 
 
 def _make_sfield_3d(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
     label: str = "test_scalar",
     sim_time: float | None = None,
 ) -> field_types.ScalarField_3D:
@@ -47,7 +48,7 @@ def _make_sfield_3d(
 
 
 def _make_vfield_3d(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
     label: str = "test_vector",
     sim_time: float | None = None,
 ) -> field_types.VectorField_3D:
@@ -60,8 +61,8 @@ def _make_vfield_3d(
 
 
 def _make_unit_varray_3d(
-    resolution: tuple,
-) -> numpy.ndarray:
+    resolution: tuple[int, int, int],
+) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
     """Return a (3, Nx, Ny, Nz) array with unit vectors pointing in the x0 direction."""
     varray = numpy.zeros((3, ) + resolution)
     varray[0] = 1.0
@@ -91,9 +92,10 @@ class TestScalarField3D_Construction(unittest.TestCase):
 
     def test_sim_time_is_stored(self):
         sfield = _make_sfield_3d(sim_time=1.5)
+        assert sfield.sim_time is not None
         self.assertAlmostEqual(
             sfield.sim_time,
-            1.5,  # type: ignore[arg-type]
+            1.5,
         )
 
     def test_sim_time_none_allowed(self):
@@ -123,7 +125,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.ScalarField_3D.from_3d_sarray(
-                sarray_3d=numpy.ones((4, 4)),  # type: ignore[arg-type]
+                sarray_3d=numpy.ones((4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
             )
@@ -139,7 +141,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     def test_frozen_immutability(self):
         sfield = _make_sfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            sfield.field_label = "modified"  # type: ignore[misc]
+            sfield.field_label = "modified"  # type: ignore
 
 
 class TestScalarField3D_Properties(unittest.TestCase):
@@ -226,15 +228,16 @@ class TestVectorField3D_Construction(unittest.TestCase):
 
     def test_sim_time_is_stored(self):
         vfield = _make_vfield_3d(sim_time=3.0)
+        assert vfield.sim_time is not None
         self.assertAlmostEqual(
             vfield.sim_time,
-            3.0,  # type: ignore[arg-type]
+            3.0,
         )
 
     def test_wrong_leading_dim_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.VectorField_3D.from_3d_varray(
-                varray_3d=numpy.ones((2, 4, 4, 4)),  # type: ignore[arg-type]
+                varray_3d=numpy.ones((2, 4, 4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
             )
@@ -242,7 +245,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.VectorField_3D.from_3d_varray(
-                varray_3d=numpy.ones((3, 4, 4)),  # type: ignore[arg-type]
+                varray_3d=numpy.ones((3, 4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
                 field_label="bad",
             )
@@ -266,7 +269,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     def test_frozen_immutability(self):
         vfield = _make_vfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_label = "modified"  # type: ignore[misc]
+            vfield.field_label = "modified"  # type: ignore
 
 
 class TestVectorField3D_Properties(unittest.TestCase):
@@ -410,7 +413,7 @@ class TestUnitVectorField3D(unittest.TestCase):
 
     def _make_unit_vfield(
         self,
-        resolution: tuple = (4, 4, 4),
+        resolution: tuple[int, int, int] = (4, 4, 4),
     ) -> field_types.VectorField_3D:
         return field_types.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d(resolution),
@@ -459,9 +462,10 @@ class TestUnitVectorField3D(unittest.TestCase):
             uvfield.field_label,
             "my_label",
         )
+        assert uvfield.sim_time is not None
         self.assertAlmostEqual(
             uvfield.sim_time,
-            2.5,  # type: ignore[arg-type]
+            2.5,
         )
         self.assertEqual(
             uvfield.udomain,

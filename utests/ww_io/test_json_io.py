@@ -7,6 +7,7 @@
 ## stdlib
 import os
 import unittest
+from typing import Any
 
 from pathlib import Path
 
@@ -22,12 +23,12 @@ from jormi.ww_io import json_io
 ##
 
 
-def save_dict_to_json_file(*args, **kwargs):
+def save_dict_to_json_file(*args: Any, **kwargs: Any) -> None:
     kwargs["verbose"] = False
     json_io.save_dict_to_json_file(*args, **kwargs)
 
 
-def read_json_file_into_dict(*args, **kwargs):
+def read_json_file_into_dict(*args: Any, **kwargs: Any) -> Any:
     kwargs["verbose"] = False
     return json_io.read_json_file_into_dict(*args, **kwargs)
 

@@ -6,6 +6,7 @@
 
 ## stdlib
 import sys
+from typing import Any, Callable, TypedDict
 
 ## third-party
 import numpy
@@ -16,12 +17,19 @@ from jormi.ww_fields.fields_3d import _difference_sarrays
 from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
+
+class _GradMethod(TypedDict):
+    worker_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]]
+    expected_scaling: int
+    label: str
+    color: str
+
 ##
 ## === HELPER FUNCTIONS
 ##
 
 
-def sample_domain(domain_bounds, num_points):
+def sample_domain(domain_bounds: list[float], num_points: float) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.linspace(
         domain_bounds[0],
         domain_bounds[1],
@@ -30,15 +38,19 @@ def sample_domain(domain_bounds, num_points):
     )  # to ensure periodicity
 
 
-def evaluate_fntion_at_points(x_values):
+def evaluate_fntion_at_points(x_values: numpy.ndarray[Any, numpy.dtype[Any]]) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
 
 
-def evaluate_exact_fntion_derivative_at_points(x_values):
+def evaluate_exact_fntion_derivative_at_points(x_values: numpy.ndarray[Any, numpy.dtype[Any]]) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 
-def estimate_fntion_derivative(x_values, y_values, func_dydx):
+def estimate_fntion_derivative(
+    x_values: numpy.ndarray[Any, numpy.dtype[Any]],
+    y_values: numpy.ndarray[Any, numpy.dtype[Any]],
+    func_dydx: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
+) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     cell_width = (x_values[-1] - x_values[0]) / len(x_values)  # assumes uniform samples
     return func_dydx(
         sarray_3d=y_values[:, None, None],
@@ -47,10 +59,11 @@ def estimate_fntion_derivative(x_values, y_values, func_dydx):
     )[:, 0, 0]
 
 
-def calculate_powerlaw_amplitude(x_0, y_0, b):
+def calculate_powerlaw_amplitude(x_0: float, y_0: float, b: float) -> float:
     """Solve for the amplitude of a power law y = a * x^b given a coordinate (x_0, y_0) that the power-law passed through."""
-    if x_0 == 0: return y_0
-    return y_0 / numpy.power(x_0, b)
+    if x_0 == 0:
+        return y_0
+    return float(y_0 / numpy.power(x_0, b))
 
 
 ##
@@ -65,7 +78,8 @@ class TestFiniteDifferenceConvergence:
         self.num_samples_for_exact_soln = 100
         self.num_samples_for_approx_soln = 15
         self.num_points_to_test = [10, 20, 50, 1e2, 2e2, 5e2]
-        self.grad_methods = [
+        self.axs_grid: numpy.ndarray[Any, numpy.dtype[Any]] = numpy.empty((2, 2), dtype=object)
+        self.grad_methods: list[_GradMethod] = [
             {
                 "worker_fn": _difference_sarrays.second_order_centered_difference,
                 "expected_scaling": -2,
@@ -119,7 +133,7 @@ class TestFiniteDifferenceConvergence:
             label=r"${\rm d}y^* / {\rm d}x$",
         )
 
-    def _plot_approx_soln(self, nabla, color, label):
+    def _plot_approx_soln(self, nabla: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]], color: str, label: str) -> None:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
         y_values = evaluate_fntion_at_points(x_values)
         dydx_values = estimate_fntion_derivative(x_values, y_values, nabla)
@@ -134,7 +148,7 @@ class TestFiniteDifferenceConvergence:
             label=label,
         )
 
-    def _test_method_scaling(self):
+    def _test_method_scaling(self) -> list[str]:
         failed_methods = []
         for grad_method in self.grad_methods:
             expected_scaling = grad_method["expected_scaling"]
@@ -167,7 +181,7 @@ class TestFiniteDifferenceConvergence:
                 failed_methods.append(label)
         return failed_methods
 
-    def _check_convergence(self, rms_errors, expected_scaling, color, label):
+    def _check_convergence(self, rms_errors: list[float], expected_scaling: int, color: str, label: str) -> bool:
         inverse_dx_values = numpy.array(
             self.num_points_to_test,
         ) / (self.domain_bounds[1] - self.domain_bounds[0])
@@ -202,7 +216,7 @@ class TestFiniteDifferenceConvergence:
             lw=2,
             color=color,
         )
-        return numpy.all(numpy.diff(numpy.diff(numpy.abs(residuals[1:]))) < 0.0)
+        return bool(numpy.all(numpy.diff(numpy.diff(numpy.abs(residuals[1:]))) < 0.0))
 
     def _annotate_figure(self):
         y_min, y_max = self.axs_grid[1, 0].get_ylim()

@@ -46,7 +46,7 @@ class TestConstruction(unittest.TestCase):
     def test_rejects_num_sdims_argument(self):
         with self.assertRaises(TypeError):
             domain_types.UniformDomain_3D(
-                num_sdims=3, # type: ignore[call-arg]
+                num_sdims=3, # type: ignore
                 periodicity=(True, False, True),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -56,7 +56,7 @@ class TestConstruction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             domain_types.UniformDomain_3D(
                 periodicity=(True, True, True),
-                resolution=(8, 4), # type: ignore[arg-type]
+                resolution=(8, 4), # type: ignore
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -65,7 +65,7 @@ class TestConstruction(unittest.TestCase):
             domain_types.UniformDomain_3D(
                 periodicity=(True, True, True),
                 resolution=(8, 4, 2),
-                domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # type: ignore[arg-type]
+                domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # type: ignore
             )
 
 
@@ -171,7 +171,7 @@ class TestEnsureHelpers(unittest.TestCase):
 
     def test_ensure_3d_udomain_rejects_wrong_type(self):
         with self.assertRaises(TypeError):
-            domain_types.ensure_3d_udomain(udomain_3d=None)  # type: ignore[arg-type]
+            domain_types.ensure_3d_udomain(udomain_3d=None)  # type: ignore
 
     def test_ensure_3d_periodic_udomain_accepts_fully_periodic(self):
         udomain_3d = domain_types.UniformDomain_3D(

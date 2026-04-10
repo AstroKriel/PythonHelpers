@@ -99,7 +99,7 @@ class TestValidation(unittest.TestCase):
             )
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
-                num_sdims=1.0, # type: ignore[arg-type]
+                num_sdims=1.0, # type: ignore
                 periodicity=(True,),
                 resolution=(4,),
                 domain_bounds=((0.0, 1.0),),
@@ -118,7 +118,7 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
-                periodicity=(True, 1), # type: ignore[arg-type]
+                periodicity=(True, 1), # type: ignore
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
@@ -137,7 +137,7 @@ class TestValidation(unittest.TestCase):
             _domain_types.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
-                resolution=(4.0, 4), # type: ignore[arg-type]
+                resolution=(4.0, 4), # type: ignore
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -174,7 +174,7 @@ class TestValidation(unittest.TestCase):
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # type: ignore[arg-type]
+                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # type: ignore
             )
 
     def test_rejects_domain_bounds_non_numeric(self):
@@ -183,7 +183,7 @@ class TestValidation(unittest.TestCase):
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=(("a", "b"), (0.0, 1.0)),  # type: ignore[arg-type]
+                domain_bounds=(("a", "b"), (0.0, 1.0)),  # type: ignore
             )
 
     def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(self):
@@ -344,7 +344,7 @@ class TestEnsureHelpers(unittest.TestCase):
 
     def test_ensure_udomain_rejects_wrong_type(self):
         with self.assertRaises(TypeError):
-            _domain_types.ensure_udomain(udomain=None)  # type: ignore[arg-type]
+            _domain_types.ensure_udomain(udomain=None)  # type: ignore
 
     def test_ensure_udomain_metadata_num_sdims(self):
         udomain = _domain_types.UniformDomain(

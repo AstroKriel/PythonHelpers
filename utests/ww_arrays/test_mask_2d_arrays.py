@@ -6,6 +6,7 @@
 
 ## stdlib
 import unittest
+from typing import Any
 
 ## third-party
 import numpy
@@ -132,7 +133,7 @@ class TestQuadrantMasks2D(unittest.TestCase):
         self,
         num_rows: int,
         num_cols: int,
-    ) -> list:
+    ) -> list[numpy.ndarray[Any, numpy.dtype[Any]]]:
         return [
             mask_2d_arrays.QuadrantMasks2D.get_mask(
                 num_rows=num_rows,

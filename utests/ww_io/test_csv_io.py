@@ -7,6 +7,7 @@
 ## stdlib
 import os
 import unittest
+from typing import Any
 
 from pathlib import Path
 
@@ -18,12 +19,12 @@ from jormi.ww_io import csv_io
 ##
 
 
-def save_dict_to_csv_file_wrapper(*args, **kwargs):
+def save_dict_to_csv_file_wrapper(*args: Any, **kwargs: Any) -> None:
     kwargs["verbose"] = False
     csv_io.save_dict_to_csv_file(*args, **kwargs)
 
 
-def read_csv_file_into_dict_wrapper(*args, **kwargs):
+def read_csv_file_into_dict_wrapper(*args: Any, **kwargs: Any) -> Any:
     kwargs["verbose"] = False
     return csv_io.read_csv_file_into_dict(*args, **kwargs)
 

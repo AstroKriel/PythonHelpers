@@ -6,6 +6,7 @@
 
 ## stdlib
 import unittest
+from typing import Any
 
 ## third-party
 import numpy
@@ -33,7 +34,7 @@ def _make_3d_udomain(
 
 
 def _make_sfield(
-    sarray_3d: numpy.ndarray,
+    sarray_3d: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> field_types.ScalarField_3D:
     resolution = sarray_3d.shape
     return field_types.ScalarField_3D.from_3d_sarray(
@@ -46,7 +47,7 @@ def _make_sfield(
 def _cosine_mode_field(
     mode_k: int,
     num_cells: int,
-) -> numpy.ndarray:
+) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
     """Return an N^3 array with a pure cosine wave at integer mode `mode_k` along x_0."""
     cell_indices = numpy.arange(num_cells)
     sarray_1d = numpy.cos(2.0 * numpy.pi * mode_k * cell_indices / num_cells)

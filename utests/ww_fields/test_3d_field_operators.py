@@ -26,8 +26,8 @@ _DOMAIN_BOUNDS = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0))
 
 
 def _make_3d_udomain(
-    resolution: tuple = _RESOLUTION,
-    domain_bounds: tuple = _DOMAIN_BOUNDS,
+    resolution: tuple[int, int, int] = _RESOLUTION,
+    domain_bounds: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] = _DOMAIN_BOUNDS,
 ) -> domain_types.UniformDomain_3D:
     return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
@@ -38,7 +38,7 @@ def _make_3d_udomain(
 
 def _make_constant_sfield(
     value: float,
-    resolution: tuple = _RESOLUTION,
+    resolution: tuple[int, int, int] = _RESOLUTION,
     label: str = "f",
 ) -> field_types.ScalarField_3D:
     sarray = numpy.full(resolution, value)
@@ -53,7 +53,7 @@ def _make_constant_vfield(
     value_in_x0: float,
     value_in_x1: float,
     value_in_x2: float,
-    resolution: tuple = _RESOLUTION,
+    resolution: tuple[int, int, int] = _RESOLUTION,
     label: str = "v",
 ) -> field_types.VectorField_3D:
     varray = numpy.zeros((3, ) + resolution)
@@ -192,9 +192,10 @@ class TestScalarFieldGradient(unittest.TestCase):
             sim_time=2.5,
         )
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
+        assert vfield_grad.sim_time is not None
         self.assertAlmostEqual(
             vfield_grad.sim_time,
-            2.5,  # type: ignore[arg-type]
+            2.5,
         )
 
     def test_gradient_sinusoidal_x0_component(self):
@@ -630,9 +631,10 @@ class TestVectorFieldDivergence(unittest.TestCase):
             sim_time=1.0,
         )
         sfield_div = field_operators.compute_vfield_divergence(vfield)
+        assert sfield_div.sim_time is not None
         self.assertAlmostEqual(
             sfield_div.sim_time,
-            1.0,  # type: ignore[arg-type]
+            1.0,
         )
 
     def test_divergence_sinusoidal_field(self):
@@ -733,9 +735,10 @@ class TestVectorFieldCurl(unittest.TestCase):
             sim_time=3.0,
         )
         vfield_curl = field_operators.compute_vfield_curl(vfield)
+        assert vfield_curl.sim_time is not None
         self.assertAlmostEqual(
             vfield_curl.sim_time,
-            3.0,  # type: ignore[arg-type]
+            3.0,
         )
 
     def test_curl_sinusoidal_field(self):

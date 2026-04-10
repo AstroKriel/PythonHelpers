@@ -4,8 +4,12 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from typing import Any, TypedDict
+
 ## third-party
 import numpy
+from matplotlib.axes import Axes as mpl_Axes
 
 ## local
 from jormi import ww_lists
@@ -18,6 +22,11 @@ from jormi.ww_fields.fields_3d import (
 from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 from jormi.ww_types import check_types
+
+
+class _VFieldEntry(TypedDict):
+    label: str
+    vfield: field_types.VectorField_3D
 
 ##
 ## === EXAMPLE VECTOR FIELDS
@@ -127,16 +136,16 @@ def _sfield_abs_median_std(sfield: field_types.ScalarField_3D) -> tuple[float, f
     return float(numpy.median(arr)), float(numpy.std(arr))
 
 
-def compute_field_fraction(bin_edges, pdf):
+def compute_field_fraction(bin_edges: numpy.ndarray[Any, numpy.dtype[Any]], pdf: numpy.ndarray[Any, numpy.dtype[Any]]) -> float:
     nonzero_indices = numpy.where(pdf > 0)[0]
     if len(nonzero_indices) > 0:
-        first_percent = bin_edges[nonzero_indices[0]]
-        last_percent = bin_edges[nonzero_indices[-1]]
+        first_percent = float(bin_edges[nonzero_indices[0]])
+        last_percent = float(bin_edges[nonzero_indices[-1]])
         return first_percent if first_percent == last_percent else (last_percent - first_percent)
     return 0.0
 
 
-def plot_vfield_slice(ax, vfield: field_types.VectorField_3D, domain_bounds):
+def plot_vfield_slice(ax: mpl_Axes, vfield: field_types.VectorField_3D, domain_bounds: tuple[float, float]) -> None:
     varray = field_types.extract_3d_varray(vfield)
     num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
     index_x2 = num_cells_x2 // 2  # middle slice in the z-direction
@@ -153,7 +162,7 @@ def plot_vfield_slice(ax, vfield: field_types.VectorField_3D, domain_bounds):
     ax.imshow(
         sfield_q_magn_slice.T,
         origin="lower",
-        extent=[domain_bounds[0], domain_bounds[1], domain_bounds[0], domain_bounds[1]],
+        extent=(domain_bounds[0], domain_bounds[1], domain_bounds[0], domain_bounds[1]),
         cmap="viridis",
         alpha=0.7,
     )
@@ -178,8 +187,8 @@ def plot_vfield_slice(ax, vfield: field_types.VectorField_3D, domain_bounds):
         transform=ax.transAxes,
         bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
     )
-    ax.set_xlim([domain_bounds[0], domain_bounds[1]])
-    ax.set_ylim([domain_bounds[0], domain_bounds[1]])
+    ax.set_xlim((domain_bounds[0], domain_bounds[1]))
+    ax.set_ylim((domain_bounds[0], domain_bounds[1]))
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -200,7 +209,7 @@ def main():
     )
     ## include a pure-bulk test: should recover bulk in bulk_vfield, and near-zero div/sol
     bulk_vector = (0.3, -0.1, 0.2)
-    list_vfields = [
+    list_vfields: list[_VFieldEntry] = [
         {
             "label": "mixed",
             "vfield": generate_mixed_vfield(

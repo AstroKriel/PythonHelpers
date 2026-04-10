@@ -47,7 +47,7 @@ class TestConstruction(unittest.TestCase):
     def test_rejects_num_sdims_argument(self):
         with self.assertRaises(TypeError):
             domain_types.UniformDomain_2D(
-                num_sdims=2, # type: ignore[call-arg]
+                num_sdims=2, # type: ignore
                 periodicity=(True, False),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
@@ -57,7 +57,7 @@ class TestConstruction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             domain_types.UniformDomain_2D(
                 periodicity=(True, False),
-                resolution=(8, 4, 2),  # type: ignore[arg-type]
+                resolution=(8, 4, 2),  # type: ignore
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -66,7 +66,7 @@ class TestConstruction(unittest.TestCase):
             domain_types.UniformDomain_2D(
                 periodicity=(True, False),
                 resolution=(8, 4),
-                domain_bounds=((0.0, 1.0), ),  # type: ignore[arg-type]
+                domain_bounds=((0.0, 1.0), ),  # type: ignore
             )
 
 
@@ -231,7 +231,7 @@ class TestSliced3D(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
                 out_of_plane_axis=0,
                 slice_index=0,
-                slice_position="a",  # type: ignore[arg-type]
+                slice_position="a",  # type: ignore
             )
 
 

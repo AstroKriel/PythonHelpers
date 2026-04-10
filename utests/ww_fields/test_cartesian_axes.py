@@ -157,9 +157,9 @@ class TestAsAxis(unittest.TestCase):
 
     def test_rejects_invalid_type(self):
         with self.assertRaises(TypeError):
-            cartesian_axes.as_axis(axis=None)  # type: ignore[arg-type]
+            cartesian_axes.as_axis(axis=None)  # type: ignore
         with self.assertRaises(TypeError):
-            cartesian_axes.as_axis(axis=1.0)  # type: ignore[arg-type]
+            cartesian_axes.as_axis(axis=1.0)  # type: ignore
 
 
 class TestGetAxisIndexAndLabel(unittest.TestCase):

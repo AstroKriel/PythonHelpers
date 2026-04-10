@@ -22,8 +22,8 @@ from jormi.ww_fields.fields_3d import (
 
 
 def _make_3d_udomain(
-    resolution: tuple = (4, 4, 4),
-    domain_bounds: tuple = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
+    resolution: tuple[int, int, int] = (4, 4, 4),
+    domain_bounds: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
 ) -> domain_types.UniformDomain_3D:
     return domain_types.UniformDomain_3D(
         periodicity=(True, True, True),
@@ -33,7 +33,7 @@ def _make_3d_udomain(
 
 
 def _make_sfield_3d(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
     domain: domain_types.UniformDomain_3D | None = None,
 ) -> field_types.ScalarField_3D:
     if domain is None:
@@ -46,7 +46,7 @@ def _make_sfield_3d(
 
 
 def _make_vfield_3d(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
     domain: domain_types.UniformDomain_3D | None = None,
 ) -> field_types.VectorField_3D:
     if domain is None:
@@ -59,7 +59,7 @@ def _make_vfield_3d(
 
 
 def _make_unit_vfield_3d(
-    resolution: tuple = (4, 4, 4),
+    resolution: tuple[int, int, int] = (4, 4, 4),
 ) -> field_types.UnitVectorField_3D:
     varray = numpy.zeros((3, ) + resolution)
     varray[0] = 1.0
@@ -85,11 +85,11 @@ class TestEnsureFieldTypes(unittest.TestCase):
     def test_ensure_3d_sfield_rejects_vector_field(self):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_sfield(vfield)  # type: ignore[arg-type]
+            field_types.ensure_3d_sfield(vfield)  # type: ignore
 
     def test_ensure_3d_sfield_rejects_none(self):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_sfield(None)  # type: ignore[arg-type]
+            field_types.ensure_3d_sfield(None)  # type: ignore
 
     def test_ensure_3d_vfield_accepts_vector_field(self):
         vfield = _make_vfield_3d()
@@ -98,11 +98,11 @@ class TestEnsureFieldTypes(unittest.TestCase):
     def test_ensure_3d_vfield_rejects_scalar_field(self):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_vfield(sfield)  # type: ignore[arg-type]
+            field_types.ensure_3d_vfield(sfield)  # type: ignore
 
     def test_ensure_3d_vfield_rejects_none(self):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_vfield(None)  # type: ignore[arg-type]
+            field_types.ensure_3d_vfield(None)  # type: ignore
 
     def test_ensure_3d_uvfield_accepts_unit_vector_field(self):
         uvfield = _make_unit_vfield_3d()
@@ -121,11 +121,11 @@ class TestEnsureFieldTypes(unittest.TestCase):
             field_label="unit_but_not_uvfield",
         )
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_uvfield(vfield)  # type: ignore[arg-type]
+            field_types.ensure_3d_uvfield(vfield)  # type: ignore
 
     def test_ensure_3d_uvfield_rejects_none(self):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_uvfield(None)  # type: ignore[arg-type]
+            field_types.ensure_3d_uvfield(None)  # type: ignore
 
 
 class TestEnsureUdomainMatchesField(unittest.TestCase):
@@ -153,7 +153,7 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
         vfield = _make_vfield_3d(domain=domain)
         with self.assertRaises(TypeError):
             field_types.ensure_3d_udomain_matches_sfield(
-                sfield_3d=vfield,  # type: ignore[arg-type]
+                sfield_3d=vfield,  # type: ignore
                 udomain_3d=domain,
             )
 
@@ -180,7 +180,7 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
         sfield = _make_sfield_3d(domain=domain)
         with self.assertRaises(TypeError):
             field_types.ensure_3d_udomain_matches_vfield(
-                vfield_3d=sfield,  # type: ignore[arg-type]
+                vfield_3d=sfield,  # type: ignore
                 udomain_3d=domain,
             )
 
@@ -334,11 +334,11 @@ class TestExtractArrays(unittest.TestCase):
     def test_extract_3d_sarray_rejects_vector_field(self):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
-            field_types.extract_3d_sarray(vfield)  # type: ignore[arg-type]
+            field_types.extract_3d_sarray(vfield)  # type: ignore
 
     def test_extract_3d_sarray_rejects_none(self):
         with self.assertRaises(TypeError):
-            field_types.extract_3d_sarray(None)  # type: ignore[arg-type]
+            field_types.extract_3d_sarray(None)  # type: ignore
 
     def test_extract_3d_varray_returns_correct_array(self):
         varray = numpy.arange(192, dtype=float).reshape((3, 4, 4, 4))
@@ -362,11 +362,11 @@ class TestExtractArrays(unittest.TestCase):
     def test_extract_3d_varray_rejects_scalar_field(self):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
-            field_types.extract_3d_varray(sfield)  # type: ignore[arg-type]
+            field_types.extract_3d_varray(sfield)  # type: ignore
 
     def test_extract_3d_varray_rejects_none(self):
         with self.assertRaises(TypeError):
-            field_types.extract_3d_varray(None)  # type: ignore[arg-type]
+            field_types.extract_3d_varray(None)  # type: ignore
 
     def test_extract_3d_varray_accepts_uvfield(self):
         uvfield = _make_unit_vfield_3d()

@@ -24,7 +24,7 @@ from jormi.ww_fields.fields_2d import (
 
 
 def _make_2d_udomain(
-    resolution: tuple = (4, 4),
+    resolution: tuple[int, int] = (4, 4),
 ) -> domain_types.UniformDomain_2D:
     return domain_types.UniformDomain_2D(
         periodicity=(True, True),
@@ -34,7 +34,7 @@ def _make_2d_udomain(
 
 
 def _make_sliced_domain_2d(
-    resolution: tuple = (4, 4),
+    resolution: tuple[int, int] = (4, 4),
     out_of_plane_axis: int = 2,
     slice_index: int = 0,
     slice_position: float = 0.125,
@@ -50,7 +50,7 @@ def _make_sliced_domain_2d(
 
 
 def _make_sfield_2d(
-    resolution: tuple = (4, 4),
+    resolution: tuple[int, int] = (4, 4),
     label: str = "test_scalar_2d",
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
@@ -65,7 +65,7 @@ def _make_sfield_2d(
 
 
 def _make_vfield_2d(
-    resolution: tuple = (4, 4),
+    resolution: tuple[int, int] = (4, 4),
     label: str = "test_vector_2d",
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
@@ -102,9 +102,10 @@ class TestScalarField2D_Construction(unittest.TestCase):
 
     def test_sim_time_is_stored(self):
         sfield = _make_sfield_2d(sim_time=1.5)
+        assert sfield.sim_time is not None
         self.assertAlmostEqual(
             sfield.sim_time,
-            1.5,  # type: ignore[arg-type]
+            1.5,
         )
 
     def test_sim_time_none_allowed(self):
@@ -134,7 +135,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.ScalarField_2D.from_2d_sarray(
-                sarray_2d=numpy.ones((4,)),  # type: ignore[arg-type]
+                sarray_2d=numpy.ones((4,)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
@@ -142,7 +143,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
     def test_3d_array_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.ScalarField_2D.from_2d_sarray(
-                sarray_2d=numpy.ones((4, 4, 4)),  # type: ignore[arg-type]
+                sarray_2d=numpy.ones((4, 4, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
@@ -162,7 +163,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
                 AttributeError,
                 TypeError,
         )):
-            sfield.field_label = "modified"  # type: ignore[misc]
+            sfield.field_label = "modified"  # type: ignore
 
 
 class TestScalarField2D_Properties(unittest.TestCase):
@@ -294,15 +295,16 @@ class TestVectorField2D_Construction(unittest.TestCase):
 
     def test_sim_time_is_stored(self):
         vfield = _make_vfield_2d(sim_time=0.5)
+        assert vfield.sim_time is not None
         self.assertAlmostEqual(
             vfield.sim_time,
-            0.5,  # type: ignore[arg-type]
+            0.5,
         )
 
     def test_wrong_leading_dim_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.VectorField_2D.from_2d_varray(
-                varray_2d=numpy.ones((3, 4, 4)),  # type: ignore[arg-type]
+                varray_2d=numpy.ones((3, 4, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
@@ -310,7 +312,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     def test_wrong_array_rank_raises(self):
         with self.assertRaises((TypeError, ValueError)):
             field_types.VectorField_2D.from_2d_varray(
-                varray_2d=numpy.ones((2, 4)),  # type: ignore[arg-type]
+                varray_2d=numpy.ones((2, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
                 field_label="bad",
             )
@@ -334,7 +336,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     def test_frozen_immutability(self):
         vfield = _make_vfield_2d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_label = "modified"  # type: ignore[misc]
+            vfield.field_label = "modified"  # type: ignore
 
 
 class TestVectorField2D_Properties(unittest.TestCase):

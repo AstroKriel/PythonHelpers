@@ -4,6 +4,9 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from typing import Any
+
 ## third-party
 import numpy
 
@@ -18,7 +21,7 @@ from jormi.ww_plots import manage_plots
 ##
 
 
-def evaluate_function(x_values):
+def evaluate_function(x_values: numpy.ndarray[Any, numpy.dtype[Any]]) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     """Evaluate the test function: sin(2x) + cos(x)."""
     return numpy.sin(2.0 * x_values) + numpy.cos(x_values)
 

@@ -90,7 +90,7 @@ def plot_task(
         fig_path = manage_io.combine_file_path_parts([fig_directory, fig_name])
         manage_plots.save_figure(fig, fig_path, verbose=False)
         return True
-    except:
+    except Exception:
         return False
 
 

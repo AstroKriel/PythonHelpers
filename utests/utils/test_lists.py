@@ -170,7 +170,7 @@ class Tests(unittest.TestCase):
         with self.assertRaises(Exception):
             ww_lists.get_index_of_closest_value(
                 values=[1, 2, 3],
-                target=None,  # type: ignore[arg-type]
+                target=None,  # type: ignore
             )
         ## target value is infinity
         output_index = ww_lists.get_index_of_closest_value(
@@ -282,7 +282,7 @@ class Tests(unittest.TestCase):
             ww_lists.get_index_of_first_crossing(
                 values=values,
                 target=0.2,
-                direction="diagonal",  # type: ignore[arg-type]
+                direction="diagonal",  # type: ignore
             )  # type: ignore
         ## exact min value match
         values = [0.1, 0.2, 0.3]
@@ -309,7 +309,7 @@ class Tests(unittest.TestCase):
 
     def test_sample_returns_expected_length(self):
 
-        def _test(_input_length, _sampled_length):
+        def _test(_input_length: int, _sampled_length: int) -> None:
             elems = list(range(_input_length))
             out_elems = ww_lists.sample_list(
                 elems=elems,
@@ -387,7 +387,7 @@ class Tests(unittest.TestCase):
         ## first element always
         self.assertEqual(out[0], elems[0])
         ## constant integer stride between chosen indices
-        indices_to_keep = [value_index for value_index, value in enumerate(out)]
+        indices_to_keep = [value_index for value_index, _value in enumerate(out)]
         gaps = [b - a for a, b in zip(indices_to_keep[:-1], indices_to_keep[1:])]
         self.assertTrue(all(g == gaps[0] for g in gaps))  # constant gap
         self.assertGreater(
