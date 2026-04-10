@@ -153,20 +153,6 @@ def compute_helmholtz_decomposed_farrays(
         dtype,
         copy=False,
     )
-    del (
-        kx_values,
-        ky_values,
-        kz_values,
-        kx_grid,
-        ky_grid,
-        kz_grid,
-        k_magn_grid,
-        varray_3d_fft_q,
-        sarray_3d_k_dot_fft_q,
-        varray_3d_fft_div,
-        varray_3d_fft_sol,
-        varray_3d_fft_bulk,
-    )
     return HelmholtzDecomposedFArrays_3D(
         varray_3d_div=varray_3d_div,
         varray_3d_sol=varray_3d_sol,
@@ -319,12 +305,6 @@ def compute_tnb_farrays(
     uvarray_3d_binormal = _farray_operators.compute_varray_cross_product(
         varray_3d_a=uvarray_3d_tangent,
         varray_3d_b=uvarray_3d_normal,
-    )
-    del (
-        varray_3d_normal_term1,
-        varray_3d_normal_term2,
-        sarray_3d_inv_magn_sq,
-        sarray_3d_inv_magn4,
     )
     return TNBDecomposedFArrays_3D(
         uvarray_3d_tangent=uvarray_3d_tangent,
