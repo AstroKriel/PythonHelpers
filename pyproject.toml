@@ -50,6 +50,11 @@ reportImplicitOverride = "none" # requires @override decorator on every overridi
 reportUnknownMemberType = "none" # third-party stubs (matplotlib, numpy, scipy) use **kwargs: Unknown extensively; not actionable
 reportUnknownVariableType = "none" # cascade from third-party stubs returning Unknown types; not actionable
 reportUnknownArgumentType = "none" # cascade from third-party stubs; not actionable
+reportPrivateUsage = "none" # tests legitimately access private members to verify internal state
+reportUninitializedInstanceVariable = "none" # pyright does not track variables set in setUp(); false positive for unittest classes
+enableTypeIgnoreComments = true # honour # type: ignore comments (basedpyright defaults this to false)
+reportIgnoreCommentWithoutRule = "none" # test files use bare # type: ignore for intentional wrong-type calls
+reportUnnecessaryTypeIgnoreComment = "none" # suppress stale ignore comment warnings
 
 [dependency-groups]
 dev = [
