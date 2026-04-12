@@ -116,7 +116,7 @@ class TestFiniteDifferenceConvergence:
         fig, self.axs_grid = manage_plots.create_figure(
             num_rows=2,
             num_cols=2,
-            fig_scale=1.35,
+            fig_scale=2.0,
             x_spacing=0.35,
         )
         self._plot_exact_soln()
@@ -226,7 +226,7 @@ class TestFiniteDifferenceConvergence:
             ls="--",
             lw=2,
             color=color,
-            label=f"$O(h^{{{expected_scaling}}})$",
+            label=rf"$e_i^* \sim O(h^{{{expected_scaling}}})$",
             scalex=False,
             scaley=False,
         )
