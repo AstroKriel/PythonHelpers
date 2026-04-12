@@ -116,8 +116,8 @@ def _types_to_tuple(
     if isinstance(valid_types, (tuple, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if not valid_types:
             raise ValueError("Empty type specification.")
-        if not all(isinstance(valid_type, type)
-                   for valid_type in valid_types):  # pyright: ignore[reportUnnecessaryIsInstance]
+        if not all(isinstance(valid_type, type)  # pyright: ignore[reportUnnecessaryIsInstance]
+                   for valid_type in valid_types):
             raise TypeError("`valid_types` entries must be valid Python types.")
         return tuple(valid_types)
     raise TypeError(
@@ -428,7 +428,9 @@ def ensure_in_bounds(
     )
     _param_f = cast(float, param)
     if not (float(min_value) <= float(_param_f) <= float(max_value)):
-        raise ValueError(f"`{param_name}` must lie in [{min_value}, {max_value}], got {param}.")
+        raise ValueError(
+            f"`{param_name}` must lie in [{min_value}, {max_value}], got {param}.",
+        )
 
 
 ##
@@ -462,7 +464,9 @@ def ensure_sequence(
     param_name: str = "<param>",
     allow_none: bool = False,
     seq_length: int | None = None,
-    valid_seq_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
+    valid_seq_types: type
+    | tuple[type, ...]
+    | list[type] = RuntimeTypes.Sequences.SequenceLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
 ) -> None:
     """Ensure `param` is a valid sequence container, with optional fixed length and uniform element types."""
@@ -476,7 +480,9 @@ def ensure_sequence(
     _param_seq = cast(list[Any] | tuple[Any, ...], param)
     ## enforce number of elements
     if (seq_length is not None) and (len(_param_seq) != seq_length):
-        raise ValueError(f"`{param_name}` must have length {seq_length}, got {len(_param_seq)}.")
+        raise ValueError(
+            f"`{param_name}` must have length {seq_length}, got {len(_param_seq)}.",
+        )
     ## enforce uniform element types
     if valid_elem_types is not None:
         valid_elem_types = _types_to_tuple(valid_elem_types)
@@ -499,8 +505,12 @@ def ensure_nested_sequence(
     param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
-    valid_outer_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
-    valid_inner_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.SequenceLike,
+    valid_outer_types: type
+    | tuple[type, ...]
+    | list[type] = RuntimeTypes.Sequences.SequenceLike,
+    valid_inner_types: type
+    | tuple[type, ...]
+    | list[type] = RuntimeTypes.Sequences.SequenceLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
     allow_none: bool = False,
 ) -> None:
@@ -569,8 +579,12 @@ def ensure_nested_tuple(
     param_name: str = "<param>",
     outer_length: int | None = None,
     inner_length: int | None = None,
-    valid_outer_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.TupleLike,
-    valid_inner_types: type | tuple[type, ...] | list[type] = RuntimeTypes.Sequences.TupleLike,
+    valid_outer_types: type
+    | tuple[type, ...]
+    | list[type] = RuntimeTypes.Sequences.TupleLike,
+    valid_inner_types: type
+    | tuple[type, ...]
+    | list[type] = RuntimeTypes.Sequences.TupleLike,
     valid_elem_types: type | tuple[type, ...] | list[type] | None = None,
     allow_none: bool = False,
 ) -> None:
@@ -659,7 +673,9 @@ def ensure_ordered_pair(
     min_value, max_value = float(_param_t[0]), float(_param_t[1])
     if strict_ordering:
         if not (min_value < max_value):
-            raise ValueError(f"`{param_name}` must satisfy [0] < [1] (strict), got {param}.")
+            raise ValueError(
+                f"`{param_name}` must satisfy [0] < [1] (strict), got {param}.",
+            )
     else:
         if not (min_value <= max_value):
             raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {param}.")
@@ -916,7 +932,9 @@ def ensure_ndarray_ndim(
         allow_none=False,
     )
     if cast(NDArray[Any], param).ndim != ndim:
-        raise ValueError(f"`{param_name}` must have ndim={ndim}, got {cast(NDArray[Any], param).ndim}.")
+        raise ValueError(
+            f"`{param_name}` must have ndim={ndim}, got {cast(NDArray[Any], param).ndim}.",
+        )
 
 
 ## } MODULE
