@@ -211,7 +211,7 @@ def render_block(
     ## validate option
     if message_position not in ("top", "bottom"):
         raise ValueError(
-            "render_block(message_position): expected 'top' or 'bottom'."
+            "render_block(message_position): expected 'top' or 'bottom'.",
         )  # pyright: ignore[reportUnreachable]
     ## collect style and timestamp for this block
     message_style = message.style()
@@ -405,7 +405,7 @@ def log_items(
     show_time: bool = True,
     message_position: Literal["top", "bottom"] = "top",
 ) -> None:
-    grouped_items: dict[str, Any] = {f"{i+1}": item for i, item in enumerate(items)}
+    grouped_items: dict[str, Any] = {f"{item_index+1}": item for item_index, item in enumerate(items)}
     render_block(
         Message(
             message=message,
