@@ -144,7 +144,7 @@ def _label_cbar(
     *,
     label: str | None,
     cbar_side: _Side,
-    label_size: float,
+    label_size: int | float,
     label_pad: float,
 ) -> None:
     if cbar_side in (_Side.Left, _Side.Right):
@@ -188,7 +188,7 @@ def add_colorbar(
     cbar_length: float = 1.0,
     cbar_pad: float = 0.02,
     label_pad: float = 10.0,
-    label_size: float = 20.0,
+    label_size: int | float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
     check_types.ensure_finite_float(
@@ -212,7 +212,7 @@ def add_colorbar(
         require_positive=True,
         allow_zero=True,
     )
-    check_types.ensure_finite_float(
+    check_types.ensure_finite_scalar(
         param=label_size,
         param_name="label_size",
         allow_none=False,
