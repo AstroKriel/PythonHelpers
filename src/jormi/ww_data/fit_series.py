@@ -393,7 +393,7 @@ def fit_linear_model(
 
 def fit_line_with_fixed_slope(
     gaussian_series: GaussianSeries,
-    fixed_slope: float,
+    fixed_slope: int | float,
 ) -> LinearFitSummary:
     """Fit a line with a fixed slope to a 1D gaussian_series."""
     check_types.ensure_type(
@@ -401,7 +401,7 @@ def fit_line_with_fixed_slope(
         valid_types=GaussianSeries,
         param_name="gaussian_series",
     )
-    check_types.ensure_finite_float(
+    check_types.ensure_finite_scalar(
         param=fixed_slope,
         param_name="fixed_slope",
     )
