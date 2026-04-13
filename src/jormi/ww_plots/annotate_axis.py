@@ -163,9 +163,11 @@ def add_custom_legend(
         param=labels,
         param_name="labels",
     )
-    check_types.ensure_list_of_strings(
+    check_types.ensure_sequence(
         param=colors,
         param_name="colors",
+        valid_seq_types=list,
+        valid_elem_types=(str, tuple),
     )
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("`artists`, `labels`, and `colors` must all have the same length.")
