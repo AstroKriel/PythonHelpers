@@ -4,9 +4,11 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from typing import Any
+
 ## third-party
 import numpy
-from typing import Any
 from numpy.typing import NDArray
 
 from matplotlib.collections import LineCollection
@@ -20,6 +22,12 @@ from jormi.ww_types import (
     check_arrays,
     check_types,
 )
+
+##
+## === COLOUR TYPE
+##
+
+ColorType = str | tuple[float, float, float] | tuple[float, float, float, float]
 
 ##
 ## === VALID ARTISTS
@@ -53,9 +61,9 @@ def add_text(
     x_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
     y_alignment: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Center.Center,
     text_size: float = 20,
-    text_color: str = "black",
+    text_color: ColorType = "black",
     box_alpha: float = 0.0,
-    box_color: str = "white",
+    box_color: ColorType = "white",
     rotate_deg: float | None = None,
 ):
     """
@@ -131,7 +139,7 @@ def add_custom_legend(
     marker_size: float = 8,
     line_width: float = 1.5,
     text_size: float = 16,
-    text_color: str = "black",
+    text_color: ColorType = "black",
     anchor_point: tuple[float, float] = (1.0, 1.0),
     anchor_at_corner: box_positions.TypeHints.PositionLike = box_positions.TypeHints.Box.Corner.TopRight,
     frame_alpha: float = 0.0,
