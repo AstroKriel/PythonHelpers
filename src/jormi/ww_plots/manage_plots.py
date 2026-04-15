@@ -335,6 +335,8 @@ def add_inset_axis(
         top=True,
         bottom=True,
     )
+    if x_label_side is box_positions.TypeHints.Box.Side.Top:
+        ax_inset.xaxis.tick_top()
     ax_inset.tick_params(
         axis="y",
         labelleft=(y_label_side is box_positions.TypeHints.Box.Side.Left),
@@ -342,6 +344,8 @@ def add_inset_axis(
         left=True,
         right=True,
     )
+    if y_label_side is box_positions.TypeHints.Box.Side.Right:
+        ax_inset.yaxis.tick_right()
     return ax_inset
 
 
