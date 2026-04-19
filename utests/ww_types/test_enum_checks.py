@@ -1,4 +1,4 @@
-## { TEST
+## { U-TEST
 
 ##
 ## === DEPENDENCIES
@@ -294,4 +294,4 @@ class TestEnsureMemberIn(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-## } TEST
+## } U-TEST
