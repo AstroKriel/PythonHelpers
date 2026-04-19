@@ -107,7 +107,7 @@ def main():
     ## save figure always so it can be inspected on failure
     file_dir = manage_io.get_caller_directory()
     fig_name = "linear_fit.png"
-    fig_path = manage_io.combine_file_path_parts([file_dir, fig_name])
+    fig_path = file_dir / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
     print("All tests passed successfully!")

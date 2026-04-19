@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+from pathlib import Path
 from typing import Any, TypedDict
 
 ## third-party
@@ -40,7 +41,10 @@ def generate_div_vfield(
     """Generate a curl-free (irrotational) vector field."""
     x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
-        x0_centers, x1_centers, x2_centers, indexing="ij"
+        x0_centers,
+        x1_centers,
+        x2_centers,
+        indexing="ij",
     )
     varray = numpy.stack([2 * grid_x0, 2 * grid_x1, 2 * grid_x2])
     return field_types.VectorField_3D.from_3d_varray(
@@ -58,7 +62,10 @@ def generate_sol_vfield(
     domain_length = udomain_3d.domain_lengths[0]
     k = 2 * numpy.pi / domain_length
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
-        x0_centers, x1_centers, x2_centers, indexing="ij"
+        x0_centers,
+        x1_centers,
+        x2_centers,
+        indexing="ij",
     )
     vcomp_x0 = -k * grid_x0 * numpy.sin(k * grid_x0 * grid_x1)
     vcomp_x1 = k * grid_x1 * numpy.sin(k * grid_x0 * grid_x1)
@@ -151,11 +158,7 @@ def compute_field_fraction(
     if len(nonzero_indices) > 0:
         first_percent = float(bin_edges[nonzero_indices[0]])
         last_percent = float(bin_edges[nonzero_indices[-1]])
-        return (
-            first_percent
-            if first_percent == last_percent
-            else (last_percent - first_percent)
-        )
+        return (first_percent if first_percent == last_percent else (last_percent - first_percent))
     return 0.0
 
 
@@ -271,19 +274,15 @@ def main():
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
         vfield_rec = field_types.VectorField_3D.from_3d_varray(
             varray_3d=(
-                field_types.extract_3d_varray(vfield_3d_div)
-                + field_types.extract_3d_varray(vfield_3d_sol)
-                + field_types.extract_3d_varray(vfield_3d_bulk)
+                field_types.extract_3d_varray(vfield_3d_div) + field_types.extract_3d_varray(vfield_3d_sol) +
+                field_types.extract_3d_varray(vfield_3d_bulk)
             ),
             udomain_3d=udomain_3d,
             field_label=vfield.field_label,
         )
         ## residual: q - q_rec (should be ~0)
         vfield_residual = field_types.VectorField_3D.from_3d_varray(
-            varray_3d=(
-                field_types.extract_3d_varray(vfield)
-                - field_types.extract_3d_varray(vfield_rec)
-            ),
+            varray_3d=(field_types.extract_3d_varray(vfield) - field_types.extract_3d_varray(vfield_rec)),
             udomain_3d=udomain_3d,
             field_label=vfield.field_label,
         )
@@ -291,14 +290,14 @@ def main():
         sfield_check_q_diff = field_operators.compute_vfield_magnitude(vfield_residual)
         curl_div = field_operators.compute_vfield_curl(vfield_3d_div)
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
-            curl_div
+            curl_div,
         )
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
-            vfield_3d_sol
+            vfield_3d_sol,
         )
         curl_bulk = field_operators.compute_vfield_curl(vfield_3d_bulk)
         sfield_check_bulk_div = field_operators.compute_vfield_divergence(
-            vfield_3d_bulk
+            vfield_3d_bulk,
         )
         sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
         ## stats and thresholds (tolerant; these can be tightened)
@@ -407,7 +406,7 @@ def main():
         print(" ")
     directory = manage_io.get_caller_directory()
     file_name = "helmholtz_decomposition.png"
-    file_path = manage_io.combine_file_path_parts([directory, file_name])
+    file_path = Path(directory) / file_name
     manage_plots.save_figure(fig, file_path)
     assert len(failed_vfields) == 0, (
         f"Test failed for the following vector field(s): "

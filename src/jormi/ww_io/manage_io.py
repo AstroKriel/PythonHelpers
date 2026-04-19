@@ -29,16 +29,6 @@ def get_caller_directory() -> Path:
     return Path(caller_file_path).resolve().parent
 
 
-def combine_file_path_parts(
-    file_path_parts: list[str | Path],
-) -> Path:
-    return Path(
-        *ww_lists.flatten_list(
-            ww_lists.filter_out_nones(file_path_parts),
-        ),
-    ).absolute()
-
-
 def resolve_file_path(
     file_path: str | Path | None = None,
     directory: str | Path | None = None,
@@ -57,23 +47,10 @@ def resolve_file_path(
                 f" You are missing: {missing_params_string}."
                 " Alternatively, provide `file_path` directly.",
             )
-        file_path = combine_file_path_parts(
-            ww_lists.filter_out_nones([directory, file_name]),
-        )
+        file_path = Path(directory) / file_name
     else:
         file_path = Path(file_path).absolute()
     return file_path
-
-
-def does_directory_exist(
-    directory: str | Path,
-    raise_error: bool = False,
-) -> bool:
-    directory = Path(directory).absolute()
-    result = directory.is_dir()
-    if not result and raise_error:
-        raise NotADirectoryError(f"Directory does not exist: {directory}")
-    return result
 
 
 def init_directory(
@@ -81,7 +58,7 @@ def init_directory(
     verbose: bool = True,
 ) -> None:
     directory = Path(directory).resolve(strict=False)
-    if not does_directory_exist(directory):
+    if not directory.is_dir():
         directory.mkdir(parents=True)
         if verbose:
             manage_log.log_action(
@@ -99,23 +76,6 @@ def init_directory(
         )
 
 
-def does_file_exist(
-    file_path: str | Path | None = None,
-    directory: str | Path | None = None,
-    file_name: str | None = None,
-    raise_error: bool = False,
-) -> bool:
-    file_path = resolve_file_path(
-        file_path=file_path,
-        directory=directory,
-        file_name=file_name,
-    )
-    file_path_exists = file_path.is_file()
-    if not file_path_exists and raise_error:
-        raise FileNotFoundError(f"File does not exist: {file_path}")
-    return file_path_exists
-
-
 def _resolve_and_validate_file_operation(
     directory_from: str | Path,
     directory_to: str | Path,
@@ -123,16 +83,14 @@ def _resolve_and_validate_file_operation(
     overwrite: bool = False,
     dry_run: bool = False,
 ) -> tuple[Path, Path]:
-    does_directory_exist(
-        directory=directory_from,
-        raise_error=True,
-    )
-    file_path_from = combine_file_path_parts([directory_from, file_name])
-    does_file_exist(
-        file_path=file_path_from,
-        raise_error=True,
-    )
-    if not does_directory_exist(directory=directory_to):
+    directory_from = Path(directory_from)
+    if not directory_from.is_dir():
+        raise NotADirectoryError(f"Directory does not exist: {directory_from}")
+    file_path_from = directory_from / file_name
+    if not file_path_from.is_file():
+        raise FileNotFoundError(f"File does not exist: {file_path_from}")
+    directory_to = Path(directory_to)
+    if not directory_to.is_dir():
         if not dry_run:
             init_directory(
                 directory=directory_to,
@@ -145,12 +103,8 @@ def _resolve_and_validate_file_operation(
                 message="Dry-run: Would create directory.",
                 notes={"directory": str(directory_to)},
             )
-    file_path_to = combine_file_path_parts([directory_to, file_name])
-    file_exists = does_file_exist(
-        file_path=file_path_to,
-        raise_error=False,
-    )
-    if not overwrite and file_exists:
+    file_path_to = directory_to / file_name
+    if not overwrite and file_path_to.is_file():
         raise FileExistsError(f"File already exists: {file_path_to}")
     return file_path_from, file_path_to
 
@@ -248,11 +202,10 @@ def delete_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
-    does_directory_exist(
-        directory=directory,
-        raise_error=True,
-    )
-    file_path = combine_file_path_parts([directory, file_name])
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Directory does not exist: {directory}")
+    file_path = directory / file_name
     if not dry_run:
         file_path.unlink()
     if verbose or dry_run:
@@ -405,7 +358,8 @@ class ItemFilter:
     ) -> list[Path]:
         """Filter item names in the given directory based on current criteria."""
         directory = Path(directory).absolute()
-        does_directory_exist(directory, raise_error=True)
+        if not directory.is_dir():
+            raise NotADirectoryError(f"Directory does not exist: {directory}")
         return sorted(item for item in directory.iterdir() if self._meets_criteria(item))
 
 

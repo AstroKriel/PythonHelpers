@@ -11,10 +11,7 @@ from typing import Any
 from pathlib import Path
 
 ## local
-from jormi.ww_io import (
-    manage_io,
-    manage_log,
-)
+from jormi.ww_io import manage_log
 from jormi.ww_types import check_types
 
 ##
@@ -71,7 +68,7 @@ def read_csv_file_into_dict(
         allow_none=False,
     )
     file_path = _ensure_path_is_valid(file_path)
-    if not manage_io.does_file_exist(file_path):
+    if not file_path.is_file():
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
         manage_log.log_task(f"Reading csv-file: {file_path}")
@@ -116,7 +113,7 @@ def save_dict_to_csv_file(
     )
     file_path = _ensure_path_is_valid(file_path)
     _validate_input_dict(input_dict)
-    file_exists = manage_io.does_file_exist(file_path)
+    file_exists = file_path.is_file()
     if file_exists:
         if overwrite:
             _write_csv(

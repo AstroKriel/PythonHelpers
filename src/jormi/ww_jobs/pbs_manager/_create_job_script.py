@@ -8,7 +8,6 @@
 from pathlib import Path
 
 ## local
-from jormi.ww_io import manage_io
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
 from jormi.ww_jobs.pbs_manager._job_validation import (
     QueueValidationError,
@@ -86,7 +85,7 @@ def create_pbs_job_script(
     if email_on_finish:
         mail_options += "e"
     ## validate + open file
-    file_path = manage_io.combine_file_path_parts([directory, file_name])
+    file_path = Path(directory) / file_name
     _ensure_path_is_valid(file_path)
     with open(file_path, "w") as job_file:
         ## pbs header

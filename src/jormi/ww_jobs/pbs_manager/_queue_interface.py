@@ -8,10 +8,7 @@
 from pathlib import Path
 
 ## local
-from jormi.ww_io import (
-    manage_io,
-    manage_shell,
-)
+from jormi.ww_io import manage_shell
 
 ##
 ## === FUNCTIONS
@@ -44,8 +41,8 @@ def is_job_already_in_queue(
     file_name: str,
 ) -> bool:
     """Checks if a job name is already in the queue."""
-    file_path = manage_io.combine_file_path_parts([directory, file_name])
-    if not manage_io.does_file_exist(file_path=file_path):
+    file_path = Path(directory) / file_name
+    if not file_path.is_file():
         print(f"`{file_name}` job file does not exist in: {directory}")
         return False
     job_tag = get_job_tag_from_pbs_script(file_path)

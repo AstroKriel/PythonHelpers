@@ -6,6 +6,7 @@
 
 ## stdlib
 import sys
+from pathlib import Path
 from typing import Any, Callable, TypedDict
 
 ## third-party
@@ -85,7 +86,9 @@ def calculate_powerlaw_amplitude(
 
 class TestFiniteDifferenceConvergence:
 
-    def __init__(self):
+    def __init__(
+        self,
+    ):
         self.domain_bounds = [0, 2 * numpy.pi]
         self.num_samples_for_exact_soln = 100
         self.num_samples_for_approx_soln = 15
@@ -112,7 +115,9 @@ class TestFiniteDifferenceConvergence:
             },
         ]
 
-    def run(self):
+    def run(
+        self,
+    ):
         fig, self.axs_grid = manage_plots.create_figure(
             num_rows=2,
             num_cols=2,
@@ -124,14 +129,16 @@ class TestFiniteDifferenceConvergence:
         self._annotate_figure()
         directory = manage_io.get_caller_directory()
         file_name = "finite_difference_convergence.png"
-        file_path = manage_io.combine_file_path_parts([directory, file_name])
+        file_path = Path(directory) / file_name
         manage_plots.save_figure(fig, file_path)
         assert len(
             failed_methods,
         ) == 0, f"Convergence test failed for the following method(s): {ww_lists.as_string(failed_methods)}"
         print("Test passed successfully!")
 
-    def _plot_exact_soln(self):
+    def _plot_exact_soln(
+        self,
+    ):
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
         y_values = evaluate_fntion_at_points(x_values)
         dydx_values = evaluate_exact_fntion_derivative_at_points(x_values)
@@ -165,7 +172,9 @@ class TestFiniteDifferenceConvergence:
             label=label,
         )
 
-    def _test_method_scaling(self) -> list[str]:
+    def _test_method_scaling(
+        self,
+    ) -> list[str]:
         failed_methods = []
         for grad_method in self.grad_methods:
             expected_scaling = grad_method["expected_scaling"]
@@ -241,7 +250,9 @@ class TestFiniteDifferenceConvergence:
         )
         return bool(numpy.all(numpy.diff(numpy.diff(numpy.abs(residuals[1:]))) < 0.0))
 
-    def _annotate_figure(self):
+    def _annotate_figure(
+        self,
+    ):
         y_min, y_max = self.axs_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)
         self.axs_grid[1, 0].set_ylim([y_min, y_max_new])

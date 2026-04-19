@@ -19,10 +19,7 @@ import numpy
 ## local
 from jormi.ww_dicts import merge_dicts
 from jormi.ww_fns import fn_decorators
-from jormi.ww_io import (
-    manage_io,
-    manage_log,
-)
+from jormi.ww_io import manage_log
 from jormi.ww_types import check_types
 
 ##
@@ -55,7 +52,7 @@ def read_json_file_into_dict(
         allow_none=False,
     )
     file_path = _ensure_path_is_valid(file_path)
-    if not manage_io.does_file_exist(file_path=file_path):
+    if not file_path.is_file():
         raise FileNotFoundError(f"No json-file found: {file_path}")
     if verbose:
         manage_log.log_task(f"Reading json-file: {file_path}")
@@ -111,7 +108,7 @@ def save_dict_to_json_file(
         param_name="input_dict",
         allow_none=False,
     )
-    file_exists = manage_io.does_file_exist(file_path=file_path)
+    file_exists = file_path.is_file()
     if file_exists and not overwrite:
         _add_dict_to_json_file(
             file_path=file_path,
