@@ -36,7 +36,9 @@ class Sides(Enum):
 
 class TestEnsureSequenceOfEnums(unittest.TestCase):
 
-    def test_accepts_tuple_and_list(self):
+    def test_accepts_tuple_and_list(
+        self,
+    ):
         check_enums.ensure_sequence_of_enums(
             param=(Corners, ),
             param_name="valid_enums",
@@ -46,7 +48,9 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
             param_name="valid_enums",
         )
 
-    def test_rejects_empty(self):
+    def test_rejects_empty(
+        self,
+    ):
         with self.assertRaises(ValueError):
             check_enums.ensure_sequence_of_enums(
                 param=(),
@@ -58,14 +62,18 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
                 param_name="valid_enums",
             )
 
-    def test_rejects_non_sequence(self):
+    def test_rejects_non_sequence(
+        self,
+    ):
         with self.assertRaises(TypeError):
             check_enums.ensure_sequence_of_enums(
                 param=Corners, # type: ignore
                 param_name="valid_enums",
             )
 
-    def test_rejects_non_types(self):
+    def test_rejects_non_types(
+        self,
+    ):
         with self.assertRaises(TypeError):
             check_enums.ensure_sequence_of_enums(
                 param=["Corners"], # type: ignore
@@ -77,7 +85,9 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
                 param_name="valid_enums",
             )
 
-    def test_rejects_non_enum_types(self):
+    def test_rejects_non_enum_types(
+        self,
+    ):
         with self.assertRaises(TypeError):
             check_enums.ensure_sequence_of_enums(
                 param=[Corners, int], # type: ignore
@@ -92,21 +102,27 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
 
 class TestResolveMember(unittest.TestCase):
 
-    def test_accepts_enum_member(self):
+    def test_accepts_enum_member(
+        self,
+    ):
         out = check_enums.resolve_member(
             member=Corners.TopLeft,
             valid_enums=Corners,
         )
         self.assertIs(out, Corners.TopLeft)
 
-    def test_rejects_enum_member_from_wrong_enum(self):
+    def test_rejects_enum_member_from_wrong_enum(
+        self,
+    ):
         with self.assertRaises(ValueError):
             check_enums.resolve_member(
                 member=Sides.Left,
                 valid_enums=Corners,
             )
 
-    def test_accepts_name_case_insensitive(self):
+    def test_accepts_name_case_insensitive(
+        self,
+    ):
         out = check_enums.resolve_member(
             member="TopLeft",
             valid_enums=Corners,
@@ -123,7 +139,9 @@ class TestResolveMember(unittest.TestCase):
         )
         self.assertIs(out, Corners.TopLeft)
 
-    def test_accepts_value_case_insensitive(self):
+    def test_accepts_value_case_insensitive(
+        self,
+    ):
         out = check_enums.resolve_member(
             member="upper left",
             valid_enums=Corners,
@@ -135,7 +153,9 @@ class TestResolveMember(unittest.TestCase):
         )
         self.assertIs(out, Corners.TopLeft)
 
-    def test_with_multiple_valid_enums(self):
+    def test_with_multiple_valid_enums(
+        self,
+    ):
         out = check_enums.resolve_member(
             member="Left",
             valid_enums=(Corners, Sides),
@@ -147,7 +167,9 @@ class TestResolveMember(unittest.TestCase):
         )
         self.assertIs(out, Corners.TopRight)
 
-    def test_rejects_non_string_non_enum(self):
+    def test_rejects_non_string_non_enum(
+        self,
+    ):
         with self.assertRaises(TypeError):
             check_enums.resolve_member(
                 member=123, # type: ignore
@@ -159,14 +181,18 @@ class TestResolveMember(unittest.TestCase):
                 valid_enums=Corners,
             )
 
-    def test_rejects_unknown_string(self):
+    def test_rejects_unknown_string(
+        self,
+    ):
         with self.assertRaises(ValueError):
             check_enums.resolve_member(
                 member="NotAThing",
                 valid_enums=Corners,
             )
 
-    def test_ambiguous_across_enums(self):
+    def test_ambiguous_across_enums(
+        self,
+    ):
 
         class A(Enum):
             X = "shared"
@@ -188,7 +214,9 @@ class TestResolveMember(unittest.TestCase):
 
 class TestEnsureValidMember(unittest.TestCase):
 
-    def test_passes_and_fails(self):
+    def test_passes_and_fails(
+        self,
+    ):
         check_enums.ensure_valid_member(
             member="TopLeft",
             valid_enums=Corners,
@@ -210,7 +238,9 @@ class TestEnsureValidMember(unittest.TestCase):
 
 class TestEnsureMemberIn(unittest.TestCase):
 
-    def test_accepts_member_and_string(self):
+    def test_accepts_member_and_string(
+        self,
+    ):
         valid = (Corners.TopLeft, Corners.TopRight)
         check_enums.ensure_member_in(
             member=Corners.TopLeft,
@@ -223,7 +253,9 @@ class TestEnsureMemberIn(unittest.TestCase):
             param_name="corner",
         )
 
-    def test_rejects_outside_subset(self):
+    def test_rejects_outside_subset(
+        self,
+    ):
         valid = (Corners.TopLeft, Corners.TopRight)
         with self.assertRaises(ValueError):
             check_enums.ensure_member_in(
@@ -232,7 +264,9 @@ class TestEnsureMemberIn(unittest.TestCase):
                 param_name="corner",
             )
 
-    def test_rejects_invalid_valid_members_inputs(self):
+    def test_rejects_invalid_valid_members_inputs(
+        self,
+    ):
         with self.assertRaises(ValueError):
             check_enums.ensure_member_in(
                 member="TopLeft",

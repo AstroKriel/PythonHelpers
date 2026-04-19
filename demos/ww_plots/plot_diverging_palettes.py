@@ -22,7 +22,10 @@ from jormi.ww_plots.color_palettes import DivergingPalette
 ##
 
 
-def _make_gradient(value_min: float, value_max: float) -> numpy.ndarray:
+def _make_gradient(
+    value_min: float,
+    value_max: float,
+) -> numpy.ndarray:
     x_values = numpy.linspace(value_min, value_max, 200)
     y_values = numpy.linspace(value_min, value_max, 200)
     x_grid, y_grid = numpy.meshgrid(x_values, y_values)

@@ -23,7 +23,9 @@ from jormi.ww_fields import (
 
 class TestConstruction(unittest.TestCase):
 
-    def test_constructs_valid_1d(self):
+    def test_constructs_valid_1d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=1,
             periodicity=(True, ),
@@ -47,7 +49,9 @@ class TestConstruction(unittest.TestCase):
             ((0.0, 1.0), ),
         )
 
-    def test_constructs_valid_2d(self):
+    def test_constructs_valid_2d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
@@ -63,7 +67,9 @@ class TestConstruction(unittest.TestCase):
             8 * 4,
         )
 
-    def test_constructs_valid_3d(self):
+    def test_constructs_valid_3d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
@@ -82,7 +88,9 @@ class TestConstruction(unittest.TestCase):
 
 class TestValidation(unittest.TestCase):
 
-    def test_rejects_invalid_num_sdims(self):
+    def test_rejects_invalid_num_sdims(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=0,
@@ -105,7 +113,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0),),
             )
 
-    def test_rejects_wrong_periodicity_length(self):
+    def test_rejects_wrong_periodicity_length(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -114,7 +124,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_rejects_non_bool_periodicity(self):
+    def test_rejects_non_bool_periodicity(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -123,7 +135,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_rejects_wrong_resolution_length(self):
+    def test_rejects_wrong_resolution_length(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -132,7 +146,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_rejects_non_int_resolution(self):
+    def test_rejects_non_int_resolution(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -141,7 +157,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_rejects_non_positive_resolution_and_mentions_axis_label(self):
+    def test_rejects_non_positive_resolution_and_mentions_axis_label(
+        self,
+    ):
         with self.assertRaises(ValueError) as assert_context:
             _domain_types.UniformDomain(
                 num_sdims=3,
@@ -159,7 +177,9 @@ class TestValidation(unittest.TestCase):
             assert_message,
         )
 
-    def test_rejects_wrong_domain_bounds_length(self):
+    def test_rejects_wrong_domain_bounds_length(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -168,7 +188,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), ),
             )
 
-    def test_rejects_domain_bounds_not_pairs(self):
+    def test_rejects_domain_bounds_not_pairs(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -177,7 +199,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # type: ignore
             )
 
-    def test_rejects_domain_bounds_non_numeric(self):
+    def test_rejects_domain_bounds_non_numeric(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -186,7 +210,9 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=(("a", "b"), (0.0, 1.0)),  # type: ignore
             )
 
-    def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(self):
+    def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(
+        self,
+    ):
         with self.assertRaises(ValueError) as assert_context:
             _domain_types.UniformDomain(
                 num_sdims=2,
@@ -198,7 +224,9 @@ class TestValidation(unittest.TestCase):
         self.assertIn(cartesian_axes.get_axis_label(axis=0), assert_message)
         self.assertIn("max bound must be > min bound", assert_message)
 
-    def test_rejects_num_sdims_exceeding_supported_cartesian_axes(self):
+    def test_rejects_num_sdims_exceeding_supported_cartesian_axes(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             _domain_types.UniformDomain(
                 num_sdims=4,
@@ -210,7 +238,9 @@ class TestValidation(unittest.TestCase):
 
 class TestProperties(unittest.TestCase):
 
-    def test_lengths_widths_measures_num_cells_2d(self):
+    def test_lengths_widths_measures_num_cells_2d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
@@ -238,7 +268,9 @@ class TestProperties(unittest.TestCase):
             40,
         )
 
-    def test_lengths_widths_measures_num_cells_3d(self):
+    def test_lengths_widths_measures_num_cells_3d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
@@ -266,7 +298,9 @@ class TestProperties(unittest.TestCase):
             2 * 3 * 4,
         )
 
-    def test_cell_centers_values_1d(self):
+    def test_cell_centers_values_1d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=1,
             periodicity=(True, ),
@@ -283,7 +317,9 @@ class TestProperties(unittest.TestCase):
             ),
         )
 
-    def test_cell_centers_shapes_3d(self):
+    def test_cell_centers_shapes_3d(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
@@ -310,7 +346,9 @@ class TestProperties(unittest.TestCase):
             numpy.all((x2_centers > -7.0) & (x2_centers < 0.0)),
         )
 
-    def test_cached_properties_return_same_object(self):
+    def test_cached_properties_return_same_object(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=2,
             periodicity=(True, True),
@@ -333,7 +371,9 @@ class TestProperties(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_ensure_udomain_accepts(self):
+    def test_ensure_udomain_accepts(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
@@ -342,11 +382,15 @@ class TestEnsureHelpers(unittest.TestCase):
         )
         _domain_types.ensure_udomain(udomain=udomain)
 
-    def test_ensure_udomain_rejects_wrong_type(self):
+    def test_ensure_udomain_rejects_wrong_type(
+        self,
+    ):
         with self.assertRaises(TypeError):
             _domain_types.ensure_udomain(udomain=None)  # type: ignore
 
-    def test_ensure_udomain_metadata_num_sdims(self):
+    def test_ensure_udomain_metadata_num_sdims(
+        self,
+    ):
         udomain = _domain_types.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),

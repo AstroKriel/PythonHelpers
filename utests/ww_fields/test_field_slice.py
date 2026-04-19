@@ -37,7 +37,9 @@ class TestUdomain(unittest.TestCase):
             domain_bounds=((0.0, 3.0), (0.0, 4.0), (0.0, 5.0)),
         )
 
-    def test_constructs_sliced_domain_axis_x0(self):
+    def test_constructs_sliced_domain_axis_x0(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         udomain_2d = slice_fields._slice_3d_udomain(
             udomain_3d=udomain_3d,
@@ -74,7 +76,9 @@ class TestUdomain(unittest.TestCase):
             1.5,
         )
 
-    def test_constructs_sliced_domain_axis_x1(self):
+    def test_constructs_sliced_domain_axis_x1(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         udomain_2d = slice_fields._slice_3d_udomain(
             udomain_3d=udomain_3d,
@@ -107,7 +111,9 @@ class TestUdomain(unittest.TestCase):
             2.5,
         )
 
-    def test_constructs_sliced_domain_axis_x2(self):
+    def test_constructs_sliced_domain_axis_x2(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         udomain_2d = slice_fields._slice_3d_udomain(
             udomain_3d=udomain_3d,
@@ -140,7 +146,9 @@ class TestUdomain(unittest.TestCase):
             4.5,
         )
 
-    def test_rejects_negative_slice_index(self):
+    def test_rejects_negative_slice_index(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         with self.assertRaises(ValueError):
             slice_fields._slice_3d_udomain(
@@ -150,7 +158,9 @@ class TestUdomain(unittest.TestCase):
                 param_name="<udomain_3d>",
             )
 
-    def test_rejects_slice_index_out_of_range(self):
+    def test_rejects_slice_index_out_of_range(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         with self.assertRaises(ValueError):
             slice_fields._slice_3d_udomain(
@@ -160,7 +170,9 @@ class TestUdomain(unittest.TestCase):
                 param_name="<udomain_3d>",
             )
 
-    def test_rejects_invalid_axis(self):
+    def test_rejects_invalid_axis(
+        self,
+    ):
         udomain_3d = self._make_udomain_3d()
         with self.assertRaises(ValueError):
             slice_fields._slice_3d_udomain(
@@ -194,7 +206,9 @@ class TestScalarField(unittest.TestCase):
             sim_time=1.25,
         )
 
-    def test_slices_axis_x0(self):
+    def test_slices_axis_x0(
+        self,
+    ):
         sfield_3d = self._make_sfield_3d()
         sfield_2d = slice_fields.slice_3d_sfield(
             sfield_3d=sfield_3d,
@@ -222,7 +236,9 @@ class TestScalarField(unittest.TestCase):
             sfield_3d.field_label,
         )
 
-    def test_slices_axis_x1(self):
+    def test_slices_axis_x1(
+        self,
+    ):
         sfield_3d = self._make_sfield_3d()
         sfield_2d = slice_fields.slice_3d_sfield(
             sfield_3d=sfield_3d,
@@ -242,7 +258,9 @@ class TestScalarField(unittest.TestCase):
             ),
         )
 
-    def test_slices_axis_x2(self):
+    def test_slices_axis_x2(
+        self,
+    ):
         sfield_3d = self._make_sfield_3d()
         sfield_2d = slice_fields.slice_3d_sfield(
             sfield_3d=sfield_3d,
@@ -262,7 +280,9 @@ class TestScalarField(unittest.TestCase):
             ),
         )
 
-    def test_rejects_negative_slice_index(self):
+    def test_rejects_negative_slice_index(
+        self,
+    ):
         sfield_3d = self._make_sfield_3d()
         with self.assertRaises(ValueError):
             slice_fields.slice_3d_sfield(
@@ -295,7 +315,9 @@ class TestVectorField(unittest.TestCase):
             sim_time=2.0,
         )
 
-    def test_slices_inplane_axis_x0(self):
+    def test_slices_inplane_axis_x0(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         vfield_2d = slice_fields.slice_3d_vfield_inplane(
             vfield_3d=vfield_3d,
@@ -316,7 +338,9 @@ class TestVectorField(unittest.TestCase):
             ),
         )
 
-    def test_slices_inplane_axis_x1(self):
+    def test_slices_inplane_axis_x1(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         vfield_2d = slice_fields.slice_3d_vfield_inplane(
             vfield_3d=vfield_3d,
@@ -337,7 +361,9 @@ class TestVectorField(unittest.TestCase):
             ),
         )
 
-    def test_slices_inplane_axis_x2(self):
+    def test_slices_inplane_axis_x2(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         vfield_2d = slice_fields.slice_3d_vfield_inplane(
             vfield_3d=vfield_3d,
@@ -358,7 +384,9 @@ class TestVectorField(unittest.TestCase):
             ),
         )
 
-    def test_slices_outofplane_axis_x0(self):
+    def test_slices_outofplane_axis_x0(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         sfield_2d = slice_fields.slice_3d_vfield_outofplane(
             vfield_3d=vfield_3d,
@@ -378,7 +406,9 @@ class TestVectorField(unittest.TestCase):
             ),
         )
 
-    def test_slices_outofplane_axis_x1(self):
+    def test_slices_outofplane_axis_x1(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         sfield_2d = slice_fields.slice_3d_vfield_outofplane(
             vfield_3d=vfield_3d,
@@ -398,7 +428,9 @@ class TestVectorField(unittest.TestCase):
             ),
         )
 
-    def test_slices_outofplane_axis_x2(self):
+    def test_slices_outofplane_axis_x2(
+        self,
+    ):
         vfield_3d = self._make_vfield_3d()
         sfield_2d = slice_fields.slice_3d_vfield_outofplane(
             vfield_3d=vfield_3d,

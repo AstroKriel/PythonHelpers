@@ -46,7 +46,9 @@ class CommandOutcome:
     stderr: str | None
 
     @property
-    def succeeded(self) -> bool:
+    def succeeded(
+        self,
+    ) -> bool:
         return self.exit_code == 0
 
 

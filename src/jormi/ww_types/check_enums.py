@@ -195,7 +195,7 @@ def ensure_member_in(
         valid_enums=valid_enums,
     )
     if resolved_member not in valid_members:
-        valid_members_string = ww_lists.as_quoted_string([member.name for member in valid_members], )
+        valid_members_string = ww_lists.as_quoted_string([member.name for member in valid_members])
         raise ValueError(
             f"`{param_name}` must be one of: {valid_members_string}; got {resolved_member.name}.",
         )

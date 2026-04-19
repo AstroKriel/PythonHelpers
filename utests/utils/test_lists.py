@@ -20,7 +20,9 @@ from jormi import ww_lists
 
 class Tests(unittest.TestCase):
 
-    def test_cast_to_string(self):
+    def test_cast_to_string(
+        self,
+    ):
         ## default: no quotes, no conjunction
         result = ww_lists.as_string(["a", "b", "c"])
         self.assertEqual(
@@ -70,7 +72,9 @@ class Tests(unittest.TestCase):
             "x and y",
         )
 
-    def test_get_intersect_of_lists(self):
+    def test_get_intersect_of_lists(
+        self,
+    ):
         ## intersection of two lists
         output = ww_lists.get_intersect_of_lists(
             list_a=[1, 2, 3],
@@ -109,7 +113,9 @@ class Tests(unittest.TestCase):
             [],
         )
 
-    def test_get_union_of_lists(self):
+    def test_get_union_of_lists(
+        self,
+    ):
         ## union of two lists
         output = ww_lists.get_union_of_lists(
             list_a=[1, 2, 3],
@@ -147,7 +153,9 @@ class Tests(unittest.TestCase):
             [1, 2, 3],
         )
 
-    def test_get_index_of_closest_value(self):
+    def test_get_index_of_closest_value(
+        self,
+    ):
         ## typical case 1: target value exists in the list
         output_index = ww_lists.get_index_of_closest_value(
             values=[1, 5, 8],
@@ -191,7 +199,9 @@ class Tests(unittest.TestCase):
             0,
         )
 
-    def test_flatten_list(self):
+    def test_flatten_list(
+        self,
+    ):
         ## flatten a list of lists
         output = ww_lists.flatten_list([[1, 2], [3, 4, 5], [6]])
         expected = [1, 2, 3, 4, 5, 6]
@@ -237,7 +247,9 @@ class Tests(unittest.TestCase):
             2,
         )
 
-    def test_get_index_of_first_crossing(self):
+    def test_get_index_of_first_crossing(
+        self,
+    ):
         ## rising crossing
         values = [0.1, 0.2, 0.5, 0.7, 1.0]
         index = ww_lists.get_index_of_first_crossing(
@@ -307,7 +319,9 @@ class Tests(unittest.TestCase):
         )
         self.assertIsNone(result)
 
-    def test_sample_returns_expected_length(self):
+    def test_sample_returns_expected_length(
+        self,
+    ):
 
         def _test(
             _input_length: int,
@@ -329,7 +343,9 @@ class Tests(unittest.TestCase):
                 _sampled_length=5,
             )
 
-    def test_sample_expected_elems_divisible_cases(self):
+    def test_sample_expected_elems_divisible_cases(
+        self,
+    ):
         ## test: (num_elems - 1) % (max_elems - 1) == 0 -> last element included
         ## 20 % 4 == 0
         elems = list(range(21))
@@ -349,7 +365,9 @@ class Tests(unittest.TestCase):
             [0, 3, 6, 9, 12],
         )
 
-    def test_sample_expected_elems_nondivisible_cases(self):
+    def test_sample_expected_elems_nondivisible_cases(
+        self,
+    ):
         ## last element is typically NOT included with pure integer stride
         ## 19 % 4 != 0
         elems = list(range(20))
@@ -380,7 +398,9 @@ class Tests(unittest.TestCase):
             elems[-1],
         )
 
-    def test_first_element_and_constant_stringide(self):
+    def test_first_element_and_constant_stringide(
+        self,
+    ):
         elems = list(range(37))
         max_elems = 7
         out = ww_lists.sample_list(
@@ -398,7 +418,9 @@ class Tests(unittest.TestCase):
             0,
         )
 
-    def test_single_element_requested(self):
+    def test_single_element_requested(
+        self,
+    ):
         elems = [1, 2, 3]
         out = ww_lists.sample_list(
             elems=elems,
@@ -406,7 +428,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(out, [1])
 
-    def test_invalid_inputs(self):
+    def test_invalid_inputs(
+        self,
+    ):
         with self.assertRaises(ValueError):
             ww_lists.sample_list(
                 elems=[],

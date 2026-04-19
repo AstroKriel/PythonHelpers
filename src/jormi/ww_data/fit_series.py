@@ -230,7 +230,9 @@ class FitSummary:
     x_bounds: tuple[float, float]
     y_bounds: tuple[float, float]
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ):
         missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
             missing_string = ww_lists.as_string(
@@ -275,7 +277,9 @@ class FitSummary:
         return self.fit_stats[param_name]
 
     @cached_property
-    def degrees_of_freedom(self) -> int:
+    def degrees_of_freedom(
+        self,
+    ) -> int:
         return self.num_points - len(self.model.param_names)
 
     def evaluate_fit(
@@ -297,18 +301,24 @@ class FitSummary:
 class LinearFitSummary(FitSummary):
     """FitSummary subclass for linear models, exposing slope and intercept directly."""
 
-    def __post_init__(self):
+    def __post_init__(
+        self,
+    ):
         super().__post_init__()
         for required_key in ("slope", "intercept"):
             if required_key not in self.fit_stats:
                 raise ValueError(f"LinearFitSummary requires '{required_key}' in fit_stats.")
 
     @property
-    def slope(self) -> FitStatistic:
+    def slope(
+        self,
+    ) -> FitStatistic:
         return self.fit_stats["slope"]
 
     @property
-    def intercept(self) -> FitStatistic:
+    def intercept(
+        self,
+    ) -> FitStatistic:
         return self.fit_stats["intercept"]
 
 

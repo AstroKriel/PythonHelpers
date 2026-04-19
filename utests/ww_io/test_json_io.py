@@ -23,12 +23,18 @@ from jormi.ww_io import json_io
 ##
 
 
-def save_dict_to_json_file(*args: Any, **kwargs: Any) -> None:
+def save_dict_to_json_file(
+    *args: Any,
+    **kwargs: Any,
+) -> None:
     kwargs["verbose"] = False
     json_io.save_dict_to_json_file(*args, **kwargs)
 
 
-def read_json_file_into_dict(*args: Any, **kwargs: Any) -> Any:
+def read_json_file_into_dict(
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
     kwargs["verbose"] = False
     return json_io.read_json_file_into_dict(*args, **kwargs)
 
@@ -40,23 +46,31 @@ def read_json_file_into_dict(*args: Any, **kwargs: Any) -> Any:
 
 class Tests(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(
+        self,
+    ):
         self.test_file_path = Path("test_file.json")
         if self.test_file_path.exists():
             os.remove(self.test_file_path)
 
-    def tearDown(self):
+    def tearDown(
+        self,
+    ):
         if self.test_file_path.exists():
             os.remove(self.test_file_path)
 
-    def test_create_new_json_file(self):
+    def test_create_new_json_file(
+        self,
+    ):
         data = {"a": 1, "b": [1, 2, 3]}
         save_dict_to_json_file(self.test_file_path, data)
         self.assertTrue(self.test_file_path.exists())
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, data)
 
-    def test_add_dict_to_existing_json_file(self):
+    def test_add_dict_to_existing_json_file(
+        self,
+    ):
         data1 = {"a": 1}
         data2 = {"b": 2}
         expected = ww_dicts.merge_dicts(data1, data2)
@@ -65,7 +79,9 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, expected)
 
-    def test_overwrite_json_file(self):
+    def test_overwrite_json_file(
+        self,
+    ):
         data1 = {"a": 1}
         data2 = {"b": 2}
         save_dict_to_json_file(self.test_file_path, data1)
@@ -73,20 +89,28 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, data2)
 
-    def test_read_nonexistent_json_file_raises(self):
+    def test_read_nonexistent_json_file_raises(
+        self,
+    ):
         with self.assertRaises(FileNotFoundError):
             read_json_file_into_dict(file_path="nonexistent.json")
 
-    def test_read_invalid_extension_raises(self):
+    def test_read_invalid_extension_raises(
+        self,
+    ):
         invalid_file = Path("invalid_file.txt")
         with self.assertRaises(ValueError):
             read_json_file_into_dict(file_path=invalid_file)
 
-    def test_save_invalid_extension_raises(self):
+    def test_save_invalid_extension_raises(
+        self,
+    ):
         with self.assertRaises(ValueError):
             json_io._create_json_file_from_dict("invalid.txt", {"a": 1})
 
-    def test_numpy_serialization(self):
+    def test_numpy_serialization(
+        self,
+    ):
         data = {
             "int": numpy.int32(42),
             "float": numpy.float64(3.14),
@@ -98,7 +122,9 @@ class Tests(unittest.TestCase):
         expected = {"int": 42, "float": 3.14, "bool": True, "array": [1, 2, 3]}
         self.assertEqual(result, expected)
 
-    def test_merge_with_nested_dicts(self):
+    def test_merge_with_nested_dicts(
+        self,
+    ):
         d1 = {"a": {"x": 1}, "b": 2}
         d2 = {"a": {"y": 3}, "c": 4}
         save_dict_to_json_file(self.test_file_path, d1)
@@ -107,7 +133,9 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, expected)
 
-    def test_scalar_overwritten_by_list(self):
+    def test_scalar_overwritten_by_list(
+        self,
+    ):
         data1 = {"a": 1}
         data2 = {"a": [2, 3]}
         save_dict_to_json_file(self.test_file_path, data1)
@@ -115,7 +143,9 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, {"a": [2, 3]})
 
-    def test_list_overwritten_by_scalar(self):
+    def test_list_overwritten_by_scalar(
+        self,
+    ):
         data1 = {"a": [1, 2]}
         data2 = {"a": 42}
         save_dict_to_json_file(self.test_file_path, data1)
@@ -123,7 +153,9 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, {"a": 42})
 
-    def test_nested_dict_overwritten_by_scalar(self):
+    def test_nested_dict_overwritten_by_scalar(
+        self,
+    ):
         data1 = {"a": {"x": 1}}
         data2 = {"a": 100}
         save_dict_to_json_file(self.test_file_path, data1)
@@ -131,7 +163,9 @@ class Tests(unittest.TestCase):
         result = read_json_file_into_dict(self.test_file_path)
         self.assertEqual(result, {"a": 100})
 
-    def test_overwrite_with_none(self):
+    def test_overwrite_with_none(
+        self,
+    ):
         data1 = {"key": "value"}
         data2 = {"key": None}
         save_dict_to_json_file(self.test_file_path, data1)

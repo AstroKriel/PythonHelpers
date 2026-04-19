@@ -17,7 +17,9 @@ from jormi import ww_dicts
 
 class Tests(unittest.TestCase):
 
-    def test_merge_dicts_basic(self):
+    def test_merge_dicts_basic(
+        self,
+    ):
         ## usual case 1: merging two dictionaries with a mix of nested and simple keys
         dict1 = {"a": 1, "b": {"c": 2}}
         dict2 = {"b": {"d": 3}, "e": 4, "d": {"f": 10}}
@@ -49,7 +51,9 @@ class Tests(unittest.TestCase):
         dict_expected = {"a": 1, "b": 2}
         self.assertEqual(dict_merged, dict_expected)
 
-    def test_merge_dicts_with_overwrite(self):
+    def test_merge_dicts_with_overwrite(
+        self,
+    ):
         ## typical case: merging two dictionaries with simple values types (integer and string)
         dict_1 = {"a": 1, "b": "hello"}
         dict_2 = {"a": {"c": 2}, "b": "world", "c": 3}
@@ -63,7 +67,9 @@ class Tests(unittest.TestCase):
         dict_expected = {"a": 1, "b": "hello", "c": 3}
         self.assertEqual(dict_merged, dict_expected)
 
-    def test_merge_dicts_no_side_effects(self):
+    def test_merge_dicts_no_side_effects(
+        self,
+    ):
         ## edge case: check that modifying the dict_merged dictionary does not affect the originals
         dict_1 = {"a": [1, 2]}
         dict_2 = {"a": [3, 4], "b": 5}
@@ -73,7 +79,9 @@ class Tests(unittest.TestCase):
         self.assertEqual(dict_1, {"a": [1, 2]})
         self.assertEqual(dict_2, {"a": [3, 4], "b": 5})
 
-    def test_merge_dicts_complex_stringuctures(self):
+    def test_merge_dicts_complex_stringuctures(
+        self,
+    ):
         ## typical case: merging two complex dictionaries with mixed structures (lists, sets, and nested dictionaries)
         dict_1 = {"a": [1, 2], "b": {"x": 1}, "c": {1, 2}}
         dict_2 = {"a": [3, 4], "b": {"y": 2}, "c": {3, 4}, "d": "new"}
@@ -81,7 +89,9 @@ class Tests(unittest.TestCase):
         dict_expected = {"a": [1, 2, 3, 4], "b": {"x": 1, "y": 2}, "c": {1, 2, 3, 4}, "d": "new"}
         self.assertEqual(dict_merged, dict_expected)
 
-    def test_merge_dicts_key_conflict(self):
+    def test_merge_dicts_key_conflict(
+        self,
+    ):
         ## edge case: merging a dictionary with a list with a value in the other dictionary that is not a list
         dict_1 = {"a": [1, 2]}
         dict_2 = {"a": 3}
@@ -89,7 +99,9 @@ class Tests(unittest.TestCase):
         dict_expected = {"a": 3}
         self.assertEqual(dict_merged, dict_expected)
 
-    def test_merge_dicts_with_none_values(self):
+    def test_merge_dicts_with_none_values(
+        self,
+    ):
         ## typical case: merging a dictionary with `None` values
         dict_1 = {"a": None, "b": 2}
         dict_2 = {"a": 1, "c": 3}
@@ -97,7 +109,9 @@ class Tests(unittest.TestCase):
         dict_expected = {"a": 1, "b": 2, "c": 3}
         self.assertEqual(dict_merged, dict_expected)
 
-    def test_are_dicts_different(self):
+    def test_are_dicts_different(
+        self,
+    ):
         ## typical case 1: identical dictionaries
         dict1 = {"a": 1, "b": 2}
         dict2 = {"a": 1, "b": 2}

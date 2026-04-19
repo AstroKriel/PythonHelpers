@@ -74,21 +74,27 @@ def _make_constant_vfield(
 
 class TestScalarFieldRms(unittest.TestCase):
 
-    def test_rms_of_constant_positive_field(self):
+    def test_rms_of_constant_positive_field(
+        self,
+    ):
         sfield = _make_constant_sfield(value=3.0)
         self.assertAlmostEqual(
             field_operators.compute_sfield_rms(sfield),
             3.0,
         )
 
-    def test_rms_of_zero_field(self):
+    def test_rms_of_zero_field(
+        self,
+    ):
         sfield = _make_constant_sfield(value=0.0)
         self.assertAlmostEqual(
             field_operators.compute_sfield_rms(sfield),
             0.0,
         )
 
-    def test_rms_of_alternating_signs_is_positive(self):
+    def test_rms_of_alternating_signs_is_positive(
+        self,
+    ):
         sarray = numpy.ones(_RESOLUTION)
         sarray[::2] = -1.0
         sfield = field_types.ScalarField_3D.from_3d_sarray(
@@ -101,7 +107,9 @@ class TestScalarFieldRms(unittest.TestCase):
             1.0,
         )
 
-    def test_rms_returns_float(self):
+    def test_rms_returns_float(
+        self,
+    ):
         sfield = _make_constant_sfield(value=2.0)
         self.assertIsInstance(
             field_operators.compute_sfield_rms(sfield),
@@ -111,7 +119,9 @@ class TestScalarFieldRms(unittest.TestCase):
 
 class TestScalarFieldVolumeIntegral(unittest.TestCase):
 
-    def test_integral_of_ones_equals_total_volume(self):
+    def test_integral_of_ones_equals_total_volume(
+        self,
+    ):
         domain = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 3.0), (0.0, 4.0)))
         sfield = field_types.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones(_RESOLUTION),
@@ -124,14 +134,18 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
             places=10,
         )
 
-    def test_integral_of_zero_field_is_zero(self):
+    def test_integral_of_zero_field_is_zero(
+        self,
+    ):
         sfield = _make_constant_sfield(value=0.0)
         self.assertAlmostEqual(
             field_operators.compute_sfield_volume_integral(sfield),
             0.0,
         )
 
-    def test_integral_of_constant_equals_value_times_volume(self):
+    def test_integral_of_constant_equals_value_times_volume(
+        self,
+    ):
         value = 5.0
         domain = _make_3d_udomain()
         sfield = _make_constant_sfield(value=value)
@@ -141,7 +155,9 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
             places=10,
         )
 
-    def test_integral_returns_float(self):
+    def test_integral_returns_float(
+        self,
+    ):
         sfield = _make_constant_sfield(value=1.0)
         self.assertIsInstance(
             field_operators.compute_sfield_volume_integral(sfield),
@@ -151,7 +167,9 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
 
 class TestScalarFieldGradient(unittest.TestCase):
 
-    def test_gradient_of_constant_field_is_zero(self):
+    def test_gradient_of_constant_field_is_zero(
+        self,
+    ):
         sfield = _make_constant_sfield(value=7.0)
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
         self.assertTrue(
@@ -161,14 +179,18 @@ class TestScalarFieldGradient(unittest.TestCase):
             ),
         )
 
-    def test_gradient_returns_vector_field(self):
+    def test_gradient_returns_vector_field(
+        self,
+    ):
         sfield = _make_constant_sfield(value=1.0)
         self.assertIsInstance(
             field_operators.compute_sfield_gradient(sfield_3d=sfield),
             field_types.VectorField_3D,
         )
 
-    def test_gradient_result_has_same_domain(self):
+    def test_gradient_result_has_same_domain(
+        self,
+    ):
         sfield = _make_constant_sfield(value=1.0)
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
         self.assertEqual(
@@ -176,7 +198,9 @@ class TestScalarFieldGradient(unittest.TestCase):
             sfield.udomain,
         )
 
-    def test_gradient_result_has_same_resolution(self):
+    def test_gradient_result_has_same_resolution(
+        self,
+    ):
         sfield = _make_constant_sfield(value=1.0)
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
         self.assertEqual(
@@ -184,7 +208,9 @@ class TestScalarFieldGradient(unittest.TestCase):
             sfield.fdata.shape,
         )
 
-    def test_gradient_preserves_sim_time(self):
+    def test_gradient_preserves_sim_time(
+        self,
+    ):
         sfield = field_types.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones(_RESOLUTION),
             udomain_3d=_make_3d_udomain(),
@@ -198,7 +224,9 @@ class TestScalarFieldGradient(unittest.TestCase):
             2.5,
         )
 
-    def test_gradient_sinusoidal_x0_component(self):
+    def test_gradient_sinusoidal_x0_component(
+        self,
+    ):
         N = 256
         resolution = (N, 2, 2)
         domain = domain_types.UniformDomain_3D(
@@ -240,7 +268,9 @@ class TestScalarFieldGradient(unittest.TestCase):
             ),
         )
 
-    def test_gradient_output_buffer_reused_when_compatible(self):
+    def test_gradient_output_buffer_reused_when_compatible(
+        self,
+    ):
         sfield = _make_constant_sfield(value=1.0)
         array = numpy.empty((3, ) + _RESOLUTION)
         vfield_grad = field_operators.compute_sfield_gradient(
@@ -257,7 +287,9 @@ class TestScalarFieldGradient(unittest.TestCase):
 
 class TestVectorFieldMagnitude(unittest.TestCase):
 
-    def test_magnitude_of_known_vector(self):
+    def test_magnitude_of_known_vector(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=3.0,
             value_in_x1=4.0,
@@ -271,7 +303,9 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             ),
         )
 
-    def test_magnitude_of_zero_vector_is_zero(self):
+    def test_magnitude_of_zero_vector_is_zero(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=0.0,
             value_in_x1=0.0,
@@ -285,7 +319,9 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             ),
         )
 
-    def test_magnitude_of_unit_vector_is_one(self):
+    def test_magnitude_of_unit_vector_is_one(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -299,7 +335,9 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             ),
         )
 
-    def test_magnitude_returns_scalar_field(self):
+    def test_magnitude_returns_scalar_field(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -310,7 +348,9 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             field_types.ScalarField_3D,
         )
 
-    def test_magnitude_result_has_same_domain(self):
+    def test_magnitude_result_has_same_domain(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -325,7 +365,9 @@ class TestVectorFieldMagnitude(unittest.TestCase):
 
 class TestVectorFieldDotProduct(unittest.TestCase):
 
-    def test_dot_of_orthogonal_unit_vectors_is_zero(self):
+    def test_dot_of_orthogonal_unit_vectors_is_zero(
+        self,
+    ):
         vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -347,7 +389,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             ),
         )
 
-    def test_dot_of_parallel_unit_vectors_is_one(self):
+    def test_dot_of_parallel_unit_vectors_is_one(
+        self,
+    ):
         vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -364,7 +408,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             ),
         )
 
-    def test_dot_product_of_known_vectors(self):
+    def test_dot_product_of_known_vectors(
+        self,
+    ):
         vfield_a = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -381,7 +427,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertTrue(numpy.allclose(field_types.extract_3d_sarray(sfield_dot), 32.0))
 
-    def test_dot_product_is_commutative(self):
+    def test_dot_product_is_commutative(
+        self,
+    ):
         vfield_a = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -407,7 +455,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             ),
         )
 
-    def test_dot_product_returns_scalar_field(self):
+    def test_dot_product_returns_scalar_field(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -421,7 +471,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             field_types.ScalarField_3D,
         )
 
-    def test_dot_product_domain_mismatch_raises(self):
+    def test_dot_product_domain_mismatch_raises(
+        self,
+    ):
         vfield_a = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -447,7 +499,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
 
 class TestVectorFieldCrossProduct(unittest.TestCase):
 
-    def test_x0_cross_x1_equals_x2(self):
+    def test_x0_cross_x1_equals_x2(
+        self,
+    ):
         vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -482,7 +536,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             ),
         )
 
-    def test_x1_cross_x0_equals_minus_x2(self):
+    def test_x1_cross_x0_equals_minus_x2(
+        self,
+    ):
         vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -500,7 +556,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         varray = field_types.extract_3d_varray(vfield_cross)
         self.assertTrue(numpy.allclose(varray[2], -1.0))
 
-    def test_cross_product_anti_commutative(self):
+    def test_cross_product_anti_commutative(
+        self,
+    ):
         vfield_a = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -526,7 +584,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             ),
         )
 
-    def test_self_cross_product_is_zero(self):
+    def test_self_cross_product_is_zero(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -543,7 +603,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             ),
         )
 
-    def test_cross_product_returns_vector_field(self):
+    def test_cross_product_returns_vector_field(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -557,7 +619,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             field_types.VectorField_3D,
         )
 
-    def test_output_buffer_reused_when_compatible(self):
+    def test_output_buffer_reused_when_compatible(
+        self,
+    ):
         vfield_x0 = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -579,7 +643,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
 
 class TestVectorFieldDivergence(unittest.TestCase):
 
-    def test_divergence_of_constant_field_is_zero(self):
+    def test_divergence_of_constant_field_is_zero(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -588,7 +654,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
         sfield_div = field_operators.compute_vfield_divergence(vfield)
         self.assertTrue(numpy.allclose(field_types.extract_3d_sarray(sfield_div), 0.0))
 
-    def test_divergence_returns_scalar_field(self):
+    def test_divergence_returns_scalar_field(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -599,7 +667,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             field_types.ScalarField_3D,
         )
 
-    def test_divergence_result_has_same_domain(self):
+    def test_divergence_result_has_same_domain(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -611,7 +681,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             vfield.udomain,
         )
 
-    def test_divergence_result_has_same_resolution(self):
+    def test_divergence_result_has_same_resolution(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -623,7 +695,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             _RESOLUTION,
         )
 
-    def test_divergence_preserves_sim_time(self):
+    def test_divergence_preserves_sim_time(
+        self,
+    ):
         vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
@@ -637,7 +711,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             1.0,
         )
 
-    def test_divergence_sinusoidal_field(self):
+    def test_divergence_sinusoidal_field(
+        self,
+    ):
         N = 256
         resolution = (N, 2, 2)
         domain = domain_types.UniformDomain_3D(
@@ -665,7 +741,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             ),
         )
 
-    def test_output_buffer_reused_when_compatible(self):
+    def test_output_buffer_reused_when_compatible(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -686,7 +764,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
 
 class TestVectorFieldCurl(unittest.TestCase):
 
-    def test_curl_of_constant_field_is_zero(self):
+    def test_curl_of_constant_field_is_zero(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=2.0,
@@ -700,7 +780,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             ),
         )
 
-    def test_curl_returns_vector_field(self):
+    def test_curl_returns_vector_field(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,
@@ -711,7 +793,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             field_types.VectorField_3D,
         )
 
-    def test_curl_result_has_same_domain(self):
+    def test_curl_result_has_same_domain(
+        self,
+    ):
         vfield = _make_constant_vfield(value_in_x0=1.0, value_in_x1=0.0, value_in_x2=0.0)
         vfield_curl = field_operators.compute_vfield_curl(vfield)
         self.assertEqual(
@@ -719,7 +803,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             vfield.udomain,
         )
 
-    def test_curl_result_has_same_resolution(self):
+    def test_curl_result_has_same_resolution(
+        self,
+    ):
         vfield = _make_constant_vfield(value_in_x0=1.0, value_in_x1=0.0, value_in_x2=0.0)
         vfield_curl = field_operators.compute_vfield_curl(vfield)
         self.assertEqual(
@@ -727,7 +813,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             _RESOLUTION,
         )
 
-    def test_curl_preserves_sim_time(self):
+    def test_curl_preserves_sim_time(
+        self,
+    ):
         vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
@@ -741,7 +829,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             3.0,
         )
 
-    def test_curl_sinusoidal_field(self):
+    def test_curl_sinusoidal_field(
+        self,
+    ):
         N = 256
         resolution = (N, 2, 2)
         domain = domain_types.UniformDomain_3D(
@@ -784,7 +874,9 @@ class TestVectorFieldCurl(unittest.TestCase):
             ),
         )
 
-    def test_output_buffer_reused_when_compatible(self):
+    def test_output_buffer_reused_when_compatible(
+        self,
+    ):
         vfield = _make_constant_vfield(
             value_in_x0=1.0,
             value_in_x1=0.0,

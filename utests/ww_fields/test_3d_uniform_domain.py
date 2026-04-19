@@ -20,7 +20,9 @@ from jormi.ww_fields.fields_3d import domain_types
 
 class TestConstruction(unittest.TestCase):
 
-    def test_constructs_valid_3d_domain(self):
+    def test_constructs_valid_3d_domain(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, False),
             resolution=(8, 4, 2),
@@ -43,7 +45,9 @@ class TestConstruction(unittest.TestCase):
             ((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)),
         )
 
-    def test_rejects_num_sdims_argument(self):
+    def test_rejects_num_sdims_argument(
+        self,
+    ):
         with self.assertRaises(TypeError):
             domain_types.UniformDomain_3D(
                 num_sdims=3, # type: ignore
@@ -52,7 +56,9 @@ class TestConstruction(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_resolution_length_must_be_3(self):
+    def test_resolution_length_must_be_3(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             domain_types.UniformDomain_3D(
                 periodicity=(True, True, True),
@@ -60,7 +66,9 @@ class TestConstruction(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
 
-    def test_domain_bounds_length_must_be_3(self):
+    def test_domain_bounds_length_must_be_3(
+        self,
+    ):
         with self.assertRaises((TypeError, ValueError)):
             domain_types.UniformDomain_3D(
                 periodicity=(True, True, True),
@@ -71,7 +79,9 @@ class TestConstruction(unittest.TestCase):
 
 class TestProperties(unittest.TestCase):
 
-    def test_lengths_widths_volume_total_volume(self):
+    def test_lengths_widths_volume_total_volume(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(10, 4, 2),
@@ -98,7 +108,9 @@ class TestProperties(unittest.TestCase):
             10 * 4 * 2,
         )
 
-    def test_cell_centers_shapes_and_values(self):
+    def test_cell_centers_shapes_and_values(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 2, 2),
@@ -139,7 +151,9 @@ class TestProperties(unittest.TestCase):
             ),
         )
 
-    def test_cached_properties_return_same_object(self):
+    def test_cached_properties_return_same_object(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(3, 3, 3),
@@ -161,7 +175,9 @@ class TestProperties(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_ensure_3d_udomain_accepts(self):
+    def test_ensure_3d_udomain_accepts(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 4, 4),
@@ -169,11 +185,15 @@ class TestEnsureHelpers(unittest.TestCase):
         )
         domain_types.ensure_3d_udomain(udomain_3d=udomain_3d)
 
-    def test_ensure_3d_udomain_rejects_wrong_type(self):
+    def test_ensure_3d_udomain_rejects_wrong_type(
+        self,
+    ):
         with self.assertRaises(TypeError):
             domain_types.ensure_3d_udomain(udomain_3d=None)  # type: ignore
 
-    def test_ensure_3d_periodic_udomain_accepts_fully_periodic(self):
+    def test_ensure_3d_periodic_udomain_accepts_fully_periodic(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 4, 4),
@@ -181,7 +201,9 @@ class TestEnsureHelpers(unittest.TestCase):
         )
         domain_types.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
 
-    def test_ensure_3d_periodic_udomain_rejects_not_fully_periodic(self):
+    def test_ensure_3d_periodic_udomain_rejects_not_fully_periodic(
+        self,
+    ):
         udomain_3d = domain_types.UniformDomain_3D(
             periodicity=(True, False, True),
             resolution=(4, 4, 4),

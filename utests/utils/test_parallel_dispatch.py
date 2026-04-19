@@ -87,7 +87,7 @@ def plot_task(
         ax.set_ylabel(r"$\sin(2\pi x + 32)$")
         annotate_axis.add_text(ax, 0.05, 0.95, r"$(0.05, 0.95)$ \% of the fig uniform_domain")
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
-        fig_path = manage_io.combine_file_path_parts([fig_directory, fig_name])
+        fig_path = fig_directory / fig_name
         manage_plots.save_figure(fig, fig_path, verbose=False)
         return True
     except Exception:
@@ -96,9 +96,11 @@ def plot_task(
 
 class Tests(unittest.TestCase):
 
-    def test_parallel_plotting(self):
+    def test_parallel_plotting(
+        self,
+    ):
         script_directory = manage_io.get_caller_directory()
-        fig_directory = manage_io.combine_file_path_parts([script_directory, "plots"])
+        fig_directory = script_directory / "plots"
         manage_io.init_directory(fig_directory, verbose=False)
         self.addCleanup(shutil.rmtree, fig_directory, True)
         grouped_args = [(
@@ -113,7 +115,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(all(result), True)
 
-    def test_timeout(self):
+    def test_timeout(
+        self,
+    ):
         grouped_args = [(duration, ) for duration in [0.5, 1, 3, 5]]
         try:
             parallel_dispatch.run_in_parallel(
@@ -132,7 +136,9 @@ class Tests(unittest.TestCase):
             self.assertIn("Task 3 timed out", str(runtime_error))
             self.assertNotIn("Task 4 timed out", str(runtime_error))
 
-    def test_parallel_correctness(self):
+    def test_parallel_correctness(
+        self,
+    ):
         num_values_per_block = 10
         num_blocks = 6
         blocks = [[float(value) for value in range(num_values_per_block)] for _ in range(num_blocks)]
@@ -148,7 +154,9 @@ class Tests(unittest.TestCase):
         for result, expected in zip(results, expected_results):
             self.assertEqual(result, expected)
 
-    def test_empty_grouped_args(self):
+    def test_empty_grouped_args(
+        self,
+    ):
         grouped_args = []
         result = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
@@ -158,7 +166,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(result, [])
 
-    def test_exception_propagation(self):
+    def test_exception_propagation(
+        self,
+    ):
         grouped_args = [()] * 3
         with self.assertRaises(RuntimeError) as cm:
             parallel_dispatch.run_in_parallel(
@@ -171,7 +181,9 @@ class Tests(unittest.TestCase):
         self.assertEqual(len(error_lines), 3)
         self.assertTrue(all("ValueError" in line for line in error_lines))
 
-    def test_mixed_success_failure(self):
+    def test_mixed_success_failure(
+        self,
+    ):
         grouped_args = [(task_index, ) for task_index in range(10)]
         with self.assertRaises(RuntimeError) as cm:
             parallel_dispatch.run_in_parallel(
@@ -184,7 +196,9 @@ class Tests(unittest.TestCase):
         self.assertIn("Task 5 failed", str(error))
         self.assertIn("Task 5 failed: ZeroDivisionError", str(error))
 
-    def test_process_expiry_handling(self):
+    def test_process_expiry_handling(
+        self,
+    ):
         grouped_args = [()] * 3
         with self.assertRaises(RuntimeError) as cm:
             parallel_dispatch.run_in_parallel(
@@ -195,7 +209,9 @@ class Tests(unittest.TestCase):
             )
         self.assertIn("ProcessExpired", str(cm.exception))
 
-    def test_result_ordering(self):
+    def test_result_ordering(
+        self,
+    ):
         grouped_args = [(0.2, 3), (10.1, 1), (0.3, 4), (0.0, 2)]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=delayed_return,
@@ -205,7 +221,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(results, [3, 1, 4, 2])
 
-    def test_various_data_types(self):
+    def test_various_data_types(
+        self,
+    ):
         grouped_args = [
             ("hello", ),
             ({
@@ -223,7 +241,9 @@ class Tests(unittest.TestCase):
         expected_results = [args[0] for args in grouped_args]
         self.assertEqual(results, expected_results)
 
-    def test_scalar_arg_normalisation(self):
+    def test_scalar_arg_normalisation(
+        self,
+    ):
         ## scalar args (non-list, non-tuple) should be wrapped into single-element lists
         grouped_args = [1, 2, 3]
         results = parallel_dispatch.run_in_parallel(
@@ -234,7 +254,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(results, [1, 2, 3])
 
-    def test_show_progress_does_not_crash(self):
+    def test_show_progress_does_not_crash(
+        self,
+    ):
         ## show_progress=True wraps iteration in tqdm; verify it doesn't alter results
         grouped_args = [(task_index, ) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
@@ -245,7 +267,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(results, [0, 1, 2, 3])
 
-    def test_default_num_workers(self):
+    def test_default_num_workers(
+        self,
+    ):
         ## num_workers=None should fall back to os.cpu_count() without error
         grouped_args = [(task_index, ) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
@@ -256,7 +280,9 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(results, [0, 1, 2, 3])
 
-    def test_no_timeout(self):
+    def test_no_timeout(
+        self,
+    ):
         ## timeout_seconds=None should not raise for tasks that take some time
         grouped_args = [(0.1, 2), (0.1, 3)]
         results = parallel_dispatch.run_in_parallel(

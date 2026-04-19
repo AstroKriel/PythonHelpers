@@ -64,7 +64,9 @@ def _cosine_mode_field(
 
 class TestKBinCenters(unittest.TestCase):
 
-    def test_bin_centers_are_integer_modes(self):
+    def test_bin_centers_are_integer_modes(
+        self,
+    ):
         ## k_bin_centers should be [1, 2, 3, ..., N//2] for all supported N
         for num_cells in (8, 16, 32):
             sfield = _make_sfield(numpy.ones((num_cells, num_cells, num_cells)))
@@ -76,7 +78,9 @@ class TestKBinCenters(unittest.TestCase):
                 err_msg=f"k_bin_centers mismatch for N={num_cells}",
             )
 
-    def test_spectrum_and_centers_have_same_length(self):
+    def test_spectrum_and_centers_have_same_length(
+        self,
+    ):
         for num_cells in (8, 16):
             sfield = _make_sfield(numpy.ones((num_cells, num_cells, num_cells)))
             spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
@@ -88,7 +92,9 @@ class TestKBinCenters(unittest.TestCase):
 
 class TestDCExclusion(unittest.TestCase):
 
-    def test_constant_field_produces_zero_spectrum(self):
+    def test_constant_field_produces_zero_spectrum(
+        self,
+    ):
         ## a constant field has all power in the DC mode (k=0), which is
         ## excluded from the output. The remaining spectrum should be zero.
         for num_cells in (8, 16):
@@ -129,23 +135,31 @@ class TestPureModeBinPlacement(unittest.TestCase):
             f"Expected peak at k={mode_k}, got k={spectrum.k_bin_centers_1d[peak_index]} for N={num_cells}",
         )
 
-    def test_k1_even_N(self):
+    def test_k1_even_N(
+        self,
+    ):
         ## regression: old code placed k=1 in bin 2 for even N
         ## because k_center used (N-1)/2 = 127.5 instead of N//2 = 128.
         for num_cells in (8, 16, 32):
             self._assert_peak_at_mode(mode_k=1, num_cells=num_cells)
 
-    def test_k1_odd_N(self):
+    def test_k1_odd_N(
+        self,
+    ):
         ## for odd N, (N-1)/2 == N//2 (both integer), so the old code
         ## was correct. Verify correctness is preserved.
         for num_cells in (9, 15):
             self._assert_peak_at_mode(mode_k=1, num_cells=num_cells)
 
-    def test_k2_mode(self):
+    def test_k2_mode(
+        self,
+    ):
         for num_cells in (8, 16):
             self._assert_peak_at_mode(mode_k=2, num_cells=num_cells)
 
-    def test_k3_mode(self):
+    def test_k3_mode(
+        self,
+    ):
         self._assert_peak_at_mode(mode_k=3, num_cells=16)
 
 

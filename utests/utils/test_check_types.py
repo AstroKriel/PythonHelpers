@@ -17,21 +17,27 @@ from jormi.ww_types import check_types
 
 class Tests(unittest.TestCase):
 
-    def test_correct_type_single(self):
+    def test_correct_type_single(
+        self,
+    ):
         ## typical case: variable is of the required type.
         check_types.ensure_type(
             param=42,
             valid_types=int,
         )
 
-    def test_correct_type_multiple(self):
+    def test_correct_type_multiple(
+        self,
+    ):
         ## typical case: variable matches one of the multiple required types.
         check_types.ensure_type(
             param="Hello",
             valid_types=(str, int),
         )
 
-    def test_incorrect_type(self):
+    def test_incorrect_type(
+        self,
+    ):
         ## edge case 1: variable is not of the required type.
         with self.assertRaises(TypeError):
             check_types.ensure_type(
@@ -39,7 +45,9 @@ class Tests(unittest.TestCase):
                 valid_types=str,
             )
 
-    def test_incorrect_type_multiple(self):
+    def test_incorrect_type_multiple(
+        self,
+    ):
         ## edge case 2: variable does not match any of the required types.
         with self.assertRaises(TypeError):
             check_types.ensure_type(
@@ -47,7 +55,9 @@ class Tests(unittest.TestCase):
                 valid_types=(str, int),
             )
 
-    def test_list_as_type(self):
+    def test_list_as_type(
+        self,
+    ):
         ## edge case 3: list passed as the required type(s).
         check_types.ensure_type(
             param="Hello",
@@ -59,7 +69,9 @@ class Tests(unittest.TestCase):
                 valid_types=[str, int],
             )
 
-    def test_single_type_tuple(self):
+    def test_single_type_tuple(
+        self,
+    ):
         ## edge case 4: single type passed in a tuple.
         check_types.ensure_type(
             param=42,
@@ -71,7 +83,9 @@ class Tests(unittest.TestCase):
                 valid_types=(int, ),
             )
 
-    def test_no_type_check(self):
+    def test_no_type_check(
+        self,
+    ):
         ## edge case 5: empty tuple means no type check.
         ## now expecting a `ValueError` instead of silently passing with an empty tuple
         with self.assertRaises(ValueError):
@@ -80,7 +94,9 @@ class Tests(unittest.TestCase):
                 valid_types=(),
             )
 
-    def test_variable_name_in_error_message(self):
+    def test_variable_name_in_error_message(
+        self,
+    ):
         ## edge case 6: variable name should be included in error message.
         ## expect "unknown variable" in the error message if `param_name` is not provided
         with self.assertRaises(TypeError) as cm:
@@ -92,7 +108,9 @@ class Tests(unittest.TestCase):
         self.assertIn("str", str(cm.exception))
         self.assertIn("int", str(cm.exception))
 
-    def test_variable_name_in_error_message_with_var_name(self):
+    def test_variable_name_in_error_message_with_var_name(
+        self,
+    ):
         ## edge case 7: variable name should be included in the error message when passed.
         ## expect the provided `param_name` ("test_var") in the error message
         with self.assertRaises(TypeError) as cm:

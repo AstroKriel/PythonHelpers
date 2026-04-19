@@ -72,7 +72,9 @@ class MessageType(Enum):
     SUMMARY = _MessageStyle("Summary", Symbols.GREATER_THAN.value, _Colours.LIGHTBLUE.value)
     SECTION = _MessageStyle("Section", Symbols.GREATER_THAN.value, _Colours.WHITE.value)
 
-    def requires_outcome(self) -> bool:
+    def requires_outcome(
+        self,
+    ) -> bool:
         return self is MessageType.ACTION
 
 
@@ -125,7 +127,9 @@ class Message:
     message_notes: dict[str, Any] | None = None
     timestamp: str | None = None
 
-    def style(self) -> _MessageStyle:
+    def style(
+        self,
+    ) -> _MessageStyle:
         ## validate and return the appropriate style payload
         ## note, it only makes sense to have an outcome associated with actions
         if self.message_type.requires_outcome():

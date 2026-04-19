@@ -82,41 +82,59 @@ def _make_unit_vfield_3d(
 
 class TestEnsureFieldTypes(unittest.TestCase):
 
-    def test_ensure_3d_sfield_accepts_scalar_field(self):
+    def test_ensure_3d_sfield_accepts_scalar_field(
+        self,
+    ):
         sfield = _make_sfield_3d()
         field_types.ensure_3d_sfield(sfield)
 
-    def test_ensure_3d_sfield_rejects_vector_field(self):
+    def test_ensure_3d_sfield_rejects_vector_field(
+        self,
+    ):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
             field_types.ensure_3d_sfield(vfield)  # type: ignore
 
-    def test_ensure_3d_sfield_rejects_none(self):
+    def test_ensure_3d_sfield_rejects_none(
+        self,
+    ):
         with self.assertRaises(TypeError):
             field_types.ensure_3d_sfield(None)  # type: ignore
 
-    def test_ensure_3d_vfield_accepts_vector_field(self):
+    def test_ensure_3d_vfield_accepts_vector_field(
+        self,
+    ):
         vfield = _make_vfield_3d()
         field_types.ensure_3d_vfield(vfield)
 
-    def test_ensure_3d_vfield_rejects_scalar_field(self):
+    def test_ensure_3d_vfield_rejects_scalar_field(
+        self,
+    ):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
             field_types.ensure_3d_vfield(sfield)  # type: ignore
 
-    def test_ensure_3d_vfield_rejects_none(self):
+    def test_ensure_3d_vfield_rejects_none(
+        self,
+    ):
         with self.assertRaises(TypeError):
             field_types.ensure_3d_vfield(None)  # type: ignore
 
-    def test_ensure_3d_uvfield_accepts_unit_vector_field(self):
+    def test_ensure_3d_uvfield_accepts_unit_vector_field(
+        self,
+    ):
         uvfield = _make_unit_vfield_3d()
         field_types.ensure_3d_uvfield(uvfield)
 
-    def test_ensure_3d_uvfield_accepts_uvfield_as_vfield(self):
+    def test_ensure_3d_uvfield_accepts_uvfield_as_vfield(
+        self,
+    ):
         uvfield = _make_unit_vfield_3d()
         field_types.ensure_3d_vfield(uvfield)
 
-    def test_ensure_3d_uvfield_rejects_plain_vector_field(self):
+    def test_ensure_3d_uvfield_rejects_plain_vector_field(
+        self,
+    ):
         varray = numpy.zeros((3, 4, 4, 4))
         varray[0] = 1.0
         vfield = field_types.VectorField_3D.from_3d_varray(
@@ -127,14 +145,18 @@ class TestEnsureFieldTypes(unittest.TestCase):
         with self.assertRaises(TypeError):
             field_types.ensure_3d_uvfield(vfield)  # type: ignore
 
-    def test_ensure_3d_uvfield_rejects_none(self):
+    def test_ensure_3d_uvfield_rejects_none(
+        self,
+    ):
         with self.assertRaises(TypeError):
             field_types.ensure_3d_uvfield(None)  # type: ignore
 
 
 class TestEnsureUdomainMatchesField(unittest.TestCase):
 
-    def test_udomain_matches_sfield_passes(self):
+    def test_udomain_matches_sfield_passes(
+        self,
+    ):
         domain = _make_3d_udomain()
         sfield = _make_sfield_3d(domain=domain)
         field_types.ensure_3d_udomain_matches_sfield(
@@ -142,7 +164,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
             udomain_3d=domain,
         )
 
-    def test_udomain_matches_sfield_fails_with_different_domain(self):
+    def test_udomain_matches_sfield_fails_with_different_domain(
+        self,
+    ):
         domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
         domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield = _make_sfield_3d(domain=domain_a)
@@ -152,7 +176,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
                 udomain_3d=domain_b,
             )
 
-    def test_udomain_matches_sfield_rejects_wrong_field_type(self):
+    def test_udomain_matches_sfield_rejects_wrong_field_type(
+        self,
+    ):
         domain = _make_3d_udomain()
         vfield = _make_vfield_3d(domain=domain)
         with self.assertRaises(TypeError):
@@ -161,7 +187,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
                 udomain_3d=domain,
             )
 
-    def test_udomain_matches_vfield_passes(self):
+    def test_udomain_matches_vfield_passes(
+        self,
+    ):
         domain = _make_3d_udomain()
         vfield = _make_vfield_3d(domain=domain)
         field_types.ensure_3d_udomain_matches_vfield(
@@ -169,7 +197,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
             udomain_3d=domain,
         )
 
-    def test_udomain_matches_vfield_fails_with_different_domain(self):
+    def test_udomain_matches_vfield_fails_with_different_domain(
+        self,
+    ):
         domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
         domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         vfield = _make_vfield_3d(domain=domain_a)
@@ -179,7 +209,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
                 udomain_3d=domain_b,
             )
 
-    def test_udomain_matches_vfield_rejects_wrong_field_type(self):
+    def test_udomain_matches_vfield_rejects_wrong_field_type(
+        self,
+    ):
         domain = _make_3d_udomain()
         sfield = _make_sfield_3d(domain=domain)
         with self.assertRaises(TypeError):
@@ -191,7 +223,9 @@ class TestEnsureUdomainMatchesField(unittest.TestCase):
 
 class TestEnsureSameShape(unittest.TestCase):
 
-    def test_same_shape_passes_for_two_sfields(self):
+    def test_same_shape_passes_for_two_sfields(
+        self,
+    ):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(4, 4, 4))
         field_types.ensure_same_3d_field_shape(
@@ -199,7 +233,9 @@ class TestEnsureSameShape(unittest.TestCase):
             field_3d_b=sfield_b,
         )
 
-    def test_same_shape_passes_for_two_vfields(self):
+    def test_same_shape_passes_for_two_vfields(
+        self,
+    ):
         vfield_a = _make_vfield_3d(resolution=(4, 4, 4))
         vfield_b = _make_vfield_3d(resolution=(4, 4, 4))
         field_types.ensure_same_3d_field_shape(
@@ -207,7 +243,9 @@ class TestEnsureSameShape(unittest.TestCase):
             field_3d_b=vfield_b,
         )
 
-    def test_different_resolution_raises(self):
+    def test_different_resolution_raises(
+        self,
+    ):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(8, 8, 8))
         with self.assertRaises(ValueError):
@@ -216,7 +254,9 @@ class TestEnsureSameShape(unittest.TestCase):
                 field_3d_b=sfield_b,
             )
 
-    def test_scalar_and_vector_same_resolution_raises(self):
+    def test_scalar_and_vector_same_resolution_raises(
+        self,
+    ):
         sfield = _make_sfield_3d(resolution=(4, 4, 4))
         vfield = _make_vfield_3d(resolution=(4, 4, 4))
         with self.assertRaises(ValueError):
@@ -228,7 +268,9 @@ class TestEnsureSameShape(unittest.TestCase):
 
 class TestEnsureSameUdomains(unittest.TestCase):
 
-    def test_same_domain_passes(self):
+    def test_same_domain_passes(
+        self,
+    ):
         domain = _make_3d_udomain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
@@ -237,7 +279,9 @@ class TestEnsureSameUdomains(unittest.TestCase):
             field_3d_b=sfield_b,
         )
 
-    def test_equivalent_domain_params_pass(self):
+    def test_equivalent_domain_params_pass(
+        self,
+    ):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(4, 4, 4))
         field_types.ensure_same_3d_field_udomains(
@@ -245,7 +289,9 @@ class TestEnsureSameUdomains(unittest.TestCase):
             field_3d_b=sfield_b,
         )
 
-    def test_different_bounds_raises(self):
+    def test_different_bounds_raises(
+        self,
+    ):
         domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
         domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield_a = _make_sfield_3d(domain=domain_a)
@@ -256,7 +302,9 @@ class TestEnsureSameUdomains(unittest.TestCase):
                 field_3d_b=sfield_b,
             )
 
-    def test_different_periodicity_raises(self):
+    def test_different_periodicity_raises(
+        self,
+    ):
         domain_a = domain_types.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 4, 4),
@@ -278,7 +326,9 @@ class TestEnsureSameUdomains(unittest.TestCase):
 
 class TestEnsureSameShapeAndUdomains(unittest.TestCase):
 
-    def test_identical_fields_pass(self):
+    def test_identical_fields_pass(
+        self,
+    ):
         domain = _make_3d_udomain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
@@ -287,7 +337,9 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
             field_3d_b=sfield_b,
         )
 
-    def test_different_resolution_raises(self):
+    def test_different_resolution_raises(
+        self,
+    ):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(8, 8, 8))
         with self.assertRaises(ValueError):
@@ -296,7 +348,9 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
                 field_3d_b=sfield_b,
             )
 
-    def test_different_bounds_raises(self):
+    def test_different_bounds_raises(
+        self,
+    ):
         sfield_a = _make_sfield_3d(
             domain=_make_3d_udomain(
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -316,7 +370,9 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
 
 class TestExtractArrays(unittest.TestCase):
 
-    def test_extract_3d_sarray_returns_correct_array(self):
+    def test_extract_3d_sarray_returns_correct_array(
+        self,
+    ):
         sarray = numpy.arange(64, dtype=float).reshape((4, 4, 4))
         sfield = field_types.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
@@ -335,16 +391,22 @@ class TestExtractArrays(unittest.TestCase):
             ),
         )
 
-    def test_extract_3d_sarray_rejects_vector_field(self):
+    def test_extract_3d_sarray_rejects_vector_field(
+        self,
+    ):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
             field_types.extract_3d_sarray(vfield)  # type: ignore
 
-    def test_extract_3d_sarray_rejects_none(self):
+    def test_extract_3d_sarray_rejects_none(
+        self,
+    ):
         with self.assertRaises(TypeError):
             field_types.extract_3d_sarray(None)  # type: ignore
 
-    def test_extract_3d_varray_returns_correct_array(self):
+    def test_extract_3d_varray_returns_correct_array(
+        self,
+    ):
         varray = numpy.arange(192, dtype=float).reshape((3, 4, 4, 4))
         vfield = field_types.VectorField_3D.from_3d_varray(
             varray_3d=varray,
@@ -363,16 +425,22 @@ class TestExtractArrays(unittest.TestCase):
             ),
         )
 
-    def test_extract_3d_varray_rejects_scalar_field(self):
+    def test_extract_3d_varray_rejects_scalar_field(
+        self,
+    ):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
             field_types.extract_3d_varray(sfield)  # type: ignore
 
-    def test_extract_3d_varray_rejects_none(self):
+    def test_extract_3d_varray_rejects_none(
+        self,
+    ):
         with self.assertRaises(TypeError):
             field_types.extract_3d_varray(None)  # type: ignore
 
-    def test_extract_3d_varray_accepts_uvfield(self):
+    def test_extract_3d_varray_accepts_uvfield(
+        self,
+    ):
         uvfield = _make_unit_vfield_3d()
         result = field_types.extract_3d_varray(uvfield)
         self.assertEqual(
