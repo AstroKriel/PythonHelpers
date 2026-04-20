@@ -314,6 +314,76 @@ def compute_tnb_farrays(
     )
 
 
+def compute_curvature_sarray(
+    *,
+    varray_3d: NDArray[Any],
+    cell_widths_3d: tuple[float, float, float],
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """Compute curvature magnitude sqrt(kappa_i kappa_i) from a 3D vector farray."""
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
+    _farray_operators.validate_3d_cell_widths(cell_widths_3d)
+    check_types.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    ## |f|^2 = f_i f_i
+    sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
+        varray_3d=varray_3d,
+    )
+    ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
+    r2tarray_3d_gradf = _farray_operators.compute_varray_grad(
+        varray_3d=varray_3d,
+        cell_widths_3d=cell_widths_3d,
+        r2tarray_3d_gradf=None,
+        grad_order=grad_order,
+    )
+    ## term1_j = f_i * (d_i f_j)
+    varray_3d_normal_term1 = numpy.einsum(
+        "ixyz,jixyz->jxyz",
+        varray_3d,
+        r2tarray_3d_gradf,
+        optimize=True,
+    )
+    ## term2_j = f_i f_j f_m (d_i f_m)
+    varray_3d_normal_term2 = numpy.einsum(
+        "ixyz,jxyz,mxyz,mixyz->jxyz",
+        varray_3d,
+        varray_3d,
+        varray_3d,
+        r2tarray_3d_gradf,
+        optimize=True,
+    )
+    del r2tarray_3d_gradf
+    ## kappa_j = (term1_j / |f|^2) - (term2_j / |f|^4)
+    sarray_3d_inv_magn_sq = numpy.zeros_like(sarray_3d_f_magn_sq)
+    numpy.divide(
+        1.0,
+        sarray_3d_f_magn_sq,
+        out=sarray_3d_inv_magn_sq,
+        where=(sarray_3d_f_magn_sq > 0),
+    )
+    del sarray_3d_f_magn_sq
+    sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
+    varray_3d_kappa = (
+        varray_3d_normal_term1 * sarray_3d_inv_magn_sq
+        - varray_3d_normal_term2 * sarray_3d_inv_magn4
+    )
+    del varray_3d_normal_term1, varray_3d_normal_term2, sarray_3d_inv_magn_sq, sarray_3d_inv_magn4
+    ## |kappa| = sqrt(kappa_i kappa_i)
+    sarray_3d_curvature = _farray_operators.sum_of_varray_comps_squared(
+        varray_3d=varray_3d_kappa,
+    )
+    del varray_3d_kappa
+    numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
+    return sarray_3d_curvature
+
+
 ##
 ## === MAGNETIC CURVATURE
 ##
