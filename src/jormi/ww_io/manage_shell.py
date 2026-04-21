@@ -27,7 +27,7 @@ class CommandOutcome:
         The command string that was executed.
 
     - `working_directory`:
-        Working directory used for the command, or None if not specified.
+        Working directory used for the command; `None` if not specified.
 
     - `exit_code`:
         Process exit code; 0 indicates success.
@@ -40,7 +40,7 @@ class CommandOutcome:
     """
 
     command: str
-    working_directory: str | None
+    working_directory: Path | None
     exit_code: int
     stdout: str | None
     stderr: str | None
@@ -67,18 +67,31 @@ def execute_shell_command(
     raise_on_error: bool = True,
 ) -> CommandOutcome:
     """
-    Run a `command` and either stream it to the console or capture the output.
+    Run a shell command and return its outcome.
 
-    `capture_output`:
-      - True: store stdout/stderr in the outcome
-      - False: stream the output to the console buffer
+    Parameters
+    ---
+    - `working_directory`:
+        Directory to run the command in; `None` uses the caller's working directory.
+
+    - `timeout_seconds`:
+        Seconds before the command is killed with `TimeoutExpired`.
+
+    - `use_shell`:
+        Pass the command to the system shell instead of splitting it with `shlex`.
+        Only safe with fully trusted, hardcoded strings -- never use with user input.
+
+    - `capture_output`:
+        `True` stores stdout/stderr in the outcome; `False` streams them to the console.
+
+    - `raise_on_error`:
+        Raise `RuntimeError` on non-zero exit code when `True`.
     """
-    if isinstance(working_directory, Path):
-        working_directory = str(working_directory)
+    resolved_directory = Path(working_directory) if working_directory is not None else None
     try:
         completed = subprocess.run(
             command if use_shell else shlex.split(command),
-            cwd=working_directory,
+            cwd=resolved_directory,
             timeout=timeout_seconds,
             capture_output=capture_output,
             shell=use_shell,
@@ -91,7 +104,7 @@ def execute_shell_command(
         raise RuntimeError(f"Command timed out after {timeout_seconds}s: {command}") from error
     command_outcome = CommandOutcome(
         command=command,
-        working_directory=working_directory,
+        working_directory=resolved_directory,
         exit_code=completed.returncode,
         stdout=completed.stdout,
         stderr=completed.stderr,
