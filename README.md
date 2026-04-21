@@ -36,7 +36,7 @@ jormi/
 │       ├── ww_data/     # fitting and interpolating data series
 │       ├── ww_fns/      # function decorators and parallel dispatch
 │       ├── ww_io/       # file I/O (CSV, JSON), logging, shell commands
-│       ├── ww_jobs/     # HPC (PBS) job submission
+│       ├── ww_jobs/     # HPC (PBS and SLURM) job submission
 │       ├── ww_plots/    # mpl figures, styling, colormaps, annotations
 │       ├── ww_dicts.py  # dict helpers
 │       ├── ww_lists.py  # list helpers
