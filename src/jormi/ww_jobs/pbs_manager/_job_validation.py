@@ -1,22 +1,23 @@
-from typing import Any
-
 ## { MODULE
+
+##
+## === DEPENDENCIES
+##
+
+## stdlib
+from typing import Any
 
 ##
 ## === GLOBAL PARAMS
 ##
 
-_QUEUE_CONFIGS = {
+_QUEUE_CONFIGS: dict[str, dict[str, Any]] = {
     "gadi": {
         "normal": {
-            "cost_per_cpu_hour":
-            2,
-            "cpus_per_node":
-            48,
-            "max_wall_time":
-            48,
-            "max_cpus":
-            20736,
+            "cost_per_cpu_hour": 2,
+            "cpus_per_node": 48,
+            "max_wall_time": 48,
+            "max_cpus": 20736,
             "wall_time_limits": [
                 {
                     "threshold_cpus": 672,
@@ -45,13 +46,22 @@ _QUEUE_CONFIGS = {
     },
 }
 
+_COMPUTE_GROUP_CONFIGS: dict[str, dict[str, set[str]]] = {
+    "gadi": {
+        "jh2": {"normal", "rsaa"},
+        "ek9": {"normal", "rsaa"},
+        "mk27": {"rsaa"},
+    },
+}
+
 ##
-## === CUSTOM ERROR MESSAGE
+## === CUSTOM ERROR
 ##
 
 
 class QueueValidationError(ValueError):
     """Exception raised when job parameters do not meet queue constraints."""
+
     pass
 
 
@@ -63,14 +73,36 @@ class QueueValidationError(ValueError):
 def validate_job_params(
     system_name: str,
     queue_name: str,
+    compute_group_name: str,
     num_procs: int,
     wall_time_hours: int,
 ) -> None:
     """Confirm that the requested job parameters meet the system-queue constraints."""
-    queue_config = _get_queue_config(system_name, queue_name)
-    _validate_cpu_rules(queue_name, num_procs, queue_config)
-    _validate_cpu_limit(queue_name, num_procs, queue_config)
-    _validate_wall_time_rules(queue_name, num_procs, wall_time_hours, queue_config)
+    queue_config = _get_queue_config(
+        system_name=system_name,
+        queue_name=queue_name,
+    )
+    _validate_queue_group_combination(
+        system_name=system_name,
+        queue_name=queue_name,
+        compute_group_name=compute_group_name,
+    )
+    _validate_cpu_rules(
+        queue_name=queue_name,
+        num_procs=num_procs,
+        queue_config=queue_config,
+    )
+    _validate_cpu_limit(
+        queue_name=queue_name,
+        num_procs=num_procs,
+        queue_config=queue_config,
+    )
+    _validate_wall_time_rules(
+        queue_name=queue_name,
+        num_procs=num_procs,
+        wall_time_hours=wall_time_hours,
+        queue_config=queue_config,
+    )
 
 
 def _get_queue_config(
@@ -87,6 +119,26 @@ def _get_queue_config(
             f"Unknown queue `{queue_name}` for system `{system_name}`.",
         )
     return queue_config
+
+
+def _validate_queue_group_combination(
+    system_name: str,
+    queue_name: str,
+    compute_group_name: str,
+) -> None:
+    system_config = _COMPUTE_GROUP_CONFIGS.get(system_name)
+    if system_config is None:
+        raise QueueValidationError(f"Unknown system `{system_name}`.")
+    valid_queues = system_config.get(compute_group_name)
+    if valid_queues is None:
+        raise QueueValidationError(
+            f"Unknown compute group `{compute_group_name}` for system `{system_name}`.",
+        )
+    if queue_name not in valid_queues:
+        raise QueueValidationError(
+            f"Queue `{queue_name}` is not valid for compute group `{compute_group_name}` "
+            f"on system `{system_name}`. Valid queues: {sorted(valid_queues)}.",
+        )
 
 
 def _validate_cpu_rules(
@@ -126,11 +178,14 @@ def _validate_wall_time_rules(
     wall_time_limits = queue_config.get("wall_time_limits")
     if wall_time_limits:
         ## sort wall time rules by threshold cpu-count (ascending)
-        sorted_rules = sorted(wall_time_limits, key=lambda rule: rule["threshold_cpus"])
+        sorted_rules = sorted(
+            wall_time_limits,
+            key=lambda rule: rule["threshold_cpus"],
+        )
         ## find the first rule which is met
         matching_rule = next(
             (rule for rule in sorted_rules if num_procs <= rule["threshold_cpus"]),
-            None,  # default value
+            None,
         )
         if matching_rule is None:
             raise QueueValidationError(
