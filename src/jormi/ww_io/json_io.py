@@ -9,8 +9,6 @@ import copy
 import json
 
 from pathlib import Path
-
-## stdlib (typing)
 from typing import Any
 
 ## third-party
@@ -67,6 +65,7 @@ def read_json_file_into_dict(
 
 
 class NumpyEncoder(json.JSONEncoder):
+    """JSON encoder that handles numpy scalars, arrays, and WarnIfUnused wrappers."""
 
     def default(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
@@ -74,13 +73,13 @@ class NumpyEncoder(json.JSONEncoder):
     ) -> Any:
         if isinstance(param, numpy.integer):
             return int(param)
-        elif isinstance(param, numpy.floating):
+        if isinstance(param, numpy.floating):
             return float(param)
-        elif isinstance(param, numpy.bool_):
+        if isinstance(param, numpy.bool_):
             return bool(param)
-        elif isinstance(param, numpy.ndarray):
+        if isinstance(param, numpy.ndarray):
             return param.tolist()
-        elif isinstance(param, fn_decorators.WarnIfUnused):
+        if isinstance(param, fn_decorators.WarnIfUnused):
             return param.unwrap()
         return super().default(param)
 
@@ -125,7 +124,7 @@ def save_dict_to_json_file(
                 },
             )
     else:
-        _create_json_file_from_dict(
+        _dump_dict_to_json(
             file_path=file_path,
             input_dict=input_dict,
         )
@@ -156,17 +155,6 @@ def _dump_dict_to_json(
             sort_keys=True,
             indent=2,
         )
-
-
-def _create_json_file_from_dict(
-    file_path: str | Path,
-    input_dict: dict[str, Any],
-) -> None:
-    """Create (or overwrite) a JSON file from `input_dict`."""
-    _dump_dict_to_json(
-        file_path=file_path,
-        input_dict=input_dict,
-    )
 
 
 def _add_dict_to_json_file(

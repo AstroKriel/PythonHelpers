@@ -106,7 +106,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            json_io._create_json_file_from_dict("invalid.txt", {"a": 1})
+            json_io._dump_dict_to_json("invalid.txt", {"a": 1})
 
     def test_numpy_serialization(
         self,

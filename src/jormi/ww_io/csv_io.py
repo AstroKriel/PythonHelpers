@@ -22,7 +22,6 @@ from jormi.ww_types import check_types
 def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
-    """Ensure `file_path` is a valid .csv path and return it as an absolute Path."""
     check_types.ensure_not_none(
         param=file_path,
         param_name="file_path",
@@ -36,7 +35,6 @@ def _ensure_path_is_valid(
 def _validate_input_dict(
     input_dict: dict[str, Any],
 ) -> None:
-    """Validate that `input_dict` is a dict with string keys."""
     check_types.ensure_dict(
         param=input_dict,
         param_name="input_dict",
@@ -54,6 +52,7 @@ def _validate_input_dict(
 
 def read_csv_file_into_dict(
     file_path: str | Path,
+    *,
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
@@ -98,7 +97,8 @@ def read_csv_file_into_dict(
 def save_dict_to_csv_file(
     file_path: str | Path,
     input_dict: dict[str, Any],
-    overwrite: bool = True,
+    *,
+    overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
     check_types.ensure_bool(
@@ -212,7 +212,7 @@ def _update_csv(
             input_column_length = len(input_dict[key])
             if input_column_length != expected_final_column_length:
                 raise ValueError(
-                    "New column `{key}` must have length"
+                    f"New column `{key}` must have length"
                     f" {expected_final_column_length} (existing rows + growth),"
                     f" but got {input_column_length}.",
                 )
