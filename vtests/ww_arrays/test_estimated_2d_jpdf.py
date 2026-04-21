@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+from pathlib import Path
 from typing import Any
 
 ## third-party
@@ -12,7 +13,6 @@ import numpy
 
 ## local
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##
@@ -87,9 +87,8 @@ def main():
     ax.axvline(x=0.0, color="black", ls="--", zorder=1)
     ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
     ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
-    file_dir = manage_io.get_caller_directory()
     fig_name = "estimated_2d_jpdf.png"
-    fig_path = file_dir / fig_name
+    fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     ## check
     assert abs(pdf_integral - 1.0) < integral_error_tol, (

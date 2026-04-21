@@ -15,7 +15,6 @@ import numpy
 ## local
 from jormi import ww_lists
 from jormi.ww_fields.fields_3d import _difference_sarrays
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 
@@ -127,9 +126,8 @@ class TestFiniteDifferenceConvergence:
         self._plot_exact_soln()
         failed_methods = self._test_method_scaling()
         self._annotate_figure()
-        directory = manage_io.get_caller_directory()
         file_name = "finite_difference_convergence.png"
-        file_path = Path(directory) / file_name
+        file_path = Path(__file__).parent / file_name
         manage_plots.save_figure(fig, file_path)
         assert len(
             failed_methods,

@@ -20,7 +20,6 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
     field_types,
 )
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 from jormi.ww_types import check_types
 
@@ -404,9 +403,8 @@ def main():
         else:
             print("Test passed successfully!")
         print(" ")
-    directory = manage_io.get_caller_directory()
     file_name = "helmholtz_decomposition.png"
-    file_path = Path(directory) / file_name
+    file_path = Path(__file__).parent / file_name
     manage_plots.save_figure(fig, file_path)
     assert len(failed_vfields) == 0, (
         f"Test failed for the following vector field(s): "

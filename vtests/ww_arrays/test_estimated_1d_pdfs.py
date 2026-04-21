@@ -4,13 +4,15 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from pathlib import Path
+
 ## third-party
 import numpy
 
 ## local
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##
@@ -78,9 +80,8 @@ def main():
     axs_grid[-1, 0].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
     axs_grid[-1, 0].set_xlabel(r"$x$")
     ## save figure always so it can be inspected on failure
-    file_dir = manage_io.get_caller_directory()
     fig_name = "estimated_1d_pdfs.png"
-    fig_path = file_dir / fig_name
+    fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(pdfs_that_failed) == 0, (
         f"Test failed for the following distributions: {ww_lists.as_string(pdfs_that_failed)}"

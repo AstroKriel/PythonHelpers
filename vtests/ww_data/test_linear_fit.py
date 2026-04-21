@@ -4,13 +4,15 @@
 ## === DEPENDENCIES
 ##
 
+## stdlib
+from pathlib import Path
+
 ## third-party
 import numpy
 
 ## local
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##
@@ -105,9 +107,8 @@ def main():
                 f" (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
             )
     ## save figure always so it can be inspected on failure
-    file_dir = manage_io.get_caller_directory()
     fig_name = "linear_fit.png"
-    fig_path = file_dir / fig_name
+    fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
     print("All tests passed successfully!")

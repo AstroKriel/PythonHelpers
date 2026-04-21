@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+from pathlib import Path
 from typing import Any
 
 ## third-party
@@ -13,7 +14,6 @@ import numpy
 ## local
 from jormi.ww_data import interpolate_series
 from jormi.ww_data.series_types import DataSeries
-from jormi.ww_io import manage_io
 from jormi.ww_plots import manage_plots
 
 ##
@@ -126,9 +126,8 @@ def main():
         else:
             print(f"Passed: order={spline_order} - max error {max_abs_error:.2e}")
     ## save figure always so it can be inspected on failure
-    file_dir = manage_io.get_caller_directory()
     fig_name = "interpolated_series.png"
-    fig_path = file_dir / fig_name
+    fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(orders_that_failed) == 0, (f"Test failed for spline orders: {orders_that_failed}")
     print("All tests passed successfully!")

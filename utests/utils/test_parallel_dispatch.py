@@ -99,7 +99,7 @@ class Tests(unittest.TestCase):
     def test_parallel_plotting(
         self,
     ):
-        script_directory = manage_io.get_caller_directory()
+        script_directory = Path(__file__).parent
         fig_directory = script_directory / "plots"
         manage_io.init_directory(fig_directory, verbose=False)
         self.addCleanup(shutil.rmtree, fig_directory, True)
