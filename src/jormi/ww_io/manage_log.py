@@ -15,17 +15,17 @@ from typing import (
 )
 
 ## third-party
-from rich import box
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
+from rich import box as rich_box
+from rich.console import Console as rich_Console
+from rich.panel import Panel as rich_Panel
+from rich.text import Text as rich_Text
 
 ##
 ## === TYPES + CONSTANTS
 ## enums, dataclasses, and symbols/colours used across the api
 ##
 
-_CONSOLE = Console(highlight=False, soft_wrap=False)
+_CONSOLE = rich_Console(highlight=False, soft_wrap=False)
 
 
 class _Colours(str, Enum):
@@ -221,7 +221,7 @@ def render_block(
     message_style = message.style()
     timestamp_prefix = f"[{message.timestamp or get_timestamp()}]" if show_time else ""
     ## build panel title: "[time] Title : STATUS/LABEL"
-    panel_title = Text()
+    panel_title = rich_Text()
     if timestamp_prefix:
         panel_title.append(timestamp_prefix, style=_Colours.GREY.value)
         panel_title.append(" ")
@@ -233,20 +233,20 @@ def render_block(
     body_lines: list[Text] = []
     ## optional message at top
     if message.message and message_position == "top":
-        body_lines.append(Text(f"{row_prefix} {message.message}", style=message_style.colour))
+        body_lines.append(rich_Text(f"{row_prefix} {message.message}", style=message_style.colour))
     ## include notes as "— key : value" entries
     if message.message_notes:
         if not isinstance(message.message_notes, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("Message.message_notes must be a dict[str, Any] if provided.")
         for key_label, value in message.message_notes.items():
-            note_line = Text(f"{row_prefix} ", style=_Colours.GREY.value)
+            note_line = rich_Text(f"{row_prefix} ", style=_Colours.GREY.value)
             note_line.append(str(key_label), style=_Colours.GREY.value)
             note_line.append(" : ")
             note_line.append(str(value), style="bold")
             body_lines.append(note_line)
     ## optional message at bottom (default)
     if message.message and message_position == "bottom":
-        body_lines.append(Text(f"{row_prefix} {message.message}", style=message_style.colour))
+        body_lines.append(rich_Text(f"{row_prefix} {message.message}", style=message_style.colour))
     ## compute width required to fit title and body lines
     content_width = panel_title.cell_len
     if body_lines:
@@ -256,11 +256,11 @@ def render_block(
     panel_width_needed = content_width + h_padding + borders
     panel_width = max(min_width, min(panel_width_needed, max_width))
     ## render panel
-    panel = Panel(
-        Text("\n").join(body_lines),
+    panel = rich_Panel(
+        rich_Text("\n").join(body_lines),
         title=panel_title,
         title_align="left",
-        box=box.ROUNDED,
+        box=rich_box.ROUNDED,
         width=panel_width,
         padding=(0, 1),
     )
