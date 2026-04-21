@@ -101,7 +101,7 @@ class Tests(unittest.TestCase):
     ):
         script_directory = Path(__file__).parent
         fig_directory = script_directory / "plots"
-        manage_io.init_directory(fig_directory, verbose=False)
+        manage_io.create_directory(fig_directory, verbose=False)
         self.addCleanup(shutil.rmtree, fig_directory, True)
         grouped_args = [(
             fig_directory,

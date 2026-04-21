@@ -391,7 +391,7 @@ def animate_pngs_to_mp4(
 ) -> None:
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
-    manage_io.init_directory(mp4_path.parent, verbose=False)
+    manage_io.create_directory(mp4_path.parent, verbose=False)
     args = " ".join(
         [
             "-hide_banner",  # less stdout

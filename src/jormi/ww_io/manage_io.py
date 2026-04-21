@@ -16,8 +16,9 @@ from jormi.ww_io import manage_log
 ##
 
 
-def init_directory(
+def create_directory(
     directory: str | Path,
+    *,
     verbose: bool = True,
 ) -> None:
     directory = Path(directory).resolve(strict=False)
@@ -39,13 +40,12 @@ def init_directory(
         )
 
 
-def _resolve_and_validate_file_operation(
+def _resolve_file_paths(
     *,
     directory_from: str | Path,
     directory_to: str | Path,
     file_name: str,
     overwrite: bool = False,
-    dry_run: bool = False,
 ) -> tuple[Path, Path]:
     directory_from = Path(directory_from)
     if not directory_from.is_dir():
@@ -54,19 +54,6 @@ def _resolve_and_validate_file_operation(
     if not file_path_from.is_file():
         raise FileNotFoundError(f"File does not exist: {file_path_from}")
     directory_to = Path(directory_to)
-    if not directory_to.is_dir():
-        if not dry_run:
-            init_directory(
-                directory=directory_to,
-                verbose=False,
-            )
-        else:
-            manage_log.log_action(
-                title="Create directory",
-                outcome=manage_log.ActionOutcome.SKIPPED,
-                message="Dry-run: would create directory.",
-                notes={"directory": str(directory_to)},
-            )
     file_path_to = directory_to / file_name
     if not overwrite and file_path_to.is_file():
         raise FileExistsError(f"File already exists: {file_path_to}")
@@ -107,18 +94,23 @@ def copy_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
-    file_path_from, file_path_to = _resolve_and_validate_file_operation(
+    file_path_from, file_path_to = _resolve_file_paths(
         directory_from=directory_from,
         directory_to=directory_to,
         file_name=file_name,
         overwrite=overwrite,
-        dry_run=dry_run,
     )
-    if not dry_run:
-        shutil.copy2(
-            src=file_path_from,
-            dst=file_path_to,
-        )
+    if dry_run:
+        if not Path(directory_to).is_dir():
+            manage_log.log_action(
+                title="Create directory",
+                outcome=manage_log.ActionOutcome.SKIPPED,
+                message="Dry-run: would create directory.",
+                notes={"directory": str(directory_to)},
+            )
+    else:
+        create_directory(directory=directory_to, verbose=False)
+        shutil.copy2(src=file_path_from, dst=file_path_to)
     if verbose or dry_run:
         _log_file_action(
             action="Copy file",
@@ -137,18 +129,23 @@ def move_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
-    file_path_from, file_path_to = _resolve_and_validate_file_operation(
+    file_path_from, file_path_to = _resolve_file_paths(
         directory_from=directory_from,
         directory_to=directory_to,
         file_name=file_name,
         overwrite=overwrite,
-        dry_run=dry_run,
     )
-    if not dry_run:
-        shutil.move(
-            src=file_path_from,
-            dst=file_path_to,
-        )
+    if dry_run:
+        if not Path(directory_to).is_dir():
+            manage_log.log_action(
+                title="Create directory",
+                outcome=manage_log.ActionOutcome.SKIPPED,
+                message="Dry-run: would create directory.",
+                notes={"directory": str(directory_to)},
+            )
+    else:
+        create_directory(directory=directory_to, verbose=False)
+        shutil.move(src=file_path_from, dst=file_path_to)
     if verbose or dry_run:
         _log_file_action(
             action="Move file",
@@ -178,16 +175,6 @@ def delete_file(
             directory_from=directory,
             is_dry_run=dry_run,
         )
-
-
-def _to_word_list(
-    value: str | list[str] | None,
-) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, str):
-        return [value]
-    return value  # pyright: ignore[reportReturnType]
 
 
 def filter_directory(
@@ -232,6 +219,16 @@ def filter_directory(
         Whether to include directories in results. At least one of `include_files` or
         `include_folders` must be `True`.
     """
+
+    def _to_word_list(
+        value: str | list[str] | None,
+    ) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value]
+        return value  # pyright: ignore[reportReturnType]
+
     if not (include_files or include_folders):
         raise ValueError(
             "At least one of `include_files` or `include_folders` must be provided."
