@@ -230,7 +230,7 @@ def render_block(
     panel_title.append(message_style.message, style=message_style.colour)
     ## build body lines from optional message + notes
     row_prefix = Symbols.EM_DASH.value
-    body_lines: list[Text] = []
+    body_lines: list[rich_Text] = []
     ## optional message at top
     if message.message and message_position == "top":
         body_lines.append(rich_Text(f"{row_prefix} {message.message}", style=message_style.colour))
