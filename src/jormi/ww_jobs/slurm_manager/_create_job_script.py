@@ -9,7 +9,7 @@ from pathlib import Path
 
 ## local
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
-from jormi.ww_jobs.pbs_manager._job_validation import (
+from jormi.ww_jobs.slurm_manager._job_validation import (
     QueueValidationError,
     validate_job_params,
 )
@@ -29,47 +29,42 @@ def _ensure_path_is_valid(
     return file_path
 
 
-def _build_pbs_script(
+def _build_slurm_script(
     *,
     tag_name: str,
-    compute_group_name: str,
-    queue_name: str,
+    partition_name: str,
+    num_cpus: int,
+    memory_gb: int,
     wall_time_string: str,
-    num_procs: int,
-    memory_limit: int,
-    storage_group_name: str,
     email_address: str | None,
-    mail_options: str,
+    email_events_string: str,
     prep_command: str | None,
     main_command: str,
     post_command: str | None,
     always_run_post: bool,
 ) -> list[str]:
     lines: list[str] = []
-    ## --- pbs header
+    ## --- slurm header
     lines += [
         "#!/bin/bash",
-        f"#PBS -P {compute_group_name}",
-        f"#PBS -q {queue_name}",
-        f"#PBS -l walltime={wall_time_string}",
-        f"#PBS -l ncpus={num_procs}",
-        f"#PBS -l mem={memory_limit}GB",
-        f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}",
-        "#PBS -l wd",
-        f"#PBS -N {tag_name}",
-        "#PBS -j oe",
+        f"#SBATCH --job-name={tag_name}",
+        f"#SBATCH --partition={partition_name}",
+        "#SBATCH --ntasks=1",
+        f"#SBATCH --cpus-per-task={num_cpus}",
+        f"#SBATCH --mem={memory_gb}G",
+        f"#SBATCH --time={wall_time_string}",
+        "#SBATCH --output=%x_%j.out",
+        "#SBATCH --error=%x_%j.err",
     ]
     if email_address is not None:
         lines += [
-            f"#PBS -m {mail_options}",
-            f"#PBS -M {email_address}",
+            f"#SBATCH --mail-user={email_address}",
+            f"#SBATCH --mail-type={email_events_string}",
         ]
-    ## --- shell setup + logging
+    ## --- shell setup
     lines += [
         "",
         "set -euo pipefail",
-        f'LOG_FILE="{tag_name}.out"',
-        'exec >"$LOG_FILE" 2>&1',
     ]
     ## --- pre-command (if provided)
     if prep_command:
@@ -107,7 +102,8 @@ def _build_pbs_script(
     return lines
 
 
-def create_pbs_job_script(
+def create_slurm_job_script(
+    *,
     system_name: str,
     directory: str | Path,
     file_name: str,
@@ -116,64 +112,61 @@ def create_pbs_job_script(
     post_command: str | None = None,
     always_run_post: bool = True,
     tag_name: str = "job",
-    queue_name: str = "normal",
-    compute_group_name: str = "jh2",
-    num_procs: int = 1,
+    partition_name: str = "all",
+    num_cpus: int = 1,
+    memory_gb: int | None = None,
     wall_time_hours: int = 1,
-    storage_group_name: str | None = None,
     email_address: str | None = None,
     email_on_start: bool = False,
     email_on_finish: bool = False,
     verbose: bool = True,
 ) -> Path:
     """
-  Create a PBS job script with optional pre/post steps.
+    Create a SLURM job script with optional pre/post steps.
 
-  - main_command (required): primary workload (exit code is captured).
-  - prep_command (optional): runs before the main workload.
-  - post_command (optional): runs either always or only if main succeeded.
-  - always_run_post: if True, post runs even if the main command fails.
-  """
-    valid_systems = {
-        "gadi": {
-            "jh2": {"normal", "rsaa"},
-            "ek9": {"normal", "rsaa"},
-            "mk27": {"rsaa"},
-        },
-    }
-    if queue_name not in valid_systems.get(system_name, {}).get(compute_group_name, set()):
-        raise ValueError(
-            f"Queue `{queue_name}` is not supported for compute group `{compute_group_name}` on system `{system_name}`.",
-        )
-    if storage_group_name is None:
-        storage_group_name = compute_group_name
-    if compute_group_name != storage_group_name:
-        print(
-            f"Note: `compute_group_name` = {compute_group_name} and `storage_group_name` = {storage_group_name} are different.",
-        )
-    wall_time_string = f"{wall_time_hours:02}:00:00"
-    memory_limit = num_procs * 4
+    Parameters
+    ---
+    - `main_command`:
+        Primary workload; its exit code is captured and used as the final exit code.
+
+    - `prep_command`:
+        Optional command that runs before `main_command`.
+
+    - `post_command`:
+        Optional command that runs after `main_command`. Runs always when
+        `always_run_post` is `True`; only on success otherwise.
+
+    - `memory_gb`:
+        Memory limit in GB. Defaults to 4 GB per CPU when `None`.
+    """
     try:
-        validate_job_params(system_name, queue_name, num_procs, wall_time_hours)
+        validate_job_params(
+            system_name=system_name,
+            partition_name=partition_name,
+            num_cpus=num_cpus,
+            wall_time_hours=wall_time_hours,
+        )
     except QueueValidationError as error:
         raise ValueError(f"Invalid job parameters: {error}")
-    mail_options = "a"  # notify on failure
+    if memory_gb is None:
+        memory_gb = num_cpus * 4
+    wall_time_string = f"{wall_time_hours:02}:00:00"
+    email_events: list[str] = ["FAIL"]
     if email_on_start:
-        mail_options += "b"
+        email_events.append("BEGIN")
     if email_on_finish:
-        mail_options += "e"
+        email_events.append("END")
+    email_events_string = ",".join(email_events)
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
-    lines = _build_pbs_script(
+    lines = _build_slurm_script(
         tag_name=tag_name,
-        compute_group_name=compute_group_name,
-        queue_name=queue_name,
+        partition_name=partition_name,
+        num_cpus=num_cpus,
+        memory_gb=memory_gb,
         wall_time_string=wall_time_string,
-        num_procs=num_procs,
-        memory_limit=memory_limit,
-        storage_group_name=storage_group_name,
         email_address=email_address,
-        mail_options=mail_options,
+        email_events_string=email_events_string,
         prep_command=prep_command,
         main_command=main_command,
         post_command=post_command,
@@ -181,12 +174,13 @@ def create_pbs_job_script(
     )
     file_path.write_text("\n".join(lines) + "\n")
     if verbose:
-        print("[Created PBS Job]")
+        print("[Created SLURM Job]")
         print(file_path)
-        print(f"\t> Tagname  : {tag_name}")
-        print(f"\t> CPUs     : {num_procs}")
-        print(f"\t> Memory   : {memory_limit} GB")
-        print(f"\t> Walltime : {wall_time_string}")
+        print(f"\t> Tagname   : {tag_name}")
+        print(f"\t> Partition : {partition_name}")
+        print(f"\t> CPUs      : {num_cpus}")
+        print(f"\t> Memory    : {memory_gb} GB")
+        print(f"\t> Walltime  : {wall_time_string}")
     return file_path
 
 
