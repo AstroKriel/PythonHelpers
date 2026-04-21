@@ -9,7 +9,7 @@ from pathlib import Path
 
 ## local
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
-from jormi.ww_jobs.pbs_manager import _job_validation
+from jormi.ww_jobs.slurm_manager import _job_validation
 from jormi.ww_types import check_types
 
 ##
@@ -24,12 +24,10 @@ def _validate_inputs(
     file_name: str,
     main_command: str,
     tag_name: str,
-    queue_name: str,
-    compute_group_name: str,
-    num_procs: int,
+    partition_name: str,
+    num_cpus: int,
     memory_gb: int,
     wall_time_hours: int,
-    storage_group_name: str | None,
     prep_command: str | None,
     post_command: str | None,
     always_run_post: bool,
@@ -60,16 +58,12 @@ def _validate_inputs(
         param_name="tag_name",
     )
     check_types.ensure_nonempty_string(
-        param=queue_name,
-        param_name="queue_name",
-    )
-    check_types.ensure_nonempty_string(
-        param=compute_group_name,
-        param_name="compute_group_name",
+        param=partition_name,
+        param_name="partition_name",
     )
     check_types.ensure_finite_int(
-        param=num_procs,
-        param_name="num_procs",
+        param=num_cpus,
+        param_name="num_cpus",
         require_positive=True,
         allow_zero=False,
     )
@@ -84,11 +78,6 @@ def _validate_inputs(
         param_name="wall_time_hours",
         require_positive=True,
         allow_zero=False,
-    )
-    check_types.ensure_string(
-        param=storage_group_name,
-        param_name="storage_group_name",
-        allow_none=True,
     )
     check_types.ensure_string(
         param=prep_command,
@@ -133,47 +122,42 @@ def _ensure_path_is_valid(
     return file_path
 
 
-def _build_pbs_script(
+def _build_slurm_script(
     *,
     tag_name: str,
-    compute_group_name: str,
-    queue_name: str,
-    wall_time_string: str,
-    num_procs: int,
+    partition_name: str,
+    num_cpus: int,
     memory_gb: int,
-    storage_group_name: str,
+    wall_time_string: str,
     email_address: str | None,
-    mail_options: str,
+    email_events_string: str,
     prep_command: str | None,
     main_command: str,
     post_command: str | None,
     always_run_post: bool,
 ) -> list[str]:
     lines: list[str] = []
-    ## --- pbs header
+    ## --- slurm header
     lines += [
         "#!/bin/bash",
-        f"#PBS -P {compute_group_name}",
-        f"#PBS -q {queue_name}",
-        f"#PBS -l walltime={wall_time_string}",
-        f"#PBS -l ncpus={num_procs}",
-        f"#PBS -l mem={memory_gb}GB",
-        f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}",
-        "#PBS -l wd",
-        f"#PBS -N {tag_name}",
-        "#PBS -j oe",
+        f"#SBATCH --job-name={tag_name}",
+        f"#SBATCH --partition={partition_name}",
+        "#SBATCH --ntasks=1",
+        f"#SBATCH --cpus-per-task={num_cpus}",
+        f"#SBATCH --mem={memory_gb}G",
+        f"#SBATCH --time={wall_time_string}",
+        "#SBATCH --output=%x_%j.out",
+        "#SBATCH --error=%x_%j.err",
     ]
     if email_address is not None:
         lines += [
-            f"#PBS -m {mail_options}",
-            f"#PBS -M {email_address}",
+            f"#SBATCH --mail-user={email_address}",
+            f"#SBATCH --mail-type={email_events_string}",
         ]
-    ## --- shell setup + logging
+    ## --- shell setup
     lines += [
         "",
         "set -euo pipefail",
-        f'LOG_FILE="{tag_name}.out"',
-        'exec >"$LOG_FILE" 2>&1',
     ]
     ## --- pre-command (if provided)
     if prep_command:
@@ -211,19 +195,17 @@ def _build_pbs_script(
     return lines
 
 
-def create_pbs_job_script(
+def create_slurm_job_script(
     *,
     system_name: str,
     directory: str | Path,
     file_name: str,
     main_command: str,
     tag_name: str,
-    queue_name: str,
-    compute_group_name: str,
-    num_procs: int,
+    partition_name: str,
+    num_cpus: int,
     memory_gb: int,
     wall_time_hours: int,
-    storage_group_name: str | None = None,
     prep_command: str | None = None,
     post_command: str | None = None,
     always_run_post: bool = True,
@@ -233,13 +215,12 @@ def create_pbs_job_script(
     verbose: bool = True,
 ) -> Path:
     """
-    Create a PBS job script with optional pre/post steps.
+    Create a SLURM job script with optional pre/post steps.
 
     Parameters
     ---
     - `system_name`:
-        Name of the HPC system (e.g. `"gadi"`). Used to look up valid queue and
-        compute group combinations.
+        Name of the HPC system. Used to look up partition constraints.
 
     - `directory`:
         Directory where the job script file will be written.
@@ -251,28 +232,6 @@ def create_pbs_job_script(
         Primary workload command. Its exit code is captured and used as the
         script's final exit code.
 
-    - `tag_name`:
-        PBS job name (`-N`). Also used as the log file name.
-
-    - `queue_name`:
-        PBS queue to submit to (e.g. `"normal"`, `"rsaa"`).
-
-    - `compute_group_name`:
-        NCI compute allocation group (e.g. `"jh2"`, `"ek9"`).
-
-    - `num_procs`:
-        Number of CPUs to request (`-l ncpus`).
-
-    - `memory_gb`:
-        Memory limit in GB (`-l mem`).
-
-    - `wall_time_hours`:
-        Maximum wall time in hours.
-
-    - `storage_group_name`:
-        NCI storage allocation group for scratch/gdata access. Defaults to
-        `compute_group_name` when `None`.
-
     - `prep_command`:
         Optional command that runs before `main_command` (e.g. loading modules,
         activating an environment).
@@ -282,17 +241,32 @@ def create_pbs_job_script(
         `always_run_post` is `True`; only on success otherwise.
 
     - `always_run_post`:
-        When `True`, `post_command` runs even if `main_command` fails.
+        When `True`, `post_command` will run even if `main_command` fails.
+
+    - `tag_name`:
+        SLURM job name (`--job-name`). Also used as the prefix for log files.
+
+    - `partition_name`:
+        SLURM partition to submit the job to.
+
+    - `num_cpus`:
+        Number of CPUs to request (`--cpus-per-task`).
+
+    - `memory_gb`:
+        Memory limit in GB.
+
+    - `wall_time_hours`:
+        Maximum wall time in hours.
 
     - `email_address`:
-        If provided, PBS sends job notifications to this address. Failure
+        If provided, SLURM sends job notifications to this address. Failure
         notifications are always included.
 
     - `email_on_start`:
-        When `True`, sends a notification when the job begins (`-m b`).
+        When `True`, sends a notification when the job begins.
 
     - `email_on_finish`:
-        When `True`, sends a notification when the job ends (`-m e`).
+        When `True`, sends a notification when the job ends.
 
     - `verbose`:
         When `True`, prints a summary of job parameters after writing the script.
@@ -303,12 +277,10 @@ def create_pbs_job_script(
         file_name=file_name,
         main_command=main_command,
         tag_name=tag_name,
-        queue_name=queue_name,
-        compute_group_name=compute_group_name,
-        num_procs=num_procs,
+        partition_name=partition_name,
+        num_cpus=num_cpus,
         memory_gb=memory_gb,
         wall_time_hours=wall_time_hours,
-        storage_group_name=storage_group_name,
         prep_command=prep_command,
         post_command=post_command,
         always_run_post=always_run_post,
@@ -317,40 +289,32 @@ def create_pbs_job_script(
         email_on_finish=email_on_finish,
         verbose=verbose,
     )
-    if storage_group_name is None:
-        storage_group_name = compute_group_name
-    if compute_group_name != storage_group_name:
-        print(
-            f"Note: `compute_group_name` = {compute_group_name} and `storage_group_name` = {storage_group_name} are different.",
-        )
-    wall_time_string = f"{wall_time_hours:02}:00:00"
     try:
         _job_validation.validate_job_params(
-            system_name,
-            queue_name,
-            compute_group_name,
-            num_procs,
-            wall_time_hours,
+            system_name=system_name,
+            partition_name=partition_name,
+            num_cpus=num_cpus,
+            wall_time_hours=wall_time_hours,
         )
     except _job_validation.QueueValidationError as error:
         raise ValueError(f"Invalid job parameters: {error}")
-    mail_options = "a"  # notify on failure
+    wall_time_string = f"{wall_time_hours:02}:00:00"
+    email_events: list[str] = ["FAIL"]
     if email_on_start:
-        mail_options += "b"
+        email_events.append("BEGIN")
     if email_on_finish:
-        mail_options += "e"
+        email_events.append("END")
+    email_events_string = ",".join(email_events)
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
-    lines = _build_pbs_script(
+    lines = _build_slurm_script(
         tag_name=tag_name,
-        compute_group_name=compute_group_name,
-        queue_name=queue_name,
-        wall_time_string=wall_time_string,
-        num_procs=num_procs,
+        partition_name=partition_name,
+        num_cpus=num_cpus,
         memory_gb=memory_gb,
-        storage_group_name=storage_group_name,
+        wall_time_string=wall_time_string,
         email_address=email_address,
-        mail_options=mail_options,
+        email_events_string=email_events_string,
         prep_command=prep_command,
         main_command=main_command,
         post_command=post_command,
@@ -358,12 +322,13 @@ def create_pbs_job_script(
     )
     file_path.write_text("\n".join(lines) + "\n")
     if verbose:
-        print("[Created PBS Job]")
+        print("[Created SLURM Job]")
         print(file_path)
-        print(f"\t> Tagname  : {tag_name}")
-        print(f"\t> CPUs     : {num_procs}")
-        print(f"\t> Memory   : {memory_gb} GB")
-        print(f"\t> Walltime : {wall_time_string}")
+        print(f"\t> Tagname   : {tag_name}")
+        print(f"\t> Partition : {partition_name}")
+        print(f"\t> CPUs      : {num_cpus}")
+        print(f"\t> Memory    : {memory_gb} GB")
+        print(f"\t> Walltime  : {wall_time_string}")
     return file_path
 
 
