@@ -70,9 +70,9 @@ def get_job_tag_from_slurm_script(
     file_path = Path(file_path)
     with file_path.open("r", encoding="utf-8") as file_pointer:
         for line in file_pointer:
-            stripped = line.strip()
-            if stripped.startswith("#SBATCH --job-name="):
-                return stripped.split("=", 1)[-1]
+            line_content = line.strip()
+            if line_content.startswith("#SBATCH --job-name="):
+                return line_content.split("=", 1)[-1]
     return None
 
 

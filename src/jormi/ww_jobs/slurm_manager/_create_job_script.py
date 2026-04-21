@@ -9,14 +9,107 @@ from pathlib import Path
 
 ## local
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
-from jormi.ww_jobs.slurm_manager._job_validation import (
-    QueueValidationError,
-    validate_job_params,
-)
+from jormi.ww_jobs.slurm_manager import _job_validation
+from jormi.ww_types import check_types
 
 ##
 ## === FUNCTIONS
 ##
+
+
+def _validate_inputs(
+    *,
+    system_name: str,
+    directory: str | Path,
+    file_name: str,
+    main_command: str,
+    tag_name: str,
+    partition_name: str,
+    num_cpus: int,
+    memory_gb: int,
+    wall_time_hours: int,
+    prep_command: str | None,
+    post_command: str | None,
+    always_run_post: bool,
+    email_address: str | None,
+    email_on_start: bool,
+    email_on_finish: bool,
+    verbose: bool,
+) -> None:
+    check_types.ensure_nonempty_string(
+        param=system_name,
+        param_name="system_name",
+    )
+    check_types.ensure_type(
+        param=directory,
+        valid_types=(str, Path),
+        param_name="directory",
+    )
+    check_types.ensure_nonempty_string(
+        param=file_name,
+        param_name="file_name",
+    )
+    check_types.ensure_nonempty_string(
+        param=main_command,
+        param_name="main_command",
+    )
+    check_types.ensure_nonempty_string(
+        param=tag_name,
+        param_name="tag_name",
+    )
+    check_types.ensure_nonempty_string(
+        param=partition_name,
+        param_name="partition_name",
+    )
+    check_types.ensure_finite_int(
+        param=num_cpus,
+        param_name="num_cpus",
+        require_positive=True,
+        allow_zero=False,
+    )
+    check_types.ensure_finite_int(
+        param=memory_gb,
+        param_name="memory_gb",
+        require_positive=True,
+        allow_zero=False,
+    )
+    check_types.ensure_finite_int(
+        param=wall_time_hours,
+        param_name="wall_time_hours",
+        require_positive=True,
+        allow_zero=False,
+    )
+    check_types.ensure_string(
+        param=prep_command,
+        param_name="prep_command",
+        allow_none=True,
+    )
+    check_types.ensure_string(
+        param=post_command,
+        param_name="post_command",
+        allow_none=True,
+    )
+    check_types.ensure_bool(
+        param=always_run_post,
+        param_name="always_run_post",
+    )
+    check_types.ensure_string(
+        param=email_address,
+        param_name="email_address",
+        allow_none=True,
+    )
+    check_types.ensure_bool(
+        param=email_on_start,
+        param_name="email_on_start",
+    )
+    check_types.ensure_bool(
+        param=email_on_finish,
+        param_name="email_on_finish",
+    )
+    check_types.ensure_bool(
+        param=verbose,
+        param_name="verbose",
+    )
 
 
 def _ensure_path_is_valid(
@@ -108,14 +201,14 @@ def create_slurm_job_script(
     directory: str | Path,
     file_name: str,
     main_command: str,
+    tag_name: str,
+    partition_name: str,
+    num_cpus: int,
+    memory_gb: int,
+    wall_time_hours: int,
     prep_command: str | None = None,
     post_command: str | None = None,
     always_run_post: bool = True,
-    tag_name: str = "job",
-    partition_name: str = "all",
-    num_cpus: int = 1,
-    memory_gb: int | None = None,
-    wall_time_hours: int = 1,
     email_address: str | None = None,
     email_on_start: bool = False,
     email_on_finish: bool = False,
@@ -126,30 +219,85 @@ def create_slurm_job_script(
 
     Parameters
     ---
+    - `system_name`:
+        Name of the HPC system. Used to look up partition constraints.
+
+    - `directory`:
+        Directory where the job script file will be written.
+
+    - `file_name`:
+        Filename for the job script; must end with `.sh`.
+
     - `main_command`:
-        Primary workload; its exit code is captured and used as the final exit code.
+        Primary workload command. Its exit code is captured and used as the
+        script's final exit code.
 
     - `prep_command`:
-        Optional command that runs before `main_command`.
+        Optional command that runs before `main_command` (e.g. loading modules,
+        activating an environment).
 
     - `post_command`:
         Optional command that runs after `main_command`. Runs always when
         `always_run_post` is `True`; only on success otherwise.
 
+    - `always_run_post`:
+        When `True`, `post_command` will run even if `main_command` fails.
+
+    - `tag_name`:
+        SLURM job name (`--job-name`). Also used as the prefix for log files.
+
+    - `partition_name`:
+        SLURM partition to submit the job to.
+
+    - `num_cpus`:
+        Number of CPUs to request (`--cpus-per-task`).
+
     - `memory_gb`:
-        Memory limit in GB. Defaults to 4 GB per CPU when `None`.
+        Memory limit in GB.
+
+    - `wall_time_hours`:
+        Maximum wall time in hours.
+
+    - `email_address`:
+        If provided, SLURM sends job notifications to this address. Failure
+        notifications are always included.
+
+    - `email_on_start`:
+        When `True`, sends a notification when the job begins.
+
+    - `email_on_finish`:
+        When `True`, sends a notification when the job ends.
+
+    - `verbose`:
+        When `True`, prints a summary of job parameters after writing the script.
     """
+    _validate_inputs(
+        system_name=system_name,
+        directory=directory,
+        file_name=file_name,
+        main_command=main_command,
+        tag_name=tag_name,
+        partition_name=partition_name,
+        num_cpus=num_cpus,
+        memory_gb=memory_gb,
+        wall_time_hours=wall_time_hours,
+        prep_command=prep_command,
+        post_command=post_command,
+        always_run_post=always_run_post,
+        email_address=email_address,
+        email_on_start=email_on_start,
+        email_on_finish=email_on_finish,
+        verbose=verbose,
+    )
     try:
-        validate_job_params(
+        _job_validation.validate_job_params(
             system_name=system_name,
             partition_name=partition_name,
             num_cpus=num_cpus,
             wall_time_hours=wall_time_hours,
         )
-    except QueueValidationError as error:
+    except _job_validation.QueueValidationError as error:
         raise ValueError(f"Invalid job parameters: {error}")
-    if memory_gb is None:
-        memory_gb = num_cpus * 4
     wall_time_string = f"{wall_time_hours:02}:00:00"
     email_events: list[str] = ["FAIL"]
     if email_on_start:
