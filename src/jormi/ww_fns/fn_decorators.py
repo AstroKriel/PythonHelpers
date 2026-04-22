@@ -9,6 +9,9 @@ import time
 import warnings
 from typing import Any, Callable
 
+## local
+from jormi.ww_io import manage_log
+
 ##
 ## === FUNCTION DECORATORS
 ##
@@ -31,7 +34,7 @@ def time_fn(
                 f"Error occurred in {fn.__name__}() while measuring the elapsed time.",
             ) from error
         elapsed_time = time.time() - start_time
-        print(f"{fn.__name__}() took {elapsed_time:.3f} seconds to execute.")
+        manage_log.log_note(f"{fn.__name__}() took {elapsed_time:.3f}s.")
         return result
 
     return wrapper
@@ -42,6 +45,7 @@ class WarnIfUnused:
 
     def __init__(
         self,
+        *,
         result: Any,
         fn_name: str,
     ):
