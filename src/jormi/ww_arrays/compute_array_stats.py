@@ -219,6 +219,16 @@ def compute_p_norm(
     )
 
 
+def compute_safe_log10(
+    array: NDArray[Any],
+) -> NDArray[Any]:
+    """Compute log10 of `array`, returning NaN for non-positive values."""
+    ## pre-fill with NaN (dtype=float ensures this works even for integer arrays)
+    result = numpy.full_like(array, numpy.nan, dtype=float)
+    numpy.log10(array, out=result, where=(array > 0))
+    return result
+
+
 ##
 ## === BINNING HELPERS
 ##
