@@ -48,10 +48,9 @@ def _normalise_grouped_args(
 
 
 def _enable_plotting(
-    theme: str = "light",
-    use_tex: bool = True,
+    theme: str,
+    use_tex: bool,
 ) -> None:
-    import os
     import tempfile
     os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mpl_cfg_"))
     os.environ.setdefault("TEXMFOUTPUT", tempfile.mkdtemp(prefix="mpl_tex_"))
@@ -67,8 +66,8 @@ def _enable_plotting(
 def _invoke_with_plotting(
     worker_fn: Callable[..., Any],
     task_args: list[Any],
-    theme: str = "light",
-    use_tex: bool = True,
+    theme: str,
+    use_tex: bool,
 ) -> Any:
     _enable_plotting(
         theme=theme,
@@ -93,6 +92,31 @@ def run_in_parallel(
     theme: str = "light",
     use_tex: bool = True,
 ) -> list[Any]:
+    """
+    Run `worker_fn` over `grouped_args` in parallel using a process pool.
+
+    Parameters
+    ---
+    - `grouped_args`:
+        Each element is a tuple or list of positional args for one `worker_fn` call;
+        scalars are automatically wrapped in a single-element list.
+
+    - `num_workers`:
+        Number of worker processes; `None` uses `os.cpu_count()`.
+
+    - `timeout_seconds`:
+        Per-task timeout in seconds; `None` means no limit.
+
+    - `enable_plotting`:
+        Set up matplotlib with the Agg backend in each worker process, required when
+        tasks produce plots. `theme` and `use_tex` only apply when this is `True`.
+
+    - `theme`:
+        Plot theme passed to `set_theme`; only used when `enable_plotting` is `True`.
+
+    - `use_tex`:
+        Whether to enable LaTeX rendering; only used when `enable_plotting` is `True`.
+    """
     _spawn_fresh_processes()
     grouped_args = _normalise_grouped_args(grouped_args)
     if num_workers is None:
