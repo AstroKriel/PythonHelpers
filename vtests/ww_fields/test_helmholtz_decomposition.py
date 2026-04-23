@@ -20,6 +20,7 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
     field_types,
 )
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 from jormi.ww_types import check_types
 
@@ -262,7 +263,7 @@ def main():
     for vfield_index, vfield_entry in enumerate(list_vfields):
         vfield_name = vfield_entry["label"]
         vfield = vfield_entry["vfield"]
-        print(f"input: {vfield_name} field")
+        manage_log.log_task(f"Input: {vfield_name} field")
         ## decompose
         dfields = decompose_fields.compute_helmholtz_decomposed_fields(
             vfield_3d_q=vfield,
@@ -335,7 +336,7 @@ def main():
         failed_checks = []
         for label, sfield, threshold, fail_msg in check_items:
             median, std = _sfield_abs_median_std(sfield)
-            print(f"{label} median = {median:.2e} +/- {std:.2e}")
+            manage_log.log_note(f"{label} median = {median:.2e} +/- {std:.2e}")
             if median >= threshold:
                 failed_checks.append(fail_msg)
         ## plots: for each input field, fill a 4x4 block column-wise:
@@ -398,11 +399,17 @@ def main():
         )
         if failed_checks:
             for check_msg in failed_checks:
-                print(f"Failed test. {check_msg}")
+                manage_log.log_outcome(
+                    check_msg,
+                    outcome=manage_log.ActionOutcome.FAILURE,
+                )
             failed_vfields.append(vfield_name)
         else:
-            print("Test passed successfully!")
-        print(" ")
+            manage_log.log_outcome(
+                f"{vfield_name}",
+                outcome=manage_log.ActionOutcome.SUCCESS,
+            )
+        manage_log.log_empty_lines()
     file_name = "helmholtz_decomposition.png"
     file_path = Path(__file__).parent / file_name
     manage_plots.save_figure(fig, file_path)
@@ -410,7 +417,11 @@ def main():
         f"Test failed for the following vector field(s): "
         f"{ww_lists.as_string(failed_vfields)}"
     )
-    print("All tests passed successfully!")
+    manage_log.log_action(
+        title="Helmholtz decomposition",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="All tests passed successfully.",
+    )
 
 
 ##

@@ -14,6 +14,7 @@ import numpy
 ## local
 from jormi.ww_data import interpolate_series
 from jormi.ww_data.series_types import DataSeries
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
 ##
@@ -119,18 +120,26 @@ def main():
         else:
             ax.tick_params(labelbottom=False)
         if max_abs_error > max_error_tol:
-            print(
-                f"Failed: order={spline_order} - max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
+            manage_log.log_outcome(
+                f"order={spline_order}: max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
+                outcome=manage_log.ActionOutcome.FAILURE,
             )
             orders_that_failed.append(spline_order)
         else:
-            print(f"Passed: order={spline_order} - max error {max_abs_error:.2e}")
+            manage_log.log_outcome(
+                f"order={spline_order}: max error {max_abs_error:.2e}",
+                outcome=manage_log.ActionOutcome.SUCCESS,
+            )
     ## save figure always so it can be inspected on failure
     fig_name = "interpolated_series.png"
     fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(orders_that_failed) == 0, (f"Test failed for spline orders: {orders_that_failed}")
-    print("All tests passed successfully!")
+    manage_log.log_action(
+        title="Series interpolation",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="All tests passed successfully.",
+    )
 
 
 ##

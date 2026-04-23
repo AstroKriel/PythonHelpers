@@ -13,6 +13,7 @@ import numpy
 
 ## local
 from jormi.ww_arrays import compute_array_stats
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
 ##
@@ -94,7 +95,12 @@ def main():
     assert abs(pdf_integral - 1.0) < integral_error_tol, (
         f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"
     )
-    print("Test passed successfully!")
+    manage_log.log_action(
+        title="Estimate 2D JPDF",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="Test passed successfully.",
+        notes={"integral": f"{pdf_integral:.6f}"},
+    )
 
 
 ##

@@ -13,6 +13,7 @@ import numpy
 ## local
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
 ##
@@ -73,10 +74,16 @@ def main():
         ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
         ax.set_ylabel(r"PDF$(x)$")
         if failed_bins:
-            print(f"Failed: {pdf_label} - integral out of tolerance for bins: {failed_bins}")
+            manage_log.log_outcome(
+                f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
+                outcome=manage_log.ActionOutcome.FAILURE,
+            )
             pdfs_that_failed.append(pdf_label)
         else:
-            print(f"Passed: {pdf_label}")
+            manage_log.log_outcome(
+                f"{pdf_label}",
+                outcome=manage_log.ActionOutcome.SUCCESS,
+            )
     axs_grid[-1, 0].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
     axs_grid[-1, 0].set_xlabel(r"$x$")
     ## save figure always so it can be inspected on failure
@@ -86,7 +93,11 @@ def main():
     assert len(pdfs_that_failed) == 0, (
         f"Test failed for the following distributions: {ww_lists.as_string(pdfs_that_failed)}"
     )
-    print("All tests passed successfully!")
+    manage_log.log_action(
+        title="Estimate 1D PDFs",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="All tests passed successfully.",
+    )
 
 
 ##

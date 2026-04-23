@@ -15,6 +15,7 @@ import numpy
 ## local
 from jormi import ww_lists
 from jormi.ww_fields.fields_3d import _difference_sarrays
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
 
@@ -132,7 +133,11 @@ class TestFiniteDifferenceConvergence:
         assert len(
             failed_methods,
         ) == 0, f"Convergence test failed for the following method(s): {ww_lists.as_string(failed_methods)}"
-        print("Test passed successfully!")
+        manage_log.log_action(
+            title="Finite difference convergence",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="Test passed successfully.",
+        )
 
     def _plot_exact_soln(
         self,

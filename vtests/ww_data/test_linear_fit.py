@@ -13,6 +13,7 @@ import numpy
 ## local
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
+from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
 ##
@@ -99,19 +100,26 @@ def main():
             ax.tick_params(labelbottom=False)
         if failed_checks:
             for check_msg in failed_checks:
-                print(f"Failed: {fit_label} - {check_msg}")
+                manage_log.log_outcome(
+                    f"{fit_label}: {check_msg}",
+                    outcome=manage_log.ActionOutcome.FAILURE,
+                )
             fits_that_failed.append(fit_label)
         else:
-            print(
-                f"Passed: {fit_label}"
-                f" (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
+            manage_log.log_outcome(
+                f"{fit_label} (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
+                outcome=manage_log.ActionOutcome.SUCCESS,
             )
     ## save figure always so it can be inspected on failure
     fig_name = "linear_fit.png"
     fig_path = Path(__file__).parent / fig_name
     manage_plots.save_figure(fig, fig_path)
     assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
-    print("All tests passed successfully!")
+    manage_log.log_action(
+        title="Linear fit",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="All tests passed successfully.",
+    )
 
 
 ##

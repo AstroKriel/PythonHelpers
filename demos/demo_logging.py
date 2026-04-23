@@ -119,28 +119,6 @@ def demo_blocks() -> None:
     )
 
 
-def demo_renderers() -> None:
-    manage_log.log_section("Demo: raw renderers (internal)")
-    manage_log.render_line(
-        manage_log.Message("raw line (NOTE)", message_type=manage_log.MessageType.NOTE),
-        show_time=True,
-        add_spacing=True,
-    )
-    manage_log.render_block(
-        manage_log.Message(
-            message_title="Raw block (NOTE)",
-            message_type=manage_log.MessageType.NOTE,
-            message="Called via render_block directly.",
-            message_notes={
-                "why": "demonstration",
-                "prefer": "log helpers",
-            },
-        ),
-        show_time=True,
-    )
-    manage_log.log_empty_lines()
-
-
 ##
 ## === PROGRAM MAIN
 ##
@@ -149,7 +127,6 @@ def demo_renderers() -> None:
 def main() -> None:
     demo_lines()
     demo_blocks()
-    demo_renderers()
     manage_log.log_note("finished!", show_time=True)
 
 
