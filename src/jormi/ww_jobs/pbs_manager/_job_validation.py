@@ -44,6 +44,33 @@ _QUEUE_CONFIGS: dict[str, dict[str, Any]] = {
             "max_cpus": 1248,
         },
     },
+    "sunnyvale": {
+        "workq": {
+            "cpus_per_node": 8,
+            "max_wall_time": 48,
+            "max_cpus": 8,
+        },
+        "hpq": {
+            "cpus_per_node": 16,
+            "max_wall_time": 48,
+            "max_cpus": 16,
+        },
+        "sandyq": {
+            "cpus_per_node": 16,
+            "max_wall_time": 48,
+            "max_cpus": 16,
+        },
+        "greenq": {
+            "cpus_per_node": 32,
+            "max_wall_time": 48,
+            "max_cpus": 32,
+        },
+        "starq": {
+            "cpus_per_node": 128,
+            "max_wall_time": 48,
+            "max_cpus": 128,
+        },
+    },
 }
 
 _COMPUTE_GROUP_CONFIGS: dict[str, dict[str, set[str]]] = {
@@ -51,6 +78,9 @@ _COMPUTE_GROUP_CONFIGS: dict[str, dict[str, set[str]]] = {
         "jh2": {"normal", "rsaa"},
         "ek9": {"normal", "rsaa"},
         "mk27": {"rsaa"},
+    },
+    "sunnyvale": {
+        "sunnyvale": {"workq", "hpq", "sandyq", "greenq", "starq"},
     },
 }
 
@@ -73,7 +103,7 @@ class QueueValidationError(ValueError):
 def validate_job_params(
     system_name: str,
     queue_name: str,
-    compute_group_name: str,
+    compute_group_name: str | None,
     num_procs: int,
     wall_time_hours: int,
 ) -> None:
@@ -124,8 +154,10 @@ def _get_queue_config(
 def _validate_queue_group_combination(
     system_name: str,
     queue_name: str,
-    compute_group_name: str,
+    compute_group_name: str | None,
 ) -> None:
+    if system_name == "sunnyvale":
+        return
     system_config = _COMPUTE_GROUP_CONFIGS.get(system_name)
     if system_config is None:
         raise QueueValidationError(f"Unknown system `{system_name}`.")

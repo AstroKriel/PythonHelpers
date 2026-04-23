@@ -26,7 +26,7 @@ def _validate_inputs(
     main_command: str,
     tag_name: str,
     queue_name: str,
-    compute_group_name: str,
+    compute_group_name: str | None,
     num_procs: int,
     memory_gb: int,
     wall_time_hours: int,
@@ -64,9 +64,10 @@ def _validate_inputs(
         param=queue_name,
         param_name="queue_name",
     )
-    check_types.ensure_nonempty_string(
+    check_types.ensure_string(
         param=compute_group_name,
         param_name="compute_group_name",
+        allow_none=True,
     )
     check_types.ensure_finite_int(
         param=num_procs,
@@ -136,13 +137,14 @@ def _ensure_path_is_valid(
 
 def _build_pbs_script(
     *,
+    system_name: str,
     tag_name: str,
-    compute_group_name: str,
+    compute_group_name: str | None,
     queue_name: str,
     wall_time_string: str,
     num_procs: int,
     memory_gb: int,
-    storage_group_name: str,
+    storage_group_name: str | None,
     email_address: str | None,
     mail_options: str,
     prep_command: str | None,
@@ -152,18 +154,29 @@ def _build_pbs_script(
 ) -> list[str]:
     lines: list[str] = []
     ## --- pbs header
-    lines += [
-        "#!/bin/bash",
-        f"#PBS -P {compute_group_name}",
-        f"#PBS -q {queue_name}",
-        f"#PBS -l walltime={wall_time_string}",
-        f"#PBS -l ncpus={num_procs}",
-        f"#PBS -l mem={memory_gb}GB",
-        f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}",
-        "#PBS -l wd",
-        f"#PBS -N {tag_name}",
-        "#PBS -j oe",
-    ]
+    if system_name == "sunnyvale":
+        lines += [
+            "#!/bin/bash -l",
+            f"#PBS -l nodes=1:ppn={num_procs}",
+            f"#PBS -l walltime={wall_time_string}",
+            "#PBS -r n",
+            "#PBS -j oe",
+            f"#PBS -q {queue_name}",
+            f"#PBS -N {tag_name}",
+        ]
+    else:
+        lines += [
+            "#!/bin/bash",
+            f"#PBS -P {compute_group_name}",
+            f"#PBS -q {queue_name}",
+            f"#PBS -l walltime={wall_time_string}",
+            f"#PBS -l ncpus={num_procs}",
+            f"#PBS -l mem={memory_gb}GB",
+            f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}",
+            "#PBS -l wd",
+            f"#PBS -N {tag_name}",
+            "#PBS -j oe",
+        ]
     if email_address is not None:
         lines += [
             f"#PBS -m {mail_options}",
@@ -220,7 +233,7 @@ def create_pbs_job_script(
     main_command: str,
     tag_name: str,
     queue_name: str,
-    compute_group_name: str,
+    compute_group_name: str | None = None,
     num_procs: int,
     memory_gb: int,
     wall_time_hours: int,
@@ -259,7 +272,8 @@ def create_pbs_job_script(
         PBS queue to submit to (e.g. `"normal"`, `"rsaa"`).
 
     - `compute_group_name`:
-        NCI compute allocation group (e.g. `"jh2"`, `"ek9"`).
+        Compute allocation group when required by the target PBS system.
+        Some systems, such as Sunnyvale, do not use this field.
 
     - `num_procs`:
         Number of CPUs to request (`-l ncpus`).
@@ -271,8 +285,8 @@ def create_pbs_job_script(
         Maximum wall time in hours.
 
     - `storage_group_name`:
-        NCI storage allocation group for scratch/gdata access. Defaults to
-        `compute_group_name` when `None`.
+        Storage allocation group when required by the target PBS system.
+        Defaults to `compute_group_name` when `None`.
 
     - `prep_command`:
         Optional command that runs before `main_command` (e.g. loading modules,
@@ -318,9 +332,18 @@ def create_pbs_job_script(
         email_on_finish=email_on_finish,
         verbose=verbose,
     )
-    if storage_group_name is None:
+    if (system_name != "sunnyvale") and (compute_group_name is None):
+        raise ValueError(
+            "`compute_group_name` is required for PBS systems that validate compute allocations.",
+        )
+    if (system_name != "sunnyvale") and (storage_group_name is None):
         storage_group_name = compute_group_name
-    if compute_group_name != storage_group_name:
+    if (
+        (system_name != "sunnyvale")
+        and (compute_group_name is not None)
+        and (storage_group_name is not None)
+        and (compute_group_name != storage_group_name)
+    ):
         manage_log.log_warning(
             "Compute and storage groups differ.",
             notes={
@@ -347,6 +370,7 @@ def create_pbs_job_script(
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
     lines = _build_pbs_script(
+        system_name=system_name,
         tag_name=tag_name,
         compute_group_name=compute_group_name,
         queue_name=queue_name,
