@@ -8,6 +8,7 @@
 from pathlib import Path
 
 ## local
+from jormi.ww_io import manage_log
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
 from jormi.ww_jobs.pbs_manager import _job_validation
 from jormi.ww_types import check_types
@@ -320,8 +321,12 @@ def create_pbs_job_script(
     if storage_group_name is None:
         storage_group_name = compute_group_name
     if compute_group_name != storage_group_name:
-        print(
-            f"Note: `compute_group_name` = {compute_group_name} and `storage_group_name` = {storage_group_name} are different.",
+        manage_log.log_warning(
+            "Compute and storage groups differ.",
+            notes={
+                "compute_group_name": compute_group_name,
+                "storage_group_name": storage_group_name,
+            },
         )
     wall_time_string = f"{wall_time_hours:02}:00:00"
     try:
@@ -358,12 +363,18 @@ def create_pbs_job_script(
     )
     file_path.write_text("\n".join(lines) + "\n")
     if verbose:
-        print("[Created PBS Job]")
-        print(file_path)
-        print(f"\t> Tagname  : {tag_name}")
-        print(f"\t> CPUs     : {num_procs}")
-        print(f"\t> Memory   : {memory_gb} GB")
-        print(f"\t> Walltime : {wall_time_string}")
+        manage_log.log_action(
+            title="Create PBS job",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="Wrote job script.",
+            notes={
+                "file": str(file_path),
+                "tag_name": tag_name,
+                "cpus": num_procs,
+                "memory": f"{memory_gb} GB",
+                "walltime": wall_time_string,
+            },
+        )
     return file_path
 
 

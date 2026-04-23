@@ -8,6 +8,7 @@
 from pathlib import Path
 
 ## local
+from jormi.ww_io import manage_log
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
 from jormi.ww_jobs.slurm_manager import _job_validation
 from jormi.ww_types import check_types
@@ -322,13 +323,19 @@ def create_slurm_job_script(
     )
     file_path.write_text("\n".join(lines) + "\n")
     if verbose:
-        print("[Created SLURM Job]")
-        print(file_path)
-        print(f"\t> Tagname   : {tag_name}")
-        print(f"\t> Partition : {partition_name}")
-        print(f"\t> CPUs      : {num_cpus}")
-        print(f"\t> Memory    : {memory_gb} GB")
-        print(f"\t> Walltime  : {wall_time_string}")
+        manage_log.log_action(
+            title="Create SLURM job",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="Wrote job script.",
+            notes={
+                "file": str(file_path),
+                "tag_name": tag_name,
+                "partition": partition_name,
+                "cpus": num_cpus,
+                "memory": f"{memory_gb} GB",
+                "walltime": wall_time_string,
+            },
+        )
     return file_path
 
 

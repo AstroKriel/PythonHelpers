@@ -8,7 +8,10 @@
 from pathlib import Path
 
 ## local
-from jormi.ww_io import manage_shell
+from jormi.ww_io import (
+    manage_log,
+    manage_shell,
+)
 
 ##
 ## === FUNCTIONS
@@ -27,9 +30,12 @@ def submit_job(
         directory=directory,
         file_name=file_name,
     ):
-        print("Job is already currently running:", file_name)
+        manage_log.log_outcome(
+            f"Job is already running: {file_name}",
+            outcome=manage_log.ActionOutcome.SKIPPED,
+        )
         return False
-    print("Submitting job:", file_name)
+    manage_log.log_task(f"Submitting job: {file_name}")
     try:
         manage_shell.execute_shell_command(
             command=f"sbatch {file_name}",
@@ -37,7 +43,7 @@ def submit_job(
         )
         return True
     except RuntimeError as error:
-        print(f"Failed to submit job `{file_name}`: {error}")
+        manage_log.log_error(f"Failed to submit job `{file_name}`: {error}")
         return False
 
 
@@ -49,11 +55,11 @@ def is_job_already_in_queue(
     """Check if a job with the same name is already in the SLURM queue."""
     file_path = Path(directory) / file_name
     if not file_path.is_file():
-        print(f"`{file_name}` job file does not exist in: {directory}")
+        manage_log.log_alert(f"`{file_name}` job file does not exist in: {directory}")
         return False
     job_tag = get_job_tag_from_slurm_script(file_path=file_path)
     if not job_tag:
-        print(f"`#SBATCH --job-name` not found in job file: {file_name}")
+        manage_log.log_alert(f"`#SBATCH --job-name` not found in job file: {file_name}")
         return False
     queued_jobs = get_list_of_queued_jobs()
     if not queued_jobs:
@@ -96,7 +102,7 @@ def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
                 jobs.append((parts[0], parts[1]))
         return jobs
     except RuntimeError as error:
-        print(f"Error retrieving job info from the queue: {error}")
+        manage_log.log_error(f"Error retrieving job info from the queue: {error}")
         return None
 
 

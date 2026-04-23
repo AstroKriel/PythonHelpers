@@ -31,6 +31,7 @@ from numpy.typing import NDArray
 ## local
 from jormi.ww_io import (
     manage_io,
+    manage_log,
     manage_shell,
 )
 from jormi.ww_plots import style_plots
@@ -365,19 +366,26 @@ def save_figure(
     try:
         fig.savefig(fig_path, dpi=dpi)
         if verbose:
-            print("Saved figure:", fig_path)
+            manage_log.log_action(
+                title="Save figure",
+                outcome=manage_log.ActionOutcome.SUCCESS,
+                message="Saved figure.",
+                notes={"file": str(fig_path)},
+            )
     except FileNotFoundError as exception:
-        print(f"FileNotFoundError: {exception}")
+        manage_log.log_error(f"FileNotFoundError: {exception}")
     except PermissionError as exception:
-        print(f"PermissionError: You do not have permission to save to: {fig_path}")
-        print(f"Details: {exception}")
-    except IOError as exception:
-        print(
-            f"IOError: An error occurred while trying to save the figure to: {fig_path}",
+        manage_log.log_error(
+            f"PermissionError: You do not have permission to save to: {fig_path}",
+            notes={"details": str(exception)},
         )
-        print(f"Details: {exception}")
+    except IOError as exception:
+        manage_log.log_error(
+            f"IOError: An error occurred while trying to save the figure to: {fig_path}",
+            notes={"details": str(exception)},
+        )
     except Exception as exception:
-        print(f"Unexpected error while saving the figure to {fig_path}: {exception}")
+        manage_log.log_error(f"Unexpected error while saving the figure to {fig_path}: {exception}")
     finally:
         mpl_plot.close(fig)
 
@@ -412,7 +420,12 @@ def animate_pngs_to_mp4(
         working_directory=frames_dir,
         timeout_seconds=timeout_seconds,
     )
-    print("Saved:", mp4_path)
+    manage_log.log_action(
+        title="Save animation",
+        outcome=manage_log.ActionOutcome.SUCCESS,
+        message="Saved mp4.",
+        notes={"file": str(mp4_path)},
+    )
 
 
 ## } MODULE
