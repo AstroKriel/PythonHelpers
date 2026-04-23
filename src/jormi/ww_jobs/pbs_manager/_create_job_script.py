@@ -9,8 +9,6 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_log
-## import directly from the module file (not via the package __init__) to avoid a static import cycle
-from jormi.ww_jobs.pbs_manager import _job_validation
 from jormi.ww_types import check_types
 
 ##
@@ -20,17 +18,15 @@ from jormi.ww_types import check_types
 
 def _validate_inputs(
     *,
-    system_name: str,
     directory: str | Path,
     file_name: str,
+    directives: list[str] | None,
     main_command: str,
     tag_name: str,
-    queue_name: str,
-    compute_group_name: str | None,
-    num_procs: int,
-    memory_gb: int,
-    wall_time_hours: int,
-    storage_group_name: str | None,
+    queue_name: str | None,
+    num_procs: int | None,
+    memory_gb: int | None,
+    wall_time_hours: int | None,
     prep_command: str | None,
     post_command: str | None,
     always_run_post: bool,
@@ -39,10 +35,6 @@ def _validate_inputs(
     email_on_finish: bool,
     verbose: bool,
 ) -> None:
-    check_types.ensure_nonempty_string(
-        param=system_name,
-        param_name="system_name",
-    )
     check_types.ensure_type(
         param=directory,
         valid_types=(str, Path),
@@ -52,6 +44,20 @@ def _validate_inputs(
         param=file_name,
         param_name="file_name",
     )
+    check_types.ensure_type(
+        param=directives,
+        valid_types=(list,),
+        param_name="directives",
+        allow_none=True,
+    )
+    if directives is not None:
+        if len(directives) == 0:
+            raise ValueError("`directives` must contain at least one PBS header line.")
+        for directive in directives:
+            check_types.ensure_nonempty_string(
+                param=directive,
+                param_name="directives[]",
+            )
     check_types.ensure_nonempty_string(
         param=main_command,
         param_name="main_command",
@@ -60,38 +66,39 @@ def _validate_inputs(
         param=tag_name,
         param_name="tag_name",
     )
-    check_types.ensure_nonempty_string(
+    check_types.ensure_string(
         param=queue_name,
         param_name="queue_name",
-    )
-    check_types.ensure_string(
-        param=compute_group_name,
-        param_name="compute_group_name",
         allow_none=True,
     )
     check_types.ensure_finite_int(
         param=num_procs,
         param_name="num_procs",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
     check_types.ensure_finite_int(
         param=memory_gb,
         param_name="memory_gb",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
     check_types.ensure_finite_int(
         param=wall_time_hours,
         param_name="wall_time_hours",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    check_types.ensure_string(
-        param=storage_group_name,
-        param_name="storage_group_name",
-        allow_none=True,
-    )
+    if directives is None:
+        if queue_name is None:
+            raise ValueError("`queue_name` is required when `directives` are not provided.")
+        if num_procs is None:
+            raise ValueError("`num_procs` is required when `directives` are not provided.")
+        if wall_time_hours is None:
+            raise ValueError("`wall_time_hours` is required when `directives` are not provided.")
     check_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
@@ -137,14 +144,12 @@ def _ensure_path_is_valid(
 
 def _build_pbs_script(
     *,
-    system_name: str,
+    directives: list[str] | None,
     tag_name: str,
-    compute_group_name: str | None,
-    queue_name: str,
-    wall_time_string: str,
-    num_procs: int,
-    memory_gb: int,
-    storage_group_name: str | None,
+    queue_name: str | None,
+    num_procs: int | None,
+    memory_gb: int | None,
+    wall_time_hours: int | None,
     email_address: str | None,
     mail_options: str,
     prep_command: str | None,
@@ -154,29 +159,21 @@ def _build_pbs_script(
 ) -> list[str]:
     lines: list[str] = []
     ## --- pbs header
-    if system_name == "sunnyvale":
-        lines += [
-            "#!/bin/bash -l",
-            f"#PBS -l nodes=1:ppn={num_procs}",
-            f"#PBS -l walltime={wall_time_string}",
-            "#PBS -r n",
-            "#PBS -j oe",
-            f"#PBS -q {queue_name}",
-            f"#PBS -N {tag_name}",
-        ]
-    else:
-        lines += [
+    if directives is None:
+        assert queue_name is not None
+        assert num_procs is not None
+        assert wall_time_hours is not None
+        directives = [
             "#!/bin/bash",
-            f"#PBS -P {compute_group_name}",
             f"#PBS -q {queue_name}",
-            f"#PBS -l walltime={wall_time_string}",
+            f"#PBS -l walltime={wall_time_hours:02}:00:00",
             f"#PBS -l ncpus={num_procs}",
-            f"#PBS -l mem={memory_gb}GB",
-            f"#PBS -l storage=scratch/{storage_group_name}+gdata/{storage_group_name}",
-            "#PBS -l wd",
             f"#PBS -N {tag_name}",
             "#PBS -j oe",
         ]
+        if memory_gb is not None:
+            directives.insert(4, f"#PBS -l mem={memory_gb}GB")
+    lines += directives
     if email_address is not None:
         lines += [
             f"#PBS -m {mail_options}",
@@ -227,17 +224,15 @@ def _build_pbs_script(
 
 def create_pbs_job_script(
     *,
-    system_name: str,
     directory: str | Path,
     file_name: str,
+    directives: list[str] | None = None,
     main_command: str,
     tag_name: str,
-    queue_name: str,
-    compute_group_name: str | None = None,
-    num_procs: int,
-    memory_gb: int,
-    wall_time_hours: int,
-    storage_group_name: str | None = None,
+    queue_name: str | None = None,
+    num_procs: int | None = None,
+    memory_gb: int | None = None,
+    wall_time_hours: int | None = None,
     prep_command: str | None = None,
     post_command: str | None = None,
     always_run_post: bool = True,
@@ -247,46 +242,31 @@ def create_pbs_job_script(
     verbose: bool = True,
 ) -> Path:
     """
-    Create a PBS job script with optional pre/post steps.
+    Create a PBS job script with caller-provided directives or generic resources.
 
     Parameters
     ---
-    - `system_name`:
-        Name of the HPC system (e.g. `"gadi"`). Used to look up valid queue and
-        compute group combinations.
-
     - `directory`:
         Directory where the job script file will be written.
 
     - `file_name`:
         Filename for the job script; must end with `.sh`.
 
+    - `directives`:
+        Ordered PBS header lines to write at the top of the script. This should
+        include the shebang and any `#PBS ...` directives required by the
+        target system. When omitted, a generic PBS header is built from
+        `queue_name`, `num_procs`, `memory_gb`, and `wall_time_hours`.
+
     - `main_command`:
         Primary workload command. Its exit code is captured and used as the
         script's final exit code.
 
     - `tag_name`:
-        PBS job name (`-N`). Also used as the log file name.
+        Job tag used for the local log file name.
 
-    - `queue_name`:
-        PBS queue to submit to (e.g. `"normal"`, `"rsaa"`).
-
-    - `compute_group_name`:
-        Compute allocation group when required by the target PBS system.
-        Some systems, such as Sunnyvale, do not use this field.
-
-    - `num_procs`:
-        Number of CPUs to request (`-l ncpus`).
-
-    - `memory_gb`:
-        Memory limit in GB (`-l mem`).
-
-    - `wall_time_hours`:
-        Maximum wall time in hours.
-
-    - `storage_group_name`:
-        Storage allocation group when required by the target PBS system.
-        Defaults to `compute_group_name` when `None`.
+    - `queue_name`, `num_procs`, `memory_gb`, `wall_time_hours`:
+        Generic PBS resource settings used when `directives` are not supplied.
 
     - `prep_command`:
         Optional command that runs before `main_command` (e.g. loading modules,
@@ -313,17 +293,15 @@ def create_pbs_job_script(
         When `True`, prints a summary of job parameters after writing the script.
     """
     _validate_inputs(
-        system_name=system_name,
         directory=directory,
         file_name=file_name,
+        directives=directives,
         main_command=main_command,
         tag_name=tag_name,
         queue_name=queue_name,
-        compute_group_name=compute_group_name,
         num_procs=num_procs,
         memory_gb=memory_gb,
         wall_time_hours=wall_time_hours,
-        storage_group_name=storage_group_name,
         prep_command=prep_command,
         post_command=post_command,
         always_run_post=always_run_post,
@@ -332,36 +310,6 @@ def create_pbs_job_script(
         email_on_finish=email_on_finish,
         verbose=verbose,
     )
-    if (system_name != "sunnyvale") and (compute_group_name is None):
-        raise ValueError(
-            "`compute_group_name` is required for PBS systems that validate compute allocations.",
-        )
-    if (system_name != "sunnyvale") and (storage_group_name is None):
-        storage_group_name = compute_group_name
-    if (
-        (system_name != "sunnyvale")
-        and (compute_group_name is not None)
-        and (storage_group_name is not None)
-        and (compute_group_name != storage_group_name)
-    ):
-        manage_log.log_warning(
-            "Compute and storage groups differ.",
-            notes={
-                "compute_group_name": compute_group_name,
-                "storage_group_name": storage_group_name,
-            },
-        )
-    wall_time_string = f"{wall_time_hours:02}:00:00"
-    try:
-        _job_validation.validate_job_params(
-            system_name,
-            queue_name,
-            compute_group_name,
-            num_procs,
-            wall_time_hours,
-        )
-    except _job_validation.QueueValidationError as error:
-        raise ValueError(f"Invalid job parameters: {error}")
     mail_options = "a"  # notify on failure
     if email_on_start:
         mail_options += "b"
@@ -370,14 +318,12 @@ def create_pbs_job_script(
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
     lines = _build_pbs_script(
-        system_name=system_name,
+        directives=directives,
         tag_name=tag_name,
-        compute_group_name=compute_group_name,
         queue_name=queue_name,
-        wall_time_string=wall_time_string,
         num_procs=num_procs,
         memory_gb=memory_gb,
-        storage_group_name=storage_group_name,
+        wall_time_hours=wall_time_hours,
         email_address=email_address,
         mail_options=mail_options,
         prep_command=prep_command,
@@ -394,9 +340,6 @@ def create_pbs_job_script(
             notes={
                 "file": str(file_path),
                 "tag_name": tag_name,
-                "cpus": num_procs,
-                "memory": f"{memory_gb} GB",
-                "walltime": wall_time_string,
             },
         )
     return file_path
