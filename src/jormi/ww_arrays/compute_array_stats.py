@@ -233,13 +233,12 @@ def compute_safe_log10(
 ##
 
 
-def _create_bin_centers_from_percentile_spread(
+def _create_bins_spanning_full_value_range(
     *,
     values: NDArray[Any],
     num_bins: int,
-    spread_factor: float = 1.0,
 ) -> NDArray[Any]:
-    """Create uniformly spaced bin centers based on the 16th/50th/84th percentile spread."""
+    """Create uniformly spaced bin centers spanning the full value range."""
     ## validate and canonicalise input values and bin configuration
     values = check_arrays.as_1d(
         array_like=values,
@@ -252,19 +251,8 @@ def _create_bin_centers_from_percentile_spread(
         allow_none=False,
         require_positive=True,
     )
-    check_types.ensure_finite_float(
-        param=spread_factor,
-        param_name="spread_factor",
-        allow_none=False,
-        require_positive=True,
-        allow_zero=True,
-    )
-    ## expand the percentile-derived spread symmetrically beyond the central p16-p84 range
-    p16_value = numpy.percentile(values, 16)
-    p50_value = numpy.percentile(values, 50)
-    p84_value = numpy.percentile(values, 84)
-    start_value = p16_value - (1 + spread_factor) * (p50_value - p16_value)
-    stop_value = p84_value + (1 + spread_factor) * (p84_value - p50_value)
+    start_value = float(numpy.min(values))
+    stop_value = float(numpy.max(values))
     return numpy.linspace(start_value, stop_value, num_bins)
 
 
@@ -466,7 +454,6 @@ def estimate_pdf(
     weights: NDArray[Any] | None = None,
     num_bins: int | None = None,
     bin_centers: NDArray[Any] | None = None,
-    bin_range_factor: float = 1.0,
     delta_threshold: float = 1e-5,
 ) -> EstimatedPDF:
     """Compute a 1D probability density function (PDF) for the provided `values`."""
@@ -558,10 +545,9 @@ def estimate_pdf(
     if bin_centers is None:
         if num_bins is None:
             raise ValueError("You did not provide a binning option.")
-        bin_centers = _create_bin_centers_from_percentile_spread(
+        bin_centers = _create_bins_spanning_full_value_range(
             values=values,
             num_bins=num_bins,
-            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         bin_centers = check_arrays.as_1d(
@@ -708,7 +694,6 @@ def estimate_jpdf(
     col_centers: NDArray[Any] | None = None,
     row_centers: NDArray[Any] | None = None,
     num_bins: int | None = None,
-    bin_range_factor: float = 1.0,
     smoothing_length: float | None = None,
 ) -> EstimatedJPDF:
     """Compute the 2D joint probability density function (JPDF)."""
@@ -755,10 +740,9 @@ def estimate_jpdf(
             num_bins = len(row_centers)
     assert num_bins is not None
     if col_centers is None:
-        col_centers = _create_bin_centers_from_percentile_spread(
+        col_centers = _create_bins_spanning_full_value_range(
             values=data_x,
             num_bins=num_bins,
-            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         col_centers = check_arrays.as_1d(
@@ -767,10 +751,9 @@ def estimate_jpdf(
             check_finite=True,
         )
     if row_centers is None:
-        row_centers = _create_bin_centers_from_percentile_spread(
+        row_centers = _create_bins_spanning_full_value_range(
             values=data_y,
             num_bins=num_bins,
-            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         row_centers = check_arrays.as_1d(
