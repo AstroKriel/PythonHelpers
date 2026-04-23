@@ -6,12 +6,11 @@
 
 ## stdlib
 import functools
-
 from dataclasses import dataclass
+from typing import Any
 
 ## third-party
 import numpy
-from typing import Any
 from numpy.typing import NDArray
 
 ## local
@@ -234,12 +233,13 @@ def compute_safe_log10(
 ##
 
 
-def _create_uniformly_spaced_bin_centers(
+def _create_bin_centers_from_percentile_spread(
     *,
     values: NDArray[Any],
     num_bins: int,
-    bin_range_factor: float = 1.0,
+    spread_factor: float = 1.0,
 ) -> NDArray[Any]:
+    """Create uniformly spaced bin centers based on the 16th/50th/84th percentile spread."""
     ## validate and canonicalise input values and bin configuration
     values = check_arrays.as_1d(
         array_like=values,
@@ -253,18 +253,18 @@ def _create_uniformly_spaced_bin_centers(
         require_positive=True,
     )
     check_types.ensure_finite_float(
-        param=bin_range_factor,
-        param_name="bin_range_factor",
+        param=spread_factor,
+        param_name="spread_factor",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    ## compute robust binning range and centers (16–84 percentile based)
+    ## expand the percentile-derived spread symmetrically beyond the central p16-p84 range
     p16_value = numpy.percentile(values, 16)
     p50_value = numpy.percentile(values, 50)
     p84_value = numpy.percentile(values, 84)
-    start_value = p16_value - (1 + bin_range_factor) * (p50_value - p16_value)
-    stop_value = p84_value + (1 + bin_range_factor) * (p84_value - p50_value)
+    start_value = p16_value - (1 + spread_factor) * (p50_value - p16_value)
+    stop_value = p84_value + (1 + spread_factor) * (p84_value - p50_value)
     return numpy.linspace(start_value, stop_value, num_bins)
 
 
@@ -545,7 +545,8 @@ def estimate_pdf(
             dtype=numpy.float64,
         )
         densities_delta = bin_counts_delta / (
-            bin_widths_delta * numpy.sum(
+            bin_widths_delta
+            * numpy.sum(
                 bin_counts_delta,
                 dtype=numpy.float64,
             )
@@ -554,14 +555,13 @@ def estimate_pdf(
             bin_centers=bin_centers_delta,
             densities=densities_delta,
         )
-    ## construct bin centers (either user-provided or percentile-based)
     if bin_centers is None:
         if num_bins is None:
             raise ValueError("You did not provide a binning option.")
-        bin_centers = _create_uniformly_spaced_bin_centers(
+        bin_centers = _create_bin_centers_from_percentile_spread(
             values=values,
             num_bins=num_bins,
-            bin_range_factor=bin_range_factor,
+            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         bin_centers = check_arrays.as_1d(
@@ -755,10 +755,10 @@ def estimate_jpdf(
             num_bins = len(row_centers)
     assert num_bins is not None
     if col_centers is None:
-        col_centers = _create_uniformly_spaced_bin_centers(
+        col_centers = _create_bin_centers_from_percentile_spread(
             values=data_x,
             num_bins=num_bins,
-            bin_range_factor=bin_range_factor,
+            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         col_centers = check_arrays.as_1d(
@@ -767,10 +767,10 @@ def estimate_jpdf(
             check_finite=True,
         )
     if row_centers is None:
-        row_centers = _create_uniformly_spaced_bin_centers(
+        row_centers = _create_bin_centers_from_percentile_spread(
             values=data_y,
             num_bins=num_bins,
-            bin_range_factor=bin_range_factor,
+            spread_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         row_centers = check_arrays.as_1d(
@@ -815,7 +815,9 @@ def estimate_jpdf(
             dtype=numpy.float64,
         ),
     )
-    estimated_jpdf = (bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts)
+    estimated_jpdf = (
+        bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts
+    )
     ## optional smoothing and re-normalisation
     if smoothing_length is not None:
         check_types.ensure_finite_float(
