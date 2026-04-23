@@ -49,7 +49,6 @@ def main():
             result = compute_array_stats.estimate_pdf(
                 values=pdf_samples,
                 num_bins=num_bins,
-                bin_range_percent=1.5,
             )
             bin_centers = result.bin_centers
             estimated_pdf = result.densities
