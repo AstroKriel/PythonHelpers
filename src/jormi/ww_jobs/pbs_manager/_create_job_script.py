@@ -94,11 +94,17 @@ def _validate_inputs(
     )
     if directives is None:
         if queue_name is None:
-            raise ValueError("`queue_name` is required when `directives` are not provided.")
+            raise ValueError(
+                "`queue_name` is required when `directives` are not provided."
+            )
         if num_procs is None:
-            raise ValueError("`num_procs` is required when `directives` are not provided.")
+            raise ValueError(
+                "`num_procs` is required when `directives` are not provided."
+            )
         if wall_time_hours is None:
-            raise ValueError("`wall_time_hours` is required when `directives` are not provided.")
+            raise ValueError(
+                "`wall_time_hours` is required when `directives` are not provided."
+            )
     check_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
@@ -157,7 +163,7 @@ def _build_pbs_script(
     post_command: str | None,
     always_run_post: bool,
 ) -> list[str]:
-    lines: list[str] = []
+    file_lines: list[str] = []
     ## --- pbs header
     if directives is None:
         assert queue_name is not None
@@ -173,14 +179,14 @@ def _build_pbs_script(
         ]
         if memory_gb is not None:
             directives.insert(4, f"#PBS -l mem={memory_gb}GB")
-    lines += directives
+    file_lines += directives
     if email_address is not None:
-        lines += [
+        file_lines += [
             f"#PBS -m {mail_options}",
             f"#PBS -M {email_address}",
         ]
     ## --- shell setup + logging
-    lines += [
+    file_lines += [
         "",
         "set -euo pipefail",
         f'LOG_FILE="{tag_name}.out"',
@@ -188,13 +194,13 @@ def _build_pbs_script(
     ]
     ## --- pre-command (if provided)
     if prep_command:
-        lines += [
+        file_lines += [
             "",
             "## preparation step(s)",
             prep_command.rstrip(),
         ]
     ## --- main command
-    lines += [
+    file_lines += [
         "",
         "## main workload (capture exit code)",
         "main_command_exit_code=0",
@@ -203,23 +209,27 @@ def _build_pbs_script(
     ]
     ## --- post-command (if provided)
     if post_command:
-        lines += ["", "## post-processing step(s)", "post_command_exit_code=not_run"]
+        file_lines += [
+            "",
+            "## post-processing step(s)",
+            "post_command_exit_code=not_run",
+        ]
         if always_run_post:
-            lines.append(f"{post_command.rstrip()} || post_command_exit_code=$?")
+            file_lines.append(f"{post_command.rstrip()} || post_command_exit_code=$?")
         else:
-            lines += [
+            file_lines += [
                 'if [ "$main_command_exit_code" -eq 0 ]; then',
                 f"\t{post_command.rstrip()} || post_command_exit_code=$?",
                 "fi",
             ]
-        lines.append('echo "Post command exit code: $post_command_exit_code"')
+        file_lines.append('echo "Post command exit code: $post_command_exit_code"')
     ## --- exit with the main command's exit code
-    lines += [
+    file_lines += [
         "",
         "## exit with the main command's exit code",
         'exit "$main_command_exit_code"',
     ]
-    return lines
+    return file_lines
 
 
 def create_pbs_job_script(
@@ -317,7 +327,7 @@ def create_pbs_job_script(
         mail_options += "e"
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
-    lines = _build_pbs_script(
+    file_lines = _build_pbs_script(
         directives=directives,
         tag_name=tag_name,
         queue_name=queue_name,
@@ -331,7 +341,7 @@ def create_pbs_job_script(
         post_command=post_command,
         always_run_post=always_run_post,
     )
-    file_path.write_text("\n".join(lines) + "\n")
+    file_path.write_text("\n".join(file_lines) + "\n")
     if verbose:
         manage_log.log_action(
             title="Create PBS job",

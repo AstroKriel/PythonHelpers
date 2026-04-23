@@ -9,8 +9,6 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_log
-## import directly from the module file (not via the package __init__) to avoid a static import cycle
-from jormi.ww_jobs.slurm_manager import _job_validation
 from jormi.ww_types import check_types
 
 ##
@@ -20,15 +18,15 @@ from jormi.ww_types import check_types
 
 def _validate_inputs(
     *,
-    system_name: str,
     directory: str | Path,
     file_name: str,
+    directives: list[str] | None,
     main_command: str,
     tag_name: str,
-    partition_name: str,
-    num_cpus: int,
-    memory_gb: int,
-    wall_time_hours: int,
+    partition_name: str | None,
+    num_cpus: int | None,
+    memory_gb: int | None,
+    wall_time_hours: int | None,
     prep_command: str | None,
     post_command: str | None,
     always_run_post: bool,
@@ -37,10 +35,6 @@ def _validate_inputs(
     email_on_finish: bool,
     verbose: bool,
 ) -> None:
-    check_types.ensure_nonempty_string(
-        param=system_name,
-        param_name="system_name",
-    )
     check_types.ensure_type(
         param=directory,
         valid_types=(str, Path),
@@ -50,6 +44,20 @@ def _validate_inputs(
         param=file_name,
         param_name="file_name",
     )
+    check_types.ensure_type(
+        param=directives,
+        valid_types=(list,),
+        param_name="directives",
+        allow_none=True,
+    )
+    if directives is not None:
+        if len(directives) == 0:
+            raise ValueError("`directives` must contain at least one SLURM header line.")
+        for directive in directives:
+            check_types.ensure_nonempty_string(
+                param=directive,
+                param_name="directives[]",
+            )
     check_types.ensure_nonempty_string(
         param=main_command,
         param_name="main_command",
@@ -58,28 +66,39 @@ def _validate_inputs(
         param=tag_name,
         param_name="tag_name",
     )
-    check_types.ensure_nonempty_string(
+    check_types.ensure_string(
         param=partition_name,
         param_name="partition_name",
+        allow_none=True,
     )
     check_types.ensure_finite_int(
         param=num_cpus,
         param_name="num_cpus",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
     check_types.ensure_finite_int(
         param=memory_gb,
         param_name="memory_gb",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
     check_types.ensure_finite_int(
         param=wall_time_hours,
         param_name="wall_time_hours",
+        allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
+    if directives is None:
+        if partition_name is None:
+            raise ValueError("`partition_name` is required when `directives` are not provided.")
+        if num_cpus is None:
+            raise ValueError("`num_cpus` is required when `directives` are not provided.")
+        if wall_time_hours is None:
+            raise ValueError("`wall_time_hours` is required when `directives` are not provided.")
     check_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
@@ -125,11 +144,12 @@ def _ensure_path_is_valid(
 
 def _build_slurm_script(
     *,
+    directives: list[str] | None,
     tag_name: str,
-    partition_name: str,
-    num_cpus: int,
-    memory_gb: int,
-    wall_time_string: str,
+    partition_name: str | None,
+    num_cpus: int | None,
+    memory_gb: int | None,
+    wall_time_hours: int | None,
     email_address: str | None,
     email_events_string: str,
     prep_command: str | None,
@@ -137,38 +157,44 @@ def _build_slurm_script(
     post_command: str | None,
     always_run_post: bool,
 ) -> list[str]:
-    lines: list[str] = []
+    file_lines: list[str] = []
     ## --- slurm header
-    lines += [
-        "#!/bin/bash",
-        f"#SBATCH --job-name={tag_name}",
-        f"#SBATCH --partition={partition_name}",
-        "#SBATCH --ntasks=1",
-        f"#SBATCH --cpus-per-task={num_cpus}",
-        f"#SBATCH --mem={memory_gb}G",
-        f"#SBATCH --time={wall_time_string}",
-        "#SBATCH --output=%x_%j.out",
-        "#SBATCH --error=%x_%j.err",
-    ]
+    if directives is None:
+        assert partition_name is not None
+        assert num_cpus is not None
+        assert wall_time_hours is not None
+        directives = [
+            "#!/bin/bash",
+            f"#SBATCH --job-name={tag_name}",
+            f"#SBATCH --partition={partition_name}",
+            "#SBATCH --ntasks=1",
+            f"#SBATCH --cpus-per-task={num_cpus}",
+            f"#SBATCH --time={wall_time_hours:02}:00:00",
+            "#SBATCH --output=%x_%j.out",
+            "#SBATCH --error=%x_%j.err",
+        ]
+        if memory_gb is not None:
+            directives.insert(5, f"#SBATCH --mem={memory_gb}G")
+    file_lines += directives
     if email_address is not None:
-        lines += [
+        file_lines += [
             f"#SBATCH --mail-user={email_address}",
             f"#SBATCH --mail-type={email_events_string}",
         ]
     ## --- shell setup
-    lines += [
+    file_lines += [
         "",
         "set -euo pipefail",
     ]
     ## --- pre-command (if provided)
     if prep_command:
-        lines += [
+        file_lines += [
             "",
             "## preparation step(s)",
             prep_command.rstrip(),
         ]
     ## --- main command
-    lines += [
+    file_lines += [
         "",
         "## main workload (capture exit code)",
         "main_command_exit_code=0",
@@ -177,36 +203,40 @@ def _build_slurm_script(
     ]
     ## --- post-command (if provided)
     if post_command:
-        lines += ["", "## post-processing step(s)", "post_command_exit_code=not_run"]
+        file_lines += [
+            "",
+            "## post-processing step(s)",
+            "post_command_exit_code=not_run",
+        ]
         if always_run_post:
-            lines.append(f"{post_command.rstrip()} || post_command_exit_code=$?")
+            file_lines.append(f"{post_command.rstrip()} || post_command_exit_code=$?")
         else:
-            lines += [
+            file_lines += [
                 'if [ "$main_command_exit_code" -eq 0 ]; then',
                 f"\t{post_command.rstrip()} || post_command_exit_code=$?",
                 "fi",
             ]
-        lines.append('echo "Post command exit code: $post_command_exit_code"')
+        file_lines.append('echo "Post command exit code: $post_command_exit_code"')
     ## --- exit with the main command's exit code
-    lines += [
+    file_lines += [
         "",
         "## exit with the main command's exit code",
         'exit "$main_command_exit_code"',
     ]
-    return lines
+    return file_lines
 
 
 def create_slurm_job_script(
     *,
-    system_name: str,
     directory: str | Path,
     file_name: str,
+    directives: list[str] | None = None,
     main_command: str,
     tag_name: str,
-    partition_name: str,
-    num_cpus: int,
-    memory_gb: int,
-    wall_time_hours: int,
+    partition_name: str | None = None,
+    num_cpus: int | None = None,
+    memory_gb: int | None = None,
+    wall_time_hours: int | None = None,
     prep_command: str | None = None,
     post_command: str | None = None,
     always_run_post: bool = True,
@@ -216,66 +246,36 @@ def create_slurm_job_script(
     verbose: bool = True,
 ) -> Path:
     """
-    Create a SLURM job script with optional pre/post steps.
+    Create a SLURM job script with caller-provided directives or generic resources.
 
     Parameters
     ---
-    - `system_name`:
-        Name of the HPC system. Used to look up partition constraints.
-
     - `directory`:
         Directory where the job script file will be written.
 
     - `file_name`:
         Filename for the job script; must end with `.sh`.
 
+    - `directives`:
+        Ordered SLURM header lines to write at the top of the script. This should
+        include the shebang and any `#SBATCH ...` directives required by the
+        target system. When omitted, a generic SLURM header is built from
+        `partition_name`, `num_cpus`, `memory_gb`, and `wall_time_hours`.
+
     - `main_command`:
         Primary workload command. Its exit code is captured and used as the
         script's final exit code.
 
-    - `prep_command`:
-        Optional command that runs before `main_command` (e.g. loading modules,
-        activating an environment).
-
-    - `post_command`:
-        Optional command that runs after `main_command`. Runs always when
-        `always_run_post` is `True`; only on success otherwise.
-
-    - `always_run_post`:
-        When `True`, `post_command` will run even if `main_command` fails.
-
     - `tag_name`:
-        SLURM job name (`--job-name`). Also used as the prefix for log files.
+        SLURM job name used by the generic header builder and as the prefix for log files.
 
-    - `partition_name`:
-        SLURM partition to submit the job to.
-
-    - `num_cpus`:
-        Number of CPUs to request (`--cpus-per-task`).
-
-    - `memory_gb`:
-        Memory limit in GB.
-
-    - `wall_time_hours`:
-        Maximum wall time in hours.
-
-    - `email_address`:
-        If provided, SLURM sends job notifications to this address. Failure
-        notifications are always included.
-
-    - `email_on_start`:
-        When `True`, sends a notification when the job begins.
-
-    - `email_on_finish`:
-        When `True`, sends a notification when the job ends.
-
-    - `verbose`:
-        When `True`, prints a summary of job parameters after writing the script.
+    - `partition_name`, `num_cpus`, `memory_gb`, `wall_time_hours`:
+        Generic SLURM resource settings used when `directives` are not supplied.
     """
     _validate_inputs(
-        system_name=system_name,
         directory=directory,
         file_name=file_name,
+        directives=directives,
         main_command=main_command,
         tag_name=tag_name,
         partition_name=partition_name,
@@ -290,16 +290,6 @@ def create_slurm_job_script(
         email_on_finish=email_on_finish,
         verbose=verbose,
     )
-    try:
-        _job_validation.validate_job_params(
-            system_name=system_name,
-            partition_name=partition_name,
-            num_cpus=num_cpus,
-            wall_time_hours=wall_time_hours,
-        )
-    except _job_validation.QueueValidationError as error:
-        raise ValueError(f"Invalid job parameters: {error}")
-    wall_time_string = f"{wall_time_hours:02}:00:00"
     email_events: list[str] = ["FAIL"]
     if email_on_start:
         email_events.append("BEGIN")
@@ -308,12 +298,13 @@ def create_slurm_job_script(
     email_events_string = ",".join(email_events)
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
-    lines = _build_slurm_script(
+    file_lines = _build_slurm_script(
+        directives=directives,
         tag_name=tag_name,
         partition_name=partition_name,
         num_cpus=num_cpus,
         memory_gb=memory_gb,
-        wall_time_string=wall_time_string,
+        wall_time_hours=wall_time_hours,
         email_address=email_address,
         email_events_string=email_events_string,
         prep_command=prep_command,
@@ -321,7 +312,7 @@ def create_slurm_job_script(
         post_command=post_command,
         always_run_post=always_run_post,
     )
-    file_path.write_text("\n".join(lines) + "\n")
+    file_path.write_text("\n".join(file_lines) + "\n")
     if verbose:
         manage_log.log_action(
             title="Create SLURM job",
@@ -330,10 +321,6 @@ def create_slurm_job_script(
             notes={
                 "file": str(file_path),
                 "tag_name": tag_name,
-                "partition": partition_name,
-                "cpus": num_cpus,
-                "memory": f"{memory_gb} GB",
-                "walltime": wall_time_string,
             },
         )
     return file_path

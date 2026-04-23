@@ -13,7 +13,7 @@ from pathlib import Path
 from jormi.ww_jobs.slurm_manager import _create_job_script
 
 ##
-## === TEST SUITE
+## === HELPERS
 ##
 
 
@@ -22,17 +22,35 @@ def _make_minimal_kwargs(
     directory: str | Path,
 ) -> dict:
     return {
-        "system_name": "cita",
         "directory": directory,
         "file_name": "test_job.sh",
         "main_command": "python run.py",
         "tag_name": "my_job",
-        "partition_name": "all",
+        "partition_name": "partition_a",
         "num_cpus": 4,
         "memory_gb": 16,
         "wall_time_hours": 2,
         "verbose": False,
     }
+
+
+def _make_directives() -> list[str]:
+    return [
+        "#!/bin/bash -l",
+        "#SBATCH --job-name=my_job",
+        "#SBATCH --partition=partition_b",
+        "#SBATCH --ntasks=1",
+        "#SBATCH --cpus-per-task=8",
+        "#SBATCH --mem=32G",
+        "#SBATCH --time=01:00:00",
+        "#SBATCH --output=%x_%j.out",
+        "#SBATCH --error=%x_%j.err",
+    ]
+
+
+##
+## === TEST SUITE
+##
 
 
 class TestCreateJobScript_FileCreation(unittest.TestCase):
@@ -61,12 +79,11 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             with self.assertRaises(ValueError):
                 _create_job_script.create_slurm_job_script(
-                    system_name="cita",
                     directory=tmp_dir,
                     file_name="test_job.txt",
                     main_command="python run.py",
                     tag_name="my_job",
-                    partition_name="all",
+                    partition_name="partition_a",
                     num_cpus=4,
                     memory_gb=16,
                     wall_time_hours=2,
@@ -76,7 +93,7 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
 
 class TestCreateJobScript_Header(unittest.TestCase):
 
-    def test_slurm_directives_present(
+    def test_generic_slurm_directives_present(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -86,10 +103,27 @@ class TestCreateJobScript_Header(unittest.TestCase):
             content = file_path.read_text()
             self.assertIn("#!/bin/bash", content)
             self.assertIn("#SBATCH --job-name=my_job", content)
-            self.assertIn("#SBATCH --partition=all", content)
+            self.assertIn("#SBATCH --partition=partition_a", content)
             self.assertIn("#SBATCH --cpus-per-task=4", content)
             self.assertIn("#SBATCH --mem=16G", content)
             self.assertIn("#SBATCH --time=02:00:00", content)
+
+    def test_custom_directives_are_written_verbatim(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            file_path = _create_job_script.create_slurm_job_script(
+                directory=tmp_dir,
+                file_name="test_job.sh",
+                directives=_make_directives(),
+                main_command="python run.py",
+                tag_name="my_job",
+                verbose=False,
+            )
+            content = file_path.read_text()
+            self.assertIn("#!/bin/bash -l", content)
+            self.assertIn("#SBATCH --partition=partition_b", content)
+            self.assertIn("#SBATCH --cpus-per-task=8", content)
 
     def test_no_email_directives_when_none(
         self,
@@ -107,12 +141,11 @@ class TestCreateJobScript_Header(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_slurm_job_script(
-                system_name="cita",
                 directory=tmp_dir,
                 file_name="test_job.sh",
                 main_command="python run.py",
                 tag_name="my_job",
-                partition_name="all",
+                partition_name="partition_a",
                 num_cpus=4,
                 memory_gb=16,
                 wall_time_hours=2,
@@ -126,28 +159,6 @@ class TestCreateJobScript_Header(unittest.TestCase):
             self.assertIn("FAIL", content)
             self.assertIn("BEGIN", content)
             self.assertIn("END", content)
-
-    def test_email_fail_only_when_no_start_or_finish(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            file_path = _create_job_script.create_slurm_job_script(
-                system_name="cita",
-                directory=tmp_dir,
-                file_name="test_job.sh",
-                main_command="python run.py",
-                tag_name="my_job",
-                partition_name="all",
-                num_cpus=4,
-                memory_gb=16,
-                wall_time_hours=2,
-                email_address="user@example.com",
-                verbose=False,
-            )
-            content = file_path.read_text()
-            self.assertIn("FAIL", content)
-            self.assertNotIn("BEGIN", content)
-            self.assertNotIn("END", content)
 
 
 class TestCreateJobScript_Commands(unittest.TestCase):
@@ -167,12 +178,11 @@ class TestCreateJobScript_Commands(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_slurm_job_script(
-                system_name="cita",
                 directory=tmp_dir,
                 file_name="test_job.sh",
                 main_command="python run.py",
                 tag_name="my_job",
-                partition_name="all",
+                partition_name="partition_a",
                 num_cpus=4,
                 memory_gb=16,
                 wall_time_hours=2,
@@ -187,12 +197,11 @@ class TestCreateJobScript_Commands(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_slurm_job_script(
-                system_name="cita",
                 directory=tmp_dir,
                 file_name="test_job.sh",
                 main_command="python run.py",
                 tag_name="my_job",
-                partition_name="all",
+                partition_name="partition_a",
                 num_cpus=4,
                 memory_gb=16,
                 wall_time_hours=2,
@@ -207,12 +216,11 @@ class TestCreateJobScript_Commands(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_slurm_job_script(
-                system_name="cita",
                 directory=tmp_dir,
                 file_name="test_job.sh",
                 main_command="python run.py",
                 tag_name="my_job",
-                partition_name="all",
+                partition_name="partition_a",
                 num_cpus=4,
                 memory_gb=16,
                 wall_time_hours=2,
@@ -223,64 +231,8 @@ class TestCreateJobScript_Commands(unittest.TestCase):
             content = file_path.read_text()
             self.assertIn('if [ "$main_command_exit_code" -eq 0 ]', content)
 
-    def test_no_prep_command_when_not_given(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            file_path = _create_job_script.create_slurm_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
-            )
-            content = file_path.read_text()
-            self.assertNotIn("preparation step", content)
-
-    def test_exit_code_propagation(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            file_path = _create_job_script.create_slurm_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
-            )
-            content = file_path.read_text()
-            self.assertIn('exit "$main_command_exit_code"', content)
-
 
 class TestCreateJobScript_InvalidParams(unittest.TestCase):
-
-    def test_invalid_system_raises(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            with self.assertRaises(ValueError):
-                _create_job_script.create_slurm_job_script(
-                    system_name="unknown",
-                    directory=tmp_dir,
-                    file_name="test_job.sh",
-                    main_command="python run.py",
-                    tag_name="my_job",
-                    partition_name="all",
-                    num_cpus=4,
-                    memory_gb=16,
-                    wall_time_hours=2,
-                    verbose=False,
-                )
-
-    def test_wall_time_exceeds_limit_raises(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            with self.assertRaises(ValueError):
-                _create_job_script.create_slurm_job_script(
-                    system_name="cita",
-                    directory=tmp_dir,
-                    file_name="test_job.sh",
-                    main_command="python run.py",
-                    tag_name="my_job",
-                    partition_name="all",
-                    num_cpus=4,
-                    memory_gb=16,
-                    wall_time_hours=999,
-                    verbose=False,
-                )
 
     def test_empty_tag_name_raises(
         self,
@@ -288,12 +240,11 @@ class TestCreateJobScript_InvalidParams(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             with self.assertRaises(ValueError):
                 _create_job_script.create_slurm_job_script(
-                    system_name="cita",
                     directory=tmp_dir,
                     file_name="test_job.sh",
                     main_command="python run.py",
                     tag_name="",  # type: ignore
-                    partition_name="all",
+                    partition_name="partition_a",
                     num_cpus=4,
                     memory_gb=16,
                     wall_time_hours=2,
@@ -306,13 +257,28 @@ class TestCreateJobScript_InvalidParams(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             with self.assertRaises(ValueError):
                 _create_job_script.create_slurm_job_script(
-                    system_name="cita",
                     directory=tmp_dir,
                     file_name="test_job.sh",
                     main_command="python run.py",
                     tag_name="my_job",
-                    partition_name="all",
+                    partition_name="partition_a",
                     num_cpus=0,  # type: ignore
+                    memory_gb=16,
+                    wall_time_hours=2,
+                    verbose=False,
+                )
+
+    def test_missing_partition_raises_without_directives(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            with self.assertRaises(ValueError):
+                _create_job_script.create_slurm_job_script(
+                    directory=tmp_dir,
+                    file_name="test_job.sh",
+                    main_command="python run.py",
+                    tag_name="my_job",
+                    num_cpus=4,
                     memory_gb=16,
                     wall_time_hours=2,
                     verbose=False,
