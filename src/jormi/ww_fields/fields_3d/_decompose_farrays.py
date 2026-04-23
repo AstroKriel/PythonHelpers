@@ -339,6 +339,8 @@ def compute_curvature_sarray(
         allow_none=False,
         require_positive=True,
     )
+    ## promote low-precision inputs so gradient and curvature algebra run in float64
+    varray_3d = _farray_operators._as_float_view(varray_3d)
     ## |f|^2 = f_i f_i
     sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d,
