@@ -238,7 +238,7 @@ def _create_uniformly_spaced_bin_centers(
     *,
     values: NDArray[Any],
     num_bins: int,
-    bin_range_percent: float = 1.0,
+    bin_range_factor: float = 1.0,
 ) -> NDArray[Any]:
     ## validate and canonicalise input values and bin configuration
     values = check_arrays.as_1d(
@@ -253,8 +253,8 @@ def _create_uniformly_spaced_bin_centers(
         require_positive=True,
     )
     check_types.ensure_finite_float(
-        param=bin_range_percent,
-        param_name="bin_range_percent",
+        param=bin_range_factor,
+        param_name="bin_range_factor",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
@@ -263,8 +263,8 @@ def _create_uniformly_spaced_bin_centers(
     p16_value = numpy.percentile(values, 16)
     p50_value = numpy.percentile(values, 50)
     p84_value = numpy.percentile(values, 84)
-    start_value = p16_value - (1 + bin_range_percent) * (p50_value - p16_value)
-    stop_value = p84_value + (1 + bin_range_percent) * (p84_value - p50_value)
+    start_value = p16_value - (1 + bin_range_factor) * (p50_value - p16_value)
+    stop_value = p84_value + (1 + bin_range_factor) * (p84_value - p50_value)
     return numpy.linspace(start_value, stop_value, num_bins)
 
 
@@ -466,7 +466,7 @@ def estimate_pdf(
     weights: NDArray[Any] | None = None,
     num_bins: int | None = None,
     bin_centers: NDArray[Any] | None = None,
-    bin_range_percent: float = 1.0,
+    bin_range_factor: float = 1.0,
     delta_threshold: float = 1e-5,
 ) -> EstimatedPDF:
     """Compute a 1D probability density function (PDF) for the provided `values`."""
@@ -561,7 +561,7 @@ def estimate_pdf(
         bin_centers = _create_uniformly_spaced_bin_centers(
             values=values,
             num_bins=num_bins,
-            bin_range_percent=bin_range_percent,
+            bin_range_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         bin_centers = check_arrays.as_1d(
@@ -708,7 +708,7 @@ def estimate_jpdf(
     col_centers: NDArray[Any] | None = None,
     row_centers: NDArray[Any] | None = None,
     num_bins: int | None = None,
-    bin_range_percent: float = 1.0,
+    bin_range_factor: float = 1.0,
     smoothing_length: float | None = None,
 ) -> EstimatedJPDF:
     """Compute the 2D joint probability density function (JPDF)."""
@@ -758,7 +758,7 @@ def estimate_jpdf(
         col_centers = _create_uniformly_spaced_bin_centers(
             values=data_x,
             num_bins=num_bins,
-            bin_range_percent=bin_range_percent,
+            bin_range_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         col_centers = check_arrays.as_1d(
@@ -770,7 +770,7 @@ def estimate_jpdf(
         row_centers = _create_uniformly_spaced_bin_centers(
             values=data_y,
             num_bins=num_bins,
-            bin_range_percent=bin_range_percent,
+            bin_range_factor=bin_range_factor,
         ).astype(numpy.float64)
     else:
         row_centers = check_arrays.as_1d(
