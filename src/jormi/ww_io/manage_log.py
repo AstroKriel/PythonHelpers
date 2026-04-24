@@ -28,6 +28,11 @@ from rich.text import Text as rich_Text
 _CONSOLE = rich_Console(highlight=False, soft_wrap=False)
 
 
+class BlockWidthMode(str, Enum):
+    PRETTY = "pretty"
+    PRACTICAL = "practical"
+
+
 class _Colours(str, Enum):
     GREEN = "#32CD32"
     YELLOW = "#FFE600"
@@ -57,6 +62,18 @@ class _MessageStyle:
     message: str
     icon: str
     colour: str
+
+
+@dataclass
+class _RenderConfig:
+    """Mutable rendering defaults shared by the public logging helpers."""
+
+    block_width_mode: BlockWidthMode = BlockWidthMode.PRETTY
+    block_min_width: int = 60
+    pretty_block_max_width: int = 100
+
+
+_RENDER_CONFIG = _RenderConfig()
 
 
 class MessageType(Enum):
@@ -155,6 +172,16 @@ def get_timestamp() -> str:
     return datetime.now().isoformat(sep=" ", timespec="seconds")
 
 
+def set_block_width_mode(
+    mode: BlockWidthMode,
+) -> None:
+    _RENDER_CONFIG.block_width_mode = mode
+
+
+def get_block_width_mode() -> BlockWidthMode:
+    return _RENDER_CONFIG.block_width_mode
+
+
 ##
 ## === RENDERING API
 ## internal api used by the log-helpers
@@ -207,8 +234,8 @@ def render_block(
     message: Message,
     *,
     show_time: bool = True,
-    min_width: int = 60,
-    max_width: int = 100,
+    min_width: int | None = None,
+    max_width: int | None = None,
     add_spacing: bool = True,
     message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
@@ -253,8 +280,15 @@ def render_block(
         content_width = max(content_width, max(line.cell_len for line in body_lines))
     h_padding = 2
     borders = 2
+    if min_width is None:
+        min_width = _RENDER_CONFIG.block_min_width
+    if max_width is None and _RENDER_CONFIG.block_width_mode is BlockWidthMode.PRETTY:
+        max_width = _RENDER_CONFIG.pretty_block_max_width
     panel_width_needed = content_width + h_padding + borders
-    panel_width = max(min_width, min(panel_width_needed, max_width))
+    if max_width is None:
+        panel_width = max(min_width, panel_width_needed)
+    else:
+        panel_width = max(min_width, min(panel_width_needed, max_width))
     ## render panel
     panel = rich_Panel(
         rich_Text("\n").join(body_lines),
