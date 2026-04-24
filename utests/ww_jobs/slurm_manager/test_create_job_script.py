@@ -8,6 +8,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TypedDict
 
 ## local
 from jormi.ww_jobs.slurm_manager import _create_job_script
@@ -17,10 +18,22 @@ from jormi.ww_jobs.slurm_manager import _create_job_script
 ##
 
 
+class _SlurmMinimalKwargs(TypedDict):
+    directory: str | Path
+    file_name: str
+    main_command: str
+    tag_name: str
+    partition_name: str
+    num_cpus: int
+    memory_gb: int
+    wall_time_hours: int
+    verbose: bool
+
+
 def _make_minimal_kwargs(
     *,
     directory: str | Path,
-) -> dict:
+) -> _SlurmMinimalKwargs:
     return {
         "directory": directory,
         "file_name": "test_job.sh",

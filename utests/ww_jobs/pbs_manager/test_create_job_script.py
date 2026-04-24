@@ -8,6 +8,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TypedDict
 
 ## local
 from jormi.ww_jobs.pbs_manager import _create_job_script
@@ -17,10 +18,22 @@ from jormi.ww_jobs.pbs_manager import _create_job_script
 ##
 
 
+class _PBSMinimalKwargs(TypedDict):
+    directory: str | Path
+    file_name: str
+    main_command: str
+    tag_name: str
+    queue_name: str
+    num_procs: int
+    memory_gb: int
+    wall_time_hours: int
+    verbose: bool
+
+
 def _make_minimal_kwargs(
     *,
     directory: str | Path,
-) -> dict:
+) -> _PBSMinimalKwargs:
     return {
         "directory": directory,
         "file_name": "test_job.sh",
