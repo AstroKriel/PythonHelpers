@@ -260,6 +260,66 @@ def dot_over_varray_comps(
     return sarray_3d_out
 
 
+def compute_varray_directional_derivative(
+    *,
+    varray_3d_direction: NDArray[Any],
+    varray_3d_target: NDArray[Any],
+    cell_widths_3d: tuple[float, float, float],
+    out_varray_3d: NDArray[Any] | None = None,
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """
+    Compute the directional derivative `(direction_i d_i target_j)` for 3D vector fields.
+
+    All vector arrays have shape `(3, num_x0_cells, num_x1_cells, num_x2_cells)`.
+    """
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_direction,
+        param_name="<varray_3d_direction>",
+    )
+    _fdata_types.ensure_3d_varray(
+        varray_3d=varray_3d_target,
+        param_name="<varray_3d_target>",
+    )
+    check_arrays.ensure_same_shape(
+        array_a=varray_3d_direction,
+        array_b=varray_3d_target,
+        param_name_a="<varray_3d_direction>",
+        param_name_b="<varray_3d_target>",
+    )
+    validate_3d_cell_widths(cell_widths_3d)
+    check_types.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    domain_shape = varray_3d_direction.shape[1:]
+    dtype = numpy.result_type(
+        varray_3d_direction.dtype,
+        varray_3d_target.dtype,
+        numpy.float64,
+    )
+    out_varray_3d = _fdata_types.ensure_farray_metadata(
+        farray_shape=(3, *domain_shape),
+        farray=out_varray_3d,
+        dtype=dtype,
+    )
+    out_varray_3d.fill(0.0)
+    ## accumulate the directional contraction directly so we never materialise the full d_i target_j tensor
+    for grad_axis, cell_width in enumerate(cell_widths_3d):
+        sarray_3d_direction_comp = varray_3d_direction[grad_axis]
+        for comp_index in range(3):
+            sarray_3d_grad_comp = nabla(
+                sarray_3d=varray_3d_target[comp_index],
+                cell_width=cell_width,
+                grad_axis=grad_axis,
+            )
+            out_varray_3d[comp_index] += sarray_3d_direction_comp * sarray_3d_grad_comp
+    return out_varray_3d
+
+
 def compute_varray_grad(
     *,
     varray_3d: NDArray[Any],

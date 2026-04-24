@@ -339,29 +339,19 @@ def compute_curvature_sarray(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
     ## promote low-precision inputs so gradient and curvature algebra run in float64
     varray_3d = _farray_operators._as_float_view(varray_3d)
-    dtype = varray_3d.dtype
-    domain_shape = varray_3d.shape[1:]
     ## |f|^2 = f_i f_i
     sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## term1_j = f_i * (d_i f_j) = ((f . grad) f)_j
-    varray_3d_normal_term1 = numpy.zeros(
-        (3, *domain_shape),
-        dtype=dtype,
+    varray_3d_normal_term1 = _farray_operators.compute_varray_directional_derivative(
+        varray_3d_direction=varray_3d,
+        varray_3d_target=varray_3d,
+        cell_widths_3d=cell_widths_3d,
+        grad_order=grad_order,
     )
-    for grad_axis, cell_width in enumerate(cell_widths_3d):
-        sarray_3d_field_comp = varray_3d[grad_axis]
-        for comp_index in range(3):
-            sarray_3d_grad_comp = nabla(
-                sarray_3d=varray_3d[comp_index],
-                cell_width=cell_width,
-                grad_axis=grad_axis,
-            )
-            varray_3d_normal_term1[comp_index] += sarray_3d_field_comp * sarray_3d_grad_comp
     ## term2_j = f_j * [f_m * term1_m]
     sarray_3d_normal_prefactor = _farray_operators.dot_over_varray_comps(
         varray_3d_a=varray_3d,
