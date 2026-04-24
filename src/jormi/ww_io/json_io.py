@@ -35,7 +35,7 @@ def _ensure_path_is_valid(
     )
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".json":
-        raise ValueError(f"File should end with a .json extension: {file_path}")
+        raise ValueError(f"file must end with a `.json` extension: {file_path}.")
     return file_path
 
 

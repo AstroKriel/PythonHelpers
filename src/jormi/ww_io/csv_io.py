@@ -28,7 +28,7 @@ def _ensure_path_is_valid(
     )
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".csv":
-        raise ValueError(f"File should end with a .csv extension: {file_path}")
+        raise ValueError(f"file must end with a `.csv` extension: {file_path}.")
     return file_path
 
 
@@ -77,7 +77,7 @@ def read_csv_file_into_dict(
             delimiter=delimiter,
         )
         if csv_reader.fieldnames is None:
-            raise ValueError("CSV is empty or missing a header row.")
+            raise ValueError("csv file is empty or missing a header row.")
         dataset: dict[str, list[float]] = {key: [] for key in csv_reader.fieldnames}
         for entry_index, entry in enumerate(csv_reader, start=2):  # header is line 1
             for key, value in entry.items():

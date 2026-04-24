@@ -125,7 +125,7 @@ def _get_value_range(
         )
     ## infer bounds from data, with a small pad to avoid degenerate colormaps
     if not numpy.any(finite_mask):
-        raise ValueError("Array contains no finite values; cannot infer colorbar bounds.")
+        raise ValueError("array contains no finite values; cannot infer colorbar bounds.")
     min_value = float(numpy.min(array_2d[finite_mask]))
     max_value = float(numpy.max(array_2d[finite_mask]))
     if min_value == max_value:

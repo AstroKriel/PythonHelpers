@@ -99,9 +99,9 @@ def execute_shell_command(
             check=False,
         )
     except FileNotFoundError as error:
-        raise RuntimeError(f"Command not found: {command}") from error
+        raise RuntimeError(f"command not found: {command}.") from error
     except subprocess.TimeoutExpired as error:
-        raise RuntimeError(f"Command timed out after {timeout_seconds}s: {command}") from error
+        raise RuntimeError(f"command timed out after {timeout_seconds}s: {command}.") from error
     command_outcome = CommandOutcome(
         command=command,
         working_directory=resolved_directory,

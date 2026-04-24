@@ -49,14 +49,14 @@ def _resolve_file_paths(
 ) -> tuple[Path, Path]:
     directory_from = Path(directory_from)
     if not directory_from.is_dir():
-        raise NotADirectoryError(f"Directory does not exist: {directory_from}")
+        raise NotADirectoryError(f"directory does not exist: {directory_from}.")
     file_path_from = directory_from / file_name
     if not file_path_from.is_file():
-        raise FileNotFoundError(f"File does not exist: {file_path_from}")
+        raise FileNotFoundError(f"file does not exist: {file_path_from}.")
     directory_to = Path(directory_to)
     file_path_to = directory_to / file_name
     if not overwrite and file_path_to.is_file():
-        raise FileExistsError(f"File already exists: {file_path_to}")
+        raise FileExistsError(f"file already exists: {file_path_to}.")
     return file_path_from, file_path_to
 
 
@@ -164,7 +164,7 @@ def delete_file(
 ) -> None:
     directory = Path(directory)
     if not directory.is_dir():
-        raise NotADirectoryError(f"Directory does not exist: {directory}")
+        raise NotADirectoryError(f"directory does not exist: {directory}.")
     file_path = directory / file_name
     if not dry_run:
         file_path.unlink()
@@ -235,7 +235,7 @@ def filter_directory(
         )
     directory = Path(directory).absolute()
     if not directory.is_dir():
-        raise NotADirectoryError(f"Directory does not exist: {directory}")
+        raise NotADirectoryError(f"directory does not exist: {directory}.")
     include_list = _to_word_list(req_include_words)
     exclude_list = _to_word_list(req_exclude_words)
     matched: list[Path] = []

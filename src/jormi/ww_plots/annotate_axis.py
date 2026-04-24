@@ -298,7 +298,7 @@ def overlay_curve(
         param_name_b="y_values",
     )
     if x_array.size < 2:
-        raise ValueError("There needs to be at least two points to plot a curve.")
+        raise ValueError("need at least 2 points to plot a curve.")
     collection = LineCollection(
         [numpy.column_stack((x_array, y_array))],
         colors=color,

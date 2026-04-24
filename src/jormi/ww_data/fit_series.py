@@ -240,7 +240,7 @@ class FitSummary:
                 wrap_in_quotes=True,
                 conjunction="and",
             )
-            raise ValueError(f"Missing parameter(s): {missing_string}")
+            raise ValueError(f"missing parameter(s): {missing_string}.")
         check_arrays.ensure_array(self.residual_array)
         check_arrays.ensure_1d(self.residual_array)
         check_arrays.ensure_finite(self.residual_array)
@@ -307,7 +307,7 @@ class LinearFitSummary(FitSummary):
         super().__post_init__()
         for required_key in ("slope", "intercept"):
             if required_key not in self.fit_stats:
-                raise ValueError(f"LinearFitSummary requires '{required_key}' in fit_stats.")
+                raise ValueError(f"LinearFitSummary requires `{required_key}` in fit_stats.")
 
     @property
     def slope(
@@ -358,7 +358,7 @@ def fit_linear_model(
         param_name="gaussian_series",
     )
     if gaussian_series.num_points < 3:
-        raise ValueError("Need at least 3 points to fit a line.")
+        raise ValueError("need at least 3 points to fit a line.")
     linear_model = Model(
         model_name="linear",
         param_names=("intercept", "slope"),
@@ -380,7 +380,7 @@ def fit_linear_model(
             absolute_sigma=gaussian_series.y_sigmas is not None,
         )
     except RuntimeError as err:
-        raise RuntimeError(f"Fit failed to converge: {err}") from err
+        raise RuntimeError("fit failed to converge.") from err
     diag_array = numpy.diag(covariance_matrix)
     sigmas_vector = numpy.sqrt(diag_array) if numpy.isfinite(diag_array).all() else None
     fit_stats = linear_model.create_fit_stats(
@@ -416,7 +416,7 @@ def fit_line_with_fixed_slope(
         param_name="fixed_slope",
     )
     if gaussian_series.num_points < 2:
-        raise ValueError("Need at least 2 points to estimate intercept.")
+        raise ValueError("need at least 2 points to estimate intercept.")
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         param_names=("intercept", "slope"),

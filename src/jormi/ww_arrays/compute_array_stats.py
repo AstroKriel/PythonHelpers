@@ -544,7 +544,7 @@ def estimate_pdf(
         )
     if bin_centers is None:
         if num_bins is None:
-            raise ValueError("You did not provide a binning option.")
+            raise ValueError("no binning option was provided.")
         bin_centers = _create_bins_spanning_full_value_range(
             values=values,
             num_bins=num_bins,
@@ -556,12 +556,12 @@ def estimate_pdf(
             check_finite=True,
         )
         if not numpy.all(bin_centers[:-1] <= bin_centers[1:]):
-            raise ValueError("Bin centers must be sorted in ascending order.")
+            raise ValueError("bin centers must be sorted in ascending order.")
     ## compute binned counts and convert to a normalised PDF
     bin_edges = _get_bin_edges_from_centers(bin_centers).astype(numpy.float64)
     bin_widths = numpy.diff(bin_edges)
     if numpy.any(bin_widths <= 0):
-        raise ValueError("All bin widths must be positive.")
+        raise ValueError("all bin widths must be positive.")
     bin_indices = numpy.searchsorted(bin_edges, values, side="right") - 1
     bin_indices = numpy.clip(bin_indices, 0, len(bin_centers) - 1)
     bin_counts = numpy.zeros(len(bin_centers), dtype=numpy.float64)
@@ -582,7 +582,7 @@ def estimate_pdf(
             ),
         )
     if total_counts <= 0:
-        raise ValueError("None of the `values` fell into any bins.")
+        raise ValueError("none of the `values` fell into any bins.")
     densities = bin_counts / (total_counts * bin_widths)
     ## return validated PDF object (normalisation is validated in __post_init__)
     return EstimatedPDF(
@@ -767,7 +767,7 @@ def estimate_jpdf(
     bin_widths_rows = numpy.diff(row_edges)
     bin_widths_cols = numpy.diff(col_edges)
     if numpy.any(bin_widths_rows <= 0) or numpy.any(bin_widths_cols <= 0):
-        raise ValueError("All bin widths must be positive.")
+        raise ValueError("all bin widths must be positive.")
     bin_areas = numpy.outer(bin_widths_rows, bin_widths_cols)
     bin_indices_rows = numpy.searchsorted(row_edges, data_y, side="right") - 1
     bin_indices_cols = numpy.searchsorted(col_edges, data_x, side="right") - 1

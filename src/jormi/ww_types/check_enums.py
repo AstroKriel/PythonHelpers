@@ -61,7 +61,7 @@ def _find_unique_match(
         if candidate_member is None:
             continue
         if (matched_member is not None) and (candidate_member is not matched_member):
-            raise ValueError("Ambiguous Enum member.")
+            raise ValueError("ambiguous Enum member.")
         matched_member = candidate_member
     return matched_member
 
@@ -89,14 +89,14 @@ def as_runtime_type(
     args = get_args(type_hint)
     if args:
         if not all(isinstance(arg, type) and issubclass(arg, Enum) for arg in args):
-            raise TypeError(f"Non-Enum argument(s) in hint: {type_hint!r}")
+            raise TypeError(f"non-Enum argument(s) in hint: {type_hint!r}.")
         return tuple(args)
     if isinstance(type_hint, type) and issubclass(
             type_hint,
             Enum,
     ):  # pyright: ignore[reportUnnecessaryIsInstance]
         return (type_hint, )
-    raise TypeError(f"Unsupported Enum type-hint: {type_hint!r}")
+    raise TypeError(f"unsupported Enum type-hint: {type_hint!r}.")
 
 
 def ensure_sequence_of_enums(
@@ -118,7 +118,7 @@ def ensure_sequence_of_enums(
     ## reject sequences containing non-Enum types
     if not all(issubclass(enum_type, Enum)  # pyright: ignore[reportUnnecessaryIsInstance]
                for enum_type in param):
-        raise TypeError(f"All `{param_name}` entries must be Enum types.")
+        raise TypeError(f"all `{param_name}` entries must be Enum types.")
 
 
 def resolve_member(
@@ -140,7 +140,7 @@ def resolve_member(
     if isinstance(member, Enum):
         if isinstance(member, valid_enums):
             return member
-        raise ValueError(f"Enum member {member!r} is not in the set of valid Enum types.")
+        raise ValueError(f"enum member {member!r} is not in the set of valid Enum types.")
     ## otherwise search for a unique instance of the string the user passed in valid_enums name or value
     check_types.ensure_type(
         param=member,
@@ -171,7 +171,7 @@ def ensure_valid_member(
             valid_enums=valid_enums,
         )
     except (TypeError, ValueError) as error:
-        raise type(error)(f"`{param_name}` is invalid: {error}") from error
+        raise type(error)(f"`{param_name}` is invalid.") from error
 
 
 def ensure_member_in(

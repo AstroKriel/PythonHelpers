@@ -63,7 +63,7 @@ class DataSeries:
             numpy.median(numpy.abs(array)),  # robust estimate of typical data magnitude
         )
         if (value_range / ref_value < rel_tol) and (value_range < abs_tol):
-            raise ValueError("Data values are (nearly) identical.")
+            raise ValueError("data values are (nearly) identical.")
 
     @staticmethod
     def _validate_sigma_array(
@@ -78,7 +78,7 @@ class DataSeries:
             array_b=ref_array,
         )
         if numpy.any(sigma_array <= 0):
-            raise ValueError("Uncertainty array must be strictly positive.")
+            raise ValueError("uncertainty values must be strictly positive.")
 
     @cached_property
     def num_points(

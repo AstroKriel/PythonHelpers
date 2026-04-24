@@ -71,14 +71,14 @@ class CartesianAxis_3D(str, Enum):
             param_name="axis_label",
         )
         if axis_params.axis_label not in VALID_3D_AXIS_LABELS:
-            raise ValueError(f"`axis_label` is invalid: {axis_params.axis_label!r}")
+            raise ValueError(f"`axis_label` is invalid: {axis_params.axis_label!r}.")
         check_types.ensure_type(
             param=axis_params.axis_index,
             valid_types=check_types.RuntimeTypes.Numerics.IntLike,
             param_name="axis_index",
         )
         if axis_params.axis_index not in VALID_3D_AXIS_INDICES:
-            raise ValueError(f"`axis_index` is invalid: {axis_params.axis_index!r}")
+            raise ValueError(f"`axis_index` is invalid: {axis_params.axis_index!r}.")
         obj = str.__new__(cls, axis_params.axis_label)
         obj._value_ = axis_params.axis_label
         obj._axis_label = cast(AxisLabel_3D, axis_params.axis_label)  # pyright: ignore[reportUnnecessaryCast]

@@ -54,11 +54,11 @@ def _as_runtime_type(
     args = get_args(type_hint)
     if args:
         if not all(isinstance(arg, type) for arg in args):
-            raise TypeError(f"Non-type argument(s) in hint: {type_hint!r}")
+            raise TypeError(f"non-type argument(s) in hint: {type_hint!r}.")
         return tuple(args)
     if isinstance(type_hint, type):
         return (type_hint, )
-    raise TypeError(f"Unsupported type-hint: {type_hint!r}")
+    raise TypeError(f"unsupported type-hint: {type_hint!r}.")
 
 
 class RuntimeTypes:
@@ -115,7 +115,7 @@ def _types_to_tuple(
         return (valid_types, )
     if isinstance(valid_types, (tuple, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if not valid_types:
-            raise ValueError("Empty type specification.")
+            raise ValueError("empty type specification.")
         if not all(isinstance(valid_type, type)  # pyright: ignore[reportUnnecessaryIsInstance]
                    for valid_type in valid_types):
             raise TypeError("`valid_types` entries must be valid Python types.")

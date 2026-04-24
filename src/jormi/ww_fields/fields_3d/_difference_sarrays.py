@@ -66,7 +66,7 @@ def get_grad_fn(
         6: sixth_order_centered_difference,
     }
     if grad_order not in valid_grad_orders:
-        raise ValueError(f"Gradient order `{grad_order}` is unsupported.")
+        raise ValueError(f"gradient order `{grad_order}` is unsupported.")
     return valid_grad_orders[grad_order]
 
 

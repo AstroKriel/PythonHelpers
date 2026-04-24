@@ -180,7 +180,7 @@ def render_line(
 ) -> None:
     ## ensure line-only constraints (no titles on lines)
     if message.message_title is not None:
-        raise ValueError("'message_title' is only valid for blocks; omit it when rendering a line.")
+        raise ValueError("`message_title` is only valid for blocks; omit it when rendering a line.")
     ## collect style and timestamp for this line
     timestamp = message.timestamp or get_timestamp()
     message_style = message.style()

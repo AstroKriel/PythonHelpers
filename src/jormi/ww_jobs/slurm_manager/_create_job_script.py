@@ -138,7 +138,7 @@ def _ensure_path_is_valid(
 ) -> Path:
     file_path = Path(file_path).absolute()
     if file_path.suffix != ".sh":
-        raise ValueError(f"`file_path` must end with a .sh extension: {file_path}")
+        raise ValueError(f"`file_path` must end with a `.sh` extension: {file_path}.")
     return file_path
 
 

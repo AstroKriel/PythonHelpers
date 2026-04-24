@@ -170,7 +170,7 @@ def _label_cbar(
             axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
         axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
     else:
-        raise ValueError(f"Unexpected cbar_side: {cbar_side!r}")  # pyright: ignore[reportUnreachable]
+        raise ValueError(f"unexpected cbar_side: {cbar_side!r}.")  # pyright: ignore[reportUnreachable]
 
 
 ##

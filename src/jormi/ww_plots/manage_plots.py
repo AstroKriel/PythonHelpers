@@ -299,7 +299,7 @@ def compute_adjacent_ax_bounds(
                 y_width=y_width,
             )
     else:
-        raise ValueError(f"Unexpected side: {side!r}")  # pyright: ignore[reportUnreachable]
+        raise ValueError(f"unexpected side: {side!r}.")  # pyright: ignore[reportUnreachable]
 
 
 def add_inset_axis(
@@ -362,7 +362,7 @@ def save_figure(
     verbose: bool = True,
 ) -> None:
     if not str(fig_path).endswith(".png") and not str(fig_path).endswith(".pdf"):
-        raise ValueError("Figures should end with .png or .pdf")
+        raise ValueError("figures must end with `.png` or `.pdf`.")
     try:
         fig.savefig(fig_path, dpi=dpi)
         if verbose:
