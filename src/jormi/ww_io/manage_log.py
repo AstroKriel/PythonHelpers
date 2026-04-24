@@ -29,6 +29,8 @@ _CONSOLE = rich_Console(highlight=False, soft_wrap=False)
 
 
 class BlockWidthMode(str, Enum):
+    """Block width policy: `PRETTY` applies the configured max-width cap; `PRACTICAL` removes the hard max-width cap."""
+
     PRETTY = "pretty"
     PRACTICAL = "practical"
 
@@ -47,11 +49,11 @@ class _Colours(str, Enum):
 
 
 class Symbols(str, Enum):
-    CLOSED_CIRCLE = "\u25CF"  # ●
-    OPEN_CIRCLE = "\u25CB"  # ○
+    CLOSED_CIRCLE = "\u25cf"  # ●
+    OPEN_CIRCLE = "\u25cb"  # ○
     RIGHT_ARROW = "\u2192"  # →
-    HOOKED_ARROW = "\u21AA"  # ↪
-    GREATER_THAN = "\u003E"  # >
+    HOOKED_ARROW = "\u21aa"  # ↪
+    GREATER_THAN = "\u003e"  # >
     EM_DASH = "\u2014"  # —
 
 
@@ -79,15 +81,51 @@ _RENDER_CONFIG = _RenderConfig()
 class MessageType(Enum):
     """Enum of supported log message categories, each carrying a display style."""
 
-    TASK = _MessageStyle("Task", Symbols.RIGHT_ARROW.value, _Colours.WHITE.value)
-    NOTE = _MessageStyle("Note", Symbols.HOOKED_ARROW.value, _Colours.WHITE.value)
-    ACTION = _MessageStyle("Action", Symbols.CLOSED_CIRCLE.value, _Colours.WHITE.value)
-    HINT = _MessageStyle("Hint", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    ALERT = _MessageStyle("Alert", Symbols.CLOSED_CIRCLE.value, _Colours.ORANGE.value)
-    DEBUG = _MessageStyle("Debug", Symbols.OPEN_CIRCLE.value, _Colours.PURPLE.value)
-    LIST = _MessageStyle("List", Symbols.EM_DASH.value, _Colours.BLUE.value)
-    SUMMARY = _MessageStyle("Summary", Symbols.GREATER_THAN.value, _Colours.LIGHTBLUE.value)
-    SECTION = _MessageStyle("Section", Symbols.GREATER_THAN.value, _Colours.WHITE.value)
+    TASK = _MessageStyle(
+        "Task",
+        Symbols.RIGHT_ARROW.value,
+        _Colours.WHITE.value,
+    )
+    NOTE = _MessageStyle(
+        "Note",
+        Symbols.HOOKED_ARROW.value,
+        _Colours.WHITE.value,
+    )
+    ACTION = _MessageStyle(
+        "Action",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.WHITE.value,
+    )
+    HINT = _MessageStyle(
+        "Hint",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.YELLOW.value,
+    )
+    ALERT = _MessageStyle(
+        "Alert",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.ORANGE.value,
+    )
+    DEBUG = _MessageStyle(
+        "Debug",
+        Symbols.OPEN_CIRCLE.value,
+        _Colours.PURPLE.value,
+    )
+    LIST = _MessageStyle(
+        "List",
+        Symbols.EM_DASH.value,
+        _Colours.BLUE.value,
+    )
+    SUMMARY = _MessageStyle(
+        "Summary",
+        Symbols.GREATER_THAN.value,
+        _Colours.LIGHTBLUE.value,
+    )
+    SECTION = _MessageStyle(
+        "Section",
+        Symbols.GREATER_THAN.value,
+        _Colours.WHITE.value,
+    )
 
     def requires_outcome(
         self,
@@ -98,11 +136,31 @@ class MessageType(Enum):
 class ActionOutcome(Enum):
     """Enum of possible outcomes for an ACTION-type log message."""
 
-    SUCCESS = _MessageStyle("Success", Symbols.CLOSED_CIRCLE.value, _Colours.GREEN.value)
-    FAILURE = _MessageStyle("Failure", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    ERROR = _MessageStyle("Error", Symbols.CLOSED_CIRCLE.value, _Colours.RED.value)
-    WARNING = _MessageStyle("Warning", Symbols.CLOSED_CIRCLE.value, _Colours.YELLOW.value)
-    SKIPPED = _MessageStyle("Skipped", Symbols.OPEN_CIRCLE.value, _Colours.ORANGE.value)
+    SUCCESS = _MessageStyle(
+        "Success",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.GREEN.value,
+    )
+    FAILURE = _MessageStyle(
+        "Failure",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.RED.value,
+    )
+    ERROR = _MessageStyle(
+        "Error",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.RED.value,
+    )
+    WARNING = _MessageStyle(
+        "Warning",
+        Symbols.CLOSED_CIRCLE.value,
+        _Colours.YELLOW.value,
+    )
+    SKIPPED = _MessageStyle(
+        "Skipped",
+        Symbols.OPEN_CIRCLE.value,
+        _Colours.ORANGE.value,
+    )
 
 
 ##
@@ -207,7 +265,9 @@ def render_line(
 ) -> None:
     ## ensure line-only constraints (no titles on lines)
     if message.message_title is not None:
-        raise ValueError("`message_title` is only valid for blocks; omit it when rendering a line.")
+        raise ValueError(
+            "`message_title` is only valid for blocks; omit it when rendering a line."
+        )
     ## collect style and timestamp for this line
     timestamp = message.timestamp or get_timestamp()
     message_style = message.style()
@@ -260,11 +320,15 @@ def render_block(
     body_lines: list[rich_Text] = []
     ## optional message at top
     if message.message and message_position == "top":
-        body_lines.append(rich_Text(f"{row_prefix} {message.message}", style=message_style.colour))
+        body_lines.append(
+            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour)
+        )
     ## include notes as "— key : value" entries
     if message.message_notes:
         if not isinstance(message.message_notes, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise TypeError("Message.message_notes must be a dict[str, Any] if provided.")
+            raise TypeError(
+                "Message.message_notes must be a dict[str, Any] if provided."
+            )
         for key_label, value in message.message_notes.items():
             note_line = rich_Text(f"{row_prefix} ", style=_Colours.GREY.value)
             note_line.append(str(key_label), style=_Colours.GREY.value)
@@ -273,7 +337,9 @@ def render_block(
             body_lines.append(note_line)
     ## optional message at bottom (default)
     if message.message and message_position == "bottom":
-        body_lines.append(rich_Text(f"{row_prefix} {message.message}", style=message_style.colour))
+        body_lines.append(
+            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour)
+        )
     ## compute width required to fit title and body lines
     content_width = panel_title.cell_len
     if body_lines:
@@ -443,7 +509,9 @@ def log_items(
     show_time: bool = True,
     message_position: Literal["top", "bottom"] = "top",
 ) -> None:
-    grouped_items: dict[str, Any] = {f"{item_index+1}": item for item_index, item in enumerate(items)}
+    grouped_items: dict[str, Any] = {
+        f"{item_index + 1}": item for item_index, item in enumerate(items)
+    }
     render_block(
         Message(
             message=message,
