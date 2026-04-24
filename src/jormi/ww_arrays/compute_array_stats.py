@@ -442,6 +442,16 @@ class EstimatedPDF:
         return _get_bin_edges_from_centers(self.bin_centers)
 
     @property
+    def bounds(
+        self,
+    ) -> tuple[float, float]:
+        """Return the lower and upper bounds of the full bin support."""
+        return (
+            float(self.bin_edges[0]),
+            float(self.bin_edges[-1]),
+        )
+
+    @property
     def resolution(
         self,
     ) -> int:
@@ -675,6 +685,22 @@ class EstimatedJPDF:
         self,
     ) -> NDArray[Any]:
         return _get_bin_edges_from_centers(self.col_centers)
+
+    @property
+    def bounds(
+        self,
+    ) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Return the lower and upper bounds of the full column and row bin support."""
+        return (
+            (
+                float(self.col_edges[0]),
+                float(self.col_edges[-1]),
+            ),
+            (
+                float(self.row_edges[0]),
+                float(self.row_edges[-1]),
+            ),
+        )
 
     @property
     def resolution(
