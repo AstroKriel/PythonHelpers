@@ -50,6 +50,7 @@ class UniformDomain:
     def __post_init__(
         self,
     ) -> None:
+        ## validate the per-axis domain metadata
         self._ensure_num_sdims()
         self._ensure_periodicity()
         self._ensure_resolution()

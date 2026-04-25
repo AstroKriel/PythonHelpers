@@ -44,8 +44,10 @@ class Field:
     def __post_init__(
         self,
     ) -> None:
+        ## validate the wrapped data and its domain alignment
         self._ensure_fdata()
         self._ensure_udomain()
+        ## validate descriptive field metadata
         self._ensure_label()
         self._ensure_sim_time()
 

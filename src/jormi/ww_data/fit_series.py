@@ -234,6 +234,7 @@ class FitSummary:
     def __post_init__(
         self,
     ):
+        ## validate that all fitted parameters have recorded fit statistics
         missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
         if missing_params:
             missing_string = ww_lists.as_string(
@@ -242,6 +243,7 @@ class FitSummary:
                 conjunction="and",
             )
             raise ValueError(f"missing parameter(s): {missing_string}.")
+        ## validate the residual summary against the fit size
         validate_arrays.ensure_array(self.residual_array)
         validate_arrays.ensure_1d(self.residual_array)
         validate_arrays.ensure_finite(self.residual_array)
@@ -306,6 +308,7 @@ class LinearFitSummary(FitSummary):
         self,
     ):
         super().__post_init__()
+        ## validate the linear-model parameter set
         for required_key in ("slope", "intercept"):
             if required_key not in self.fit_stats:
                 raise ValueError(f"LinearFitSummary requires `{required_key}` in fit_stats.")

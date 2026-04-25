@@ -41,8 +41,10 @@ class DataSeries:
     def __post_init__(
         self,
     ):
+        ## validate each coordinate series independently
         self._ensure_data_array(array=self.x_values)
         self._ensure_data_array(array=self.y_values)
+        ## validate paired x/y sampling
         validate_arrays.ensure_same_shape(
             array_a=self.x_values,
             array_b=self.y_values,
@@ -136,6 +138,7 @@ class GaussianSeries(DataSeries):
         self,
     ):
         super().__post_init__()
+        ## validate the optional uncertainty arrays against their data axes
         if self.x_sigmas is not None:
             self._ensure_sigma_array(
                 sigma_array=self.x_sigmas,
@@ -199,10 +202,12 @@ class DistributionSeries(DataSeries):
         self,
     ):
         super().__post_init__()
+        ## validate that asymmetric bounds are supplied in pairs
         if (self.x_p16_values is None) != (self.x_p84_values is None):
             raise ValueError("`x_p16_values` and `x_p84_values` must be provided together or not at all.")
         if (self.y_p16_values is None) != (self.y_p84_values is None):
             raise ValueError("`y_p16_values` and `y_p84_values` must be provided together or not at all.")
+        ## validate each provided uncertainty array against its reference axis
         for sigma_array, ref_array in [
             (self.x_p16_values, self.x_values),
             (self.x_p84_values, self.x_values),

@@ -50,6 +50,7 @@ class FieldData:
     def __post_init__(
         self,
     ) -> None:
+        ## validate the declared field metadata
         validate_types.ensure_finite_int(
             param=self.num_comps,
             param_name=f"{self.param_name}.num_comps",
@@ -74,6 +75,7 @@ class FieldData:
                 f"`{self.param_name}` has num_ranks=0 (scalar) but num_comps={self.num_comps};"
                 f" expected num_comps == 1.",
             )
+        ## validate that the array shape matches the metadata
         validate_arrays.ensure_dims(
             array=self.farray,
             param_name=self.param_name,

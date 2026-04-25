@@ -36,6 +36,7 @@ class HelmholtzDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each decomposed vector field
         farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_div,
             param_name="<varray_3d_div>",
@@ -48,6 +49,7 @@ class HelmholtzDecomposedFArrays_3D:
             varray_3d=self.varray_3d_bulk,
             param_name="<varray_3d_bulk>",
         )
+        ## validate shared decomposition geometry
         if any(
             [
                 self.varray_3d_div.shape != self.varray_3d_sol.shape,
@@ -181,6 +183,7 @@ class TNBDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate the TNB basis arrays individually
         farray_types.ensure_3d_varray(
             varray_3d=self.uvarray_3d_tangent,
             param_name="<uvarray_3d_tangent>",
@@ -197,6 +200,7 @@ class TNBDecomposedFArrays_3D:
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
         )
+        ## validate that the vector basis shares one grid
         if any(
             [
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_normal.shape,
@@ -209,6 +213,7 @@ class TNBDecomposedFArrays_3D:
                 f" normal={self.uvarray_3d_normal.shape},"
                 f" binormal={self.uvarray_3d_binormal.shape}.",
             )
+        ## validate curvature against the vector spatial grid
         if self.uvarray_3d_tangent.shape[1:] != self.sarray_3d_curvature.shape:
             raise ValueError(
                 "TNBDecomposedFArrays_3D curvature shape must match spatial shape of"
@@ -401,6 +406,7 @@ class MagneticCurvatureFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each scalar decomposition output
         farray_types.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
@@ -413,6 +419,7 @@ class MagneticCurvatureFArrays_3D:
             sarray_3d=self.sarray_3d_compression,
             param_name="<sarray_3d_compression>",
         )
+        ## validate shared decomposition geometry
         if any(
             [
                 self.sarray_3d_curvature.shape != self.sarray_3d_stretching.shape,
@@ -527,6 +534,7 @@ class LorentzForceFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each force component individually
         farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_lorentz,
             param_name="<varray_3d_lorentz>",
@@ -539,6 +547,7 @@ class LorentzForceFArrays_3D:
             varray_3d=self.varray_3d_grad_p_perp,
             param_name="<varray_3d_grad_p_perp>",
         )
+        ## validate shared decomposition geometry
         if any(
             [
                 self.varray_3d_lorentz.shape != self.varray_3d_tension.shape,

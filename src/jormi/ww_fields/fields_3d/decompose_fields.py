@@ -29,6 +29,7 @@ class HelmholtzDecomposedFields_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each field independently
         field_models.ensure_3d_vfield(
             vfield_3d=self.vfield_3d_div,
             param_name="<vfield_3d_div>",
@@ -41,6 +42,7 @@ class HelmholtzDecomposedFields_3D:
             vfield_3d=self.vfield_3d_bulk,
             param_name="<vfield_3d_bulk>",
         )
+        ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_div,
             field_3d_b=self.vfield_3d_sol,
@@ -118,6 +120,7 @@ class TNBDecomposedFields_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each TNB field independently
         field_models.ensure_3d_uvfield(
             uvfield_3d=self.uvfield_3d_tangent,
             param_name="<uvfield_3d_tangent>",
@@ -134,6 +137,7 @@ class TNBDecomposedFields_3D:
             sfield_3d=self.sfield_3d_curvature,
             param_name="<sfield_3d_curvature>",
         )
+        ## validate shared field geometry within the decomposition
         field_models.ensure_same_3d_field_shape_and_udomains(
             field_3d_a=self.uvfield_3d_tangent,
             field_3d_b=self.uvfield_3d_normal,
@@ -236,6 +240,7 @@ class MagneticCurvatureFields_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each scalar field independently
         field_models.ensure_3d_sfield(
             sfield_3d=self.sfield_3d_curvature,
             param_name="<sfield_3d_curvature>",
@@ -248,6 +253,7 @@ class MagneticCurvatureFields_3D:
             sfield_3d=self.sfield_3d_compression,
             param_name="<sfield_3d_compression>",
         )
+        ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
             field_3d_a=self.sfield_3d_curvature,
             field_3d_b=self.sfield_3d_stretching,
@@ -367,6 +373,7 @@ class LorentzForceFields_3D:
     def __post_init__(
         self,
     ) -> None:
+        ## validate each force field independently
         field_models.ensure_3d_vfield(
             vfield_3d=self.vfield_3d_lorentz,
             param_name="<vfield_3d_lorentz>",
@@ -379,6 +386,7 @@ class LorentzForceFields_3D:
             vfield_3d=self.vfield_3d_gradP_perp,
             param_name="<vfield_3d_gradP_perp>",
         )
+        ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_lorentz,
             field_3d_b=self.vfield_3d_tension,
