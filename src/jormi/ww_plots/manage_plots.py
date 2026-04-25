@@ -35,7 +35,7 @@ from jormi.ww_io import (
     manage_shell,
 )
 from jormi.ww_plots import style_plots
-from jormi.ww_validation import validate_box_positions, validate_python_types
+from jormi.ww_validation import validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
 ##
@@ -154,12 +154,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

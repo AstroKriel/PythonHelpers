@@ -17,7 +17,7 @@ from numpy.typing import NDArray
 from jormi import ww_lists
 from jormi.ww_arrays import smooth_2d_arrays
 from jormi.ww_io import manage_log
-from jormi.ww_validation import validate_arrays, validate_python_types
+from jormi.ww_validation import validate_arrays, validate_types
 
 ##
 ## === ARRAY VALUE CHECKS
@@ -161,12 +161,12 @@ def compute_p_norm(
         param_name_a="array_a",
         param_name_b="array_b",
     )
-    validate_python_types.ensure_numeric(
+    validate_types.ensure_numeric(
         param=p_norm,
         param_name="p_norm",
         allow_none=False,
     )
-    validate_python_types.ensure_bool(
+    validate_types.ensure_bool(
         param=normalise_by_length,
         param_name="normalise_by_length",
         allow_none=False,
@@ -242,7 +242,7 @@ def _create_bins_spanning_full_value_range(
         param_name="values",
         check_finite=True,
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_bins,
         param_name="num_bins",
         allow_none=False,
@@ -293,14 +293,14 @@ def _ensure_correct_pdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -317,7 +317,7 @@ def _ensure_correct_pdf_integral(
         ),
     )
     ## validate normalisation of the 1D PDF
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -338,14 +338,14 @@ def _ensure_correct_jpdf_integral(
     absolute_tol: float = 1e-12,
 ) -> None:
     ## validate tolerance parameters
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=relative_tol,
         param_name="relative_tol",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=absolute_tol,
         param_name="absolute_tol",
         allow_none=False,
@@ -365,7 +365,7 @@ def _ensure_correct_jpdf_integral(
         ),
     )
     ## validate normalisation of the 2D JPDF
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=integral,
         param_name="integral",
         allow_none=False,
@@ -500,7 +500,7 @@ def estimate_pdf(
         )
         weights = None
     ## validate delta-threshold and detect near-delta distributions
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=delta_threshold,
         param_name="delta_threshold",
         allow_none=False,
@@ -826,7 +826,7 @@ def estimate_jpdf(
     )
     ## optional smoothing and re-normalisation
     if smoothing_length is not None:
-        validate_python_types.ensure_finite_float(
+        validate_types.ensure_finite_float(
             param=smoothing_length,
             param_name="smoothing_length",
             allow_none=False,

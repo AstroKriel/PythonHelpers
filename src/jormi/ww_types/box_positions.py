@@ -9,7 +9,7 @@ from enum import Enum
 from typing import TypeAlias
 
 ## local
-from jormi.ww_types import python_enums
+from jormi.ww_types import enums
 
 ##
 ## === POSITIONS
@@ -24,7 +24,7 @@ class Positions:
     parameter actually accepts.
     """
 
-    PositionLike: TypeAlias = python_enums.EnumMemberLike
+    PositionLike: TypeAlias = enums.EnumMemberLike
 
     class Center(str, Enum):
         Center = "center"

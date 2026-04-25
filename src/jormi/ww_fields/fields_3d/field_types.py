@@ -21,7 +21,7 @@ from jormi.ww_fields.fields_3d import (
     _fdata_types,
     domain_types,
 )
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === 3D FIELD TYPES
@@ -109,7 +109,7 @@ class VectorField_3D(_field_types.Field):
     def _ensure_axes(
         self,
     ) -> None:
-        validate_python_types.ensure_type(
+        validate_types.ensure_type(
             param=self.comp_axes,
             param_name="<comp_axes>",
             valid_types=tuple,
@@ -221,7 +221,7 @@ def ensure_3d_sfield(
     *,
     param_name: str = "<sfield_3d>",
 ) -> None:
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=sfield_3d,
         param_name=param_name,
         valid_types=ScalarField_3D,
@@ -233,7 +233,7 @@ def ensure_3d_vfield(
     *,
     param_name: str = "<vfield_3d>",
 ) -> None:
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=vfield_3d,
         param_name=param_name,
         valid_types=VectorField_3D,
@@ -245,7 +245,7 @@ def ensure_3d_uvfield(
     *,
     param_name: str = "<uvfield_3d>",
 ) -> None:
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=uvfield_3d,
         param_name=param_name,
         valid_types=UnitVectorField_3D,
@@ -412,7 +412,7 @@ def get_label(
     param_name: str = "<field>",
 ) -> str:
     """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=_field_types.Field,

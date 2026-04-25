@@ -12,7 +12,7 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_validation import validate_arrays, validate_box_positions, validate_python_types
+from jormi.ww_validation import validate_arrays, validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
 ##
@@ -48,13 +48,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
     """Return (row_indices, col_indices) for a 2D grid."""
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

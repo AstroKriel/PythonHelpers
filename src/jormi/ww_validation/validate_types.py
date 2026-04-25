@@ -12,11 +12,11 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_types import python_types
+from jormi.ww_types import types
 
 ##
 ## === RUNTIME TYPES
-## derived from `python_types.Types` for isinstance checks inside `ensure_*` functions.
+## derived from `types.Types` for isinstance checks inside `ensure_*` functions.
 ##
 
 
@@ -38,29 +38,29 @@ def _as_runtime_type(
 
 
 class RuntimeTypes:
-    """Runtime type tuples derived from `python_types.Types` for isinstance checks."""
+    """Runtime type tuples derived from `types.Types` for isinstance checks."""
 
     class Strings:
-        StringLike = _as_runtime_type(python_types.Types.Strings.StringLike)
+        StringLike = _as_runtime_type(types.Types.Strings.StringLike)
 
     class Booleans:
-        BooleanLike = _as_runtime_type(python_types.Types.Booleans.BooleanLike)
+        BooleanLike = _as_runtime_type(types.Types.Booleans.BooleanLike)
 
     class Numerics:
-        IntLike = _as_runtime_type(python_types.Types.Numerics.IntLike)
-        FloatLike = _as_runtime_type(python_types.Types.Numerics.FloatLike)
-        NumericLike = _as_runtime_type(python_types.Types.Numerics.NumericLike)
+        IntLike = _as_runtime_type(types.Types.Numerics.IntLike)
+        FloatLike = _as_runtime_type(types.Types.Numerics.FloatLike)
+        NumericLike = _as_runtime_type(types.Types.Numerics.NumericLike)
 
     class Containers:
-        SetLike = _as_runtime_type(python_types.Types.Containers.SetLike)
-        DictLike = _as_runtime_type(python_types.Types.Containers.DictLike)
-        ArrayLike = _as_runtime_type(python_types.Types.Containers.ArrayLike)
-        ContainerLike = _as_runtime_type(python_types.Types.Containers.ContainerLike)
+        SetLike = _as_runtime_type(types.Types.Containers.SetLike)
+        DictLike = _as_runtime_type(types.Types.Containers.DictLike)
+        ArrayLike = _as_runtime_type(types.Types.Containers.ArrayLike)
+        ContainerLike = _as_runtime_type(types.Types.Containers.ContainerLike)
 
     class Sequences:
-        ListLike = _as_runtime_type(python_types.Types.Sequences.ListLike)
-        TupleLike = _as_runtime_type(python_types.Types.Sequences.TupleLike)
-        SequenceLike = _as_runtime_type(python_types.Types.Sequences.SequenceLike)
+        ListLike = _as_runtime_type(types.Types.Sequences.ListLike)
+        TupleLike = _as_runtime_type(types.Types.Sequences.TupleLike)
+        SequenceLike = _as_runtime_type(types.Types.Sequences.SequenceLike)
 
 
 ##
@@ -169,7 +169,7 @@ def ensure_string(
 
 
 def ensure_nonempty_string(
-    param: python_types.Types.Strings.StringLike,
+    param: types.Types.Strings.StringLike,
     *,
     param_name: str = "<param>",
 ) -> None:

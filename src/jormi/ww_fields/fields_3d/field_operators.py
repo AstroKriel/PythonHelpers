@@ -13,7 +13,7 @@ from jormi.ww_fields.fields_3d import (
     _farray_operators,
     field_types,
 )
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === OPERATORS WORKING ON SCALAR FIELDS
@@ -56,7 +56,7 @@ def compute_sfield_gradient(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the gradient d_i f of a 3D scalar field."""
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -188,7 +188,7 @@ def compute_vfield_curl(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the curl epsilon_ijk d_j f_k of a 3D vector field."""
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -222,7 +222,7 @@ def compute_vfield_divergence(
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:
     """Compute the divergence d_i f_i of a 3D vector field."""
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

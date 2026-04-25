@@ -16,7 +16,7 @@ from jormi.ww_plots import (
     add_color,
     manage_plots,
 )
-from jormi.ww_validation import validate_arrays, validate_python_types
+from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
 
 ##
@@ -63,21 +63,21 @@ def _as_axis_extent(
     """
     if axis_bounds is None:
         return None
-    validate_python_types.ensure_nested_tuple(
+    validate_types.ensure_nested_tuple(
         param=axis_bounds,
         param_name="axis_bounds",
         outer_length=2,
         inner_length=2,
-        valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
+        valid_elem_types=validate_types.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
-    validate_python_types.ensure_ordered_pair(
+    validate_types.ensure_ordered_pair(
         param=axis_bounds[0],
         param_name="axis_bounds[0]",
         allow_none=False,
         strict_ordering=True,
     )
-    validate_python_types.ensure_ordered_pair(
+    validate_types.ensure_ordered_pair(
         param=axis_bounds[1],
         param_name="axis_bounds[1]",
         allow_none=False,
@@ -105,7 +105,7 @@ def _get_value_range(
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
-        validate_python_types.ensure_ordered_pair(
+        validate_types.ensure_ordered_pair(
             param=cbar_bounds,
             param_name="cbar_bounds",
             allow_none=False,

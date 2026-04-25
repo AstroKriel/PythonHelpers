@@ -19,7 +19,7 @@ from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_validation import validate_arrays, validate_python_types
+from jormi.ww_validation import validate_arrays, validate_types
 
 ##
 ## === UTILITY FUNCTIONS
@@ -35,15 +35,15 @@ def get_linear_intercept(
     Compute the y-intercept (b) for a line y = slope * x + b
     passing through a reference point (x_ref, y_ref).
     """
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=slope,
         param_name="slope",
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -60,15 +60,15 @@ def get_powerlaw_coefficient(
         `y = A * x^exponent`
     given a reference point `(x_ref, y_ref)`.
     """
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=exponent,
         param_name="exponent",
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -89,18 +89,18 @@ def get_line_angle(
     when plotted in a rectangular domain stretched to have a particular aspect ratio.
     """
     ## validate scalars
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=slope,
         param_name="slope",
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=aspect_ratio,
         param_name="aspect_ratio",
     )
     if aspect_ratio <= 0.0:
         raise ValueError("`aspect_ratio` must be positive.")
     ## validate domain_bounds
-    validate_python_types.ensure_sequence(
+    validate_types.ensure_sequence(
         param=domain_bounds,
         seq_length=4,
         valid_seq_types=(tuple, list),
@@ -349,7 +349,7 @@ def fit_linear_model(
     gaussian_series: GaussianSeries,
 ) -> LinearFitSummary:
     """Fit a linear model to a 1D gaussian_series using least squares."""
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
@@ -403,12 +403,12 @@ def fit_line_with_fixed_slope(
     fixed_slope: int | float,
 ) -> LinearFitSummary:
     """Fit a line with a fixed slope to a 1D gaussian_series."""
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
     )
-    validate_python_types.ensure_finite_scalar(
+    validate_types.ensure_finite_scalar(
         param=fixed_slope,
         param_name="fixed_slope",
     )

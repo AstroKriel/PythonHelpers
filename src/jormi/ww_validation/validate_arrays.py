@@ -12,7 +12,7 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === ARRAY CHECKS
@@ -25,7 +25,7 @@ def ensure_array(
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray."""
-    validate_python_types.ensure_ndarray(
+    validate_types.ensure_ndarray(
         param=array,
         param_name=param_name,
     )
@@ -70,7 +70,7 @@ def ensure_shape(
         array=array,
         param_name=param_name,
     )
-    validate_python_types.ensure_tuple_of_ints(
+    validate_types.ensure_tuple_of_ints(
         param=expected_shape,
         param_name="expected_shape",
     )
@@ -114,7 +114,7 @@ def ensure_dims(
         array=array,
         param_name=param_name,
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=num_dims,
         param_name="num_dims",
         require_positive=True,
@@ -150,7 +150,7 @@ def as_1d(
     check_finite: bool = True,
 ) -> NDArray[Any]:
     """Convert `array_like` to a 1D ndarray[float64]."""
-    validate_python_types.ensure_not_none(
+    validate_types.ensure_not_none(
         param=array_like,
         param_name=param_name,
     )

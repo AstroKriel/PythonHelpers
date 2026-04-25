@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import _fdata_types
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === INTERNAL HELPERS
@@ -29,13 +29,13 @@ def _ensure_args(
         sarray_3d=sarray_3d,
         param_name=sarray_name,
     )
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=cell_width,
         param_name="<cell_width>",
         allow_none=False,
         require_positive=True,
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_axis,
         param_name="<grad_axis>",
         allow_none=False,
@@ -54,7 +54,7 @@ def _ensure_args(
 def get_grad_fn(
     grad_order: int,
 ):
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

@@ -17,7 +17,7 @@ from matplotlib.lines import Line2D as mpl_line2d
 
 ## local
 from jormi.ww_plots import manage_plots
-from jormi.ww_validation import validate_arrays, validate_box_positions, validate_python_types
+from jormi.ww_validation import validate_arrays, validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
 ##
@@ -68,14 +68,14 @@ def add_text(
     A background box is drawn when `box_alpha > 0`.
     """
     ## validate position in axes coordinates [0, 1]
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=x_pos,
         param_name="x_pos",
         allow_none=False,
         min_value=0.0,
         max_value=1.0,
     )
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=y_pos,
         param_name="y_pos",
         allow_none=False,
@@ -83,7 +83,7 @@ def add_text(
         max_value=1.0,
     )
     ## validate text style
-    validate_python_types.ensure_finite_scalar(
+    validate_types.ensure_finite_scalar(
         param=text_size,
         param_name="text_size",
         allow_none=False,
@@ -91,7 +91,7 @@ def add_text(
         allow_zero=False,
     )
     ## validate box opacity; box is not drawn if alpha is zero
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=box_alpha,
         param_name="box_alpha",
         allow_none=False,
@@ -99,7 +99,7 @@ def add_text(
         max_value=1.0,
     )
     ## validate optional rotation
-    validate_python_types.ensure_finite_float(
+    validate_types.ensure_finite_float(
         param=rotate_deg,
         param_name="rotate_deg",
         allow_none=True,
@@ -152,15 +152,15 @@ def add_custom_legend(
     when `frame_alpha > 0`.
     """
     ## validate parallel lists
-    validate_python_types.ensure_list_of_strings(
+    validate_types.ensure_list_of_strings(
         param=artists,
         param_name="artists",
     )
-    validate_python_types.ensure_list_of_strings(
+    validate_types.ensure_list_of_strings(
         param=labels,
         param_name="labels",
     )
-    validate_python_types.ensure_sequence(
+    validate_types.ensure_sequence(
         param=colors,
         param_name="colors",
         valid_seq_types=list,
@@ -169,7 +169,7 @@ def add_custom_legend(
     if len(artists) != len(labels) or len(artists) != len(colors):
         raise ValueError("`artists`, `labels`, and `colors` must all have the same length.")
     ## validate frame opacity; frame is skipped when alpha is zero
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=frame_alpha,
         param_name="frame_alpha",
         allow_none=False,
@@ -177,19 +177,19 @@ def add_custom_legend(
         max_value=1.0,
     )
     ## validate anchor position in axes coordinates [0, 1]
-    validate_python_types.ensure_tuple_of_numbers(
+    validate_types.ensure_tuple_of_numbers(
         param=anchor_point,
         param_name="anchor_point",
         seq_length=2,
     )
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=anchor_point[0],
         param_name="anchor_point[0]",
         allow_none=False,
         min_value=0.0,
         max_value=1.0,
     )
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=anchor_point[1],
         param_name="anchor_point[1]",
         allow_none=False,
@@ -265,14 +265,14 @@ def overlay_curve(
     `x_values` and `y_values` must be 1D and the same length, with at least two points.
     """
     ## validate line style
-    validate_python_types.ensure_finite_scalar(
+    validate_types.ensure_finite_scalar(
         param=linewidth,
         param_name="linewidth",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.ensure_in_bounds(
+    validate_types.ensure_in_bounds(
         param=alpha,
         param_name="alpha",
         allow_none=False,

@@ -14,7 +14,7 @@ from typing import (
 )
 
 ## local
-from jormi.ww_validation import validate_enums, validate_python_types
+from jormi.ww_validation import validate_enums, validate_types
 
 ##
 ## === DATA TYPES
@@ -62,16 +62,16 @@ class CartesianAxis_3D(str, Enum):
         cls,
         axis_params: AxisParams,
     ) -> "CartesianAxis_3D":
-        validate_python_types.ensure_type(
+        validate_types.ensure_type(
             param=axis_params.axis_label,
-            valid_types=validate_python_types.RuntimeTypes.Strings.StringLike,
+            valid_types=validate_types.RuntimeTypes.Strings.StringLike,
             param_name="axis_label",
         )
         if axis_params.axis_label not in VALID_3D_AXIS_LABELS:
             raise ValueError(f"`axis_label` is invalid: {axis_params.axis_label!r}.")
-        validate_python_types.ensure_type(
+        validate_types.ensure_type(
             param=axis_params.axis_index,
-            valid_types=validate_python_types.RuntimeTypes.Numerics.IntLike,
+            valid_types=validate_types.RuntimeTypes.Numerics.IntLike,
             param_name="axis_index",
         )
         if axis_params.axis_index not in VALID_3D_AXIS_INDICES:
@@ -120,7 +120,7 @@ def as_axis(
           * the axis label: "x_0", "x_1", "x_2"
           * the Enum member name: "X0", "X1", "X2"
     """
-    validate_python_types.ensure_type(
+    validate_types.ensure_type(
         param=axis,
         valid_types=(int, str, CartesianAxis_3D),
         param_name=param_name,

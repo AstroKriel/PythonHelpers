@@ -21,7 +21,7 @@ from jormi.ww_plots.color_palettes._base_palette import (
     resolve_palette,
     subset_palette,
 )
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === DISCRETE PALETTE
@@ -42,7 +42,7 @@ class DiscretePalette(ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        validate_python_types.ensure_tuple_of_numbers(
+        validate_types.ensure_tuple_of_numbers(
             param=self.bin_edges,
             param_name="bin_edges",
         )

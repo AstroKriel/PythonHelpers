@@ -13,7 +13,7 @@ from jormi.ww_fields.fields_3d import (
     domain_types,
     field_types,
 )
-from jormi.ww_validation import validate_python_types
+from jormi.ww_validation import validate_types
 
 ##
 ## === HELMHOLTZ DECOMPOSITION
@@ -164,7 +164,7 @@ def compute_tnb_decomposed_fields(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -301,7 +301,7 @@ def compute_magnetic_curvature_decomposed_fields(
         field_name_a="<vfield_3d_u>",
         field_name_b="<uvfield_3d_normal>",
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -403,7 +403,7 @@ def compute_lorentz_force_decomposed_fields(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    validate_python_types.ensure_finite_int(
+    validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
