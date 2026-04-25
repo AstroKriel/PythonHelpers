@@ -12,6 +12,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_fields import _field_data
 from jormi.ww_validation import validate_arrays
 
@@ -27,7 +28,7 @@ class ScalarFieldData_2D(_field_data.FieldData):
     def __init__(
         self,
         *,
-        farray: _field_data.farray_types.FieldArray,
+        farray: farray_types.FieldArray,
         param_name: str = "<sdata_2d>",
     ) -> None:
         super().__init__(
@@ -46,7 +47,7 @@ class VectorFieldData_2D(_field_data.FieldData):
     def __init__(
         self,
         *,
-        farray: _field_data.farray_types.FieldArray,
+        farray: farray_types.FieldArray,
         param_name: str = "<vdata_2d>",
     ) -> None:
         super().__init__(
@@ -153,12 +154,7 @@ def extract_2d_sarray(
         sdata_2d=sdata_2d,
         param_name=param_name,
     )
-    sarray_2d = sdata_2d.farray
-    ensure_2d_sarray(
-        sarray_2d=sarray_2d,
-        param_name=f"{param_name}.farray",
-    )
-    return sarray_2d
+    return sdata_2d.farray
 
 
 def extract_2d_varray(
@@ -171,12 +167,7 @@ def extract_2d_varray(
         vdata_2d=vdata_2d,
         param_name=param_name,
     )
-    varray_2d = vdata_2d.farray
-    ensure_2d_varray(
-        varray_2d=varray_2d,
-        param_name=f"{param_name}.farray",
-    )
-    return varray_2d
+    return vdata_2d.farray
 
 
 ## } MODULE

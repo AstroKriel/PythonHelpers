@@ -40,21 +40,9 @@ class ScalarField_3D(_field_models.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._ensure_sdata()
-
-    def _ensure_sdata(
-        self,
-    ) -> None:
         _field_data.ensure_3d_sdata(
             sdata_3d=self.fdata,
             param_name="<sfield_3d.fdata>",
-        )
-        _field_models.ensure_field_metadata(
-            field=self,
-            num_comps=1,
-            num_sdims=3,
-            num_ranks=0,
-            param_name="<sfield_3d>",
         )
 
     @classmethod
@@ -89,23 +77,11 @@ class VectorField_3D(_field_models.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._ensure_vdata()
-        self._ensure_axes()
-
-    def _ensure_vdata(
-        self,
-    ) -> None:
         _field_data.ensure_3d_vdata(
             vdata_3d=self.fdata,
             param_name="<vfield_3d.fdata>",
         )
-        _field_models.ensure_field_metadata(
-            field=self,
-            num_comps=3,
-            num_sdims=3,
-            num_ranks=1,
-            param_name="<vfield_3d>",
-        )
+        self._ensure_axes()
 
     def _ensure_axes(
         self,

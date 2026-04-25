@@ -35,21 +35,9 @@ class ScalarField_2D(_field_models.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._ensure_sdata()
-
-    def _ensure_sdata(
-        self,
-    ) -> None:
         _field_data.ensure_2d_sdata(
             sdata_2d=self.fdata,
             param_name="<sfield_2d.fdata>",
-        )
-        _field_models.ensure_field_metadata(
-            field=self,
-            num_comps=1,
-            num_sdims=2,
-            num_ranks=0,
-            param_name="<sfield_2d>",
         )
 
     @classmethod
@@ -62,10 +50,6 @@ class ScalarField_2D(_field_models.Field):
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D scalar field from a (num_x0_cells, num_x1_cells) ndarray."""
-        _field_data.ensure_2d_sarray(
-            sarray_2d=sarray_2d,
-            param_name="<sarray_2d>",
-        )
         sdata_2d = _field_data.ScalarFieldData_2D(
             farray=sarray_2d,
             param_name="<sdata_2d>",
@@ -96,21 +80,9 @@ class VectorField_2D(_field_models.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._ensure_vdata()
-
-    def _ensure_vdata(
-        self,
-    ) -> None:
         _field_data.ensure_2d_vdata(
             vdata_2d=self.fdata,
             param_name="<vfield_2d.fdata>",
-        )
-        _field_models.ensure_field_metadata(
-            field=self,
-            num_comps=2,
-            num_sdims=2,
-            num_ranks=1,
-            param_name="<vfield_2d>",
         )
 
     @classmethod
@@ -123,10 +95,6 @@ class VectorField_2D(_field_models.Field):
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D vector field from a (2, num_x0_cells, num_x1_cells) ndarray."""
-        _field_data.ensure_2d_varray(
-            varray_2d=varray_2d,
-            param_name="<varray_2d>",
-        )
         vdata_2d = _field_data.VectorFieldData_2D(
             farray=varray_2d,
             param_name="<vdata_2d>",

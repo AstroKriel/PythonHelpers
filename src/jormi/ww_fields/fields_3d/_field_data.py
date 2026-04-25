@@ -27,7 +27,7 @@ class ScalarFieldData_3D(_field_data.FieldData):
     def __init__(
         self,
         *,
-        farray: _field_data.farray_types.FieldArray,
+        farray: farray_types.FieldArray,
         param_name: str = "<sdata_3d>",
     ) -> None:
         super().__init__(
@@ -46,7 +46,7 @@ class VectorFieldData_3D(_field_data.FieldData):
     def __init__(
         self,
         *,
-        farray: _field_data.farray_types.FieldArray,
+        farray: farray_types.FieldArray,
         param_name: str = "<vdata_3d>",
     ) -> None:
         super().__init__(
@@ -65,7 +65,7 @@ class Rank2TensorData_3D(_field_data.FieldData):
     def __init__(
         self,
         *,
-        farray: _field_data.farray_types.FieldArray,
+        farray: farray_types.FieldArray,
         param_name: str = "<r2tdata_3d>",
     ) -> None:
         super().__init__(
@@ -149,12 +149,7 @@ def extract_3d_sarray(
         sdata_3d=sdata_3d,
         param_name=param_name,
     )
-    sarray_3d = sdata_3d.farray
-    farray_types.ensure_3d_sarray(
-        sarray_3d=sarray_3d,
-        param_name=f"{param_name}.farray",
-    )
-    return sarray_3d
+    return sdata_3d.farray
 
 
 def extract_3d_varray(
@@ -167,12 +162,7 @@ def extract_3d_varray(
         vdata_3d=vdata_3d,
         param_name=param_name,
     )
-    varray_3d = vdata_3d.farray
-    farray_types.ensure_3d_varray(
-        varray_3d=varray_3d,
-        param_name=f"{param_name}.farray",
-    )
-    return varray_3d
+    return vdata_3d.farray
 
 
 def extract_3d_r2tarray(
@@ -185,12 +175,7 @@ def extract_3d_r2tarray(
         r2tdata_3d=r2tdata_3d,
         param_name=param_name,
     )
-    r2tarray_3d = r2tdata_3d.farray
-    farray_types.ensure_3d_r2tarray(
-        r2tarray_3d=r2tarray_3d,
-        param_name=f"{param_name}.farray",
-    )
-    return r2tarray_3d
+    return r2tdata_3d.farray
 
 
 ## } MODULE
