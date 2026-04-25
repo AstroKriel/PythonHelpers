@@ -30,6 +30,7 @@ def _const_sarray(value: float = 1.0) -> numpy.ndarray:
 
 
 def _const_varray(
+    *,
     x0: float = 1.0,
     x1: float = 0.0,
     x2: float = 0.0,
@@ -78,7 +79,11 @@ class TestCurl(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_curl(
-            varray_3d=_const_varray(1.0, 2.0, 3.0),
+            varray_3d=_const_varray(
+                x0=1.0,
+                x1=2.0,
+                x2=3.0,
+            ),
             cell_widths_3d=_CELL_WIDTHS,
         )
         self.assertTrue(
@@ -104,7 +109,11 @@ class TestDivergence(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_divergence(
-            varray_3d=_const_varray(1.0, 2.0, 3.0),
+            varray_3d=_const_varray(
+                x0=1.0,
+                x1=2.0,
+                x2=3.0,
+            ),
             cell_widths_3d=_CELL_WIDTHS,
         )
         self.assertTrue(
@@ -129,7 +138,11 @@ class TestCrossProduct(unittest.TestCase):
     def test_cross_product_of_vector_with_itself_is_zero(
         self,
     ) -> None:
-        varray = _const_varray(1.0, 2.0, 3.0)
+        varray = _const_varray(
+            x0=1.0,
+            x1=2.0,
+            x2=3.0,
+        )
         result = farray_operators.compute_varray_cross_product(
             varray_3d_a=varray,
             varray_3d_b=varray,
@@ -142,8 +155,16 @@ class TestCrossProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=_const_varray(1.0, 0.0, 0.0),
-            varray_3d_b=_const_varray(0.0, 1.0, 0.0),
+            varray_3d_a=_const_varray(
+                x0=1.0,
+                x1=0.0,
+                x2=0.0,
+            ),
+            varray_3d_b=_const_varray(
+                x0=0.0,
+                x1=1.0,
+                x2=0.0,
+            ),
         )
         self.assertEqual(
             result.shape,
@@ -156,7 +177,11 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
     def test_sum_of_squares_equals_dot_product_with_self(
         self,
     ) -> None:
-        varray = _const_varray(1.0, 2.0, 3.0)
+        varray = _const_varray(
+            x0=1.0,
+            x1=2.0,
+            x2=3.0,
+        )
         sum_sq = farray_operators.sum_of_varray_comps_squared(varray_3d=varray)
         dot = farray_operators.dot_over_varray_comps(
             varray_3d_a=varray,
@@ -169,7 +194,11 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
     def test_constant_vector_sum_of_squares(
         self,
     ) -> None:
-        varray = _const_varray(1.0, 2.0, 3.0)
+        varray = _const_varray(
+            x0=1.0,
+            x1=2.0,
+            x2=3.0,
+        )
         result = farray_operators.sum_of_varray_comps_squared(varray_3d=varray)
         self.assertTrue(
             numpy.allclose(result, 14.0, atol=_ATOL),
@@ -181,7 +210,11 @@ class TestMagnitude(unittest.TestCase):
     def test_magnitude_is_non_negative(
         self,
     ) -> None:
-        varray = _const_varray(1.0, 2.0, 3.0)
+        varray = _const_varray(
+            x0=1.0,
+            x1=2.0,
+            x2=3.0,
+        )
         result = farray_operators.compute_varray_magnitude(varray_3d=varray)
         self.assertTrue(
             numpy.all(result >= 0.0),
@@ -190,7 +223,11 @@ class TestMagnitude(unittest.TestCase):
     def test_magnitude_of_constant_vector(
         self,
     ) -> None:
-        varray = _const_varray(3.0, 4.0, 0.0)
+        varray = _const_varray(
+            x0=3.0,
+            x1=4.0,
+            x2=0.0,
+        )
         result = farray_operators.compute_varray_magnitude(varray_3d=varray)
         self.assertTrue(
             numpy.allclose(result, 5.0, atol=_ATOL),

@@ -22,6 +22,7 @@ from jormi.ww_fields.fields_3d import (
 
 
 def _make_3d_udomain(
+    *,
     resolution: tuple[int, int, int] = (4, 4, 4),
     domain_bounds: tuple[
         tuple[float, float],
@@ -37,11 +38,12 @@ def _make_3d_udomain(
 
 
 def _make_sfield_3d(
+    *,
     resolution: tuple[int, int, int] = (4, 4, 4),
     domain: domain_types.UniformDomain_3D | None = None,
 ) -> field_types.ScalarField_3D:
     if domain is None:
-        domain = _make_3d_udomain(resolution)
+        domain = _make_3d_udomain(resolution=resolution)
     return field_types.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=domain,
@@ -50,11 +52,12 @@ def _make_sfield_3d(
 
 
 def _make_vfield_3d(
+    *,
     resolution: tuple[int, int, int] = (4, 4, 4),
     domain: domain_types.UniformDomain_3D | None = None,
 ) -> field_types.VectorField_3D:
     if domain is None:
-        domain = _make_3d_udomain(resolution)
+        domain = _make_3d_udomain(resolution=resolution)
     return field_types.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=domain,
@@ -69,7 +72,7 @@ def _make_unit_vfield_3d(
     varray[0] = 1.0
     vfield = field_types.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=_make_3d_udomain(resolution),
+        udomain_3d=_make_3d_udomain(resolution=resolution),
         field_label="uv",
     )
     return field_types.UnitVectorField_3D.from_3d_vfield(vfield)

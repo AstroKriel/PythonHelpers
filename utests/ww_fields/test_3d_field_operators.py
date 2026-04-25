@@ -26,6 +26,7 @@ _DOMAIN_BOUNDS = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0))
 
 
 def _make_3d_udomain(
+    *,
     resolution: tuple[int, int, int] = _RESOLUTION,
     domain_bounds: tuple[tuple[float, float], tuple[float, float], tuple[float, float]] = _DOMAIN_BOUNDS,
 ) -> domain_types.UniformDomain_3D:
@@ -37,6 +38,7 @@ def _make_3d_udomain(
 
 
 def _make_constant_sfield(
+    *,
     value: float,
     resolution: tuple[int, int, int] = _RESOLUTION,
     label: str = "f",
@@ -44,12 +46,13 @@ def _make_constant_sfield(
     sarray = numpy.full(resolution, value)
     return field_types.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray,
-        udomain_3d=_make_3d_udomain(resolution),
+        udomain_3d=_make_3d_udomain(resolution=resolution),
         field_label=label,
     )
 
 
 def _make_constant_vfield(
+    *,
     value_in_x0: float,
     value_in_x1: float,
     value_in_x2: float,
@@ -62,7 +65,7 @@ def _make_constant_vfield(
     varray[2] = value_in_x2
     return field_types.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=_make_3d_udomain(resolution),
+        udomain_3d=_make_3d_udomain(resolution=resolution),
         field_label=label,
     )
 

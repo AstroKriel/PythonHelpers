@@ -34,6 +34,7 @@ def _make_2d_udomain(
 
 
 def _make_sliced_domain_2d(
+    *,
     resolution: tuple[int, int] = (4, 4),
     out_of_plane_axis: int = 2,
     slice_index: int = 0,
@@ -50,12 +51,17 @@ def _make_sliced_domain_2d(
 
 
 def _make_sfield_2d(
+    *,
     resolution: tuple[int, int] = (4, 4),
     label: str = "test_scalar_2d",
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_types.ScalarField_2D:
-    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_2d_udomain(resolution)
+    udomain = (
+        _make_sliced_domain_2d(resolution=resolution)
+        if use_sliced_domain
+        else _make_2d_udomain(resolution)
+    )
     return field_types.ScalarField_2D.from_2d_sarray(
         sarray_2d=numpy.ones(resolution),
         udomain_2d=udomain,
@@ -65,14 +71,19 @@ def _make_sfield_2d(
 
 
 def _make_vfield_2d(
+    *,
     resolution: tuple[int, int] = (4, 4),
     label: str = "test_vector_2d",
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_types.VectorField_2D:
-    udomain = _make_sliced_domain_2d(resolution) if use_sliced_domain else _make_2d_udomain(resolution)
+    udomain = (
+        _make_sliced_domain_2d(resolution=resolution)
+        if use_sliced_domain
+        else _make_2d_udomain(resolution)
+    )
     return field_types.VectorField_2D.from_2d_varray(
-        varray_2d=numpy.ones((2, ) + resolution),
+        varray_2d=numpy.ones((2,) + resolution),
         udomain_2d=udomain,
         field_label=label,
         sim_time=sim_time,
@@ -85,7 +96,6 @@ def _make_vfield_2d(
 
 
 class TestScalarField2D_Construction(unittest.TestCase):
-
     def test_valid_construction_via_from_2d_sarray(
         self,
     ):
@@ -180,16 +190,17 @@ class TestScalarField2D_Construction(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_2d()
-        with self.assertRaises((
+        with self.assertRaises(
+            (
                 dataclasses.FrozenInstanceError,
                 AttributeError,
                 TypeError,
-        )):
+            )
+        ):
             sfield.field_label = "modified"  # type: ignore
 
 
 class TestScalarField2D_Properties(unittest.TestCase):
-
     def test_fdata_is_scalar(
         self,
     ):
@@ -277,7 +288,6 @@ class TestScalarField2D_Properties(unittest.TestCase):
 
 
 class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
-
     def test_plain_2d_domain_not_sliced(
         self,
     ):
@@ -334,7 +344,6 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
 
 
 class TestVectorField2D_Construction(unittest.TestCase):
-
     def test_valid_construction_via_from_2d_varray(
         self,
     ):
@@ -407,12 +416,13 @@ class TestVectorField2D_Construction(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_2d()
-        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
+        with self.assertRaises(
+            (dataclasses.FrozenInstanceError, AttributeError, TypeError)
+        ):
             vfield.field_label = "modified"  # type: ignore
 
 
 class TestVectorField2D_Properties(unittest.TestCase):
-
     def test_fdata_is_vector(
         self,
     ):
@@ -469,7 +479,7 @@ class TestVectorField2D_Properties(unittest.TestCase):
         vfield = _make_vfield_2d()
         self.assertEqual(
             vfield.fdata.comps_shape,
-            (2, ),
+            (2,),
         )
 
     def test_fdata_shape_includes_component_axis(
@@ -500,7 +510,6 @@ class TestVectorField2D_Properties(unittest.TestCase):
 
 
 class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
-
     def test_plain_2d_domain_not_sliced(
         self,
     ):

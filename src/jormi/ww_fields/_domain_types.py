@@ -57,6 +57,7 @@ class UniformDomain:
 
     def _axis_label_from_index(
         self,
+        *,
         axis_index: int,
     ) -> str:
         return cartesian_axes.get_axis_label(axis_index)
@@ -94,7 +95,9 @@ class UniformDomain:
             valid_elem_types=validate_types.RuntimeTypes.Numerics.IntLike,
         )
         for axis_index, num_cells in enumerate(self.resolution):
-            axis_label = self._axis_label_from_index(axis_index)
+            axis_label = self._axis_label_from_index(
+                axis_index=axis_index,
+            )
             if num_cells <= 0:
                 raise ValueError(
                     f"`<resolution>[{axis_label}]` must be a positive integer.",
@@ -112,7 +115,9 @@ class UniformDomain:
         )
         for axis_index in range(self.num_sdims):
             bounds = self.domain_bounds[axis_index]
-            axis_label = self._axis_label_from_index(axis_index)
+            axis_label = self._axis_label_from_index(
+                axis_index=axis_index,
+            )
             axis_param_name = f"<domain_bounds[{axis_label}]>"
             validate_types.ensure_sequence(
                 param=bounds,

@@ -45,6 +45,7 @@ def _make_sfield(
 
 
 def _cosine_mode_field(
+    *,
     mode_k: int,
     num_cells: int,
 ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
@@ -121,6 +122,7 @@ class TestPureModeBinPlacement(unittest.TestCase):
 
     def _assert_peak_at_mode(
         self,
+        *,
         mode_k: int,
         num_cells: int,
     ) -> None:

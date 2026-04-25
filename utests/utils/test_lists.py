@@ -344,6 +344,7 @@ class Tests(unittest.TestCase):
     ):
 
         def _test(
+            *,
             _input_length: int,
             _sampled_length: int,
         ) -> None:

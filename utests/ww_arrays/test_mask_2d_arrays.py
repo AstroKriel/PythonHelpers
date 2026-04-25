@@ -48,6 +48,7 @@ class TestHalfMasks2D(unittest.TestCase):
 
     def _check_mask_inverse(
         self,
+        *,
         num_rows: int,
         num_cols: int,
         side_a: box_positions.Positions.Side,
@@ -163,6 +164,7 @@ class TestQuadrantMasks2D(unittest.TestCase):
 
     def _all_quadrants(
         self,
+        *,
         num_rows: int,
         num_cols: int,
     ) -> list[numpy.ndarray[Any, numpy.dtype[Any]]]:
