@@ -20,13 +20,19 @@ from jormi.ww_validation import validate_enums
 
 
 class RuntimeTypes:
+    """Runtime type tuples derived from `Positions` for `isinstance`-based validation."""
+
     class Box:
+        """Runtime types for box geometry position enums."""
+
         Center = validate_enums.as_runtime_type(box_positions.Positions.Center)
         Corner = validate_enums.as_runtime_type(box_positions.Positions.Corner)
         Edge = validate_enums.as_runtime_type(box_positions.Positions.Edge)
         Side = validate_enums.as_runtime_type(box_positions.Positions.Side)
 
     class MPL:
+        """Runtime types for matplotlib anchor and alignment position enums."""
+
         AnchorLike = validate_enums.as_runtime_type(box_positions._AnchorLike)
         AlignLike = validate_enums.as_runtime_type(box_positions._AlignLike)
 
@@ -41,6 +47,7 @@ def ensure_box_corner(
     *,
     param_name: str = "<param>",
 ) -> None:
+    """Ensure `corner` is a valid box corner position."""
     validate_enums.ensure_valid_member(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
@@ -53,6 +60,7 @@ def ensure_box_edge(
     *,
     param_name: str = "<param>",
 ) -> None:
+    """Ensure `edge` is a valid box edge position."""
     validate_enums.ensure_valid_member(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
@@ -65,6 +73,7 @@ def ensure_box_center(
     *,
     param_name: str = "<param>",
 ) -> None:
+    """Ensure `center` is a valid box center position."""
     validate_enums.ensure_valid_member(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
@@ -77,6 +86,7 @@ def ensure_box_side(
     *,
     param_name: str = "<param>",
 ) -> None:
+    """Ensure `side` is a valid box side position."""
     validate_enums.ensure_valid_member(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
@@ -87,6 +97,7 @@ def ensure_box_side(
 def as_box_corner(
     corner: box_positions.Positions.PositionLike,
 ) -> box_positions.Positions.Corner:
+    """Resolve `corner` to a `Positions.Corner` enum member."""
     ensure_box_corner(
         corner=corner,
         param_name="corner",
@@ -101,6 +112,7 @@ def as_box_corner(
 def as_box_edge(
     edge: box_positions.Positions.PositionLike,
 ) -> box_positions.Positions.Edge:
+    """Resolve `edge` to a `Positions.Edge` enum member."""
     ensure_box_edge(
         edge=edge,
         param_name="edge",
@@ -115,6 +127,7 @@ def as_box_edge(
 def as_box_center(
     center: box_positions.Positions.PositionLike,
 ) -> box_positions.Positions.Center:
+    """Resolve `center` to a `Positions.Center` enum member."""
     ensure_box_center(
         center=center,
         param_name="center",
@@ -129,6 +142,7 @@ def as_box_center(
 def as_box_side(
     side: box_positions.Positions.PositionLike,
 ) -> box_positions.Positions.Side:
+    """Resolve `side` to a `Positions.Side` enum member."""
     ensure_box_side(
         side=side,
         param_name="side",
