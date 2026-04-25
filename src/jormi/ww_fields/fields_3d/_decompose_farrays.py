@@ -14,11 +14,11 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import (
-    _difference_sarrays,
+    difference_sarrays,
     farray_operators,
     farray_types,
 )
-from jormi.ww_fields.fields_3d import _fdata_types
+from jormi.ww_fields.fields_3d import fdata_types
 from jormi.ww_validation import validate_types
 
 ##
@@ -592,7 +592,7 @@ def compute_lorentz_force_farrays(
         varray_3d=varray_3d_b,
     )
     ## d_i P where P = 0.5 * |b|^2
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
     varray_3d_gradP = farray_types.ensure_farray_metadata(

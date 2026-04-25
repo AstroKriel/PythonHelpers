@@ -17,7 +17,7 @@ from numpy.typing import NDArray
 ## local
 from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_fields.fields_3d import (
-    _fdata_types,
+    fdata_types,
     field_types,
 )
 from jormi.ww_validation import validate_arrays, validate_types

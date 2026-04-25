@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import (
-    _difference_sarrays,
+    difference_sarrays,
     farray_types,
 )
 from jormi.ww_validation import validate_arrays, validate_types
@@ -117,7 +117,7 @@ def compute_sarray_grad(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray_3d.shape
     dtype = numpy.result_type(sarray_3d.dtype, numpy.float64)
     varray_3d_gradf = farray_types.ensure_farray_metadata(
@@ -291,7 +291,7 @@ def compute_varray_directional_derivative(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     domain_shape = varray_3d_direction.shape[1:]
     dtype = numpy.result_type(
         varray_3d_direction.dtype,
@@ -344,7 +344,7 @@ def compute_varray_grad(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
     r2tarray_3d_gradf = farray_types.ensure_farray_metadata(
@@ -449,7 +449,7 @@ def compute_varray_curl(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     varray_3d_curl = farray_types.ensure_farray_metadata(
         farray_shape=varray_3d.shape,
@@ -524,7 +524,7 @@ def compute_varray_divergence(
         allow_none=False,
         require_positive=True,
     )
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     domain_shape = varray_3d.shape[1:]
     sarray_3d_div = farray_types.ensure_farray_metadata(

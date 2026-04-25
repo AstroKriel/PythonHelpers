@@ -18,7 +18,7 @@ from numpy.typing import NDArray
 ## local
 from jormi.ww_fields import (
     _domain_types,
-    _fdata_types,
+    fdata_types,
 )
 from jormi.ww_validation import validate_arrays, validate_types
 
@@ -36,7 +36,7 @@ class Field:
     add additional constraints on the underlying `FieldData` and metadata.
     """
 
-    fdata: _fdata_types.FieldData
+    fdata: fdata_types.FieldData
     udomain: _domain_types.UniformDomain
     field_label: str
     sim_time: float | None = None
@@ -52,7 +52,7 @@ class Field:
     def _ensure_fdata(
         self,
     ) -> None:
-        _fdata_types.ensure_fdata(
+        fdata_types.ensure_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
@@ -101,7 +101,7 @@ class Field:
         udomain: _domain_types.UniformDomain,
         field_label: str,
         sim_time: float | None = None,
-        fdata_fn: Callable[..., _fdata_types.FieldData],
+        fdata_fn: Callable[..., fdata_types.FieldData],
         fdata_param_name: str = "<farray>",
         **fdata_kwargs: Any,
     ) -> Self:
@@ -178,7 +178,7 @@ def ensure_field_metadata(
         field=field,
         param_name=param_name,
     )
-    _fdata_types.ensure_fdata_metadata(
+    fdata_types.ensure_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,

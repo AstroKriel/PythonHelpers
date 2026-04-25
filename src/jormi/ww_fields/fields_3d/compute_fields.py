@@ -11,13 +11,13 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import (
-    _difference_sarrays,
+    difference_sarrays,
     farray_operators,
     farray_types,
 )
 from jormi.ww_fields.fields_3d import (
     _decompose_farrays,
-    _fdata_types,
+    fdata_types,
     field_operators,
     field_types,
 )
@@ -125,7 +125,7 @@ def _compute_kinetic_dissipation_varray(
         optimize=True,
     )
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
-    nabla = _difference_sarrays.get_grad_fn(grad_order)
+    nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     varray_3d_df = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),

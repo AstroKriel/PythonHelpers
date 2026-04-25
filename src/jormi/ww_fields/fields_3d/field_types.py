@@ -18,7 +18,7 @@ from jormi.ww_fields import (
 )
 from jormi.ww_arrays.farrays_3d import farray_operators
 from jormi.ww_fields.fields_3d import (
-    _fdata_types,
+    fdata_types,
     domain_types,
 )
 from jormi.ww_validation import validate_types
@@ -32,7 +32,7 @@ from jormi.ww_validation import validate_types
 class ScalarField_3D(_field_types.Field):
     """3D scalar field: num_ranks=0, num_comps=1, num_sdims=3."""
 
-    fdata: _fdata_types.ScalarFieldData_3D
+    fdata: fdata_types.ScalarFieldData_3D
     udomain: domain_types.UniformDomain_3D
 
     def __post_init__(
@@ -44,7 +44,7 @@ class ScalarField_3D(_field_types.Field):
     def _ensure_sdata(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_sdata(
+        fdata_types.ensure_3d_sdata(
             sdata_3d=self.fdata,
             param_name="<sfield_3d.fdata>",
         )
@@ -71,7 +71,7 @@ class ScalarField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=_fdata_types.ScalarFieldData_3D,
+            fdata_fn=fdata_types.ScalarFieldData_3D,
             fdata_param_name="<sarray_3d>",
         )
 
@@ -80,7 +80,7 @@ class ScalarField_3D(_field_types.Field):
 class VectorField_3D(_field_types.Field):
     """3D vector field: num_ranks=1, num_comps=3, num_sdims=3."""
 
-    fdata: _fdata_types.VectorFieldData_3D
+    fdata: fdata_types.VectorFieldData_3D
     udomain: domain_types.UniformDomain_3D
     comp_axes: cartesian_axes.AxisTuple_3D = cartesian_axes.DEFAULT_3D_AXES_ORDER
 
@@ -94,7 +94,7 @@ class VectorField_3D(_field_types.Field):
     def _ensure_vdata(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_vdata(
+        fdata_types.ensure_3d_vdata(
             vdata_3d=self.fdata,
             param_name="<vfield_3d.fdata>",
         )
@@ -141,7 +141,7 @@ class VectorField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=_fdata_types.VectorFieldData_3D,
+            fdata_fn=fdata_types.VectorFieldData_3D,
             fdata_param_name="<varray_3d>",
         )
 
@@ -379,7 +379,7 @@ def extract_3d_sarray(
         sfield_3d=sfield_3d,
         param_name=param_name,
     )
-    return _fdata_types.extract_3d_sarray(
+    return fdata_types.extract_3d_sarray(
         sdata_3d=sfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
@@ -395,7 +395,7 @@ def extract_3d_varray(
         vfield_3d=vfield_3d,
         param_name=param_name,
     )
-    return _fdata_types.extract_3d_varray(
+    return fdata_types.extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )

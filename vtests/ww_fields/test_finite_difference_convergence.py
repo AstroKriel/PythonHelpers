@@ -14,7 +14,7 @@ import numpy
 
 ## local
 from jormi import ww_lists
-from jormi.ww_arrays.farrays_3d import _difference_sarrays
+from jormi.ww_arrays.farrays_3d import difference_sarrays
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
 
@@ -96,19 +96,19 @@ class TestFiniteDifferenceConvergence:
         self.axs_grid: numpy.ndarray[Any, numpy.dtype[Any]] = numpy.empty((2, 2), dtype=object)
         self.grad_methods: list[_GradMethod] = [
             {
-                "worker_fn": _difference_sarrays.second_order_centered_difference,
+                "worker_fn": difference_sarrays.second_order_centered_difference,
                 "expected_scaling": -2,
                 "label": "2nd order",
                 "color": "red",
             },
             {
-                "worker_fn": _difference_sarrays.fourth_order_centered_difference,
+                "worker_fn": difference_sarrays.fourth_order_centered_difference,
                 "expected_scaling": -4,
                 "label": "4th order",
                 "color": "forestgreen",
             },
             {
-                "worker_fn": _difference_sarrays.sixth_order_centered_difference,
+                "worker_fn": difference_sarrays.sixth_order_centered_difference,
                 "expected_scaling": -6,
                 "label": "6th order",
                 "color": "royalblue",
