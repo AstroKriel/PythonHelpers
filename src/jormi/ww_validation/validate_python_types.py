@@ -16,7 +16,7 @@ from jormi.ww_types import python_types
 
 ##
 ## === RUNTIME TYPES
-## derived from `python_types.Types` for isinstance checks inside `validate_*` functions.
+## derived from `python_types.Types` for isinstance checks inside `ensure_*` functions.
 ##
 
 
@@ -101,7 +101,7 @@ def _types_to_tuple(
     )  # pyright: ignore[reportUnreachable]
 
 
-def validate_type(
+def ensure_type(
     param: object,
     *,
     valid_types: type | tuple[type, ...] | list[type],
@@ -119,7 +119,7 @@ def validate_type(
         )
 
 
-def validate_not_none(
+def ensure_not_none(
     param: object,
     *,
     param_name: str = "<param>",
@@ -153,14 +153,14 @@ def _preview_indices(
 ##
 
 
-def validate_string(
+def ensure_string(
     param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a string."""
-    validate_type(
+    ensure_type(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -168,13 +168,13 @@ def validate_string(
     )
 
 
-def validate_nonempty_string(
+def ensure_nonempty_string(
     param: python_types.Types.Strings.StringLike,
     *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a non-empty string."""
-    validate_string(
+    ensure_string(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -183,7 +183,7 @@ def validate_nonempty_string(
         raise ValueError(f"`{param_name}` must be a non-empty string.")
 
 
-def validate_char(
+def ensure_char(
     param: object,
     *,
     param_name: str = "<param>",
@@ -192,7 +192,7 @@ def validate_char(
     """Ensure `param` is a single-character string."""
     if (param is None) and allow_none:
         return
-    validate_string(
+    ensure_string(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -208,14 +208,14 @@ def validate_char(
 ##
 
 
-def validate_bool(
+def ensure_bool(
     param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a boolean."""
-    validate_type(
+    ensure_type(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -223,13 +223,13 @@ def validate_bool(
     )
 
 
-def validate_true(
+def ensure_true(
     param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a boolean with value True."""
-    validate_bool(
+    ensure_bool(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -238,13 +238,13 @@ def validate_true(
         raise ValueError(f"`{param_name}` must be True, got {param}.")
 
 
-def validate_false(
+def ensure_false(
     param: object,
     *,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `param` is a boolean with value False."""
-    validate_bool(
+    ensure_bool(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -253,7 +253,7 @@ def validate_false(
         raise ValueError(f"`{param_name}` must be False, got {param}.")
 
 
-def validate_not_bool(
+def ensure_not_bool(
     param: object,
     *,
     param_name: str = "<param>",
@@ -268,7 +268,7 @@ def validate_not_bool(
 ##
 
 
-def validate_numeric(
+def ensure_numeric(
     param: object,
     *,
     param_name: str = "<param>",
@@ -278,18 +278,18 @@ def validate_numeric(
     if (param is None) and allow_none:
         return
     ## reject booleans explicitly (they are subclasses of int)
-    validate_not_bool(
+    ensure_not_bool(
         param=param,
         param_name=param_name,
     )
-    validate_type(
+    ensure_type(
         param=param,
         param_name=param_name,
         valid_types=RuntimeTypes.Numerics.NumericLike,
     )
 
 
-def validate_finite_numeric(
+def ensure_finite_numeric(
     param: object,
     *,
     param_name: str = "<param>",
@@ -311,7 +311,7 @@ def validate_finite_numeric(
             return
         raise ValueError(f"`{param_name}` must not be None.")
     ## reject booleans explicitly (they are subclasses of int)
-    validate_not_bool(
+    ensure_not_bool(
         param=param,
         param_name=param_name,
     )
@@ -329,7 +329,7 @@ def validate_finite_numeric(
         raise ValueError(f"`{param_name}` must be positive (> 0), got {param}.")
 
 
-def validate_finite_float(
+def ensure_finite_float(
     param: object,
     *,
     param_name: str = "<param>",
@@ -338,7 +338,7 @@ def validate_finite_float(
     allow_zero: bool = True,
 ) -> None:
     """Ensure `param` is a finite float-like value."""
-    validate_finite_numeric(
+    ensure_finite_numeric(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -348,7 +348,7 @@ def validate_finite_float(
     )
 
 
-def validate_finite_int(
+def ensure_finite_int(
     param: object,
     *,
     param_name: str = "<param>",
@@ -357,7 +357,7 @@ def validate_finite_int(
     allow_zero: bool = True,
 ) -> None:
     """Ensure `param` is a finite int-like value."""
-    validate_finite_numeric(
+    ensure_finite_numeric(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -367,7 +367,7 @@ def validate_finite_int(
     )
 
 
-def validate_finite_scalar(
+def ensure_finite_scalar(
     param: object,
     *,
     param_name: str = "<param>",
@@ -376,7 +376,7 @@ def validate_finite_scalar(
     allow_zero: bool = True,
 ) -> None:
     """Ensure `param` is a finite scalar (int-like or float-like) value."""
-    validate_finite_numeric(
+    ensure_finite_numeric(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -386,7 +386,7 @@ def validate_finite_scalar(
     )
 
 
-def validate_in_bounds(
+def ensure_in_bounds(
     param: object,
     *,
     min_value: float,
@@ -397,7 +397,7 @@ def validate_in_bounds(
     """Ensure `param` is a finite scalar in [min_value, max_value]."""
     if (param is None) and allow_none:
         return
-    validate_finite_scalar(
+    ensure_finite_scalar(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -414,14 +414,14 @@ def validate_in_bounds(
 ##
 
 
-def validate_container(
+def ensure_container(
     param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is one of the supported container types."""
-    validate_type(
+    ensure_type(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -434,7 +434,7 @@ def validate_container(
 ##
 
 
-def validate_sequence(
+def ensure_sequence(
     param: object,
     *,
     param_name: str = "<param>",
@@ -475,7 +475,7 @@ def validate_sequence(
             )
 
 
-def validate_nested_sequence(
+def ensure_nested_sequence(
     param: object,
     *,
     param_name: str = "<param>",
@@ -493,7 +493,7 @@ def validate_nested_sequence(
     """Ensure `param` is a nested (2D) sequence."""
     if (param is None) and allow_none:
         return
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -502,7 +502,7 @@ def validate_nested_sequence(
         valid_elem_types=valid_inner_types,
     )
     for outer_index, inner_seq in enumerate(cast(list[Any] | tuple[Any, ...], param)):
-        validate_sequence(
+        ensure_sequence(
             param=inner_seq,
             param_name=f"{param_name}[{outer_index}]",
             allow_none=False,
@@ -517,7 +517,7 @@ def validate_nested_sequence(
 ##
 
 
-def validate_flat_tuple(
+def ensure_flat_tuple(
     param: object,
     *,
     param_name: str = "<param>",
@@ -528,7 +528,7 @@ def validate_flat_tuple(
     """Ensure `param` is a flat tuple (no nested containers)."""
     if (param is None) and allow_none:
         return
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -549,7 +549,7 @@ def validate_flat_tuple(
         )
 
 
-def validate_nested_tuple(
+def ensure_nested_tuple(
     param: object,
     *,
     param_name: str = "<param>",
@@ -567,7 +567,7 @@ def validate_nested_tuple(
     """Ensure `param` is a nested (2D) tuple."""
     if (param is None) and allow_none:
         return
-    validate_nested_sequence(
+    ensure_nested_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -579,7 +579,7 @@ def validate_nested_tuple(
     )
 
 
-def validate_tuple_of_strings(
+def ensure_tuple_of_strings(
     param: object,
     *,
     param_name: str = "<param>",
@@ -587,7 +587,7 @@ def validate_tuple_of_strings(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a tuple of strings."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -597,7 +597,7 @@ def validate_tuple_of_strings(
     )
 
 
-def validate_tuple_of_numbers(
+def ensure_tuple_of_numbers(
     param: object,
     *,
     param_name: str = "<param>",
@@ -607,7 +607,7 @@ def validate_tuple_of_numbers(
     """Ensure `param` is a tuple of numbers (float or int, reject booleans)."""
     if (param is None) and allow_none:
         return
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -627,7 +627,7 @@ def validate_tuple_of_numbers(
         )
 
 
-def validate_ordered_pair(
+def ensure_ordered_pair(
     param: object,
     *,
     param_name: str = "<param>",
@@ -639,7 +639,7 @@ def validate_ordered_pair(
     """
     if (param is None) and allow_none:
         return
-    validate_tuple_of_numbers(
+    ensure_tuple_of_numbers(
         param=param,
         param_name=param_name,
         seq_length=2,
@@ -657,7 +657,7 @@ def validate_ordered_pair(
             raise ValueError(f"`{param_name}` must satisfy [0] <= [1], got {param}.")
 
 
-def validate_tuple_of_floats(
+def ensure_tuple_of_floats(
     param: object,
     *,
     param_name: str = "<param>",
@@ -665,7 +665,7 @@ def validate_tuple_of_floats(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a tuple of floats."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -675,7 +675,7 @@ def validate_tuple_of_floats(
     )
 
 
-def validate_tuple_of_ints(
+def ensure_tuple_of_ints(
     param: object,
     *,
     param_name: str = "<param>",
@@ -683,7 +683,7 @@ def validate_tuple_of_ints(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a tuple of integers."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -693,7 +693,7 @@ def validate_tuple_of_ints(
     )
 
 
-def validate_tuple_of_bools(
+def ensure_tuple_of_bools(
     param: object,
     *,
     param_name: str = "<param>",
@@ -701,7 +701,7 @@ def validate_tuple_of_bools(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a tuple of booleans."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -716,7 +716,7 @@ def validate_tuple_of_bools(
 ##
 
 
-def validate_flat_list(
+def ensure_flat_list(
     param: object,
     *,
     param_name: str = "<param>",
@@ -727,7 +727,7 @@ def validate_flat_list(
     """Ensure `param` is a flat list (no nested containers)."""
     if (param is None) and allow_none:
         return
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -748,7 +748,7 @@ def validate_flat_list(
         )
 
 
-def validate_list_of_strings(
+def ensure_list_of_strings(
     param: object,
     *,
     param_name: str = "<param>",
@@ -756,7 +756,7 @@ def validate_list_of_strings(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a list of strings."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -766,7 +766,7 @@ def validate_list_of_strings(
     )
 
 
-def validate_list_of_numbers(
+def ensure_list_of_numbers(
     param: object,
     *,
     param_name: str = "<param>",
@@ -776,7 +776,7 @@ def validate_list_of_numbers(
     """Ensure `param` is a list of numbers (float or int, booleans rejected)."""
     if (param is None) and allow_none:
         return
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -796,7 +796,7 @@ def validate_list_of_numbers(
         )
 
 
-def validate_list_of_floats(
+def ensure_list_of_floats(
     param: object,
     *,
     param_name: str = "<param>",
@@ -804,7 +804,7 @@ def validate_list_of_floats(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a list of floats."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -814,7 +814,7 @@ def validate_list_of_floats(
     )
 
 
-def validate_list_of_ints(
+def ensure_list_of_ints(
     param: object,
     *,
     param_name: str = "<param>",
@@ -822,7 +822,7 @@ def validate_list_of_ints(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a list of integers."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -832,7 +832,7 @@ def validate_list_of_ints(
     )
 
 
-def validate_list_of_bools(
+def ensure_list_of_bools(
     param: object,
     *,
     param_name: str = "<param>",
@@ -840,7 +840,7 @@ def validate_list_of_bools(
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a list of booleans."""
-    validate_sequence(
+    ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=allow_none,
@@ -855,14 +855,14 @@ def validate_list_of_bools(
 ##
 
 
-def validate_dict(
+def ensure_dict(
     param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a dict."""
-    validate_type(
+    ensure_type(
         param=param,
         allow_none=allow_none,
         param_name=param_name,
@@ -875,14 +875,14 @@ def validate_dict(
 ##
 
 
-def validate_ndarray(
+def ensure_ndarray(
     param: object,
     *,
     param_name: str = "<param>",
     allow_none: bool = False,
 ) -> None:
     """Ensure `param` is a NumPy array."""
-    validate_type(
+    ensure_type(
         param=param,
         allow_none=allow_none,
         param_name=param_name,
@@ -890,7 +890,7 @@ def validate_ndarray(
     )
 
 
-def validate_ndarray_ndim(
+def ensure_ndarray_ndim(
     param: object,
     *,
     ndim: int,
@@ -902,7 +902,7 @@ def validate_ndarray_ndim(
         if allow_none:
             return
         raise ValueError(f"`{param_name}` must not be None.")
-    validate_ndarray(
+    ensure_ndarray(
         param=param,
         param_name=param_name,
         allow_none=False,

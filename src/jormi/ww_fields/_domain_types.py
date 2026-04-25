@@ -50,10 +50,10 @@ class UniformDomain:
     def __post_init__(
         self,
     ) -> None:
-        self._validate_num_sdims()
-        self._validate_periodicity()
-        self._validate_resolution()
-        self._validate_domain_bounds()
+        self._ensure_num_sdims()
+        self._ensure_periodicity()
+        self._ensure_resolution()
+        self._ensure_domain_bounds()
 
     def _axis_label_from_index(
         self,
@@ -61,10 +61,10 @@ class UniformDomain:
     ) -> str:
         return cartesian_axes.get_axis_label(axis_index)
 
-    def _validate_num_sdims(
+    def _ensure_num_sdims(
         self,
     ) -> None:
-        validate_python_types.validate_finite_int(
+        validate_python_types.ensure_finite_int(
             param=self.num_sdims,
             param_name="<num_sdims>",
             allow_none=False,
@@ -72,10 +72,10 @@ class UniformDomain:
             require_positive=True,
         )
 
-    def _validate_periodicity(
+    def _ensure_periodicity(
         self,
     ) -> None:
-        validate_python_types.validate_sequence(
+        validate_python_types.ensure_sequence(
             param=self.periodicity,
             param_name="<periodicity>",
             seq_length=self.num_sdims,
@@ -83,10 +83,10 @@ class UniformDomain:
             valid_elem_types=validate_python_types.RuntimeTypes.Booleans.BooleanLike,
         )
 
-    def _validate_resolution(
+    def _ensure_resolution(
         self,
     ) -> None:
-        validate_python_types.validate_sequence(
+        validate_python_types.ensure_sequence(
             param=self.resolution,
             param_name="<resolution>",
             seq_length=self.num_sdims,
@@ -100,10 +100,10 @@ class UniformDomain:
                     f"`<resolution>[{axis_label}]` must be a positive integer.",
                 )
 
-    def _validate_domain_bounds(
+    def _ensure_domain_bounds(
         self,
     ) -> None:
-        validate_python_types.validate_sequence(
+        validate_python_types.ensure_sequence(
             param=self.domain_bounds,
             param_name="<domain_bounds>",
             seq_length=self.num_sdims,
@@ -114,7 +114,7 @@ class UniformDomain:
             bounds = self.domain_bounds[axis_index]
             axis_label = self._axis_label_from_index(axis_index)
             axis_param_name = f"<domain_bounds[{axis_label}]>"
-            validate_python_types.validate_sequence(
+            validate_python_types.ensure_sequence(
                 param=bounds,
                 param_name=axis_param_name,
                 seq_length=2,
@@ -122,14 +122,14 @@ class UniformDomain:
                 valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
             )
             lo_value, hi_value = bounds
-            validate_python_types.validate_finite_float(
+            validate_python_types.ensure_finite_float(
                 param=lo_value,
                 param_name=f"{axis_param_name}[0]",
                 allow_none=False,
                 allow_zero=True,
                 require_positive=False,
             )
-            validate_python_types.validate_finite_float(
+            validate_python_types.ensure_finite_float(
                 param=hi_value,
                 param_name=f"{axis_param_name}[1]",
                 allow_none=False,
@@ -204,26 +204,26 @@ class UniformDomain:
 ##
 
 
-def validate_udomain(
+def ensure_udomain(
     udomain: UniformDomain,
     *,
     param_name: str = "<udomain>",
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=udomain,
         param_name=param_name,
         valid_types=UniformDomain,
     )
 
 
-def validate_udomain_metadata(
+def ensure_udomain_metadata(
     udomain: UniformDomain,
     *,
     num_sdims: int | None = None,
     param_name: str = "<udomain>",
 ) -> None:
     """Check metadata for `UniformDomain`."""
-    validate_udomain(
+    ensure_udomain(
         udomain=udomain,
         param_name=param_name,
     )

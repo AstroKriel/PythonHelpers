@@ -83,7 +83,7 @@ class Rank2TensorData_3D(_fdata_types.FieldData):
 ##
 
 
-def validate_farray_metadata(
+def ensure_farray_metadata(
     *,
     farray_shape: tuple[int, ...],
     farray: NDArray[Any] | None = None,
@@ -105,7 +105,7 @@ def validate_farray_metadata(
     return farray
 
 
-def validate_3d_sdata(
+def ensure_3d_sdata(
     sdata_3d: ScalarFieldData_3D,
     *,
     param_name: str = "<sdata_3d>",
@@ -115,7 +115,7 @@ def validate_3d_sdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_3D; got type={type(sdata_3d)}.",
         )
-    _fdata_types.validate_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=sdata_3d,
         num_comps=1,
         num_sdims=3,
@@ -124,7 +124,7 @@ def validate_3d_sdata(
     )
 
 
-def validate_3d_vdata(
+def ensure_3d_vdata(
     vdata_3d: VectorFieldData_3D,
     *,
     param_name: str = "<vdata_3d>",
@@ -134,7 +134,7 @@ def validate_3d_vdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_3D; got type={type(vdata_3d)}.",
         )
-    _fdata_types.validate_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=vdata_3d,
         num_comps=3,
         num_sdims=3,
@@ -143,7 +143,7 @@ def validate_3d_vdata(
     )
 
 
-def validate_3d_r2tdata(
+def ensure_3d_r2tdata(
     r2tdata_3d: Rank2TensorData_3D,
     *,
     param_name: str = "<r2tdata_3d>",
@@ -153,7 +153,7 @@ def validate_3d_r2tdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be Rank2TensorData_3D; got type={type(r2tdata_3d)}.",
         )
-    _fdata_types.validate_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=r2tdata_3d,
         num_comps=9,
         num_sdims=3,
@@ -167,26 +167,26 @@ def validate_3d_r2tdata(
 ##
 
 
-def validate_3d_sarray(
+def ensure_3d_sarray(
     sarray_3d: NDArray[Any],
     *,
     param_name: str = "<sarray_3d>",
 ) -> None:
     """Ensure `sarray_3d` is a 3D scalar ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
-    validate_arrays.validate_dims(
+    validate_arrays.ensure_dims(
         array=sarray_3d,
         param_name=param_name,
         num_dims=3,
     )
 
 
-def validate_3d_varray(
+def ensure_3d_varray(
     varray_3d: NDArray[Any],
     *,
     param_name: str = "<varray_3d>",
 ) -> None:
     """Ensure `varray_3d` is a 4D vector ndarray with leading axis of length 3."""
-    validate_arrays.validate_dims(
+    validate_arrays.ensure_dims(
         array=varray_3d,
         param_name=param_name,
         num_dims=4,
@@ -199,13 +199,13 @@ def validate_3d_varray(
         )
 
 
-def validate_3d_r2tarray(
+def ensure_3d_r2tarray(
     r2tarray_3d: NDArray[Any],
     *,
     param_name: str = "<r2tarray_3d>",
 ) -> None:
     """Ensure `r2tarray_3d` is a 5D rank-2 tensor ndarray with two leading axes of length 3."""
-    validate_arrays.validate_dims(
+    validate_arrays.ensure_dims(
         array=r2tarray_3d,
         param_name=param_name,
         num_dims=5,
@@ -229,12 +229,12 @@ def extract_3d_sarray(
     param_name: str = "<sdata_3d>",
 ) -> NDArray[Any]:
     """Normalise `sdata_3d` to a 3D scalar ndarray and validate its structure."""
-    validate_3d_sdata(
+    ensure_3d_sdata(
         sdata_3d=sdata_3d,
         param_name=param_name,
     )
     sarray_3d = sdata_3d.farray
-    validate_3d_sarray(
+    ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name=f"{param_name}.farray",
     )
@@ -247,12 +247,12 @@ def extract_3d_varray(
     param_name: str = "<vdata_3d>",
 ) -> NDArray[Any]:
     """Normalise `vdata_3d` to a 3D vector ndarray and validate its structure."""
-    validate_3d_vdata(
+    ensure_3d_vdata(
         vdata_3d=vdata_3d,
         param_name=param_name,
     )
     varray_3d = vdata_3d.farray
-    validate_3d_varray(
+    ensure_3d_varray(
         varray_3d=varray_3d,
         param_name=f"{param_name}.farray",
     )
@@ -265,12 +265,12 @@ def extract_3d_r2tarray(
     param_name: str = "<r2tdata_3d>",
 ) -> NDArray[Any]:
     """Normalise `r2tdata_3d` to a 3D rank-2 tensor ndarray and validate its structure."""
-    validate_3d_r2tdata(
+    ensure_3d_r2tdata(
         r2tdata_3d=r2tdata_3d,
         param_name=param_name,
     )
     r2tarray_3d = r2tdata_3d.farray
-    validate_3d_r2tarray(
+    ensure_3d_r2tarray(
         r2tarray_3d=r2tarray_3d,
         param_name=f"{param_name}.farray",
     )

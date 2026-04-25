@@ -90,13 +90,13 @@ def as_runtime_type(
     raise TypeError(f"unsupported Enum type-hint: {type_hint!r}.")
 
 
-def validate_sequence_of_enums(
+def ensure_sequence_of_enums(
     param: tuple[python_enums.EnumType, ...] | list[python_enums.EnumType],
     *,
     param_name: str = "param",
 ) -> None:
     """Ensure `param` is a non-empty sequence of Enum types."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
@@ -122,7 +122,7 @@ def resolve_member(
         param=valid_enums,
         param_name="valid_enums",
     )
-    validate_sequence_of_enums(
+    ensure_sequence_of_enums(
         param=valid_enums,
         param_name="valid_enums",
     )
@@ -133,7 +133,7 @@ def resolve_member(
             return member
         raise ValueError(f"enum member {member!r} is not in the set of valid Enum types.")
     ## otherwise search for a unique instance of the string the user passed in valid_enums name or value
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=member,
         param_name="member",
         valid_types=str,
@@ -150,7 +150,7 @@ def resolve_member(
     )
 
 
-def validate_valid_member(
+def ensure_valid_member(
     member: python_enums.EnumMemberLike,
     *,
     valid_enums: python_enums.EnumTypesLike,
@@ -165,7 +165,7 @@ def validate_valid_member(
         raise type(error)(f"`{param_name}` is invalid.") from error
 
 
-def validate_member_in(
+def ensure_member_in(
     member: python_enums.EnumMemberLike,
     *,
     valid_members: tuple[Enum, ...] | list[Enum],

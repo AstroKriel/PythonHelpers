@@ -55,7 +55,7 @@ ContinuousPaletteConfig = SequentialConfig | DivergingConfig
 PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
 
 
-def validate_sequential_config(
+def ensure_sequential_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -64,7 +64,7 @@ def validate_sequential_config(
         raise TypeError(f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}.")
 
 
-def validate_diverging_config(
+def ensure_diverging_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -73,7 +73,7 @@ def validate_diverging_config(
         raise TypeError(f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}.")
 
 
-def validate_continuous_config(
+def ensure_continuous_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -84,7 +84,7 @@ def validate_continuous_config(
         )
 
 
-def validate_discrete_config(
+def ensure_discrete_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -189,28 +189,28 @@ def add_colorbar(
     label_size: int | float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
-    validate_python_types.validate_finite_float(
+    validate_python_types.ensure_finite_float(
         param=cbar_thickness,
         param_name="cbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.validate_finite_float(
+    validate_python_types.ensure_finite_float(
         param=cbar_pad,
         param_name="cbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    validate_python_types.validate_finite_float(
+    validate_python_types.ensure_finite_float(
         param=label_pad,
         param_name="label_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    validate_python_types.validate_finite_scalar(
+    validate_python_types.ensure_finite_scalar(
         param=label_size,
         param_name="label_size",
         allow_none=False,

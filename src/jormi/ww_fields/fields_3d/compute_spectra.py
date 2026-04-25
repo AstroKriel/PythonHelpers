@@ -36,12 +36,12 @@ class IsotropicPowerSpectrum:
     def __post_init__(
         self,
     ) -> None:
-        validate_arrays.validate_dims(
+        validate_arrays.ensure_dims(
             array=self.k_bin_centers_1d,
             param_name="<k_bin_centers_1d>",
             num_dims=1,
         )
-        validate_arrays.validate_dims(
+        validate_arrays.ensure_dims(
             array=self.spectrum_1d,
             param_name="<spectrum_1d>",
             num_dims=1,
@@ -70,7 +70,7 @@ def _compute_3d_radial_k_magnitude(
     Each entry stores the index-space distance from the central mode (k=0),
     so values run from ~0 at the center up to k_max near the edges.
     """
-    validate_python_types.validate_tuple_of_ints(
+    validate_python_types.ensure_tuple_of_ints(
         param=num_cells_per_dim,
         param_name="<num_cells_per_dim>",
         seq_length=3,
@@ -98,11 +98,11 @@ def _compute_3d_power_spectrum_sarray(
     resolution_3d: tuple[int, int, int],
 ) -> NDArray[Any]:
     """Compute the 3D power spectrum |F(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
-    _fdata_types.validate_3d_sarray(
+    _fdata_types.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
     )
-    validate_python_types.validate_tuple_of_ints(
+    validate_python_types.ensure_tuple_of_ints(
         param=resolution_3d,
         param_name="<resolution_3d>",
         seq_length=3,
@@ -142,7 +142,7 @@ def _integrate_spectrum_over_spherical_shells(
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Integrate a 3D power spectrum over spherical shells in index-space."""
-    _fdata_types.validate_3d_sarray(
+    _fdata_types.ensure_3d_sarray(
         sarray_3d=centered_3d_spectrum,
         param_name="<centered_3d_spectrum>",
     )

@@ -16,7 +16,7 @@ import matplotlib.colors as mpl_colors
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
 from jormi.ww_plots.color_palettes._base_palette import (
     ColorPalette,
-    validate_palette_range,
+    ensure_palette_range,
     resolve_palette,
     subset_palette,
 )
@@ -42,11 +42,11 @@ class DivergingPalette(ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        validate_python_types.validate_ordered_pair(
+        validate_python_types.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )
-        validate_python_types.validate_finite_float(
+        validate_python_types.ensure_finite_float(
             param=self.mid_value,
             param_name="mid_value",
         )
@@ -56,7 +56,7 @@ class DivergingPalette(ColorPalette):
             raise ValueError(
                 f"`mid_value` must satisfy min_value < mid_value < max_value, got ({min_value}, {mid_value}, {max_value}).",
             )
-        validate_palette_range(self.palette_range)
+        ensure_palette_range(self.palette_range)
 
     @classmethod
     def from_name(
@@ -100,7 +100,7 @@ class DivergingPalette(ColorPalette):
     def mpl_norm(
         self,
     ) -> mpl_colors.TwoSlopeNorm:
-        validate_python_types.validate_ordered_pair(
+        validate_python_types.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )

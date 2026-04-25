@@ -154,12 +154,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

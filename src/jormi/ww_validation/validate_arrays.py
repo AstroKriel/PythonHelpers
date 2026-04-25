@@ -19,25 +19,25 @@ from jormi.ww_validation import validate_python_types
 ##
 
 
-def validate_array(
+def ensure_array(
     array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray."""
-    validate_python_types.validate_ndarray(
+    validate_python_types.ensure_ndarray(
         param=array,
         param_name=param_name,
     )
 
 
-def validate_nonempty(
+def ensure_nonempty(
     array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a non-empty NumPy ndarray."""
-    validate_array(
+    ensure_array(
         array=array,
         param_name=param_name,
     )
@@ -45,13 +45,13 @@ def validate_nonempty(
         raise ValueError(f"`{param_name}` is empty.")
 
 
-def validate_finite(
+def ensure_finite(
     array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a finite NumPy ndarray (no NaN/Inf)."""
-    validate_array(
+    ensure_array(
         array=array,
         param_name=param_name,
     )
@@ -59,18 +59,18 @@ def validate_finite(
         raise ValueError(f"`{param_name}` contains NaN or Inf.")
 
 
-def validate_shape(
+def ensure_shape(
     array: NDArray[Any],
     *,
     expected_shape: tuple[int, ...],
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` has the given `expected_shape`."""
-    validate_array(
+    ensure_array(
         array=array,
         param_name=param_name,
     )
-    validate_python_types.validate_tuple_of_ints(
+    validate_python_types.ensure_tuple_of_ints(
         param=expected_shape,
         param_name="expected_shape",
     )
@@ -80,7 +80,7 @@ def validate_shape(
         )
 
 
-def validate_same_shape(
+def ensure_same_shape(
     *,
     array_a: NDArray[Any],
     array_b: NDArray[Any],
@@ -88,11 +88,11 @@ def validate_same_shape(
     param_name_b: str = "<array_b>",
 ) -> None:
     """Ensure `array_a` and `array_b` are ndarrays with identical shape."""
-    validate_array(
+    ensure_array(
         array=array_a,
         param_name=param_name_a,
     )
-    validate_array(
+    ensure_array(
         array=array_b,
         param_name=param_name_b,
     )
@@ -103,18 +103,18 @@ def validate_same_shape(
         )
 
 
-def validate_dims(
+def ensure_dims(
     array: NDArray[Any],
     num_dims: int,
     *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray with array.ndim == num_dims."""
-    validate_array(
+    ensure_array(
         array=array,
         param_name=param_name,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_dims,
         param_name="num_dims",
         require_positive=True,
@@ -125,13 +125,13 @@ def validate_dims(
         )
 
 
-def validate_1d(
+def ensure_1d(
     array: NDArray[Any],
     *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a 1D NumPy ndarray."""
-    validate_dims(
+    ensure_dims(
         array=array,
         num_dims=1,
         param_name=param_name,
@@ -150,21 +150,21 @@ def as_1d(
     check_finite: bool = True,
 ) -> NDArray[Any]:
     """Convert `array_like` to a 1D ndarray[float64]."""
-    validate_python_types.validate_not_none(
+    validate_python_types.ensure_not_none(
         param=array_like,
         param_name=param_name,
     )
     array = numpy.asarray(array_like, numpy.float64)
-    validate_nonempty(
+    ensure_nonempty(
         array=array,
         param_name=param_name,
     )
     if check_finite:
-        validate_finite(
+        ensure_finite(
             array=array,
             param_name=param_name,
         )
-    validate_1d(
+    ensure_1d(
         array=array,
         param_name=param_name,
     )

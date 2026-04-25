@@ -371,7 +371,7 @@ class TestProperties(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_validate_udomain_accepts(
+    def test_ensure_udomain_accepts(
         self,
     ):
         udomain = _domain_types.UniformDomain(
@@ -380,15 +380,15 @@ class TestEnsureHelpers(unittest.TestCase):
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        _domain_types.validate_udomain(udomain=udomain)
+        _domain_types.ensure_udomain(udomain=udomain)
 
-    def test_validate_udomain_rejects_wrong_type(
+    def test_ensure_udomain_rejects_wrong_type(
         self,
     ):
         with self.assertRaises(TypeError):
-            _domain_types.validate_udomain(udomain=None)  # type: ignore
+            _domain_types.ensure_udomain(udomain=None)  # type: ignore
 
-    def test_validate_udomain_metadata_num_sdims(
+    def test_ensure_udomain_metadata_num_sdims(
         self,
     ):
         udomain = _domain_types.UniformDomain(
@@ -397,12 +397,12 @@ class TestEnsureHelpers(unittest.TestCase):
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        _domain_types.validate_udomain_metadata(
+        _domain_types.ensure_udomain_metadata(
             udomain=udomain,
             num_sdims=2,
         )
         with self.assertRaises(ValueError):
-            _domain_types.validate_udomain_metadata(
+            _domain_types.ensure_udomain_metadata(
                 udomain=udomain,
                 num_sdims=3,
             )

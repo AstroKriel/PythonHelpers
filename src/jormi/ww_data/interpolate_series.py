@@ -34,7 +34,7 @@ def interpolate_1d(
 
     Returns a new `DataSeries` of the in-bounds interpolated (x, y) values.
     """
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=data_series,
         valid_types=DataSeries,
         param_name="data_series",
@@ -43,15 +43,15 @@ def interpolate_1d(
         raise ValueError(f"`spline_order` must be 1, 2, or 3; got {spline_order!r}.")
     ## validate x_interp
     x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
-    validate_arrays.validate_nonempty(
+    validate_arrays.ensure_nonempty(
         array=x_interp,
         param_name="x_interp",
     )
-    validate_arrays.validate_1d(
+    validate_arrays.ensure_1d(
         array=x_interp,
         param_name="x_interp",
     )
-    validate_arrays.validate_finite(
+    validate_arrays.ensure_finite(
         array=x_interp,
         param_name="x_interp",
     )

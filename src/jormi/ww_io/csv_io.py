@@ -19,10 +19,10 @@ from jormi.ww_validation import validate_python_types
 ##
 
 
-def _validate_path_is_valid(
+def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
-    validate_python_types.validate_not_none(
+    validate_python_types.ensure_not_none(
         param=file_path,
         param_name="file_path",
     )
@@ -32,10 +32,10 @@ def _validate_path_is_valid(
     return file_path
 
 
-def _validate_input_dict(
+def _ensure_input_dict(
     input_dict: dict[str, Any],
 ) -> None:
-    validate_python_types.validate_dict(
+    validate_python_types.ensure_dict(
         param=input_dict,
         param_name="input_dict",
         allow_none=False,
@@ -43,7 +43,7 @@ def _validate_input_dict(
     if not input_dict:
         return
     keys_as_list = list(input_dict.keys())
-    validate_python_types.validate_list_of_strings(
+    validate_python_types.ensure_list_of_strings(
         param=keys_as_list,
         param_name="input_dict keys",
         allow_none=False,
@@ -56,17 +56,17 @@ def read_csv_file_into_dict(
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
-    validate_python_types.validate_char(
+    validate_python_types.ensure_char(
         param=delimiter,
         param_name="delimiter",
         allow_none=False,
     )
-    file_path = _validate_path_is_valid(file_path)
+    file_path = _ensure_path_is_valid(file_path)
     if not file_path.is_file():
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
@@ -101,18 +101,18 @@ def save_dict_to_csv_file(
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=overwrite,
         param_name="overwrite",
         allow_none=False,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
-    file_path = _validate_path_is_valid(file_path)
-    _validate_input_dict(input_dict)
+    file_path = _ensure_path_is_valid(file_path)
+    _ensure_input_dict(input_dict)
     file_exists = file_path.is_file()
     if file_exists:
         if overwrite:

@@ -35,16 +35,16 @@ class ScalarField_2D(_field_types.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._validate_sdata()
+        self._ensure_sdata()
 
-    def _validate_sdata(
+    def _ensure_sdata(
         self,
     ) -> None:
-        _fdata_types.validate_2d_sdata(
+        _fdata_types.ensure_2d_sdata(
             sdata_2d=self.fdata,
             param_name="<sfield_2d.fdata>",
         )
-        _field_types.validate_field_metadata(
+        _field_types.ensure_field_metadata(
             field=self,
             num_comps=1,
             num_sdims=2,
@@ -62,7 +62,7 @@ class ScalarField_2D(_field_types.Field):
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D scalar field from a (num_x0_cells, num_x1_cells) ndarray."""
-        _fdata_types.validate_2d_sarray(
+        _fdata_types.ensure_2d_sarray(
             sarray_2d=sarray_2d,
             param_name="<sarray_2d>",
         )
@@ -96,16 +96,16 @@ class VectorField_2D(_field_types.Field):
         self,
     ) -> None:
         super().__post_init__()
-        self._validate_vdata()
+        self._ensure_vdata()
 
-    def _validate_vdata(
+    def _ensure_vdata(
         self,
     ) -> None:
-        _fdata_types.validate_2d_vdata(
+        _fdata_types.ensure_2d_vdata(
             vdata_2d=self.fdata,
             param_name="<vfield_2d.fdata>",
         )
-        _field_types.validate_field_metadata(
+        _field_types.ensure_field_metadata(
             field=self,
             num_comps=2,
             num_sdims=2,
@@ -123,7 +123,7 @@ class VectorField_2D(_field_types.Field):
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D vector field from a (2, num_x0_cells, num_x1_cells) ndarray."""
-        _fdata_types.validate_2d_varray(
+        _fdata_types.ensure_2d_varray(
             varray_2d=varray_2d,
             param_name="<varray_2d>",
         )
@@ -151,57 +151,57 @@ class VectorField_2D(_field_types.Field):
 ##
 
 
-def validate_2d_sfield(
+def ensure_2d_sfield(
     sfield_2d: ScalarField_2D,
     *,
     param_name: str = "<sfield_2d>",
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=sfield_2d,
         param_name=param_name,
         valid_types=ScalarField_2D,
     )
 
 
-def validate_2d_vfield(
+def ensure_2d_vfield(
     vfield_2d: VectorField_2D,
     *,
     param_name: str = "<vfield_2d>",
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=vfield_2d,
         param_name=param_name,
         valid_types=VectorField_2D,
     )
 
 
-def validate_2d_sfield_sliced_from_3d(
+def ensure_2d_sfield_sliced_from_3d(
     sfield_2d: ScalarField_2D,
     *,
     param_name: str = "<sfield_2d>",
 ) -> None:
     """Ensure `sfield_2d` is ScalarField_2D with a 3D-sliced 2D domain."""
-    validate_2d_sfield(
+    ensure_2d_sfield(
         sfield_2d=sfield_2d,
         param_name=param_name,
     )
-    domain_types.validate_2d_udomain_sliced_from_3d(
+    domain_types.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=sfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )
 
 
-def validate_2d_vfield_sliced_from_3d(
+def ensure_2d_vfield_sliced_from_3d(
     vfield_2d: VectorField_2D,
     *,
     param_name: str = "<vfield_2d>",
 ) -> None:
     """Ensure `vfield_2d` is VectorField_2D with a 3D-sliced 2D domain."""
-    validate_2d_vfield(
+    ensure_2d_vfield(
         vfield_2d=vfield_2d,
         param_name=param_name,
     )
-    domain_types.validate_2d_udomain_sliced_from_3d(
+    domain_types.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=vfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )
@@ -218,7 +218,7 @@ def extract_2d_sarray(
     param_name: str = "<sfield_2d>",
 ) -> NDArray[Any]:
     """Return the underlying (num_x0_cells, num_x1_cells) ndarray for a 2D scalar field."""
-    validate_2d_sfield(
+    ensure_2d_sfield(
         sfield_2d=sfield_2d,
         param_name=param_name,
     )
@@ -231,7 +231,7 @@ def extract_2d_varray(
     param_name: str = "<vfield_2d>",
 ) -> NDArray[Any]:
     """Return the underlying (2, num_x0_cells, num_x1_cells) ndarray for a 2D vector field."""
-    validate_2d_vfield(
+    ensure_2d_vfield(
         vfield_2d=vfield_2d,
         param_name=param_name,
     )

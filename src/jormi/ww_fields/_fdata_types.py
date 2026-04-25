@@ -59,19 +59,19 @@ class FieldData:
     def __post_init__(
         self,
     ) -> None:
-        validate_python_types.validate_finite_int(
+        validate_python_types.ensure_finite_int(
             param=self.num_comps,
             param_name=f"{self.param_name}.num_comps",
             allow_none=False,
             require_positive=True,
         )
-        validate_python_types.validate_finite_int(
+        validate_python_types.ensure_finite_int(
             param=self.num_sdims,
             param_name=f"{self.param_name}.num_sdims",
             allow_none=False,
             require_positive=True,
         )
-        validate_python_types.validate_finite_int(
+        validate_python_types.ensure_finite_int(
             param=self.num_ranks,
             param_name=f"{self.param_name}.num_ranks",
             allow_none=False,
@@ -83,12 +83,12 @@ class FieldData:
                 f"`{self.param_name}` has num_ranks=0 (scalar) but num_comps={self.num_comps};"
                 f" expected num_comps == 1.",
             )
-        validate_arrays.validate_dims(
+        validate_arrays.ensure_dims(
             array=self.farray,
             param_name=self.param_name,
             num_dims=self._total_num_dims(),
         )
-        self._validate_shape_matches_metadata()
+        self._ensure_shape_matches_metadata()
 
     @property
     def shape(
@@ -137,7 +137,7 @@ class FieldData:
     ) -> int:
         return self.num_ranks + self.num_sdims
 
-    def _validate_shape_matches_metadata(
+    def _ensure_shape_matches_metadata(
         self,
     ) -> None:
         if self.farray.ndim != self._total_num_dims():
@@ -166,7 +166,7 @@ class FieldData:
 ##
 
 
-def validate_fdata(
+def ensure_fdata(
     fdata: FieldData,
     *,
     param_name: str = "<fdata>",
@@ -178,7 +178,7 @@ def validate_fdata(
         )
 
 
-def validate_fdata_metadata(
+def ensure_fdata_metadata(
     fdata: FieldData,
     *,
     num_comps: int | None = None,
@@ -192,7 +192,7 @@ def validate_fdata_metadata(
     Any of `num_comps`, `num_sdims`, or `num_ranks` can be left as `None`
     to skip that check.
     """
-    validate_fdata(
+    ensure_fdata(
         fdata=fdata,
         param_name=param_name,
     )

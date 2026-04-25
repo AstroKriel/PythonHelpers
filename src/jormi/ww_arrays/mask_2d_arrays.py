@@ -30,7 +30,7 @@ def get_2d_shape(
     array_2d: NDArray[Any],
 ) -> tuple[int, int]:
     """Validate that array_2d is a 2D array and return it shape: (num_rows, num_cols)."""
-    validate_arrays.validate_dims(
+    validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
         param_name="array_2d",
@@ -48,13 +48,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
     """Return (row_indices, col_indices) for a 2D grid."""
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,

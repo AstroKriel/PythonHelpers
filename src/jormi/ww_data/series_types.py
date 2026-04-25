@@ -41,22 +41,22 @@ class DataSeries:
     def __post_init__(
         self,
     ):
-        self._validate_data_array(self.x_values)
-        self._validate_data_array(self.y_values)
-        validate_arrays.validate_same_shape(
+        self._ensure_data_array(self.x_values)
+        self._ensure_data_array(self.y_values)
+        validate_arrays.ensure_same_shape(
             array_a=self.x_values,
             array_b=self.y_values,
         )
 
     @staticmethod
-    def _validate_data_array(
+    def _ensure_data_array(
         array: NDArray[Any],
         rel_tol: float = 1e-2,
         abs_tol: float = 1e-9,
     ):
-        validate_arrays.validate_nonempty(array)
-        validate_arrays.validate_finite(array)
-        validate_arrays.validate_1d(array)
+        validate_arrays.ensure_nonempty(array)
+        validate_arrays.ensure_finite(array)
+        validate_arrays.ensure_1d(array)
         value_range = numpy.max(array) - numpy.min(array)
         ref_value = max(
             1.0,  # clamp: prevents near-zero scale from inflating the ratio
@@ -66,14 +66,14 @@ class DataSeries:
             raise ValueError("data values are (nearly) identical.")
 
     @staticmethod
-    def _validate_sigma_array(
+    def _ensure_sigma_array(
         sigma_array: NDArray[Any],
         ref_array: NDArray[Any],
     ):
-        validate_arrays.validate_nonempty(sigma_array)
-        validate_arrays.validate_finite(sigma_array)
-        validate_arrays.validate_1d(sigma_array)
-        validate_arrays.validate_same_shape(
+        validate_arrays.ensure_nonempty(sigma_array)
+        validate_arrays.ensure_finite(sigma_array)
+        validate_arrays.ensure_1d(sigma_array)
+        validate_arrays.ensure_same_shape(
             array_a=sigma_array,
             array_b=ref_array,
         )
@@ -135,12 +135,12 @@ class GaussianSeries(DataSeries):
     ):
         super().__post_init__()
         if self.x_sigmas is not None:
-            self._validate_sigma_array(
+            self._ensure_sigma_array(
                 sigma_array=self.x_sigmas,
                 ref_array=self.x_values,
             )
         if self.y_sigmas is not None:
-            self._validate_sigma_array(
+            self._ensure_sigma_array(
                 sigma_array=self.y_sigmas,
                 ref_array=self.y_values,
             )
@@ -208,7 +208,7 @@ class DistributionSeries(DataSeries):
             (self.y_p84_values, self.y_values),
         ]:
             if sigma_array is not None:
-                self._validate_sigma_array(
+                self._ensure_sigma_array(
                     sigma_array=sigma_array,
                     ref_array=ref_array,
                 )

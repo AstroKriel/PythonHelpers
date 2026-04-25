@@ -175,7 +175,7 @@ class TestProperties(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_validate_3d_udomain_accepts(
+    def test_ensure_3d_udomain_accepts(
         self,
     ):
         udomain_3d = domain_types.UniformDomain_3D(
@@ -183,15 +183,15 @@ class TestEnsureHelpers(unittest.TestCase):
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
-        domain_types.validate_3d_udomain(udomain_3d=udomain_3d)
+        domain_types.ensure_3d_udomain(udomain_3d=udomain_3d)
 
-    def test_validate_3d_udomain_rejects_wrong_type(
+    def test_ensure_3d_udomain_rejects_wrong_type(
         self,
     ):
         with self.assertRaises(TypeError):
-            domain_types.validate_3d_udomain(udomain_3d=None)  # type: ignore
+            domain_types.ensure_3d_udomain(udomain_3d=None)  # type: ignore
 
-    def test_validate_3d_periodic_udomain_accepts_fully_periodic(
+    def test_ensure_3d_periodic_udomain_accepts_fully_periodic(
         self,
     ):
         udomain_3d = domain_types.UniformDomain_3D(
@@ -199,9 +199,9 @@ class TestEnsureHelpers(unittest.TestCase):
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
-        domain_types.validate_3d_periodic_udomain(udomain_3d=udomain_3d)
+        domain_types.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
 
-    def test_validate_3d_periodic_udomain_rejects_not_fully_periodic(
+    def test_ensure_3d_periodic_udomain_rejects_not_fully_periodic(
         self,
     ):
         udomain_3d = domain_types.UniformDomain_3D(
@@ -210,7 +210,7 @@ class TestEnsureHelpers(unittest.TestCase):
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(ValueError):
-            domain_types.validate_3d_periodic_udomain(udomain_3d=udomain_3d)
+            domain_types.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
 
 
 ##

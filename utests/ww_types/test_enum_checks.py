@@ -39,11 +39,11 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
     def test_accepts_tuple_and_list(
         self,
     ):
-        validate_enums.validate_sequence_of_enums(
+        validate_enums.ensure_sequence_of_enums(
             param=(Corners, ),
             param_name="valid_enums",
         )
-        validate_enums.validate_sequence_of_enums(
+        validate_enums.ensure_sequence_of_enums(
             param=[Corners, Sides],
             param_name="valid_enums",
         )
@@ -52,12 +52,12 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=(),
                 param_name="valid_enums",
             )
         with self.assertRaises(ValueError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=[],
                 param_name="valid_enums",
             )
@@ -66,7 +66,7 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=Corners, # type: ignore
                 param_name="valid_enums",
             )
@@ -75,12 +75,12 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=["Corners"], # type: ignore
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=[Corners, "Sides"], # type: ignore
                 param_name="valid_enums",
             )
@@ -89,12 +89,12 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=[Corners, int], # type: ignore
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
-            validate_enums.validate_sequence_of_enums(
+            validate_enums.ensure_sequence_of_enums(
                 param=(str,), # type: ignore
                 param_name="valid_enums",
             )
@@ -217,19 +217,19 @@ class TestEnsureValidMember(unittest.TestCase):
     def test_passes_and_fails(
         self,
     ):
-        validate_enums.validate_valid_member(
+        validate_enums.ensure_valid_member(
             member="TopLeft",
             valid_enums=Corners,
             param_name="loc",
         )
         with self.assertRaises(ValueError):
-            validate_enums.validate_valid_member(
+            validate_enums.ensure_valid_member(
                 member="Nope",
                 valid_enums=Corners,
                 param_name="loc",
             )
         with self.assertRaises(TypeError):
-            validate_enums.validate_valid_member(
+            validate_enums.ensure_valid_member(
                 member=123, # type: ignore
                 valid_enums=Corners,
                 param_name="loc",
@@ -242,12 +242,12 @@ class TestEnsureMemberIn(unittest.TestCase):
         self,
     ):
         valid = (Corners.TopLeft, Corners.TopRight)
-        validate_enums.validate_member_in(
+        validate_enums.ensure_member_in(
             member=Corners.TopLeft,
             valid_members=valid,
             param_name="corner",
         )
-        validate_enums.validate_member_in(
+        validate_enums.ensure_member_in(
             member="TopRight",
             valid_members=valid,
             param_name="corner",
@@ -258,7 +258,7 @@ class TestEnsureMemberIn(unittest.TestCase):
     ):
         valid = (Corners.TopLeft, Corners.TopRight)
         with self.assertRaises(ValueError):
-            validate_enums.validate_member_in(
+            validate_enums.ensure_member_in(
                 member="BottomLeft",
                 valid_members=valid,
                 param_name="corner",
@@ -268,19 +268,19 @@ class TestEnsureMemberIn(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            validate_enums.validate_member_in(
+            validate_enums.ensure_member_in(
                 member="TopLeft",
                 valid_members=(),
                 param_name="corner",
             )
         with self.assertRaises(TypeError):
-            validate_enums.validate_member_in(
+            validate_enums.ensure_member_in(
                 member="TopLeft",
                 valid_members=[Corners], # type: ignore
                 param_name="corner",
             )
         with self.assertRaises(TypeError):
-            validate_enums.validate_member_in(
+            validate_enums.ensure_member_in(
                 member="TopLeft",
                 valid_members=["TopLeft"], # type: ignore
                 param_name="corner",

@@ -18,24 +18,24 @@ from jormi.ww_validation import validate_python_types
 ##
 
 
-def _validate_args(
+def _ensure_args(
     *,
     sarray_3d: NDArray[Any],
     cell_width: float,
     grad_axis: int,
     sarray_name: str,
 ) -> None:
-    _fdata_types.validate_3d_sarray(
+    _fdata_types.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name=sarray_name,
     )
-    validate_python_types.validate_finite_float(
+    validate_python_types.ensure_finite_float(
         param=cell_width,
         param_name="<cell_width>",
         allow_none=False,
         require_positive=True,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=grad_axis,
         param_name="<grad_axis>",
         allow_none=False,
@@ -54,7 +54,7 @@ def _validate_args(
 def get_grad_fn(
     grad_order: int,
 ):
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -77,7 +77,7 @@ def second_order_centered_difference(
     grad_axis: int,
 ) -> NDArray[Any]:
     """Second-order centered finite difference on a 3D scalar array."""
-    _validate_args(
+    _ensure_args(
         sarray_3d=sarray_3d,
         cell_width=cell_width,
         grad_axis=grad_axis,
@@ -105,7 +105,7 @@ def fourth_order_centered_difference(
     grad_axis: int,
 ) -> NDArray[Any]:
     """Fourth-order centered finite difference on a 3D scalar array."""
-    _validate_args(
+    _ensure_args(
         sarray_3d=sarray_3d,
         cell_width=cell_width,
         grad_axis=grad_axis,
@@ -143,7 +143,7 @@ def sixth_order_centered_difference(
     grad_axis: int,
 ) -> NDArray[Any]:
     """Sixth-order centered finite difference on a 3D scalar array."""
-    _validate_args(
+    _ensure_args(
         sarray_3d=sarray_3d,
         cell_width=cell_width,
         grad_axis=grad_axis,

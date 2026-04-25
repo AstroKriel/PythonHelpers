@@ -100,19 +100,19 @@ class UniformDomain_3D(_domain_types.UniformDomain):
 ##
 
 
-def validate_3d_udomain(
+def ensure_3d_udomain(
     udomain_3d: UniformDomain_3D,
     *,
     param_name: str = "<udomain_3d>",
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=udomain_3d,
         param_name=param_name,
         valid_types=UniformDomain_3D,
     )
 
 
-def validate_3d_periodic_udomain(
+def ensure_3d_periodic_udomain(
     udomain_3d: UniformDomain_3D,
     *,
     param_name: str = "<udomain_3d>",
@@ -123,7 +123,7 @@ def validate_3d_periodic_udomain(
     Intended for FFT-based operations (e.g. Helmholtz decomposition) that assume
     fully periodic boundary conditions.
     """
-    validate_3d_udomain(
+    ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name=param_name,
     )

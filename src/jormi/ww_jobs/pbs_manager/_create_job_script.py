@@ -16,7 +16,7 @@ from jormi.ww_validation import validate_python_types
 ##
 
 
-def _validate_inputs(
+def _ensure_inputs(
     *,
     directory: str | Path,
     file_name: str,
@@ -35,16 +35,16 @@ def _validate_inputs(
     email_on_finish: bool,
     verbose: bool,
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=directory,
         valid_types=(str, Path),
         param_name="directory",
     )
-    validate_python_types.validate_nonempty_string(
+    validate_python_types.ensure_nonempty_string(
         param=file_name,
         param_name="file_name",
     )
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=directives,
         valid_types=(list,),
         param_name="directives",
@@ -54,38 +54,38 @@ def _validate_inputs(
         if len(directives) == 0:
             raise ValueError("`directives` must contain at least one PBS header line.")
         for directive in directives:
-            validate_python_types.validate_nonempty_string(
+            validate_python_types.ensure_nonempty_string(
                 param=directive,
                 param_name="directives[]",
             )
-    validate_python_types.validate_nonempty_string(
+    validate_python_types.ensure_nonempty_string(
         param=main_command,
         param_name="main_command",
     )
-    validate_python_types.validate_nonempty_string(
+    validate_python_types.ensure_nonempty_string(
         param=tag_name,
         param_name="tag_name",
     )
-    validate_python_types.validate_string(
+    validate_python_types.ensure_string(
         param=queue_name,
         param_name="queue_name",
         allow_none=True,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=num_procs,
         param_name="num_procs",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=memory_gb,
         param_name="memory_gb",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=wall_time_hours,
         param_name="wall_time_hours",
         allow_none=True,
@@ -105,40 +105,40 @@ def _validate_inputs(
             raise ValueError(
                 "`wall_time_hours` is required when `directives` are not provided."
             )
-    validate_python_types.validate_string(
+    validate_python_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
         allow_none=True,
     )
-    validate_python_types.validate_string(
+    validate_python_types.ensure_string(
         param=post_command,
         param_name="post_command",
         allow_none=True,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=always_run_post,
         param_name="always_run_post",
     )
-    validate_python_types.validate_string(
+    validate_python_types.ensure_string(
         param=email_address,
         param_name="email_address",
         allow_none=True,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=email_on_start,
         param_name="email_on_start",
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=email_on_finish,
         param_name="email_on_finish",
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
     )
 
 
-def _validate_path_is_valid(
+def _ensure_path_is_valid(
     *,
     file_path: Path,
 ) -> Path:
@@ -302,7 +302,7 @@ def create_pbs_job_script(
     - `verbose`:
         When `True`, prints a summary of job parameters after writing the script.
     """
-    _validate_inputs(
+    _ensure_inputs(
         directory=directory,
         file_name=file_name,
         directives=directives,
@@ -326,7 +326,7 @@ def create_pbs_job_script(
     if email_on_finish:
         mail_options += "e"
     file_path = Path(directory) / file_name
-    file_path = _validate_path_is_valid(file_path=file_path)
+    file_path = _ensure_path_is_valid(file_path=file_path)
     file_lines = _build_pbs_script(
         directives=directives,
         tag_name=tag_name,

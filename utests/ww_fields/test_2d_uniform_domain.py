@@ -263,7 +263,7 @@ class TestSliced3D(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_validate_2d_udomain_accepts_subtype(
+    def test_ensure_2d_udomain_accepts_subtype(
         self,
     ):
         udomain_2d = domain_types.UniformDomain_2D_Sliced3D.from_slice(
@@ -274,9 +274,9 @@ class TestEnsureHelpers(unittest.TestCase):
             slice_index=0,
             slice_position=0.0,
         )
-        domain_types.validate_2d_udomain(udomain_2d=udomain_2d)
+        domain_types.ensure_2d_udomain(udomain_2d=udomain_2d)
 
-    def test_validate_2d_udomain_sliced_from_3d_rejects_plain_2d(
+    def test_ensure_2d_udomain_sliced_from_3d_rejects_plain_2d(
         self,
     ):
         udomain_2d = domain_types.UniformDomain_2D(
@@ -285,7 +285,7 @@ class TestEnsureHelpers(unittest.TestCase):
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(TypeError):
-            domain_types.validate_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
+            domain_types.ensure_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
 
 
 ##

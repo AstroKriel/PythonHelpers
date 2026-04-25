@@ -17,7 +17,7 @@ import numpy
 ## import directly from the module file (not via the package __init__) to avoid a static import cycle
 from jormi.ww_plots.color_palettes._base_palette import (
     ColorPalette,
-    validate_palette_range,
+    ensure_palette_range,
     resolve_palette,
     subset_palette,
 )
@@ -42,7 +42,7 @@ class DiscretePalette(ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        validate_python_types.validate_tuple_of_numbers(
+        validate_python_types.ensure_tuple_of_numbers(
             param=self.bin_edges,
             param_name="bin_edges",
         )
@@ -55,7 +55,7 @@ class DiscretePalette(ColorPalette):
                     f" got bin_edges[{boundary_idx}]={self.bin_edges[boundary_idx]}"
                     f" >= bin_edges[{boundary_idx + 1}]={self.bin_edges[boundary_idx + 1]}.",
                 )
-        validate_palette_range(self.palette_range)
+        ensure_palette_range(self.palette_range)
 
     @classmethod
     def from_name(

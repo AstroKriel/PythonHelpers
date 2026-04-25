@@ -44,23 +44,23 @@ class Field:
     def __post_init__(
         self,
     ) -> None:
-        self._validate_fdata()
-        self._validate_udomain()
-        self._validate_label()
-        self._validate_sim_time()
+        self._ensure_fdata()
+        self._ensure_udomain()
+        self._ensure_label()
+        self._ensure_sim_time()
 
-    def _validate_fdata(
+    def _ensure_fdata(
         self,
     ) -> None:
-        _fdata_types.validate_fdata(
+        _fdata_types.ensure_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
 
-    def _validate_udomain(
+    def _ensure_udomain(
         self,
     ) -> None:
-        _domain_types.validate_udomain(
+        _domain_types.ensure_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -71,10 +71,10 @@ class Field:
                 f" resolution={self.udomain.resolution}.",
             )
 
-    def _validate_label(
+    def _ensure_label(
         self,
     ) -> None:
-        validate_python_types.validate_nonempty_string(
+        validate_python_types.ensure_nonempty_string(
             param=self.field_label,
             param_name="<field_label>",
         )
@@ -84,10 +84,10 @@ class Field:
                 "provide the raw LaTeX math content without math-mode delimiters.",
             )
 
-    def _validate_sim_time(
+    def _ensure_sim_time(
         self,
     ) -> None:
-        validate_python_types.validate_finite_float(
+        validate_python_types.ensure_finite_float(
             param=self.sim_time,
             param_name="<sim_time>",
             allow_none=True,
@@ -148,19 +148,19 @@ class Field:
 ##
 
 
-def _validate_field(
+def _ensure_field(
     field: Field,
     *,
     param_name: str = "<field>",
 ) -> None:
-    validate_python_types.validate_type(
+    validate_python_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=Field,
     )
 
 
-def validate_field_metadata(
+def ensure_field_metadata(
     field: Field,
     *,
     num_comps: int | None = None,
@@ -174,11 +174,11 @@ def validate_field_metadata(
     Any of `num_comps`, `num_sdims`, or `num_ranks` can be left as `None`
     to skip that check.
     """
-    _validate_field(
+    _ensure_field(
         field=field,
         param_name=param_name,
     )
-    _fdata_types.validate_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,
@@ -187,7 +187,7 @@ def validate_field_metadata(
     )
 
 
-def validate_udomain_matches_field(
+def ensure_udomain_matches_field(
     *,
     field: Field,
     udomain: _domain_types.UniformDomain,
@@ -195,11 +195,11 @@ def validate_udomain_matches_field(
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    _domain_types.validate_udomain(
+    _domain_types.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
     )
-    _validate_field(
+    _ensure_field(
         field=field,
         param_name=field_name,
     )
@@ -214,7 +214,7 @@ def validate_udomain_matches_field(
         )
 
 
-def validate_same_field_shape(
+def ensure_same_field_shape(
     *,
     field_a: Field,
     field_b: Field,
@@ -227,15 +227,15 @@ def validate_same_field_shape(
     This checks that `field_a.fdata.farray` and `field_b.fdata.farray` have
     the same shape.
     """
-    _validate_field(
+    _ensure_field(
         field=field_a,
         param_name=field_name_a,
     )
-    _validate_field(
+    _ensure_field(
         field=field_b,
         param_name=field_name_b,
     )
-    validate_arrays.validate_same_shape(
+    validate_arrays.ensure_same_shape(
         array_a=field_a.fdata.farray,
         array_b=field_b.fdata.farray,
         param_name_a=f"{field_name_a}.fdata.farray",

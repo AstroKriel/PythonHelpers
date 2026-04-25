@@ -32,12 +32,12 @@ def compute_magnetic_energy_density_sfield(
     field_label: str = "E_mag",
 ) -> field_types.ScalarField_3D:
     """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
-    validate_python_types.validate_finite_float(
+    validate_python_types.ensure_finite_float(
         param=energy_prefactor,
         param_name="<energy_prefactor>",
         allow_none=False,
     )
-    field_types.validate_3d_vfield(
+    field_types.ensure_3d_vfield(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
@@ -93,7 +93,7 @@ def _compute_kinetic_dissipation_varray(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    _fdata_types.validate_3d_varray(
+    _fdata_types.ensure_3d_varray(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
@@ -124,7 +124,7 @@ def _compute_kinetic_dissipation_varray(
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
     nabla = _difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_df = _fdata_types.validate_farray_metadata(
+    varray_3d_df = _fdata_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=dtype,
@@ -166,11 +166,11 @@ def compute_kinetic_dissipation_vfield(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    field_types.validate_3d_vfield(
+    field_types.ensure_3d_vfield(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -206,11 +206,11 @@ def compute_curvature_sfield(
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:
     """Compute field line curvature magnitude sqrt(kappa_i kappa_i) from a 3D vector field."""
-    field_types.validate_3d_vfield(
+    field_types.ensure_3d_vfield(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

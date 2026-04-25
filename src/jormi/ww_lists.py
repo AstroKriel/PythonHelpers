@@ -24,12 +24,12 @@ def sample_list(
     max_elems: int,
 ) -> list[Any]:
     """Return at most `max_elems` samples from `elems`, spread across the list."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=max_elems,
         param_name="max_elems",
         allow_none=False,
@@ -51,7 +51,7 @@ def filter_out_nones(
     elems: list[Any],
 ) -> list[Any]:
     """Return a copy of `elems` with all `None` entries removed."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
@@ -65,13 +65,13 @@ def get_index_of_closest_value(
     target: float,
 ) -> int:
     """Find the index of the closest value to a `target` value in a list."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=values,
         param_name="values",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
         valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
     )
-    validate_python_types.validate_numeric(
+    validate_python_types.ensure_numeric(
         param=target,
         param_name="target",
         allow_none=False,
@@ -106,13 +106,13 @@ def get_index_of_first_crossing(
         "falling" -> only crossings where value decreases through target
         None      -> either direction
     """
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=values,
         param_name="values",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
         valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
     )
-    validate_python_types.validate_numeric(
+    validate_python_types.ensure_numeric(
         param=target,
         param_name="target",
         allow_none=False,
@@ -160,17 +160,17 @@ def as_string(
     conjunction: str = "",
 ) -> str:
     """Convert a (possibly nested) list into a human-readable, comma-separated string."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_string(
+    validate_python_types.ensure_string(
         param=conjunction,
         param_name="conjunction",
         allow_none=False,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=wrap_in_quotes,
         param_name="wrap_in_quotes",
         allow_none=False,
@@ -205,18 +205,18 @@ def get_preview_string(
     wrap_in_quotes: bool = False,
 ) -> str:
     """Return a short preview string of the first few elements."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_finite_int(
+    validate_python_types.ensure_finite_int(
         param=preview_length,
         param_name="preview_length",
         allow_none=False,
         require_positive=True,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=wrap_in_quotes,
         param_name="wrap_in_quotes",
         allow_none=False,
@@ -238,17 +238,17 @@ def get_intersect_of_lists(
     sort_values: bool = False,
 ) -> list[Any]:
     """Find the intersection of two lists (optionally sorted)."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=list_a,
         param_name="list_a",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=list_b,
         param_name="list_b",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=sort_values,
         param_name="sort_values",
         allow_none=False,
@@ -268,17 +268,17 @@ def get_union_of_lists(
     sort_values: bool = False,
 ) -> list[Any]:
     """Find the union of two lists (optionally sorted)."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=list_a,
         param_name="list_a",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=list_b,
         param_name="list_b",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
     )
-    validate_python_types.validate_bool(
+    validate_python_types.ensure_bool(
         param=sort_values,
         param_name="sort_values",
         allow_none=False,
@@ -295,7 +295,7 @@ def flatten_list(
     elems: list[Any],
 ) -> list[Any]:
     """Flatten a nested list into a single list."""
-    validate_python_types.validate_sequence(
+    validate_python_types.ensure_sequence(
         param=elems,
         param_name="elems",
         valid_seq_types=validate_python_types.RuntimeTypes.Sequences.ListLike,
