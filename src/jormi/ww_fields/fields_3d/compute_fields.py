@@ -11,6 +11,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields.fields_3d import (
+    _decompose_farrays,
     _difference_sarrays,
     _farray_operators,
     _fdata_types,
@@ -190,6 +191,46 @@ def compute_kinetic_dissipation_vfield(
         varray_3d=varray_3d_df,
         udomain_3d=udomain_3d,
         field_label=r"d_j \mathcal{S}_{j i}",
+        sim_time=sim_time,
+    )
+
+
+##
+## === MAGNETIC FIELD LINE CURVATURE
+##
+
+
+def compute_curvature_sfield(
+    vfield_3d: field_types.VectorField_3D,
+    *,
+    grad_order: int = 2,
+) -> field_types.ScalarField_3D:
+    """Compute field line curvature magnitude sqrt(kappa_i kappa_i) from a 3D vector field."""
+    field_types.ensure_3d_vfield(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
+    check_types.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    varray_3d = field_types.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
+    udomain_3d = vfield_3d.udomain
+    sim_time = vfield_3d.sim_time
+    sarray_3d_kappa = _decompose_farrays.compute_curvature_sarray(
+        varray_3d=varray_3d,
+        cell_widths_3d=udomain_3d.cell_widths,
+        grad_order=grad_order,
+    )
+    return field_types.ScalarField_3D.from_3d_sarray(
+        sarray_3d=sarray_3d_kappa,
+        udomain_3d=udomain_3d,
+        field_label="sqrt(kappa_i kappa_i)",
         sim_time=sim_time,
     )
 
