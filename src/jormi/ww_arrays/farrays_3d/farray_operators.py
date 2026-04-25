@@ -5,8 +5,9 @@
 ##
 
 ## third-party
-import numpy
 from typing import Any
+
+import numpy
 from numpy.typing import NDArray
 
 ## local
@@ -75,8 +76,8 @@ def compute_sarray_rms(
 
 
 def compute_sarray_volume_integral(
-    *,
     sarray_3d: NDArray[Any],
+    *,
     cell_volume: float,
 ) -> float:
     """Compute the volume integral of a 3D scalar array."""
@@ -95,8 +96,8 @@ def compute_sarray_volume_integral(
 
 
 def compute_sarray_grad(
-    *,
     sarray_3d: NDArray[Any],
+    *,
     cell_widths_3d: tuple[float, float, float],
     varray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -146,8 +147,8 @@ def compute_sarray_grad(
 
 
 def scale_sarray_inplace(
-    *,
     sarray_3d: NDArray[Any],
+    *,
     scale: float,
 ) -> None:
     """Scale a 3D scalar array in-place by a scalar factor."""
@@ -206,7 +207,9 @@ def sum_of_varray_comps_squared(
     numpy.multiply(varray_3d[1], varray_3d[1], out=sarray_3d_tmp)  # tmp = v_y^2
     numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out = v_x^2 + v_y^2
     numpy.multiply(varray_3d[2], varray_3d[2], out=sarray_3d_tmp)  # tmp = v_z^2
-    numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out = v_x^2 + v_y^2 + v_z^2
+    numpy.add(
+        sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out
+    )  # out = v_x^2 + v_y^2 + v_z^2
     return sarray_3d_out
 
 
@@ -259,8 +262,8 @@ def dot_over_varray_comps(
 
 def compute_varray_directional_derivative(
     *,
-    varray_3d_direction: NDArray[Any],
     varray_3d_target: NDArray[Any],
+    varray_3d_along: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     out_varray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -271,18 +274,18 @@ def compute_varray_directional_derivative(
     All vector arrays have shape `(3, num_x0_cells, num_x1_cells, num_x2_cells)`.
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_direction,
-        param_name="<varray_3d_direction>",
-    )
-    farray_types.ensure_3d_varray(
         varray_3d=varray_3d_target,
         param_name="<varray_3d_target>",
     )
+    farray_types.ensure_3d_varray(
+        varray_3d=varray_3d_along,
+        param_name="<varray_3d_along>",
+    )
     validate_arrays.ensure_same_shape(
-        array_a=varray_3d_direction,
         array_b=varray_3d_target,
-        param_name_a="<varray_3d_direction>",
+        array_a=varray_3d_along,
         param_name_b="<varray_3d_target>",
+        param_name_a="<varray_3d_along>",
     )
     ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
@@ -292,10 +295,10 @@ def compute_varray_directional_derivative(
         require_positive=True,
     )
     nabla = difference_sarrays.get_grad_fn(grad_order)
-    domain_shape = varray_3d_direction.shape[1:]
+    domain_shape = varray_3d_along.shape[1:]
     dtype = numpy.result_type(
-        varray_3d_direction.dtype,
         varray_3d_target.dtype,
+        varray_3d_along.dtype,
         numpy.float64,
     )
     out_varray_3d = farray_types.ensure_farray_metadata(
@@ -306,7 +309,7 @@ def compute_varray_directional_derivative(
     out_varray_3d.fill(0.0)
     ## accumulate the directional contraction directly so we never materialise the full d_i target_j tensor
     for grad_axis, cell_width in enumerate(cell_widths_3d):
-        sarray_3d_direction_comp = varray_3d_direction[grad_axis]
+        sarray_3d_direction_comp = varray_3d_along[grad_axis]
         for comp_index in range(3):
             sarray_3d_grad_comp = nabla(
                 sarray_3d=varray_3d_target[comp_index],
@@ -318,8 +321,8 @@ def compute_varray_directional_derivative(
 
 
 def compute_varray_grad(
-    *,
     varray_3d: NDArray[Any],
+    *,
     cell_widths_3d: tuple[float, float, float],
     r2tarray_3d_gradf: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -427,8 +430,8 @@ def compute_varray_cross_product(
 
 
 def compute_varray_curl(
-    *,
     varray_3d: NDArray[Any],
+    *,
     cell_widths_3d: tuple[float, float, float],
     varray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -502,8 +505,8 @@ def compute_varray_curl(
 
 
 def compute_varray_divergence(
-    *,
     varray_3d: NDArray[Any],
+    *,
     cell_widths_3d: tuple[float, float, float],
     sarray_3d_out: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -560,8 +563,8 @@ def compute_varray_divergence(
 
 
 def compute_varray_magnitude(
-    *,
     varray_3d: NDArray[Any],
+    *,
     sarray_3d_out: NDArray[Any] | None = None,
     sarray_3d_tmp: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
@@ -589,8 +592,8 @@ def compute_varray_magnitude(
 
 
 def compute_varray_kinetic_dissipation(
-    *,
     varray_3d_u: NDArray[Any],
+    *,
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> NDArray[Any]:

@@ -437,7 +437,7 @@ def compute_lorentz_force_decomposed_fields(
         sim_time=sim_time,
     )
     vfield_3d_gradP_perp = field_types.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.varray_3d_gradP_perp,
+        varray_3d=lf_3d_farrays.varray_3d_grad_p_perp,
         udomain_3d=udomain_3d,
         field_label=r"[d_i (b_k b_k / 2)]_\perp",
         sim_time=sim_time,

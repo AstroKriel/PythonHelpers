@@ -8,10 +8,14 @@
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
     domain_types as _2d_domain_type,
+)
+from jormi.ww_fields.fields_2d import (
     field_types as _2d_field_type,
 )
 from jormi.ww_fields.fields_3d import (
     domain_types as _3d_domain_type,
+)
+from jormi.ww_fields.fields_3d import (
     field_types as _3d_field_type,
 )
 from jormi.ww_validation import validate_types
@@ -22,8 +26,8 @@ from jormi.ww_validation import validate_types
 
 
 def _slice_3d_udomain(
-    *,
     udomain_3d: _3d_domain_type.UniformDomain_3D,
+    *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     param_name: str = "<udomain_3d>",
@@ -42,8 +46,7 @@ def _slice_3d_udomain(
     )
     if slice_index < 0:
         raise ValueError(
-            f"`{param_name}.slice_index` must be non-negative:"
-            f" got {slice_index}",
+            f"`{param_name}.slice_index` must be non-negative: got {slice_index}",
         )
     periodicity_3d = udomain_3d.periodicity
     resolution_3d = udomain_3d.resolution
@@ -53,7 +56,11 @@ def _slice_3d_udomain(
             f"`{param_name}.slice_index` = {slice_index} must be smaller than"
             f" resolution[{out_of_plane_axis_index}] = {resolution_3d[out_of_plane_axis_index]}.",
         )
-    in_plane_axes = [axis for axis in cartesian_axes.DEFAULT_3D_AXES_ORDER if axis is not out_of_plane_axis]
+    in_plane_axes = [
+        axis
+        for axis in cartesian_axes.DEFAULT_3D_AXES_ORDER
+        if axis is not out_of_plane_axis
+    ]
     x0_in_plane_axis, x1_in_plane_axis = in_plane_axes
     x0_in_plane_axis_index = x0_in_plane_axis.axis_index
     x1_in_plane_axis_index = x1_in_plane_axis.axis_index
@@ -88,8 +95,8 @@ def _slice_3d_udomain(
 
 
 def slice_3d_sfield(
-    *,
     sfield_3d: _3d_field_type.ScalarField_3D,
+    *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
@@ -138,8 +145,8 @@ def slice_3d_sfield(
 
 
 def slice_3d_vfield_inplane(
-    *,
     vfield_3d: _3d_field_type.VectorField_3D,
+    *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
@@ -185,8 +192,8 @@ def slice_3d_vfield_inplane(
 
 
 def slice_3d_vfield_outofplane(
-    *,
     vfield_3d: _3d_field_type.VectorField_3D,
+    *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,

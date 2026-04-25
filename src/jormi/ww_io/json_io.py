@@ -7,7 +7,6 @@
 ## stdlib
 import copy
 import json
-
 from pathlib import Path
 from typing import Any
 
@@ -40,8 +39,8 @@ def _ensure_path_is_valid(
 
 
 def read_json_file_into_dict(
-    *,
     file_path: str | Path,
+    *,
     verbose: bool = True,
 ) -> dict[str, Any]:
     validate_types.ensure_bool(
@@ -130,7 +129,11 @@ def save_dict_to_json_file(
         )
         if verbose:
             mode = "overwrite" if file_exists and overwrite else "create"
-            message = ("Overwrote existing json-file." if mode == "overwrite" else "Saved new json-file.")
+            message = (
+                "Overwrote existing json-file."
+                if mode == "overwrite"
+                else "Saved new json-file."
+            )
             manage_log.log_action(
                 title="Save JSON file",
                 outcome=manage_log.ActionOutcome.SUCCESS,

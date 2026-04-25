@@ -7,7 +7,6 @@
 ## stdlib
 import shlex
 import subprocess
-
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,8 +57,8 @@ class CommandOutcome:
 
 
 def execute_shell_command(
-    *,
     command: str,
+    *,
     working_directory: str | Path | None = None,
     timeout_seconds: float = 60,
     use_shell: bool = False,
@@ -87,7 +86,9 @@ def execute_shell_command(
     - `raise_on_error`:
         Raise `RuntimeError` on non-zero exit code when `True`.
     """
-    resolved_directory = Path(working_directory) if working_directory is not None else None
+    resolved_directory = (
+        Path(working_directory) if working_directory is not None else None
+    )
     try:
         completed = subprocess.run(
             command if use_shell else shlex.split(command),
@@ -101,7 +102,9 @@ def execute_shell_command(
     except FileNotFoundError as error:
         raise RuntimeError(f"command not found: {command}.") from error
     except subprocess.TimeoutExpired as error:
-        raise RuntimeError(f"command timed out after {timeout_seconds}s: {command}.") from error
+        raise RuntimeError(
+            f"command timed out after {timeout_seconds}s: {command}."
+        ) from error
     command_outcome = CommandOutcome(
         command=command,
         working_directory=resolved_directory,

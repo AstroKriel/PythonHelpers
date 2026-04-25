@@ -347,8 +347,8 @@ def compute_curvature_sarray(
     )
     ## term1_j = f_i * (d_i f_j) = ((f . grad) f)_j
     varray_3d_normal_term1 = farray_operators.compute_varray_directional_derivative(
-        varray_3d_direction=varray_3d,
         varray_3d_target=varray_3d,
+        varray_3d_along=varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )

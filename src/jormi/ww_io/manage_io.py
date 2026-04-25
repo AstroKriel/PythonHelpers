@@ -17,8 +17,8 @@ from jormi.ww_io import manage_log
 
 
 def create_directory(
-    *,
     directory: str | Path,
+    *,
     verbose: bool = True,
 ) -> None:
     directory = Path(directory).resolve(strict=False)
@@ -187,8 +187,8 @@ def delete_file(
 
 
 def filter_directory(
-    *,
     directory: str | Path,
+    *,
     req_include_words: str | list[str] | None = None,
     req_exclude_words: str | list[str] | None = None,
     prefix: str | None = None,

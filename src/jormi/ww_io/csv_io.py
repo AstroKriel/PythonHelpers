@@ -6,9 +6,8 @@
 
 ## stdlib
 import csv
-from typing import Any
-
 from pathlib import Path
+from typing import Any
 
 ## local
 from jormi.ww_io import manage_log
@@ -51,10 +50,10 @@ def _ensure_input_dict(
 
 
 def read_csv_file_into_dict(
-    *,
     file_path: str | Path,
-    verbose: bool = True,
+    *,
     delimiter: str = ",",
+    verbose: bool = True,
 ) -> dict[str, list[float]]:
     validate_types.ensure_bool(
         param=verbose,

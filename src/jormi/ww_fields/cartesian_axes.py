@@ -106,8 +106,8 @@ DEFAULT_3D_AXES_ORDER: AxisTuple_3D = (
 
 
 def as_axis(
-    *,
     axis: AxisLike_3D,
+    *,
     param_name: str = "<axis>",
 ) -> CartesianAxis_3D:
     """

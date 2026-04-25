@@ -11,15 +11,16 @@ from typing import Any, Self
 ## third-party
 from numpy.typing import NDArray
 
+from jormi.ww_arrays.farrays_3d import farray_operators
+
 ## local
 from jormi.ww_fields import (
     _field_types,
     cartesian_axes,
 )
-from jormi.ww_arrays.farrays_3d import farray_operators
 from jormi.ww_fields.fields_3d import (
-    fdata_types,
     domain_types,
+    fdata_types,
 )
 from jormi.ww_validation import validate_types
 
@@ -147,6 +148,7 @@ class VectorField_3D(_field_types.Field):
 
     def get_vcomp_3d_sarray(
         self,
+        *,
         comp_axis: cartesian_axes.AxisLike_3D,
     ) -> NDArray[Any]:
         """Return a (num_x0_cells, num_x1_cells, num_x2_cells) view of the requested component."""
@@ -201,8 +203,8 @@ class UnitVectorField_3D(VectorField_3D):
 
 
 def as_3d_uvfield(
-    *,
     vfield_3d: VectorField_3D,
+    *,
     tol: float = 1e-6,
 ) -> UnitVectorField_3D:
     """Zero-copy rewrap of a 3D VectorField_3D into a UnitVectorField_3D with validation."""
@@ -218,8 +220,8 @@ def as_3d_uvfield(
 
 
 def ensure_3d_sfield(
-    *,
     sfield_3d: ScalarField_3D,
+    *,
     param_name: str = "<sfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -230,8 +232,8 @@ def ensure_3d_sfield(
 
 
 def ensure_3d_vfield(
-    *,
     vfield_3d: VectorField_3D,
+    *,
     param_name: str = "<vfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -242,8 +244,8 @@ def ensure_3d_vfield(
 
 
 def ensure_3d_uvfield(
-    *,
     uvfield_3d: UnitVectorField_3D,
+    *,
     param_name: str = "<uvfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -371,8 +373,8 @@ def ensure_same_3d_field_shape_and_udomains(
 
 
 def extract_3d_sarray(
-    *,
     sfield_3d: ScalarField_3D,
+    *,
     param_name: str = "<sfield_3d>",
 ) -> NDArray[Any]:
     """Validate and extract the underlying (num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D scalar field."""
@@ -387,8 +389,8 @@ def extract_3d_sarray(
 
 
 def extract_3d_varray(
-    *,
     vfield_3d: VectorField_3D,
+    *,
     param_name: str = "<vfield_3d>",
 ) -> NDArray[Any]:
     """Validate and extract the underlying (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D vector field."""
@@ -408,8 +410,8 @@ def extract_3d_varray(
 
 
 def get_label(
-    *,
     field: _field_types.Field,
+    *,
     param_name: str = "<field>",
 ) -> str:
     """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
@@ -422,8 +424,8 @@ def get_label(
 
 
 def get_vcomp_label(
-    *,
     vfield_3d: VectorField_3D,
+    *,
     comp_axis: cartesian_axes.AxisLike_3D,
     param_name: str = "<vfield_3d>",
 ) -> str:

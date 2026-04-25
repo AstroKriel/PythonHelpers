@@ -25,8 +25,8 @@ from jormi.ww_validation import validate_arrays, validate_types
 
 
 def check_no_zero_values(
-    *,
     array: NDArray[Any],
+    *,
     param_name: str = "<array>",
     raise_error: bool = True,
 ) -> bool:
@@ -51,8 +51,8 @@ def check_no_zero_values(
 
 
 def check_no_nonfinite_values(
-    *,
     array: NDArray[Any],
+    *,
     param_name: str = "<array>",
     check_nan: bool = True,
     check_posinf: bool = True,
@@ -93,8 +93,8 @@ def check_no_nonfinite_values(
 
 
 def make_nonfinites_zero(
-    *,
     array: NDArray[Any],
+    *,
     zero_nan: bool = True,
     zero_posinf: bool = True,
     zero_neginf: bool = True,
@@ -834,9 +834,9 @@ def estimate_jpdf(
             allow_zero=True,
         )
         estimated_jpdf = smooth_2d_arrays.smooth_2d_array(
-            data=estimated_jpdf,
+            estimated_jpdf,
             sigma=smoothing_length,
-        )  # already uses keyword args
+        )
         total = float(
             numpy.sum(
                 estimated_jpdf * bin_areas,
