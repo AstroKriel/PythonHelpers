@@ -24,7 +24,7 @@ from jormi.ww_validation import validate_arrays, validate_python_types
 ##
 
 
-def check_zero_values(
+def validate_zero_values(
     *,
     array: NDArray[Any],
     param_name: str = "<array>",
@@ -50,7 +50,7 @@ def check_zero_values(
     return True
 
 
-def check_nonfinite_values(
+def validate_nonfinite_values(
     *,
     array: NDArray[Any],
     param_name: str = "<array>",
