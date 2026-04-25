@@ -82,10 +82,10 @@ class HalfMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: box_positions.TypeHints.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
-        BoxSide = box_positions.TypeHints.Box.Side
+        BoxSide = box_positions.Positions.Box.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -115,10 +115,10 @@ class QuadrantMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: box_positions.TypeHints.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_corner = box_positions.as_box_corner(anchor)
-        BoxCorner = box_positions.TypeHints.Box.Corner
+        BoxCorner = box_positions.Positions.Box.Corner
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -197,10 +197,10 @@ class WedgeMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: box_positions.TypeHints.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
-        BoxSide = box_positions.TypeHints.Box.Side
+        BoxSide = box_positions.Positions.Box.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,

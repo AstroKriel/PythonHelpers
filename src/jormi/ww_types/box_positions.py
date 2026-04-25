@@ -16,12 +16,12 @@ from jormi.ww_types import check_enums
 ##
 
 
-class Center(str, Enum):
+class _Center(str, Enum):
 
     Center = "center"
 
 
-class QuadrantCorner(str, Enum):
+class _QuadrantCorner(str, Enum):
     """Corner placements using mpl-loc strings."""
 
     TopLeft = "upper left"
@@ -30,7 +30,7 @@ class QuadrantCorner(str, Enum):
     BottomRight = "lower right"
 
 
-class QuadrantEdge(str, Enum):
+class _QuadrantEdge(str, Enum):
     """Edge-center placements using mpl-loc strings."""
 
     Top = "upper center"
@@ -39,7 +39,7 @@ class QuadrantEdge(str, Enum):
     Bottom = "lower center"
 
 
-class Side(str, Enum):
+class _Side(str, Enum):
 
     Top = "top"
     Left = "left"
@@ -49,45 +49,45 @@ class Side(str, Enum):
 
 ##
 ## === TYPE HINTS + RUNTIME TYPES
-## TypeHints defines categories for annotations.
+## Positions groups enum classes for both type annotations and runtime member access.
 ## RuntimeTypes converts them into tuples for enum_checks validation.
 ##
 
 
-class TypeHints:
-    """Type-hint groupings for box position and Matplotlib placement parameters."""
+class Positions:
+    """Public namespace for box position enums — use for annotations and runtime member access."""
 
     PositionLike: TypeAlias = check_enums.EnumMemberLike
 
     class Box:
 
-        Center = Center
-        Corner = QuadrantCorner
-        Edge = QuadrantEdge
-        Side = Side
+        Center = _Center
+        Corner = _QuadrantCorner
+        Edge = _QuadrantEdge
+        Side = _Side
 
     class MPL:
         """Type-hint groupings for mpl-style parameters."""
 
-        AnchorLike = QuadrantCorner | QuadrantEdge | Center
-        AlignLike = Side | Center
+        AnchorLike = _QuadrantCorner | _QuadrantEdge | _Center
+        AlignLike = _Side | _Center
 
 
 class RuntimeTypes:
-    """Runtime enum tuples derived from TypeHints for isinstance-based position checks."""
+    """Runtime enum tuples derived from Positions for isinstance-based position checks."""
 
     class Box:
 
-        Center = check_enums.as_runtime_type(TypeHints.Box.Center)
-        Corner = check_enums.as_runtime_type(TypeHints.Box.Corner)
-        Edge = check_enums.as_runtime_type(TypeHints.Box.Edge)
-        Side = check_enums.as_runtime_type(TypeHints.Box.Side)
+        Center = check_enums.as_runtime_type(Positions.Box.Center)
+        Corner = check_enums.as_runtime_type(Positions.Box.Corner)
+        Edge = check_enums.as_runtime_type(Positions.Box.Edge)
+        Side = check_enums.as_runtime_type(Positions.Box.Side)
 
     class MPL:
         """Runtime enum tuples for mpl-style rules."""
 
-        AnchorLike = check_enums.as_runtime_type(TypeHints.MPL.AnchorLike)
-        AlignLike = check_enums.as_runtime_type(TypeHints.MPL.AlignLike)
+        AnchorLike = check_enums.as_runtime_type(Positions.MPL.AnchorLike)
+        AlignLike = check_enums.as_runtime_type(Positions.MPL.AlignLike)
 
 
 ##
@@ -96,7 +96,7 @@ class RuntimeTypes:
 
 
 def ensure_box_corner(
-    corner: TypeHints.PositionLike,
+    corner: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -108,7 +108,7 @@ def ensure_box_corner(
 
 
 def ensure_box_edge(
-    edge: TypeHints.PositionLike,
+    edge: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -120,7 +120,7 @@ def ensure_box_edge(
 
 
 def ensure_box_center(
-    center: TypeHints.PositionLike,
+    center: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -132,7 +132,7 @@ def ensure_box_center(
 
 
 def ensure_box_side(
-    side: TypeHints.PositionLike,
+    side: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -144,8 +144,8 @@ def ensure_box_side(
 
 
 def as_box_corner(
-    corner: TypeHints.PositionLike,
-) -> TypeHints.Box.Corner:
+    corner: Positions.PositionLike,
+) -> Positions.Box.Corner:
     ensure_box_corner(
         corner=corner,
         param_name="corner",
@@ -154,12 +154,12 @@ def as_box_corner(
         member=corner,
         valid_enums=RuntimeTypes.Box.Corner,
     )
-    return cast(TypeHints.Box.Corner, resolved_corner)
+    return cast(Positions.Box.Corner, resolved_corner)
 
 
 def as_box_edge(
-    edge: TypeHints.PositionLike,
-) -> TypeHints.Box.Edge:
+    edge: Positions.PositionLike,
+) -> Positions.Box.Edge:
     ensure_box_edge(
         edge=edge,
         param_name="edge",
@@ -168,12 +168,12 @@ def as_box_edge(
         member=edge,
         valid_enums=RuntimeTypes.Box.Edge,
     )
-    return cast(TypeHints.Box.Edge, resolved_edge)
+    return cast(Positions.Box.Edge, resolved_edge)
 
 
 def as_box_center(
-    center: TypeHints.PositionLike,
-) -> TypeHints.Box.Center:
+    center: Positions.PositionLike,
+) -> Positions.Box.Center:
     ensure_box_center(
         center=center,
         param_name="center",
@@ -182,12 +182,12 @@ def as_box_center(
         member=center,
         valid_enums=RuntimeTypes.Box.Center,
     )
-    return cast(TypeHints.Box.Center, resolved_center)
+    return cast(Positions.Box.Center, resolved_center)
 
 
 def as_box_side(
-    side: TypeHints.PositionLike,
-) -> TypeHints.Box.Side:
+    side: Positions.PositionLike,
+) -> Positions.Box.Side:
     ensure_box_side(
         side=side,
         param_name="side",
@@ -196,7 +196,7 @@ def as_box_side(
         member=side,
         valid_enums=RuntimeTypes.Box.Side,
     )
-    return cast(TypeHints.Box.Side, resolved_side)
+    return cast(Positions.Box.Side, resolved_side)
 
 
 ##
@@ -205,7 +205,7 @@ def as_box_side(
 
 
 def ensure_mpl_anchor(
-    position: TypeHints.PositionLike,
+    position: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -218,7 +218,7 @@ def ensure_mpl_anchor(
 
 
 def ensure_mpl_ha(
-    ha: TypeHints.PositionLike,
+    ha: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -226,16 +226,16 @@ def ensure_mpl_ha(
     check_enums.ensure_member_in(
         member=ha,
         valid_members=(
-            TypeHints.Box.Side.Left,
-            TypeHints.Box.Side.Right,
-            TypeHints.Box.Center.Center,
+            Positions.Box.Side.Left,
+            Positions.Box.Side.Right,
+            Positions.Box.Center.Center,
         ),
         param_name=param_name,
     )
 
 
 def ensure_mpl_va(
-    va: TypeHints.PositionLike,
+    va: Positions.PositionLike,
     *,
     param_name: str = "<param>",
 ) -> None:
@@ -243,17 +243,17 @@ def ensure_mpl_va(
     check_enums.ensure_member_in(
         member=va,
         valid_members=(
-            TypeHints.Box.Side.Top,
-            TypeHints.Box.Side.Bottom,
-            TypeHints.Box.Center.Center,
+            Positions.Box.Side.Top,
+            Positions.Box.Side.Bottom,
+            Positions.Box.Center.Center,
         ),
         param_name=param_name,
     )
 
 
 def as_mpl_anchor(
-    position: TypeHints.PositionLike,
-) -> TypeHints.MPL.AnchorLike:
+    position: Positions.PositionLike,
+) -> Positions.MPL.AnchorLike:
     """Resolve `position` to an anchor enum member for mpl-loc placement."""
     ensure_mpl_anchor(
         position=position,
@@ -263,12 +263,12 @@ def as_mpl_anchor(
         member=position,
         valid_enums=RuntimeTypes.MPL.AnchorLike,
     )
-    return cast(TypeHints.MPL.AnchorLike, resolved_position)
+    return cast(Positions.MPL.AnchorLike, resolved_position)
 
 
 def as_mpl_ha(
-    ha: TypeHints.PositionLike,
-) -> TypeHints.MPL.AlignLike:
+    ha: Positions.PositionLike,
+) -> Positions.MPL.AlignLike:
     """Resolve `ha` to an enum member valid for mpl-ha."""
     ensure_mpl_ha(
         ha=ha,
@@ -279,12 +279,12 @@ def as_mpl_ha(
         member=ha,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
-    return cast(TypeHints.MPL.AlignLike, resolved_ha)
+    return cast(Positions.MPL.AlignLike, resolved_ha)
 
 
 def as_mpl_va(
-    va: TypeHints.PositionLike,
-) -> TypeHints.MPL.AlignLike:
+    va: Positions.PositionLike,
+) -> Positions.MPL.AlignLike:
     """Resolve `va` to an enum member valid for mpl-va."""
     ensure_mpl_va(
         va=va,
@@ -295,7 +295,7 @@ def as_mpl_va(
         member=va,
         valid_enums=RuntimeTypes.MPL.AlignLike,
     )
-    return cast(TypeHints.MPL.AlignLike, resolved_va)
+    return cast(Positions.MPL.AlignLike, resolved_va)
 
 
 ## } MODULE
