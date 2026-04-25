@@ -104,9 +104,18 @@ class Tests(unittest.TestCase):
                 param=42,
                 valid_types=str,
             )
-        self.assertIn("<param>", str(cm.exception))
-        self.assertIn("str", str(cm.exception))
-        self.assertIn("int", str(cm.exception))
+        self.assertIn(
+            "<param>",
+            str(cm.exception),
+        )
+        self.assertIn(
+            "str",
+            str(cm.exception),
+        )
+        self.assertIn(
+            "int",
+            str(cm.exception),
+        )
 
     def test_variable_name_in_error_message_with_var_name(
         self,
@@ -119,9 +128,18 @@ class Tests(unittest.TestCase):
                 valid_types=str,
                 param_name="test_var",
             )
-        self.assertIn("test_var", str(cm.exception))
-        self.assertIn("str", str(cm.exception))
-        self.assertIn("int", str(cm.exception))
+        self.assertIn(
+            "test_var",
+            str(cm.exception),
+        )
+        self.assertIn(
+            "str",
+            str(cm.exception),
+        )
+        self.assertIn(
+            "int",
+            str(cm.exception),
+        )
 
 
 ##

@@ -109,7 +109,10 @@ class TestResolveMember(unittest.TestCase):
             member=Corners.TopLeft,
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
 
     def test_rejects_enum_member_from_wrong_enum(
         self,
@@ -127,17 +130,26 @@ class TestResolveMember(unittest.TestCase):
             member="TopLeft",
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
         out = validate_enums.resolve_member(
             member="topleft",
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
         out = validate_enums.resolve_member(
             member=" TOPLEFT ",
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
 
     def test_accepts_value_case_insensitive(
         self,
@@ -146,12 +158,18 @@ class TestResolveMember(unittest.TestCase):
             member="upper left",
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
         out = validate_enums.resolve_member(
             member=" UPPER LEFT ",
             valid_enums=Corners,
         )
-        self.assertIs(out, Corners.TopLeft)
+        self.assertIs(
+            out,
+            Corners.TopLeft,
+        )
 
     def test_with_multiple_valid_enums(
         self,
@@ -160,12 +178,18 @@ class TestResolveMember(unittest.TestCase):
             member="Left",
             valid_enums=(Corners, Sides),
         )
-        self.assertIs(out, Sides.Left)
+        self.assertIs(
+            out,
+            Sides.Left,
+        )
         out = validate_enums.resolve_member(
             member="TopRight",
             valid_enums=(Corners, Sides),
         )
-        self.assertIs(out, Corners.TopRight)
+        self.assertIs(
+            out,
+            Corners.TopRight,
+        )
 
     def test_rejects_non_string_non_enum(
         self,

@@ -113,7 +113,10 @@ class Tests(unittest.TestCase):
             show_progress=False,
             enable_plotting=True,
         )
-        self.assertEqual(all(result), True)
+        self.assertEqual(
+            all(result),
+            True,
+        )
 
     def test_timeout(
         self,
@@ -129,12 +132,30 @@ class Tests(unittest.TestCase):
             )
             self.fail("Expected a RuntimeError due to timeout, but none was raised.")
         except RuntimeError as runtime_error:
-            self.assertIn("tasks failed", str(runtime_error))
-            self.assertNotIn("Task 0 timed out", str(runtime_error))
-            self.assertNotIn("Task 1 timed out", str(runtime_error))
-            self.assertIn("Task 2 timed out", str(runtime_error))
-            self.assertIn("Task 3 timed out", str(runtime_error))
-            self.assertNotIn("Task 4 timed out", str(runtime_error))
+            self.assertIn(
+                "tasks failed",
+                str(runtime_error),
+            )
+            self.assertNotIn(
+                "Task 0 timed out",
+                str(runtime_error),
+            )
+            self.assertNotIn(
+                "Task 1 timed out",
+                str(runtime_error),
+            )
+            self.assertIn(
+                "Task 2 timed out",
+                str(runtime_error),
+            )
+            self.assertIn(
+                "Task 3 timed out",
+                str(runtime_error),
+            )
+            self.assertNotIn(
+                "Task 4 timed out",
+                str(runtime_error),
+            )
 
     def test_parallel_correctness(
         self,
@@ -150,9 +171,15 @@ class Tests(unittest.TestCase):
             num_workers=2,
             show_progress=False,
         )
-        self.assertEqual(len(results), len(expected_results))
+        self.assertEqual(
+            len(results),
+            len(expected_results),
+        )
         for result, expected in zip(results, expected_results):
-            self.assertEqual(result, expected)
+            self.assertEqual(
+                result,
+                expected,
+            )
 
     def test_empty_grouped_args(
         self,
@@ -164,7 +191,10 @@ class Tests(unittest.TestCase):
             num_workers=2,
             show_progress=False,
         )
-        self.assertEqual(result, [])
+        self.assertEqual(
+            result,
+            [],
+        )
 
     def test_exception_propagation(
         self,
@@ -178,8 +208,13 @@ class Tests(unittest.TestCase):
                 show_progress=False,
             )
         error_lines = str(cm.exception).split('\n')[1:]
-        self.assertEqual(len(error_lines), 3)
-        self.assertTrue(all("ValueError" in line for line in error_lines))
+        self.assertEqual(
+            len(error_lines),
+            3,
+        )
+        self.assertTrue(
+            all("ValueError" in line for line in error_lines),
+        )
 
     def test_mixed_success_failure(
         self,
@@ -193,8 +228,14 @@ class Tests(unittest.TestCase):
                 show_progress=False,
             )
         error = cm.exception
-        self.assertIn("Task 5 failed", str(error))
-        self.assertIn("Task 5 failed: ZeroDivisionError", str(error))
+        self.assertIn(
+            "Task 5 failed",
+            str(error),
+        )
+        self.assertIn(
+            "Task 5 failed: ZeroDivisionError",
+            str(error),
+        )
 
     def test_process_expiry_handling(
         self,
@@ -207,7 +248,10 @@ class Tests(unittest.TestCase):
                 num_workers=2,
                 show_progress=False,
             )
-        self.assertIn("ProcessExpired", str(cm.exception))
+        self.assertIn(
+            "ProcessExpired",
+            str(cm.exception),
+        )
 
     def test_result_ordering(
         self,
@@ -219,7 +263,10 @@ class Tests(unittest.TestCase):
             num_workers=4,
             show_progress=False,
         )
-        self.assertEqual(results, [3, 1, 4, 2])
+        self.assertEqual(
+            results,
+            [3, 1, 4, 2],
+        )
 
     def test_various_data_types(
         self,
@@ -239,7 +286,10 @@ class Tests(unittest.TestCase):
             show_progress=False,
         )
         expected_results = [args[0] for args in grouped_args]
-        self.assertEqual(results, expected_results)
+        self.assertEqual(
+            results,
+            expected_results,
+        )
 
     def test_scalar_arg_normalisation(
         self,
@@ -252,7 +302,10 @@ class Tests(unittest.TestCase):
             num_workers=2,
             show_progress=False,
         )
-        self.assertEqual(results, [1, 2, 3])
+        self.assertEqual(
+            results,
+            [1, 2, 3],
+        )
 
     def test_show_progress_does_not_crash(
         self,
@@ -265,7 +318,10 @@ class Tests(unittest.TestCase):
             num_workers=2,
             show_progress=True,
         )
-        self.assertEqual(results, [0, 1, 2, 3])
+        self.assertEqual(
+            results,
+            [0, 1, 2, 3],
+        )
 
     def test_default_num_workers(
         self,
@@ -278,7 +334,10 @@ class Tests(unittest.TestCase):
             num_workers=None,
             show_progress=False,
         )
-        self.assertEqual(results, [0, 1, 2, 3])
+        self.assertEqual(
+            results,
+            [0, 1, 2, 3],
+        )
 
     def test_no_timeout(
         self,
@@ -292,7 +351,10 @@ class Tests(unittest.TestCase):
             num_workers=2,
             show_progress=False,
         )
-        self.assertEqual(results, [2, 3])
+        self.assertEqual(
+            results,
+            [2, 3],
+        )
 
 
 ##

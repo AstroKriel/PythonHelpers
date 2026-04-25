@@ -108,7 +108,9 @@ class TestScalarField3D_Construction(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_3d(sim_time=None)
-        self.assertIsNone(sfield.sim_time)
+        self.assertIsNone(
+            sfield.sim_time,
+        )
 
     def test_udomain_is_stored(
         self,
@@ -168,9 +170,15 @@ class TestScalarField3D_Properties(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_3d()
-        self.assertTrue(sfield.fdata.is_scalar)
-        self.assertFalse(sfield.fdata.is_vector)
-        self.assertFalse(sfield.fdata.is_tensor)
+        self.assertTrue(
+            sfield.fdata.is_scalar,
+        )
+        self.assertFalse(
+            sfield.fdata.is_vector,
+        )
+        self.assertFalse(
+            sfield.fdata.is_tensor,
+        )
 
     def test_fdata_num_ranks(
         self,
@@ -328,9 +336,15 @@ class TestVectorField3D_Properties(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_3d()
-        self.assertTrue(vfield.fdata.is_vector)
-        self.assertFalse(vfield.fdata.is_scalar)
-        self.assertFalse(vfield.fdata.is_tensor)
+        self.assertTrue(
+            vfield.fdata.is_vector,
+        )
+        self.assertFalse(
+            vfield.fdata.is_scalar,
+        )
+        self.assertFalse(
+            vfield.fdata.is_tensor,
+        )
 
     def test_fdata_num_ranks(
         self,

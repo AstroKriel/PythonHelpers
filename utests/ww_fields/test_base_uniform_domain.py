@@ -221,8 +221,14 @@ class TestValidation(unittest.TestCase):
                 domain_bounds=((0.0, 0.0), (0.0, 1.0)),
             )
         assert_message = str(assert_context.exception)
-        self.assertIn(cartesian_axes.get_axis_label(axis=0), assert_message)
-        self.assertIn("max bound must be > min bound", assert_message)
+        self.assertIn(
+            cartesian_axes.get_axis_label(axis=0),
+            assert_message,
+        )
+        self.assertIn(
+            "max bound must be > min bound",
+            assert_message,
+        )
 
     def test_rejects_num_sdims_exceeding_supported_cartesian_axes(
         self,
@@ -308,7 +314,10 @@ class TestProperties(unittest.TestCase):
             domain_bounds=((0.0, 1.0), ),
         )
         cell_centers = udomain.cell_centers
-        self.assertEqual(len(cell_centers), 1)
+        self.assertEqual(
+            len(cell_centers),
+            1,
+        )
         expected = numpy.array([0.125, 0.375, 0.625, 0.875], dtype=float)
         self.assertTrue(
             numpy.allclose(

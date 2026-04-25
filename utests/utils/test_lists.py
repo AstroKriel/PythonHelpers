@@ -257,7 +257,10 @@ class Tests(unittest.TestCase):
             target=0.6,
             direction="rising",
         )
-        self.assertEqual(index, 2)  # crosses between 0.5 (index 2) and 0.7 (index 3)
+        self.assertEqual(
+            index,
+            2,
+        )  # crosses between 0.5 (index 2) and 0.7 (index 3)
         ## falling crossing
         values = [1.0, 0.9, 0.6, 0.4, 0.2]
         index = ww_lists.get_index_of_first_crossing(
@@ -265,14 +268,20 @@ class Tests(unittest.TestCase):
             target=0.5,
             direction="falling",
         )
-        self.assertEqual(index, 2)  # crosses between 0.6 and 0.4
+        self.assertEqual(
+            index,
+            2,
+        )  # crosses between 0.6 and 0.4
         ## non-directional (any) crossing
         values = [0.9, 0.7, 0.4, 0.6, 0.8]
         index = ww_lists.get_index_of_first_crossing(
             values=values,
             target=0.5,
         )
-        self.assertEqual(index, 1)  # first crossing is falling: 0.7 - 0.4
+        self.assertEqual(
+            index,
+            1,
+        )  # first crossing is falling: 0.7 - 0.4
         ## exact match value (rising)
         values = [0.1, 0.5, 0.6, 0.9]
         index = ww_lists.get_index_of_first_crossing(
@@ -280,7 +289,10 @@ class Tests(unittest.TestCase):
             target=0.6,
             direction="rising",
         )
-        self.assertEqual(index, 1)  # 0.5 - 0.6
+        self.assertEqual(
+            index,
+            1,
+        )  # 0.5 - 0.6
         ## target outside range (should raise)
         values = [0.1, 0.2, 0.3]
         with self.assertRaises(ValueError):
@@ -302,14 +314,20 @@ class Tests(unittest.TestCase):
             values=values,
             target=0.1,
         )
-        self.assertEqual(index, 0)
+        self.assertEqual(
+            index,
+            0,
+        )
         ## exact max value match
         values = [0.1, 0.5, 0.9]
         index = ww_lists.get_index_of_first_crossing(
             values=values,
             target=0.9,
         )
-        self.assertEqual(index, 2)
+        self.assertEqual(
+            index,
+            2,
+        )
         ## no crossing found (returns none)
         values = [0.1, 0.2, 0.3]
         result = ww_lists.get_index_of_first_crossing(
@@ -317,7 +335,9 @@ class Tests(unittest.TestCase):
             target=0.25,
             direction="falling",
         )
-        self.assertIsNone(result)
+        self.assertIsNone(
+            result,
+        )
 
     def test_sample_returns_expected_length(
         self,
@@ -353,7 +373,10 @@ class Tests(unittest.TestCase):
             elems=elems,
             max_elems=5,
         )
-        self.assertEqual(out, [0, 5, 10, 15, 20])
+        self.assertEqual(
+            out,
+            [0, 5, 10, 15, 20],
+        )
         ## 12 % 4 == 0
         elems = list(range(13))
         out = ww_lists.sample_list(
@@ -408,11 +431,16 @@ class Tests(unittest.TestCase):
             max_elems=max_elems,
         )
         ## first element always
-        self.assertEqual(out[0], elems[0])
+        self.assertEqual(
+            out[0],
+            elems[0],
+        )
         ## constant integer stride between chosen indices
         indices_to_keep = [value_index for value_index, _value in enumerate(out)]
         gaps = [b - a for a, b in zip(indices_to_keep[:-1], indices_to_keep[1:])]
-        self.assertTrue(all(g == gaps[0] for g in gaps))  # constant gap
+        self.assertTrue(
+            all(g == gaps[0] for g in gaps),
+        )  # constant gap
         self.assertGreater(
             gaps[0],
             0,
@@ -426,7 +454,10 @@ class Tests(unittest.TestCase):
             elems=elems,
             max_elems=1,
         )
-        self.assertEqual(out, [1])
+        self.assertEqual(
+            out,
+            [1],
+        )
 
     def test_invalid_inputs(
         self,

@@ -61,7 +61,10 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(self.tmp_dir)
-        self.assertEqual(len(results), 4)
+        self.assertEqual(
+            len(results),
+            4,
+        )
 
     def test_include_files_false_excludes_files(
         self,
@@ -70,8 +73,13 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             self.tmp_dir,
             include_files=False,
         )
-        self.assertTrue(all(path.is_dir() for path in results))
-        self.assertEqual(len(results), 3)
+        self.assertTrue(
+            all(path.is_dir() for path in results),
+        )
+        self.assertEqual(
+            len(results),
+            3,
+        )
 
     def test_include_folders_false_excludes_folders(
         self,
@@ -80,8 +88,13 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             self.tmp_dir,
             include_folders=False,
         )
-        self.assertTrue(all(path.is_file() for path in results))
-        self.assertEqual(len(results), 1)
+        self.assertTrue(
+            all(path.is_file() for path in results),
+        )
+        self.assertEqual(
+            len(results),
+            1,
+        )
 
     def test_req_include_words_single_string(
         self,
@@ -90,8 +103,13 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             self.tmp_dir,
             req_include_words="Mach2",
         )
-        self.assertEqual(len(results), 2)
-        self.assertTrue(all("Mach2" in path.name for path in results))
+        self.assertEqual(
+            len(results),
+            2,
+        )
+        self.assertTrue(
+            all("Mach2" in path.name for path in results),
+        )
 
     def test_req_include_words_list(
         self,
@@ -100,8 +118,14 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             self.tmp_dir,
             req_include_words=["Mach2", "Re1500"],
         )
-        self.assertEqual(len(results), 1)
-        self.assertIn("Mach2_Re1500_Pm1_Nres576", results[0].name)
+        self.assertEqual(
+            len(results),
+            1,
+        )
+        self.assertIn(
+            "Mach2_Re1500_Pm1_Nres576",
+            results[0].name,
+        )
 
     def test_req_exclude_words(
         self,
@@ -111,14 +135,22 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             req_exclude_words="Re500",
             include_files=False,
         )
-        self.assertEqual(len(results), 2)
-        self.assertTrue(all("Re500" not in path.name for path in results))
+        self.assertEqual(
+            len(results),
+            2,
+        )
+        self.assertTrue(
+            all("Re500" not in path.name for path in results),
+        )
 
     def test_results_are_sorted(
         self,
     ) -> None:
         results = manage_io.filter_directory(self.tmp_dir)
-        self.assertEqual(results, sorted(results))
+        self.assertEqual(
+            results,
+            sorted(results),
+        )
 
 
 class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
@@ -146,8 +178,13 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             self.tmp_dir,
             prefix="Turb_hdf5_plt_cnt_",
         )
-        self.assertEqual(len(results), 3)
-        self.assertTrue(all(path.name.startswith("Turb_hdf5_plt_cnt_") for path in results))
+        self.assertEqual(
+            len(results),
+            3,
+        )
+        self.assertTrue(
+            all(path.name.startswith("Turb_hdf5_plt_cnt_") for path in results),
+        )
 
     def test_suffix_filter(
         self,
@@ -156,8 +193,14 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             self.tmp_dir,
             suffix=".npz",
         )
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].name, "snapshot_0001.npz")
+        self.assertEqual(
+            len(results),
+            1,
+        )
+        self.assertEqual(
+            results[0].name,
+            "snapshot_0001.npz",
+        )
 
     def test_num_parts_filter(
         self,
@@ -167,7 +210,10 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             prefix="Turb_hdf5_plt_cnt_",
             num_parts=5,
         )
-        self.assertEqual(len(results), 3)
+        self.assertEqual(
+            len(results),
+            3,
+        )
 
     def test_num_parts_excludes_mismatches(
         self,
@@ -176,8 +222,14 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             self.tmp_dir,
             num_parts=1,
         )
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].name, "output.log")
+        self.assertEqual(
+            len(results),
+            1,
+        )
+        self.assertEqual(
+            results[0].name,
+            "output.log",
+        )
 
     def test_custom_delimiter(
         self,
@@ -188,7 +240,10 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             delimiter=".",
             num_parts=2,
         )
-        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            len(results),
+            1,
+        )
 
 
 ##

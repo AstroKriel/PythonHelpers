@@ -65,9 +65,13 @@ class TestHalfMasks2D(unittest.TestCase):
             anchor=side_b,
         )
         ## the two masks must be exact bitwise inverses of each other
-        self.assertTrue(numpy.array_equal(mask_a, ~mask_b))
+        self.assertTrue(
+            numpy.array_equal(mask_a, ~mask_b),
+        )
         ## and together they must cover every pixel
-        self.assertTrue(numpy.all(mask_a | mask_b))
+        self.assertTrue(
+            numpy.all(mask_a | mask_b),
+        )
 
     def test_top_bottom_complement_odd(
         self,
@@ -118,8 +122,12 @@ class TestHalfMasks2D(unittest.TestCase):
             num_cols=4,
             anchor=box_positions.Positions.Side.Top,
         )
-        self.assertTrue(numpy.all(mask[:3, :]))
-        self.assertTrue(numpy.all(~mask[3:, :]))
+        self.assertTrue(
+            numpy.all(mask[:3, :]),
+        )
+        self.assertTrue(
+            numpy.all(~mask[3:, :]),
+        )
 
     def test_left_covers_correct_cols(
         self,
@@ -130,8 +138,12 @@ class TestHalfMasks2D(unittest.TestCase):
             num_cols=6,
             anchor=box_positions.Positions.Side.Left,
         )
-        self.assertTrue(numpy.all(mask[:, :3]))
-        self.assertTrue(numpy.all(~mask[:, 3:]))
+        self.assertTrue(
+            numpy.all(mask[:, :3]),
+        )
+        self.assertTrue(
+            numpy.all(~mask[:, 3:]),
+        )
 
     def test_output_shape(
         self,
@@ -177,7 +189,9 @@ class TestQuadrantMasks2D(unittest.TestCase):
         union = masks[0]
         for mask in masks[1:]:
             union = union | mask
-        self.assertTrue(numpy.all(union))
+        self.assertTrue(
+            numpy.all(union),
+        )
 
     def test_pairwise_disjoint(
         self,
@@ -188,7 +202,9 @@ class TestQuadrantMasks2D(unittest.TestCase):
         )
         for i in range(len(masks)):
             for j in range(i + 1, len(masks)):
-                self.assertFalse(numpy.any(masks[i] & masks[j]))
+                self.assertFalse(
+                    numpy.any(masks[i] & masks[j]),
+                )
 
     def test_top_left_position(
         self,
@@ -199,8 +215,12 @@ class TestQuadrantMasks2D(unittest.TestCase):
             num_cols=6,
             anchor=box_positions.Positions.Corner.TopLeft,
         )
-        self.assertTrue(mask[0, 0])
-        self.assertFalse(mask[4, 5])
+        self.assertTrue(
+            mask[0, 0],
+        )
+        self.assertFalse(
+            mask[4, 5],
+        )
 
     def test_output_shape(
         self,
@@ -229,8 +249,12 @@ class TestDiagonalMasks2D(unittest.TestCase):
             num_rows=5,
             num_cols=5,
         )
-        self.assertTrue(numpy.array_equal(mask_above, ~mask_below))
-        self.assertTrue(numpy.all(mask_above | mask_below))
+        self.assertTrue(
+            numpy.array_equal(mask_above, ~mask_below),
+        )
+        self.assertTrue(
+            numpy.all(mask_above | mask_below),
+        )
 
     def test_anti_diagonal_complement(
         self,
@@ -243,8 +267,12 @@ class TestDiagonalMasks2D(unittest.TestCase):
             num_rows=5,
             num_cols=5,
         )
-        self.assertTrue(numpy.array_equal(mask_above, ~mask_below))
-        self.assertTrue(numpy.all(mask_above | mask_below))
+        self.assertTrue(
+            numpy.array_equal(mask_above, ~mask_below),
+        )
+        self.assertTrue(
+            numpy.all(mask_above | mask_below),
+        )
 
     def test_main_diagonal_spot_check(
         self,
@@ -254,9 +282,15 @@ class TestDiagonalMasks2D(unittest.TestCase):
             num_rows=4,
             num_cols=4,
         )
-        self.assertTrue(mask_above[0, 3])  # 0 <= 3
-        self.assertTrue(mask_above[2, 2])  # 2 <= 2 (on diagonal)
-        self.assertFalse(mask_above[3, 0])  # 3 > 0
+        self.assertTrue(
+            mask_above[0, 3],
+        )  # 0 <= 3
+        self.assertTrue(
+            mask_above[2, 2],
+        )  # 2 <= 2 (on diagonal)
+        self.assertFalse(
+            mask_above[3, 0],
+        )  # 3 > 0
 
     def test_anti_diagonal_spot_check(
         self,
@@ -267,8 +301,12 @@ class TestDiagonalMasks2D(unittest.TestCase):
             num_rows=4,
             num_cols=4,
         )
-        self.assertTrue(mask_above[0, 0])  # 0 <= 3
-        self.assertFalse(mask_above[3, 3])  # 3 > 0
+        self.assertTrue(
+            mask_above[0, 0],
+        )  # 0 <= 3
+        self.assertFalse(
+            mask_above[3, 3],
+        )  # 3 > 0
 
 
 class TestWedgeMasks2D(unittest.TestCase):
@@ -297,7 +335,9 @@ class TestWedgeMasks2D(unittest.TestCase):
             num_cols=5,
             anchor=box_positions.Positions.Side.Right,
         )
-        self.assertTrue(numpy.all(mask_top | mask_bottom | mask_left | mask_right))
+        self.assertTrue(
+            numpy.all(mask_top | mask_bottom | mask_left | mask_right),
+        )
 
     def test_top_wedge_includes_top_center(
         self,
@@ -307,7 +347,9 @@ class TestWedgeMasks2D(unittest.TestCase):
             num_cols=5,
             anchor=box_positions.Positions.Side.Top,
         )
-        self.assertTrue(mask[0, 2])  # top-center pixel
+        self.assertTrue(
+            mask[0, 2],
+        )  # top-center pixel
 
     def test_bottom_wedge_includes_bottom_center(
         self,
@@ -317,7 +359,9 @@ class TestWedgeMasks2D(unittest.TestCase):
             num_cols=5,
             anchor=box_positions.Positions.Side.Bottom,
         )
-        self.assertTrue(mask[4, 2])  # bottom-center pixel
+        self.assertTrue(
+            mask[4, 2],
+        )  # bottom-center pixel
 
     def test_output_shape(
         self,
@@ -348,7 +392,9 @@ class TestCircleMasks2D(unittest.TestCase):
             num_cols=7,
             include_boundary=True,
         )
-        self.assertFalse(numpy.any(mask_inside & mask_outside))
+        self.assertFalse(
+            numpy.any(mask_inside & mask_outside),
+        )
 
     def test_center_pixel_always_inside(
         self,
@@ -357,7 +403,9 @@ class TestCircleMasks2D(unittest.TestCase):
             num_rows=7,
             num_cols=7,
         )
-        self.assertTrue(mask[3, 3])
+        self.assertTrue(
+            mask[3, 3],
+        )
 
     def test_custom_radius_zero_covers_only_center(
         self,
@@ -369,10 +417,14 @@ class TestCircleMasks2D(unittest.TestCase):
             radius=0.0,
             include_boundary=True,
         )
-        self.assertTrue(mask[2, 2])
+        self.assertTrue(
+            mask[2, 2],
+        )
         ## all other pixels should be outside
         mask[2, 2] = False
-        self.assertFalse(numpy.any(mask))
+        self.assertFalse(
+            numpy.any(mask),
+        )
 
     def test_custom_radius_spot_check(
         self,
@@ -385,8 +437,12 @@ class TestCircleMasks2D(unittest.TestCase):
             radius=2.0,
             include_boundary=True,
         )
-        self.assertTrue(mask[3, 5])  # distance == radius, included
-        self.assertFalse(mask[3, 6])  # distance > radius, excluded
+        self.assertTrue(
+            mask[3, 5],
+        )  # distance == radius, included
+        self.assertFalse(
+            mask[3, 6],
+        )  # distance > radius, excluded
 
     def test_off_center_spot_check(
         self,
@@ -398,8 +454,12 @@ class TestCircleMasks2D(unittest.TestCase):
             center_row_col=(0.0, 0.0),
             radius=1.5,
         )
-        self.assertTrue(mask[0, 1])  # distance = 1 < radius
-        self.assertFalse(mask[3, 3])  # distance approx. 4.24 > radius
+        self.assertTrue(
+            mask[0, 1],
+        )  # distance = 1 < radius
+        self.assertFalse(
+            mask[3, 3],
+        )  # distance approx. 4.24 > radius
 
     def test_output_shape(
         self,

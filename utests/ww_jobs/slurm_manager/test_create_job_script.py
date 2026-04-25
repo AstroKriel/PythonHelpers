@@ -75,7 +75,9 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
             file_path = _create_job_script.create_slurm_job_script(
                 **_make_minimal_kwargs(directory=tmp_dir),
             )
-            self.assertTrue(file_path.is_file())
+            self.assertTrue(
+                file_path.is_file(),
+            )
 
     def test_returns_path(
         self,
@@ -84,7 +86,10 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
             file_path = _create_job_script.create_slurm_job_script(
                 **_make_minimal_kwargs(directory=tmp_dir),
             )
-            self.assertIsInstance(file_path, Path)
+            self.assertIsInstance(
+                file_path,
+                Path,
+            )
 
     def test_rejects_non_sh_extension(
         self,
@@ -114,12 +119,30 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 **_make_minimal_kwargs(directory=tmp_dir),
             )
             content = file_path.read_text()
-            self.assertIn("#!/bin/bash", content)
-            self.assertIn("#SBATCH --job-name=my_job", content)
-            self.assertIn("#SBATCH --partition=partition_a", content)
-            self.assertIn("#SBATCH --cpus-per-task=4", content)
-            self.assertIn("#SBATCH --mem=16G", content)
-            self.assertIn("#SBATCH --time=02:00:00", content)
+            self.assertIn(
+                "#!/bin/bash",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --job-name=my_job",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --partition=partition_a",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --cpus-per-task=4",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --mem=16G",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --time=02:00:00",
+                content,
+            )
 
     def test_custom_directives_are_written_verbatim(
         self,
@@ -134,9 +157,18 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 verbose=False,
             )
             content = file_path.read_text()
-            self.assertIn("#!/bin/bash -l", content)
-            self.assertIn("#SBATCH --partition=partition_b", content)
-            self.assertIn("#SBATCH --cpus-per-task=8", content)
+            self.assertIn(
+                "#!/bin/bash -l",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --partition=partition_b",
+                content,
+            )
+            self.assertIn(
+                "#SBATCH --cpus-per-task=8",
+                content,
+            )
 
     def test_no_email_directives_when_none(
         self,
@@ -146,8 +178,14 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 **_make_minimal_kwargs(directory=tmp_dir),
             )
             content = file_path.read_text()
-            self.assertNotIn("--mail-user", content)
-            self.assertNotIn("--mail-type", content)
+            self.assertNotIn(
+                "--mail-user",
+                content,
+            )
+            self.assertNotIn(
+                "--mail-type",
+                content,
+            )
 
     def test_email_directives_present_when_given(
         self,
@@ -168,10 +206,22 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 verbose=False,
             )
             content = file_path.read_text()
-            self.assertIn("--mail-user=user@example.com", content)
-            self.assertIn("FAIL", content)
-            self.assertIn("BEGIN", content)
-            self.assertIn("END", content)
+            self.assertIn(
+                "--mail-user=user@example.com",
+                content,
+            )
+            self.assertIn(
+                "FAIL",
+                content,
+            )
+            self.assertIn(
+                "BEGIN",
+                content,
+            )
+            self.assertIn(
+                "END",
+                content,
+            )
 
 
 class TestCreateJobScript_Commands(unittest.TestCase):
@@ -184,7 +234,10 @@ class TestCreateJobScript_Commands(unittest.TestCase):
                 **_make_minimal_kwargs(directory=tmp_dir),
             )
             content = file_path.read_text()
-            self.assertIn("python run.py", content)
+            self.assertIn(
+                "python run.py",
+                content,
+            )
 
     def test_prep_command_present_when_given(
         self,
@@ -203,7 +256,10 @@ class TestCreateJobScript_Commands(unittest.TestCase):
                 verbose=False,
             )
             content = file_path.read_text()
-            self.assertIn("module load python", content)
+            self.assertIn(
+                "module load python",
+                content,
+            )
 
     def test_post_command_present_when_given(
         self,
@@ -222,7 +278,10 @@ class TestCreateJobScript_Commands(unittest.TestCase):
                 verbose=False,
             )
             content = file_path.read_text()
-            self.assertIn("echo done", content)
+            self.assertIn(
+                "echo done",
+                content,
+            )
 
     def test_post_command_conditional_on_main_success(
         self,
@@ -242,7 +301,10 @@ class TestCreateJobScript_Commands(unittest.TestCase):
                 verbose=False,
             )
             content = file_path.read_text()
-            self.assertIn('if [ "$main_command_exit_code" -eq 0 ]', content)
+            self.assertIn(
+                'if [ "$main_command_exit_code" -eq 0 ]',
+                content,
+            )
 
 
 class TestCreateJobScript_InvalidParams(unittest.TestCase):

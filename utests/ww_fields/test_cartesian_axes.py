@@ -115,7 +115,10 @@ class TestAsAxis(unittest.TestCase):
         self,
     ):
         out_axis = cartesian_axes.as_axis(axis=cartesian_axes.CartesianAxis_3D.X1)
-        self.assertIs(out_axis, cartesian_axes.CartesianAxis_3D.X1)
+        self.assertIs(
+            out_axis,
+            cartesian_axes.CartesianAxis_3D.X1,
+        )
 
     def test_accepts_index(
         self,

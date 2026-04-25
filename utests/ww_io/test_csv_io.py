@@ -60,9 +60,14 @@ class Tests(unittest.TestCase):
     ):
         data = {"a": [1, 2, 3], "b": [0.1, 0.2, 0.3]}
         save_dict_to_csv_file_wrapper(self.test_file_path, data)
-        self.assertTrue(self.test_file_path.exists())
+        self.assertTrue(
+            self.test_file_path.exists(),
+        )
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
-        self.assertEqual(result, data)
+        self.assertEqual(
+            result,
+            data,
+        )
 
     def test_save_dict_to_csv_file_append(
         self,
@@ -73,7 +78,10 @@ class Tests(unittest.TestCase):
         save_dict_to_csv_file_wrapper(self.test_file_path, data_2, overwrite=False)
         expected = {"a": [1, 2, 3, 4], "b": [0.1, 0.2, 0.3, 0.4]}
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            result,
+            expected,
+        )
 
     def test_save_dict_to_csv_file_overwrite(
         self,
@@ -83,7 +91,10 @@ class Tests(unittest.TestCase):
         save_dict_to_csv_file_wrapper(self.test_file_path, data_1)
         save_dict_to_csv_file_wrapper(self.test_file_path, data_2, overwrite=True)
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
-        self.assertEqual(result, data_2)
+        self.assertEqual(
+            result,
+            data_2,
+        )
 
     def test_save_dict_to_csv_file_extend(
         self,
@@ -94,7 +105,10 @@ class Tests(unittest.TestCase):
         save_dict_to_csv_file_wrapper(self.test_file_path, data_2, overwrite=False)
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
         expected = {"a": [1, 2, 3, 4], "b": [0.1, 0.2, 0.3, 0.4], "c": [10, 20, 30, 40]}
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            result,
+            expected,
+        )
 
     def test_new_file_with_unequal_column_lengths_should_fail(
         self,
@@ -132,7 +146,10 @@ class Tests(unittest.TestCase):
         save_dict_to_csv_file_wrapper(self.test_file_path, data_3, overwrite=False)
         result = read_csv_file_into_dict_wrapper(self.test_file_path)
         expected = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            result,
+            expected,
+        )
 
     def test_overwrite_with_unequal_lengths_should_fail(
         self,

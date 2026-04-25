@@ -425,7 +425,9 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             vfield_3d_a=vfield_a,
             vfield_3d_b=vfield_b,
         )
-        self.assertTrue(numpy.allclose(field_types.extract_3d_sarray(sfield_dot), 32.0))
+        self.assertTrue(
+            numpy.allclose(field_types.extract_3d_sarray(sfield_dot), 32.0),
+        )
 
     def test_dot_product_is_commutative(
         self,
@@ -554,7 +556,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_b=vfield_x0,
         )
         varray = field_types.extract_3d_varray(vfield_cross)
-        self.assertTrue(numpy.allclose(varray[2], -1.0))
+        self.assertTrue(
+            numpy.allclose(varray[2], -1.0),
+        )
 
     def test_cross_product_anti_commutative(
         self,
@@ -638,7 +642,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_b=vfield_x1,
             varray_3d_out=array,
         )
-        self.assertTrue(numpy.shares_memory(result.fdata.farray, array))
+        self.assertTrue(
+            numpy.shares_memory(result.fdata.farray, array),
+        )
 
 
 class TestVectorFieldDivergence(unittest.TestCase):
@@ -652,7 +658,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x2=3.0,
         )
         sfield_div = field_operators.compute_vfield_divergence(vfield)
-        self.assertTrue(numpy.allclose(field_types.extract_3d_sarray(sfield_div), 0.0))
+        self.assertTrue(
+            numpy.allclose(field_types.extract_3d_sarray(sfield_div), 0.0),
+        )
 
     def test_divergence_returns_scalar_field(
         self,

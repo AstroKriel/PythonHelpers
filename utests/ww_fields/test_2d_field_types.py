@@ -118,7 +118,9 @@ class TestScalarField2D_Construction(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_2d(sim_time=None)
-        self.assertIsNone(sfield.sim_time)
+        self.assertIsNone(
+            sfield.sim_time,
+        )
 
     def test_udomain_is_stored(
         self,
@@ -192,9 +194,15 @@ class TestScalarField2D_Properties(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_2d()
-        self.assertTrue(sfield.fdata.is_scalar)
-        self.assertFalse(sfield.fdata.is_vector)
-        self.assertFalse(sfield.fdata.is_tensor)
+        self.assertTrue(
+            sfield.fdata.is_scalar,
+        )
+        self.assertFalse(
+            sfield.fdata.is_vector,
+        )
+        self.assertFalse(
+            sfield.fdata.is_tensor,
+        )
 
     def test_fdata_num_ranks(
         self,
@@ -274,13 +282,17 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_2d(use_sliced_domain=False)
-        self.assertFalse(sfield.is_sliced_from_3d)
+        self.assertFalse(
+            sfield.is_sliced_from_3d,
+        )
 
     def test_sliced_3d_domain_is_detected(
         self,
     ):
         sfield = _make_sfield_2d(use_sliced_domain=True)
-        self.assertTrue(sfield.is_sliced_from_3d)
+        self.assertTrue(
+            sfield.is_sliced_from_3d,
+        )
 
     def test_sliced_domain_metadata_accessible(
         self,
@@ -295,7 +307,9 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
             udomain_2d=sliced_domain,
             field_label="f",
         )
-        self.assertTrue(sfield.is_sliced_from_3d)
+        self.assertTrue(
+            sfield.is_sliced_from_3d,
+        )
         self.assertIsInstance(
             sfield.udomain,
             domain_types.UniformDomain_2D_Sliced3D,
@@ -403,9 +417,15 @@ class TestVectorField2D_Properties(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_2d()
-        self.assertTrue(vfield.fdata.is_vector)
-        self.assertFalse(vfield.fdata.is_scalar)
-        self.assertFalse(vfield.fdata.is_tensor)
+        self.assertTrue(
+            vfield.fdata.is_vector,
+        )
+        self.assertFalse(
+            vfield.fdata.is_scalar,
+        )
+        self.assertFalse(
+            vfield.fdata.is_tensor,
+        )
 
     def test_fdata_num_ranks(
         self,
@@ -485,13 +505,17 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_2d(use_sliced_domain=False)
-        self.assertFalse(vfield.is_sliced_from_3d)
+        self.assertFalse(
+            vfield.is_sliced_from_3d,
+        )
 
     def test_sliced_3d_domain_is_detected(
         self,
     ):
         vfield = _make_vfield_2d(use_sliced_domain=True)
-        self.assertTrue(vfield.is_sliced_from_3d)
+        self.assertTrue(
+            vfield.is_sliced_from_3d,
+        )
 
     def test_sliced_domain_metadata_accessible(
         self,
@@ -506,7 +530,9 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
             udomain_2d=sliced_domain,
             field_label="v",
         )
-        self.assertTrue(vfield.is_sliced_from_3d)
+        self.assertTrue(
+            vfield.is_sliced_from_3d,
+        )
         self.assertIsInstance(
             vfield.udomain,
             domain_types.UniformDomain_2D_Sliced3D,
