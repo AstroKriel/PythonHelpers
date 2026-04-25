@@ -52,7 +52,7 @@ class HelmholtzDecomposedFArrays_3D:
             [
                 self.varray_3d_div.shape != self.varray_3d_sol.shape,
                 self.varray_3d_div.shape != self.varray_3d_bulk.shape,
-            ]
+            ],
         ):
             raise ValueError(
                 "HelmholtzDecomposedFArrays_3D components must share the same shape:"
@@ -201,7 +201,7 @@ class TNBDecomposedFArrays_3D:
             [
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_normal.shape,
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_binormal.shape,
-            ]
+            ],
         ):
             raise ValueError(
                 "TNBDecomposedFArrays_3D vector components must share the same shape:"
@@ -417,7 +417,7 @@ class MagneticCurvatureFArrays_3D:
             [
                 self.sarray_3d_curvature.shape != self.sarray_3d_stretching.shape,
                 self.sarray_3d_curvature.shape != self.sarray_3d_compression.shape,
-            ]
+            ],
         ):
             raise ValueError(
                 "MagneticCurvatureFArrays_3D components must share the same shape:"
@@ -460,7 +460,7 @@ def compute_magnetic_curvature_farrays(
         [
             varray_3d_u.shape != uvarray_3d_tangent.shape,
             varray_3d_u.shape != uvarray_3d_normal.shape,
-        ]
+        ],
     ):
         raise ValueError(
             "Velocity/tangent/normal farrays must share the same shape:"
@@ -522,7 +522,7 @@ class LorentzForceFArrays_3D:
 
     varray_3d_lorentz: NDArray[Any]
     varray_3d_tension: NDArray[Any]
-    varray_3d_gradP_perp: NDArray[Any]
+    varray_3d_grad_p_perp: NDArray[Any]
 
     def __post_init__(
         self,
@@ -536,20 +536,20 @@ class LorentzForceFArrays_3D:
             param_name="<varray_3d_tension>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_gradP_perp,
-            param_name="<varray_3d_gradP_perp>",
+            varray_3d=self.varray_3d_grad_p_perp,
+            param_name="<varray_3d_grad_p_perp>",
         )
         if any(
             [
                 self.varray_3d_lorentz.shape != self.varray_3d_tension.shape,
-                self.varray_3d_lorentz.shape != self.varray_3d_gradP_perp.shape,
-            ]
+                self.varray_3d_lorentz.shape != self.varray_3d_grad_p_perp.shape,
+            ],
         ):
             raise ValueError(
                 "LorentzForceFArrays_3D components must share the same shape:"
                 f" lorentz={self.varray_3d_lorentz.shape},"
                 f" tension={self.varray_3d_tension.shape},"
-                f" gradP_perp={self.varray_3d_gradP_perp.shape}.",
+                f" grad_p_perp={self.varray_3d_grad_p_perp.shape}.",
             )
 
 
@@ -562,9 +562,9 @@ def compute_lorentz_force_farrays(
     """
     Lorentz force decomposition in index notation:
 
-        tension_i    = (b_k b_k) kappa_i
-        gradP_perp_i = d_i (b_k b_k / 2) - t_i t_j d_j (b_k b_k / 2)
-        lorentz_i    = tension_i - gradP_perp_i
+        tension_i     = (b_k b_k) kappa_i
+        grad_p_perp_i = d_i (b_k b_k / 2) - t_i t_j d_j (b_k b_k / 2)
+        lorentz_i     = tension_i - grad_p_perp_i
     """
     farray_types.ensure_3d_varray(
         varray_3d=varray_3d_b,
@@ -594,33 +594,33 @@ def compute_lorentz_force_farrays(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
-    varray_3d_gradP = farray_types.ensure_farray_metadata(
+    varray_3d_grad_p = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=sarray_3d_b_magn_sq.dtype,
     )
-    varray_3d_gradP[0, ...] = nabla(
+    varray_3d_grad_p[0, ...] = nabla(
         sarray_3d=sarray_3d_b_magn_sq,
         cell_width=cell_width_x,
         grad_axis=0,
     )
-    varray_3d_gradP[1, ...] = nabla(
+    varray_3d_grad_p[1, ...] = nabla(
         sarray_3d=sarray_3d_b_magn_sq,
         cell_width=cell_width_y,
         grad_axis=1,
     )
-    varray_3d_gradP[2, ...] = nabla(
+    varray_3d_grad_p[2, ...] = nabla(
         sarray_3d=sarray_3d_b_magn_sq,
         cell_width=cell_width_z,
         grad_axis=2,
     )
-    varray_3d_gradP *= 0.5
+    varray_3d_grad_p *= 0.5
     ## pressure aligned with B: t_i t_j d_j P
-    varray_3d_gradP_aligned = numpy.einsum(
+    varray_3d_grad_p_aligned = numpy.einsum(
         "ixyz,jxyz,jxyz->ixyz",
         uvarray_3d_tangent,
         uvarray_3d_tangent,
-        varray_3d_gradP,
+        varray_3d_grad_p,
         optimize=True,
     )
     ## tension_i = |b|^2 kappa_i
@@ -629,14 +629,14 @@ def compute_lorentz_force_farrays(
         * sarray_3d_curvature[numpy.newaxis, ...]
         * uvarray_3d_normal
     )
-    ## gradP_perp_i = d_i P - t_i t_j d_j P
-    varray_3d_gradP_perp = varray_3d_gradP - varray_3d_gradP_aligned
-    ## lorentz_i = tension_i - gradP_perp_i
-    varray_3d_lorentz = varray_3d_tension - varray_3d_gradP_perp
+    ## grad_p_perp_i = d_i P - t_i t_j d_j P
+    varray_3d_grad_p_perp = varray_3d_grad_p - varray_3d_grad_p_aligned
+    ## lorentz_i = tension_i - grad_p_perp_i
+    varray_3d_lorentz = varray_3d_tension - varray_3d_grad_p_perp
     return LorentzForceFArrays_3D(
         varray_3d_lorentz=varray_3d_lorentz,
         varray_3d_tension=varray_3d_tension,
-        varray_3d_gradP_perp=varray_3d_gradP_perp,
+        varray_3d_grad_p_perp=varray_3d_grad_p_perp,
     )
 
 
