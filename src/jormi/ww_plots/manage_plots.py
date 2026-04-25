@@ -242,6 +242,8 @@ _Side = box_positions.Positions.Side
 
 @dataclass(frozen=True)
 class AxisBounds:
+    """Bounding box for an axis in figure coordinates."""
+
     x_min: float
     y_min: float
     x_width: float
@@ -363,6 +365,11 @@ def save_figure(
     dpi: int = 200,
     verbose: bool = True,
 ) -> None:
+    """
+    Save `fig` to `fig_path` and close it.
+
+    Accepts `.png` or `.pdf` paths. Errors are logged rather than raised.
+    """
     if not str(fig_path).endswith(".png") and not str(fig_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
     try:
@@ -400,6 +407,11 @@ def animate_pngs_to_mp4(
     fps: int = 30,
     timeout_seconds: int = 60,
 ) -> None:
+    """
+    Combine PNG frames in `frames_dir` matching `pattern` into an MP4 at `mp4_path`.
+
+    Requires `ffmpeg` on the system path. Creates the parent directory of `mp4_path` if needed.
+    """
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
     manage_io.create_directory(directory=mp4_path.parent, verbose=False)
