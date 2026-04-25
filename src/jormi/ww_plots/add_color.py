@@ -21,7 +21,7 @@ from jormi.ww_plots.color_palettes import (
 )
 from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
 from jormi.ww_types import (
-    box_positions,
+    check_positions,
     check_types,
 )
 
@@ -129,7 +129,7 @@ def make_palette(
 ## === INTERNAL HELPERS
 ##
 
-_Side = box_positions.Positions.Side
+_Side = check_positions.Positions.Side
 
 _SIDE_TO_ORIENTATION: dict[_Side, str] = {
     _Side.Top: "horizontal",
@@ -183,7 +183,7 @@ def add_colorbar(
     *,
     palette: ColorPalette,
     label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    cbar_side: check_positions.Positions.PositionLike = check_positions.Positions.Side.Right,
     cbar_thickness: float = 0.1,
     cbar_length: float = 1.0,
     cbar_pad: float = 0.02,
@@ -219,7 +219,7 @@ def add_colorbar(
         require_positive=True,
         allow_zero=False,
     )
-    cbar_side = box_positions.as_box_side(side=cbar_side)
+    cbar_side = check_positions.as_box_side(side=cbar_side)
     cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
     ax_bounds = compute_adjacent_ax_bounds(
         ax=ax,

@@ -13,7 +13,7 @@ import numpy
 
 ## local
 from jormi.ww_arrays import mask_2d_arrays
-from jormi.ww_types import box_positions
+from jormi.ww_types import check_positions
 
 ##
 ## === TEST SUITES
@@ -50,8 +50,8 @@ class TestHalfMasks2D(unittest.TestCase):
         self,
         num_rows: int,
         num_cols: int,
-        side_a: box_positions.Positions.Side,
-        side_b: box_positions.Positions.Side,
+        side_a: check_positions.Positions.Side,
+        side_b: check_positions.Positions.Side,
     ) -> None:
         ## build two opposing half masks
         mask_a = mask_2d_arrays.HalfMasks2D.get_mask(
@@ -75,8 +75,8 @@ class TestHalfMasks2D(unittest.TestCase):
         self._check_mask_inverse(
             num_rows=5,
             num_cols=6,
-            side_a=box_positions.Positions.Side.Top,
-            side_b=box_positions.Positions.Side.Bottom,
+            side_a=check_positions.Positions.Side.Top,
+            side_b=check_positions.Positions.Side.Bottom,
         )
 
     def test_top_bottom_complement_even(
@@ -85,8 +85,8 @@ class TestHalfMasks2D(unittest.TestCase):
         self._check_mask_inverse(
             num_rows=4,
             num_cols=6,
-            side_a=box_positions.Positions.Side.Top,
-            side_b=box_positions.Positions.Side.Bottom,
+            side_a=check_positions.Positions.Side.Top,
+            side_b=check_positions.Positions.Side.Bottom,
         )
 
     def test_left_right_complement_odd(
@@ -95,8 +95,8 @@ class TestHalfMasks2D(unittest.TestCase):
         self._check_mask_inverse(
             num_rows=5,
             num_cols=5,
-            side_a=box_positions.Positions.Side.Left,
-            side_b=box_positions.Positions.Side.Right,
+            side_a=check_positions.Positions.Side.Left,
+            side_b=check_positions.Positions.Side.Right,
         )
 
     def test_left_right_complement_even(
@@ -105,8 +105,8 @@ class TestHalfMasks2D(unittest.TestCase):
         self._check_mask_inverse(
             num_rows=4,
             num_cols=6,
-            side_a=box_positions.Positions.Side.Left,
-            side_b=box_positions.Positions.Side.Right,
+            side_a=check_positions.Positions.Side.Left,
+            side_b=check_positions.Positions.Side.Right,
         )
 
     def test_top_covers_correct_rows(
@@ -116,7 +116,7 @@ class TestHalfMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.HalfMasks2D.get_mask(
             num_rows=5,
             num_cols=4,
-            anchor=box_positions.Positions.Side.Top,
+            anchor=check_positions.Positions.Side.Top,
         )
         self.assertTrue(numpy.all(mask[:3, :]))
         self.assertTrue(numpy.all(~mask[3:, :]))
@@ -128,7 +128,7 @@ class TestHalfMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.HalfMasks2D.get_mask(
             num_rows=4,
             num_cols=6,
-            anchor=box_positions.Positions.Side.Left,
+            anchor=check_positions.Positions.Side.Left,
         )
         self.assertTrue(numpy.all(mask[:, :3]))
         self.assertTrue(numpy.all(~mask[:, 3:]))
@@ -139,7 +139,7 @@ class TestHalfMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.HalfMasks2D.get_mask(
             num_rows=3,
             num_cols=7,
-            anchor=box_positions.Positions.Side.Right,
+            anchor=check_positions.Positions.Side.Right,
         )
         self.assertEqual(
             mask.shape,
@@ -160,10 +160,10 @@ class TestQuadrantMasks2D(unittest.TestCase):
                 num_cols=num_cols,
                 anchor=corner,
             ) for corner in (
-                box_positions.Positions.Corner.TopLeft,
-                box_positions.Positions.Corner.TopRight,
-                box_positions.Positions.Corner.BottomLeft,
-                box_positions.Positions.Corner.BottomRight,
+                check_positions.Positions.Corner.TopLeft,
+                check_positions.Positions.Corner.TopRight,
+                check_positions.Positions.Corner.BottomLeft,
+                check_positions.Positions.Corner.BottomRight,
             )
         ]
 
@@ -197,7 +197,7 @@ class TestQuadrantMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.QuadrantMasks2D.get_mask(
             num_rows=5,
             num_cols=6,
-            anchor=box_positions.Positions.Corner.TopLeft,
+            anchor=check_positions.Positions.Corner.TopLeft,
         )
         self.assertTrue(mask[0, 0])
         self.assertFalse(mask[4, 5])
@@ -208,7 +208,7 @@ class TestQuadrantMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.QuadrantMasks2D.get_mask(
             num_rows=4,
             num_cols=7,
-            anchor=box_positions.Positions.Corner.BottomRight,
+            anchor=check_positions.Positions.Corner.BottomRight,
         )
         self.assertEqual(
             mask.shape,
@@ -280,22 +280,22 @@ class TestWedgeMasks2D(unittest.TestCase):
         mask_top = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Top,
+            anchor=check_positions.Positions.Side.Top,
         )
         mask_bottom = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Bottom,
+            anchor=check_positions.Positions.Side.Bottom,
         )
         mask_left = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Left,
+            anchor=check_positions.Positions.Side.Left,
         )
         mask_right = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Right,
+            anchor=check_positions.Positions.Side.Right,
         )
         self.assertTrue(numpy.all(mask_top | mask_bottom | mask_left | mask_right))
 
@@ -305,7 +305,7 @@ class TestWedgeMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Top,
+            anchor=check_positions.Positions.Side.Top,
         )
         self.assertTrue(mask[0, 2])  # top-center pixel
 
@@ -315,7 +315,7 @@ class TestWedgeMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=5,
             num_cols=5,
-            anchor=box_positions.Positions.Side.Bottom,
+            anchor=check_positions.Positions.Side.Bottom,
         )
         self.assertTrue(mask[4, 2])  # bottom-center pixel
 
@@ -325,7 +325,7 @@ class TestWedgeMasks2D(unittest.TestCase):
         mask = mask_2d_arrays.WedgeMasks2D.get_mask(
             num_rows=4,
             num_cols=6,
-            anchor=box_positions.Positions.Side.Top,
+            anchor=check_positions.Positions.Side.Top,
         )
         self.assertEqual(
             mask.shape,

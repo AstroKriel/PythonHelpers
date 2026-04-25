@@ -27,29 +27,21 @@ class Positions:
     PositionLike: TypeAlias = check_enums.EnumMemberLike
 
     class Center(str, Enum):
-        """The single centred position. Valid for mpl `ha`/`va` and mpl `loc`."""
-
         Center = "center"
 
     class Corner(str, Enum):
-        """The four corners of a box. Valid for mpl `loc` anchor and quadrant mask selection."""
-
         TopLeft = "upper left"
         TopRight = "upper right"
         BottomLeft = "lower left"
         BottomRight = "lower right"
 
     class Edge(str, Enum):
-        """The four edge midpoints of a box. Valid for mpl `loc` anchor and colorbar placement."""
-
         Top = "upper center"
         Left = "center left"
         Right = "center right"
         Bottom = "lower center"
 
     class Side(str, Enum):
-        """The four faces of a box. Valid for colorbar side and axis label side; not for mpl `loc`."""
-
         Top = "top"
         Left = "left"
         Right = "right"
@@ -63,7 +55,7 @@ class Positions:
 
 class MPLPositions:
     """
-    Filtered views of `Positions` organised by mpl parameter concept.
+    `Positions` organised by mpl parameter concept.
 
     Use instead of `Positions` when selecting a value for a specific mpl parameter; the
     sub-class pre-filters members to what that parameter actually accepts, so no knowledge
@@ -71,22 +63,14 @@ class MPLPositions:
     """
 
     class Anchor:
-        """
-        Valid positions for mpl `loc` (legend anchor, colorbar anchor).
-
-        Accepts corners, edge midpoints, and center; not sides.
-        """
+        """Valid positions for mpl `loc`."""
 
         Corner = Positions.Corner
         Edge = Positions.Edge
         Center = Positions.Center
 
     class Align:
-        """
-        Valid positions for mpl `ha` and `va` (text horizontal and vertical alignment).
-
-        Accepts sides and center; not corners or edges.
-        """
+        """Valid positions for mpl `ha` and `va` (text horizontal and vertical alignment)."""
 
         Side = Positions.Side
         Center = Positions.Center
@@ -107,16 +91,13 @@ _AlignLike: TypeAlias = Positions.Side | Positions.Center
 
 
 class RuntimeTypes:
-
     class Box:
-
         Center = check_enums.as_runtime_type(Positions.Center)
         Corner = check_enums.as_runtime_type(Positions.Corner)
         Edge = check_enums.as_runtime_type(Positions.Edge)
         Side = check_enums.as_runtime_type(Positions.Side)
 
     class MPL:
-
         AnchorLike = check_enums.as_runtime_type(_AnchorLike)
         AlignLike = check_enums.as_runtime_type(_AlignLike)
 

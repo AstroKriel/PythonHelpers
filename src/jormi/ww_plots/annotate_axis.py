@@ -18,7 +18,7 @@ from matplotlib.lines import Line2D as mpl_line2d
 ## local
 from jormi.ww_plots import manage_plots
 from jormi.ww_types import (
-    box_positions,
+    check_positions,
     check_arrays,
     check_types,
 )
@@ -58,8 +58,8 @@ def add_text(
     x_pos: float,
     y_pos: float,
     label: str,
-    x_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Center.Center,
-    y_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Center.Center,
+    x_alignment: check_positions.Positions.PositionLike = check_positions.Positions.Center.Center,
+    y_alignment: check_positions.Positions.PositionLike = check_positions.Positions.Center.Center,
     text_size: float = 20,
     text_color: ColorType = "black",
     box_alpha: float = 0.0,
@@ -107,8 +107,8 @@ def add_text(
         param_name="rotate_deg",
         allow_none=True,
     )
-    x_anchor = box_positions.as_mpl_ha(x_alignment)
-    y_anchor = box_positions.as_mpl_va(y_alignment)
+    x_anchor = check_positions.as_mpl_ha(x_alignment)
+    y_anchor = check_positions.as_mpl_va(y_alignment)
     box_params = (
         dict(
             facecolor=box_color,
@@ -141,7 +141,7 @@ def add_custom_legend(
     text_size: float = 16,
     text_color: ColorType = "black",
     anchor_point: tuple[float, float] = (1.0, 1.0),
-    anchor_at_corner: box_positions.Positions.PositionLike = box_positions.Positions.Corner.TopRight,
+    anchor_at_corner: check_positions.Positions.PositionLike = check_positions.Positions.Corner.TopRight,
     frame_alpha: float = 0.0,
     num_cols: int = 1,
     spacing: float = 0.5,
@@ -199,7 +199,7 @@ def add_custom_legend(
         min_value=0.0,
         max_value=1.0,
     )
-    anchor_at_corner = box_positions.as_mpl_anchor(position=anchor_at_corner)
+    anchor_at_corner = check_positions.as_mpl_anchor(position=anchor_at_corner)
     ## build artist handles from style strings
     artists_to_draw = []
     for artist, color in zip(artists, colors):

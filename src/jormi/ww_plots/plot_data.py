@@ -17,7 +17,7 @@ from jormi.ww_plots import (
     manage_plots,
 )
 from jormi.ww_types import (
-    box_positions,
+    check_positions,
     check_arrays,
     check_types,
 )
@@ -154,7 +154,7 @@ def plot_2d_array(
     palette_config: add_color.PaletteConfig | None = None,
     add_cbar: bool = True,
     cbar_label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    cbar_side: check_positions.Positions.PositionLike = check_positions.Positions.Side.Right,
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
