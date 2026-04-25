@@ -8,7 +8,7 @@
 from dataclasses import dataclass
 
 ## local
-from jormi.ww_arrays.farrays_3d.farray_types import FieldArray as FieldArray
+from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_validation import validate_arrays, validate_types
 
 ##
@@ -41,7 +41,7 @@ class FieldData:
     axes are spatial.
     """
 
-    farray: FieldArray
+    farray: farray_types.FieldArray
     num_ranks: int
     num_comps: int
     num_sdims: int
