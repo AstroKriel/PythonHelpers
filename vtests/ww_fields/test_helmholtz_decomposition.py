@@ -22,7 +22,7 @@ from jormi.ww_fields.fields_3d import (
 )
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
-from jormi.ww_types import check_types
+from jormi.ww_validation import validate_python_types
 
 
 class _VFieldEntry(TypedDict):
@@ -83,13 +83,13 @@ def generate_uniform_vfield(
     udomain_3d: domain_types.UniformDomain_3D,
 ) -> field_types.VectorField_3D:
     """Generate a uniform (bulk-only) vector field with constant components."""
-    check_types.ensure_sequence(
+    validate_python_types.ensure_sequence(
         param=const_vector,
         param_name="const_vector",
         allow_none=False,
         seq_length=3,
-        valid_seq_types=check_types.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=check_types.RuntimeTypes.Numerics.FloatLike,
+        valid_seq_types=validate_python_types.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=validate_python_types.RuntimeTypes.Numerics.FloatLike,
     )
     resolution = udomain_3d.resolution
     varray = numpy.stack(
@@ -111,13 +111,13 @@ def generate_mixed_vfield(
     bulk_vector: tuple[float, float, float] | None = None,
 ) -> field_types.VectorField_3D:
     """Generate a mixed field: div + sol (+ optional uniform bulk)."""
-    check_types.ensure_sequence(
+    validate_python_types.ensure_sequence(
         param=bulk_vector,
         param_name="bulk_vector",
         allow_none=True,
         seq_length=3,
-        valid_seq_types=check_types.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=check_types.RuntimeTypes.Numerics.FloatLike,
+        valid_seq_types=validate_python_types.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=validate_python_types.RuntimeTypes.Numerics.FloatLike,
     )
     varray_div = field_types.extract_3d_varray(generate_div_vfield(udomain_3d))
     varray_sol = field_types.extract_3d_varray(generate_sol_vfield(udomain_3d))
