@@ -43,6 +43,7 @@ def read_json_file_into_dict(
     *,
     verbose: bool = True,
 ) -> dict[str, Any]:
+    """Read a JSON file at `file_path` into a dictionary."""
     validate_types.ensure_bool(
         param=verbose,
         param_name="verbose",
@@ -90,6 +91,15 @@ def save_dict_to_json_file(
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
+    """
+    Save `input_dict` to a JSON file at `file_path`.
+
+    Parameters
+    ---
+    - `overwrite`:
+        Overwrite the file when `True`; recursively merge into the existing dictionary
+        when `False` and the file already exists.
+    """
     validate_types.ensure_bool(
         param=overwrite,
         param_name="overwrite",

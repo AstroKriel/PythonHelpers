@@ -21,6 +21,7 @@ def create_directory(
     *,
     verbose: bool = True,
 ) -> None:
+    """Create `directory` and any missing parents if it does not already exist."""
     directory = Path(directory).resolve(strict=False)
     if not directory.is_dir():
         directory.mkdir(parents=True)
@@ -95,6 +96,17 @@ def copy_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
+    """
+    Copy `file_name` from `directory_from` to `directory_to`.
+
+    Parameters
+    ---
+    - `overwrite`:
+        Raise `FileExistsError` if the target file already exists when `False`.
+
+    - `dry_run`:
+        Log what would happen without copying or creating directories.
+    """
     file_path_from, file_path_to = _resolve_file_paths(
         directory_from=directory_from,
         directory_to=directory_to,
@@ -134,6 +146,17 @@ def move_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
+    """
+    Move `file_name` from `directory_from` to `directory_to`.
+
+    Parameters
+    ---
+    - `overwrite`:
+        Raise `FileExistsError` if the target file already exists when `False`.
+
+    - `dry_run`:
+        Log what would happen without moving or creating directories.
+    """
     file_path_from, file_path_to = _resolve_file_paths(
         directory_from=directory_from,
         directory_to=directory_to,
@@ -171,6 +194,7 @@ def delete_file(
     dry_run: bool = False,
     verbose: bool = True,
 ) -> None:
+    """Delete `file_name` from `directory`; logs without deleting when `dry_run` is `True`."""
     directory = Path(directory)
     if not directory.is_dir():
         raise NotADirectoryError(f"directory does not exist: {directory}.")

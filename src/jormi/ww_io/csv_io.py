@@ -55,6 +55,11 @@ def read_csv_file_into_dict(
     delimiter: str = ",",
     verbose: bool = True,
 ) -> dict[str, list[float]]:
+    """
+    Read a CSV file at `file_path` into a dictionary mapping column names to float lists.
+
+    Raises `ValueError` if any cell is missing or non-numeric.
+    """
     validate_types.ensure_bool(
         param=verbose,
         param_name="verbose",
@@ -100,6 +105,14 @@ def save_dict_to_csv_file(
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
+    """
+    Save `input_dict` to a CSV file at `file_path`.
+
+    Parameters
+    ---
+    - `overwrite`:
+        Overwrite the file when `True`; append new rows to the existing file when `False`.
+    """
     validate_types.ensure_bool(
         param=overwrite,
         param_name="overwrite",
