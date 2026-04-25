@@ -332,7 +332,12 @@ def compute_curvature_sarray(
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> NDArray[Any]:
-    """Compute curvature magnitude sqrt(kappa_i kappa_i) from a 3D varray."""
+    """
+    Compute curvature magnitude sqrt(kappa_i kappa_i) from a 3D varray.
+
+    This implementation is tailored to the scalar curvature magnitude and
+    avoids building the full curvature vector first.
+    """
     farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
