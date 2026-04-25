@@ -134,7 +134,9 @@ def compute_helmholtz_decomposed_farrays(
             ],
             axis=0,
         )
+    del kx_grid, ky_grid, kz_grid, k_magn_grid, sarray_3d_k_dot_fft_q
     varray_3d_fft_sol = varray_3d_fft_q - varray_3d_fft_div
+    del varray_3d_fft_q
     varray_3d_div = numpy.fft.ifftn(
         varray_3d_fft_div,
         axes=(1, 2, 3),
@@ -143,6 +145,7 @@ def compute_helmholtz_decomposed_farrays(
         dtype,
         copy=False,
     )
+    del varray_3d_fft_div
     varray_3d_sol = numpy.fft.ifftn(
         varray_3d_fft_sol,
         axes=(1, 2, 3),
@@ -151,6 +154,7 @@ def compute_helmholtz_decomposed_farrays(
         dtype,
         copy=False,
     )
+    del varray_3d_fft_sol
     varray_3d_bulk = numpy.fft.ifftn(
         varray_3d_fft_bulk,
         axes=(1, 2, 3),
@@ -159,6 +163,7 @@ def compute_helmholtz_decomposed_farrays(
         dtype,
         copy=False,
     )
+    del varray_3d_fft_bulk
     return HelmholtzDecomposedFArrays_3D(
         varray_3d_div=varray_3d_div,
         varray_3d_sol=varray_3d_sol,
@@ -265,6 +270,7 @@ def compute_tnb_farrays(
         out=uvarray_3d_tangent,
         where=(sarray_3d_f_magn > 0),
     )
+    del sarray_3d_f_magn
     ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
     r2tarray_3d_gradf = farray_operators.compute_varray_grad(
         varray_3d=varray_3d,
@@ -288,6 +294,7 @@ def compute_tnb_farrays(
         r2tarray_3d_gradf,
         optimize=True,
     )
+    del r2tarray_3d_gradf
     ## curvature vector kappa_j and magnitude |kappa|
     sarray_3d_inv_magn_sq = numpy.zeros_like(sarray_3d_f_magn_sq)
     numpy.divide(
@@ -296,11 +303,13 @@ def compute_tnb_farrays(
         out=sarray_3d_inv_magn_sq,
         where=(sarray_3d_f_magn_sq > 0),
     )
+    del sarray_3d_f_magn_sq
     sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
     varray_3d_kappa = (
         varray_3d_normal_term1 * sarray_3d_inv_magn_sq
         - varray_3d_normal_term2 * sarray_3d_inv_magn4
     )
+    del varray_3d_normal_term1, varray_3d_normal_term2, sarray_3d_inv_magn_sq, sarray_3d_inv_magn4
     sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
@@ -313,6 +322,7 @@ def compute_tnb_farrays(
         out=uvarray_3d_normal,
         where=(sarray_3d_curvature > 0.0),
     )
+    del varray_3d_kappa
     ## B_i = (T x N)_i
     uvarray_3d_binormal = farray_operators.compute_varray_cross_product(
         varray_3d_a=uvarray_3d_tangent,
@@ -516,6 +526,7 @@ def compute_magnetic_curvature_farrays(
         axis1=0,  # grad-dir i
         axis2=1,  # comp j
     )
+    del r2tarray_3d_gradu
     return MagneticCurvatureFArrays_3D(
         sarray_3d_curvature=sarray_3d_curvature,
         sarray_3d_stretching=sarray_3d_stretching,
