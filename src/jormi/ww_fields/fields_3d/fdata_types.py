@@ -9,8 +9,7 @@ from dataclasses import dataclass
 from typing import Any
 
 ## third-party
-import numpy
-from numpy.typing import NDArray, DTypeLike
+from numpy.typing import DTypeLike, NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import farray_types

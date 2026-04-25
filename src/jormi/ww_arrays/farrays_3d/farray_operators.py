@@ -584,6 +584,85 @@ def compute_varray_magnitude(
 
 
 ##
+## === KINETIC DISSIPATION
+##
+
+
+def compute_varray_kinetic_dissipation(
+    *,
+    varray_3d_u: NDArray[Any],
+    cell_widths_3d: tuple[float, float, float],
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """
+    Compute d_j S_ji for a 3D velocity varray u_j, where
+
+        S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
+    """
+    farray_types.ensure_3d_varray(
+        varray_3d=varray_3d_u,
+        param_name="<varray_3d_u>",
+    )
+    num_cells_x, num_cells_y, num_cells_z = varray_3d_u.shape[1:]
+    dtype = varray_3d_u.dtype
+    r2tarray_3d_gradu = compute_varray_grad(
+        varray_3d=varray_3d_u,
+        cell_widths_3d=cell_widths_3d,
+        r2tarray_3d_gradf=None,
+        grad_order=grad_order,
+    )
+    sarray_3d_divu = numpy.trace(
+        r2tarray_3d_gradu,
+        axis1=0,
+        axis2=1,
+    )
+    r2tarray_3d_sym = 0.5 * r2tarray_3d_gradu + numpy.transpose(
+        r2tarray_3d_gradu,
+        axes=(1, 0, 2, 3, 4),
+    )
+    identity_matrix = numpy.eye(3, dtype=dtype)
+    r2tarray_3d_bulk = numpy.einsum(
+        "ij,xyz->jixyz",
+        identity_matrix,
+        sarray_3d_divu,
+        optimize=True,
+    )
+    r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
+    nabla = difference_sarrays.get_grad_fn(grad_order)
+    cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
+    varray_3d_df = farray_types.ensure_farray_metadata(
+        farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
+        farray=None,
+        dtype=dtype,
+    )
+    for comp_i in range(3):
+        varray_3d_df[comp_i, ...] = nabla(
+            sarray_3d=r2tarray_3d_S[0, comp_i],
+            cell_width=cell_width_x,
+            grad_axis=0,
+        )
+        numpy.add(
+            varray_3d_df[comp_i, ...],
+            nabla(
+                sarray_3d=r2tarray_3d_S[1, comp_i],
+                cell_width=cell_width_y,
+                grad_axis=1,
+            ),
+            out=varray_3d_df[comp_i, ...],
+        )
+        numpy.add(
+            varray_3d_df[comp_i, ...],
+            nabla(
+                sarray_3d=r2tarray_3d_S[2, comp_i],
+                cell_width=cell_width_z,
+                grad_axis=2,
+            ),
+            out=varray_3d_df[comp_i, ...],
+        )
+    return varray_3d_df
+
+
+##
 ## === UNIT VECTOR (3D) ARRAY OPERATORS
 ##
 

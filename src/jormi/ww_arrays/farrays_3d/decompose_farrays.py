@@ -18,7 +18,6 @@ from jormi.ww_arrays.farrays_3d import (
     farray_operators,
     farray_types,
 )
-from jormi.ww_fields.fields_3d import fdata_types
 from jormi.ww_validation import validate_types
 
 ##

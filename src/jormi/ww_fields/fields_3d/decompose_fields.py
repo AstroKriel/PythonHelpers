@@ -8,8 +8,8 @@
 from dataclasses import dataclass
 
 ## local
+from jormi.ww_arrays.farrays_3d import decompose_farrays as _decompose_farrays
 from jormi.ww_fields.fields_3d import (
-    _decompose_farrays,
     domain_types,
     field_types,
 )
