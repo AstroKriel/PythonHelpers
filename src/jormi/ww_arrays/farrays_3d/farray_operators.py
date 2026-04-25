@@ -121,29 +121,29 @@ def compute_sarray_grad(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray_3d.shape
     dtype = numpy.result_type(sarray_3d.dtype, numpy.float64)
-    varray_3d_gradf = farray_types.ensure_farray_metadata(
+    varray_3d_grad_f = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=varray_3d_out,
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     ## fill d_i f vector: (gradient-dir-i, x0, x1, x2)
-    varray_3d_gradf[0, ...] = nabla(
+    varray_3d_grad_f[0, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_x,
         grad_axis=0,
     )
-    varray_3d_gradf[1, ...] = nabla(
+    varray_3d_grad_f[1, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_y,
         grad_axis=1,
     )
-    varray_3d_gradf[2, ...] = nabla(
+    varray_3d_grad_f[2, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_z,
         grad_axis=2,
     )
-    return varray_3d_gradf
+    return varray_3d_grad_f
 
 
 def scale_sarray_inplace(
@@ -324,7 +324,7 @@ def compute_varray_grad(
     varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_gradf: NDArray[Any] | None = None,
+    r2tarray_3d_grad_f: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
@@ -350,30 +350,30 @@ def compute_varray_grad(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
-    r2tarray_3d_gradf = farray_types.ensure_farray_metadata(
+    r2tarray_3d_grad_f = farray_types.ensure_farray_metadata(
         farray_shape=(3, 3, num_cells_x, num_cells_y, num_cells_z),
-        farray=r2tarray_3d_gradf,
+        farray=r2tarray_3d_grad_f,
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     ## fill d_i f_j tensor: (component-j, gradient-dir-i, x0, x1, x2)
     for comp_j in range(3):
-        r2tarray_3d_gradf[comp_j, 0, ...] = nabla(
+        r2tarray_3d_grad_f[comp_j, 0, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_x,
             grad_axis=0,
         )
-        r2tarray_3d_gradf[comp_j, 1, ...] = nabla(
+        r2tarray_3d_grad_f[comp_j, 1, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_y,
             grad_axis=1,
         )
-        r2tarray_3d_gradf[comp_j, 2, ...] = nabla(
+        r2tarray_3d_grad_f[comp_j, 2, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_z,
             grad_axis=2,
         )
-    return r2tarray_3d_gradf
+    return r2tarray_3d_grad_f
 
 
 def compute_varray_cross_product(
@@ -673,26 +673,26 @@ def compute_varray_kinetic_dissipation(
         param_name="<varray_3d_u>",
     )
     dtype = varray_3d_u.dtype
-    r2tarray_3d_gradu = compute_varray_grad(
+    r2tarray_3d_grad_u = compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_gradf=None,
+        r2tarray_3d_grad_f=None,
         grad_order=grad_order,
     )
-    sarray_3d_divu = numpy.trace(
-        r2tarray_3d_gradu,
+    sarray_3d_div_u = numpy.trace(
+        r2tarray_3d_grad_u,
         axis1=0,
         axis2=1,
     )
-    r2tarray_3d_sym = 0.5 * r2tarray_3d_gradu + numpy.transpose(
-        r2tarray_3d_gradu,
+    r2tarray_3d_sym = 0.5 * r2tarray_3d_grad_u + numpy.transpose(
+        r2tarray_3d_grad_u,
         axes=(1, 0, 2, 3, 4),
     )
     identity_matrix = numpy.eye(3, dtype=dtype)
     r2tarray_3d_bulk = numpy.einsum(
         "ij,xyz->jixyz",
         identity_matrix,
-        sarray_3d_divu,
+        sarray_3d_div_u,
         optimize=True,
     )
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk

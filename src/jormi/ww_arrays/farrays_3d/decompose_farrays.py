@@ -234,7 +234,7 @@ def compute_tnb_farrays(
     grad_order: int = 2,
 ) -> TNBDecomposedFArrays_3D:
     """
-    Compute T_i, N_i, B_i and curvature sqrt(kappa_i kappa_i) from a 3D varray.
+    Compute t_i, n_i, b_i and curvature sqrt(kappa_i kappa_i) from a 3D varray.
 
     Returns:
       - uvarray_3d_tangent   (3, num_x0_cells, num_x1_cells, num_x2_cells)
@@ -262,7 +262,7 @@ def compute_tnb_farrays(
         sarray_3d_f_magn_sq,
         dtype=sarray_3d_f_magn_sq.dtype,
     )
-    ## T_i = f_i / |f|
+    ## t_i = f_i / |f|
     uvarray_3d_tangent = numpy.zeros_like(varray_3d)
     numpy.divide(
         varray_3d,
@@ -272,17 +272,17 @@ def compute_tnb_farrays(
     )
     del sarray_3d_f_magn
     ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
-    r2tarray_3d_gradf = farray_operators.compute_varray_grad(
+    r2tarray_3d_grad_f = farray_operators.compute_varray_grad(
         varray_3d=varray_3d,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_gradf=None,
+        r2tarray_3d_grad_f=None,
         grad_order=grad_order,
     )
     ## term1_j = f_i * (d_i f_j)
     varray_3d_normal_term1 = numpy.einsum(
         "ixyz,jixyz->jxyz",
         varray_3d,
-        r2tarray_3d_gradf,
+        r2tarray_3d_grad_f,
         optimize=True,
     )
     ## term2_j = f_i f_j f_m (d_i f_m)
@@ -291,10 +291,10 @@ def compute_tnb_farrays(
         varray_3d,
         varray_3d,
         varray_3d,
-        r2tarray_3d_gradf,
+        r2tarray_3d_grad_f,
         optimize=True,
     )
-    del r2tarray_3d_gradf
+    del r2tarray_3d_grad_f
     ## curvature vector kappa_j and magnitude |kappa|
     sarray_3d_inv_magn_sq = numpy.zeros_like(sarray_3d_f_magn_sq)
     numpy.divide(
@@ -314,7 +314,7 @@ def compute_tnb_farrays(
         varray_3d=varray_3d_kappa,
     )
     numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
-    ## N_i = kappa_i / |kappa|
+    ## n_i = kappa_i / |kappa|
     uvarray_3d_normal = numpy.zeros_like(varray_3d_kappa)
     numpy.divide(
         varray_3d_kappa,
@@ -323,7 +323,7 @@ def compute_tnb_farrays(
         where=(sarray_3d_curvature > 0.0),
     )
     del varray_3d_kappa
-    ## B_i = (T x N)_i
+    ## b_i = (t x n)_i
     uvarray_3d_binormal = farray_operators.compute_varray_cross_product(
         varray_3d_a=uvarray_3d_tangent,
         varray_3d_b=uvarray_3d_normal,
@@ -455,7 +455,7 @@ def compute_magnetic_curvature_farrays(
     uvarray_3d_tangent: NDArray[Any],
     uvarray_3d_normal: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_gradu: NDArray[Any] | None = None,
+    r2tarray_3d_grad_u: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> MagneticCurvatureFArrays_3D:
     """
@@ -498,10 +498,10 @@ def compute_magnetic_curvature_farrays(
         require_positive=True,
     )
     ## d_i u_j: (j, i, x0, x1, x2)
-    r2tarray_3d_gradu = farray_operators.compute_varray_grad(
+    r2tarray_3d_grad_u = farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_gradf=r2tarray_3d_gradu,
+        r2tarray_3d_grad_f=r2tarray_3d_grad_u,
         grad_order=grad_order,
     )
     ## curvature = n_i n_j d_i u_j
@@ -509,7 +509,7 @@ def compute_magnetic_curvature_farrays(
         "ixyz,jxyz,jixyz->xyz",
         uvarray_3d_normal,
         uvarray_3d_normal,
-        r2tarray_3d_gradu,
+        r2tarray_3d_grad_u,
         optimize=True,
     )
     ## stretching = t_i t_j d_i u_j
@@ -517,16 +517,16 @@ def compute_magnetic_curvature_farrays(
         "ixyz,jxyz,jixyz->xyz",
         uvarray_3d_tangent,
         uvarray_3d_tangent,
-        r2tarray_3d_gradu,
+        r2tarray_3d_grad_u,
         optimize=True,
     )
     ## compression = d_i u_i = trace over (i,j)
     sarray_3d_compression = numpy.trace(
-        r2tarray_3d_gradu,
+        r2tarray_3d_grad_u,
         axis1=0,  # grad-dir i
         axis2=1,  # comp j
     )
-    del r2tarray_3d_gradu
+    del r2tarray_3d_grad_u
     return MagneticCurvatureFArrays_3D(
         sarray_3d_curvature=sarray_3d_curvature,
         sarray_3d_stretching=sarray_3d_stretching,
@@ -602,7 +602,7 @@ def compute_lorentz_force_farrays(
         allow_none=False,
         require_positive=True,
     )
-    ## TNB + curvature for B
+    ## TNB + curvature for b
     tnb_farrays = compute_tnb_farrays(
         varray_3d=varray_3d_b,
         cell_widths_3d=cell_widths_3d,
@@ -615,7 +615,7 @@ def compute_lorentz_force_farrays(
     sarray_3d_b_magn_sq = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_b,
     )
-    ## d_i P where P = 0.5 * |b|^2
+    ## d_i p where p = 0.5 * |b|^2
     nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
@@ -640,7 +640,7 @@ def compute_lorentz_force_farrays(
         grad_axis=2,
     )
     varray_3d_grad_p *= 0.5
-    ## pressure aligned with B: t_i t_j d_j P
+    ## pressure aligned with b: t_i t_j d_j p
     varray_3d_grad_p_aligned = numpy.einsum(
         "ixyz,jxyz,jxyz->ixyz",
         uvarray_3d_tangent,
@@ -654,7 +654,7 @@ def compute_lorentz_force_farrays(
     del sarray_3d_b_magn_sq, sarray_3d_curvature
     varray_3d_tension = sarray_3d_tension_scalar[numpy.newaxis, ...] * uvarray_3d_normal
     del sarray_3d_tension_scalar, uvarray_3d_normal
-    ## grad_p_perp_i = d_i P - t_i t_j d_j P
+    ## grad_p_perp_i = d_i p - t_i t_j d_j p
     varray_3d_grad_p_perp = varray_3d_grad_p - varray_3d_grad_p_aligned
     del varray_3d_grad_p, varray_3d_grad_p_aligned
     ## lorentz_i = tension_i - grad_p_perp_i

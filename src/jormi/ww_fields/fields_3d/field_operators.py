@@ -67,14 +67,14 @@ def compute_sfield_gradient(
     )
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
-    varray_3d_gradf = farray_operators.compute_sarray_grad(
+    varray_3d_grad_f = farray_operators.compute_sarray_grad(
         sarray_3d=sarray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         varray_3d_out=varray_3d_out,
         grad_order=grad_order,
     )
     return field_models.VectorField_3D.from_3d_varray(
-        varray_3d=varray_3d_gradf,
+        varray_3d=varray_3d_grad_f,
         udomain_3d=udomain_3d,
         field_label=field_label,
         sim_time=sim_time,

@@ -368,7 +368,7 @@ def compute_magnetic_curvature_decomposed_fields(
 class LorentzForceFields_3D:
     vfield_3d_lorentz: field_models.VectorField_3D
     vfield_3d_tension: field_models.VectorField_3D
-    vfield_3d_gradP_perp: field_models.VectorField_3D
+    vfield_3d_grad_p_perp: field_models.VectorField_3D
 
     def __post_init__(
         self,
@@ -383,8 +383,8 @@ class LorentzForceFields_3D:
             param_name="<vfield_3d_tension>",
         )
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_gradP_perp,
-            param_name="<vfield_3d_gradP_perp>",
+            vfield_3d=self.vfield_3d_grad_p_perp,
+            param_name="<vfield_3d_grad_p_perp>",
         )
         ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
@@ -395,9 +395,9 @@ class LorentzForceFields_3D:
         )
         field_models.ensure_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_lorentz,
-            field_3d_b=self.vfield_3d_gradP_perp,
+            field_3d_b=self.vfield_3d_grad_p_perp,
             field_name_a="<vfield_3d_lorentz>",
-            field_name_b="<vfield_3d_gradP_perp>",
+            field_name_b="<vfield_3d_grad_p_perp>",
         )
 
 
@@ -444,7 +444,7 @@ def compute_lorentz_force_decomposed_fields(
         field_label=r"b_k b_k \kappa_i",
         sim_time=sim_time,
     )
-    vfield_3d_gradP_perp = field_models.VectorField_3D.from_3d_varray(
+    vfield_3d_grad_p_perp = field_models.VectorField_3D.from_3d_varray(
         varray_3d=lf_3d_farrays.varray_3d_grad_p_perp,
         udomain_3d=udomain_3d,
         field_label=r"[d_i (b_k b_k / 2)]_\perp",
@@ -453,7 +453,7 @@ def compute_lorentz_force_decomposed_fields(
     return LorentzForceFields_3D(
         vfield_3d_lorentz=vfield_3d_lorentz,
         vfield_3d_tension=vfield_3d_tension,
-        vfield_3d_gradP_perp=vfield_3d_gradP_perp,
+        vfield_3d_grad_p_perp=vfield_3d_grad_p_perp,
     )
 
 

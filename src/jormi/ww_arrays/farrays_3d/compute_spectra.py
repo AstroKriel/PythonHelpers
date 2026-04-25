@@ -93,7 +93,7 @@ def _compute_3d_power_spectrum_sarray(
     sarray_3d_q: NDArray[Any],
     resolution_3d: tuple[int, int, int],
 ) -> NDArray[Any]:
-    """Compute the 3D power spectrum |F(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
+    """Compute the 3D power spectrum |f(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
     farray_types.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
