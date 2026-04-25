@@ -61,9 +61,10 @@ class TestIsotropicPowerSpectrum(unittest.TestCase):
     def test_lengths_match_after_construction(
         self,
     ) -> None:
-        k = numpy.arange(_N, dtype=float)
-        s = numpy.zeros(_N)
-        spectrum = IsotropicPowerSpectrum(k_bin_centers_1d=k, spectrum_1d=s)
+        spectrum = IsotropicPowerSpectrum(
+            k_bin_centers_1d=numpy.arange(_N, dtype=float),
+            spectrum_1d=numpy.zeros(_N),
+        )
         self.assertEqual(
             spectrum.k_bin_centers_1d.shape[0],
             spectrum.spectrum_1d.shape[0],

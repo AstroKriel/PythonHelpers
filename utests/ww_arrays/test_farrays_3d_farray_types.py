@@ -108,13 +108,19 @@ class TestEnsureFarrayMetadata(unittest.TestCase):
         self,
     ) -> None:
         out = farray_types.ensure_farray_metadata(farray_shape=_SSHAPE, farray=None)
-        self.assertEqual(out.shape, _SSHAPE)
+        self.assertEqual(
+            out.shape,
+            _SSHAPE,
+        )
 
     def test_default_dtype_is_float64(
         self,
     ) -> None:
         out = farray_types.ensure_farray_metadata(farray_shape=_SSHAPE, farray=None)
-        self.assertEqual(out.dtype, numpy.float64)
+        self.assertEqual(
+            out.dtype,
+            numpy.float64,
+        )
 
     def test_respects_explicit_dtype(
         self,
@@ -124,22 +130,34 @@ class TestEnsureFarrayMetadata(unittest.TestCase):
             farray=None,
             dtype=numpy.float32,
         )
-        self.assertEqual(out.dtype, numpy.float32)
+        self.assertEqual(
+            out.dtype,
+            numpy.float32,
+        )
 
     def test_reuses_compatible_farray(
         self,
     ) -> None:
         existing = numpy.zeros(_SSHAPE, dtype=numpy.float64)
         out = farray_types.ensure_farray_metadata(farray_shape=_SSHAPE, farray=existing)
-        self.assertIs(out, existing)
+        self.assertIs(
+            out,
+            existing,
+        )
 
     def test_reallocates_on_shape_mismatch(
         self,
     ) -> None:
         existing = numpy.zeros((_N, _N), dtype=numpy.float64)
         out = farray_types.ensure_farray_metadata(farray_shape=_SSHAPE, farray=existing)
-        self.assertEqual(out.shape, _SSHAPE)
-        self.assertIsNot(out, existing)
+        self.assertEqual(
+            out.shape,
+            _SSHAPE,
+        )
+        self.assertIsNot(
+            out,
+            existing,
+        )
 
     def test_reallocates_on_dtype_mismatch(
         self,
@@ -150,8 +168,14 @@ class TestEnsureFarrayMetadata(unittest.TestCase):
             farray=existing,
             dtype=numpy.float64,
         )
-        self.assertIsNot(out, existing)
-        self.assertEqual(out.dtype, numpy.float64)
+        self.assertIsNot(
+            out,
+            existing,
+        )
+        self.assertEqual(
+            out.dtype,
+            numpy.float64,
+        )
 
 
 ## } U-TEST

@@ -55,7 +55,9 @@ class TestGradient(unittest.TestCase):
             sarray_3d=_const_sarray(3.0),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertTrue(numpy.allclose(result, 0.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 0.0, atol=_ATOL),
+        )
 
     def test_gradient_output_is_varray(
         self,
@@ -64,7 +66,10 @@ class TestGradient(unittest.TestCase):
             sarray_3d=_const_sarray(),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertEqual(result.shape, _VSHAPE)
+        self.assertEqual(
+            result.shape,
+            _VSHAPE,
+        )
 
 
 class TestCurl(unittest.TestCase):
@@ -76,7 +81,9 @@ class TestCurl(unittest.TestCase):
             varray_3d=_const_varray(1.0, 2.0, 3.0),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertTrue(numpy.allclose(result, 0.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 0.0, atol=_ATOL),
+        )
 
     def test_curl_output_is_varray(
         self,
@@ -85,7 +92,10 @@ class TestCurl(unittest.TestCase):
             varray_3d=_const_varray(),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertEqual(result.shape, _VSHAPE)
+        self.assertEqual(
+            result.shape,
+            _VSHAPE,
+        )
 
 
 class TestDivergence(unittest.TestCase):
@@ -97,7 +107,9 @@ class TestDivergence(unittest.TestCase):
             varray_3d=_const_varray(1.0, 2.0, 3.0),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertTrue(numpy.allclose(result, 0.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 0.0, atol=_ATOL),
+        )
 
     def test_divergence_output_is_sarray(
         self,
@@ -106,7 +118,10 @@ class TestDivergence(unittest.TestCase):
             varray_3d=_const_varray(),
             cell_widths_3d=_CELL_WIDTHS,
         )
-        self.assertEqual(result.shape, _SSHAPE)
+        self.assertEqual(
+            result.shape,
+            _SSHAPE,
+        )
 
 
 class TestCrossProduct(unittest.TestCase):
@@ -119,7 +134,9 @@ class TestCrossProduct(unittest.TestCase):
             varray_3d_a=varray,
             varray_3d_b=varray,
         )
-        self.assertTrue(numpy.allclose(result, 0.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 0.0, atol=_ATOL),
+        )
 
     def test_cross_product_output_is_varray(
         self,
@@ -128,7 +145,10 @@ class TestCrossProduct(unittest.TestCase):
             varray_3d_a=_const_varray(1.0, 0.0, 0.0),
             varray_3d_b=_const_varray(0.0, 1.0, 0.0),
         )
-        self.assertEqual(result.shape, _VSHAPE)
+        self.assertEqual(
+            result.shape,
+            _VSHAPE,
+        )
 
 
 class TestSumOfVarrayCompsSquared(unittest.TestCase):
@@ -142,14 +162,18 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
             varray_3d_a=varray,
             varray_3d_b=varray,
         )
-        self.assertTrue(numpy.allclose(sum_sq, dot, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(sum_sq, dot, atol=_ATOL),
+        )
 
     def test_constant_vector_sum_of_squares(
         self,
     ) -> None:
         varray = _const_varray(1.0, 2.0, 3.0)
         result = farray_operators.sum_of_varray_comps_squared(varray_3d=varray)
-        self.assertTrue(numpy.allclose(result, 14.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 14.0, atol=_ATOL),
+        )
 
 
 class TestMagnitude(unittest.TestCase):
@@ -159,14 +183,18 @@ class TestMagnitude(unittest.TestCase):
     ) -> None:
         varray = _const_varray(1.0, 2.0, 3.0)
         result = farray_operators.compute_varray_magnitude(varray_3d=varray)
-        self.assertTrue(numpy.all(result >= 0.0))
+        self.assertTrue(
+            numpy.all(result >= 0.0),
+        )
 
     def test_magnitude_of_constant_vector(
         self,
     ) -> None:
         varray = _const_varray(3.0, 4.0, 0.0)
         result = farray_operators.compute_varray_magnitude(varray_3d=varray)
-        self.assertTrue(numpy.allclose(result, 5.0, atol=_ATOL))
+        self.assertTrue(
+            numpy.allclose(result, 5.0, atol=_ATOL),
+        )
 
 
 ## } U-TEST
