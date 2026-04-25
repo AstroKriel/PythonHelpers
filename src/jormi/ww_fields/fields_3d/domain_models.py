@@ -16,7 +16,7 @@ from typing import Any, cast
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields import _domain_types
+from jormi.ww_fields import _domain_models
 from jormi.ww_validation import validate_types
 
 ##
@@ -25,7 +25,7 @@ from jormi.ww_validation import validate_types
 
 
 @dataclass(frozen=True)
-class UniformDomain_3D(_domain_types.UniformDomain):
+class UniformDomain_3D(_domain_models.UniformDomain):
     """
     Uniform 3D domain: `num_sdims == 3`.
 

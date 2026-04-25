@@ -17,7 +17,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import (
-    _domain_types,
+    _domain_models,
     cartesian_axes,
 )
 from jormi.ww_validation import validate_types
@@ -28,7 +28,7 @@ from jormi.ww_validation import validate_types
 
 
 @dataclass(frozen=True)
-class UniformDomain_2D(_domain_types.UniformDomain):
+class UniformDomain_2D(_domain_models.UniformDomain):
     """
     Uniform 2D domain: `num_sdims == 2`.
 

@@ -14,8 +14,8 @@ import numpy
 ## local
 from jormi.ww_fields.fields_3d import (
     compute_spectra,
-    domain_types,
-    field_types,
+    domain_models,
+    field_models,
 )
 
 ##
@@ -25,8 +25,8 @@ from jormi.ww_fields.fields_3d import (
 
 def _make_3d_udomain(
     resolution: tuple[int, int, int],
-) -> domain_types.UniformDomain_3D:
-    return domain_types.UniformDomain_3D(
+) -> domain_models.UniformDomain_3D:
+    return domain_models.UniformDomain_3D(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -35,9 +35,9 @@ def _make_3d_udomain(
 
 def _make_sfield(
     sarray_3d: numpy.ndarray[Any, numpy.dtype[Any]],
-) -> field_types.ScalarField_3D:
+) -> field_models.ScalarField_3D:
     resolution = sarray_3d.shape
-    return field_types.ScalarField_3D.from_3d_sarray(
+    return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=_make_3d_udomain(resolution),
         field_label="f",

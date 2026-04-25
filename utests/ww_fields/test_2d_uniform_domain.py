@@ -12,7 +12,7 @@ import numpy
 
 ## local
 from jormi.ww_fields import cartesian_axes
-from jormi.ww_fields.fields_2d import domain_types
+from jormi.ww_fields.fields_2d import domain_models
 
 ##
 ## === TEST SUITES
@@ -24,7 +24,7 @@ class TestConstruction(unittest.TestCase):
     def test_constructs_valid_2d_domain(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D(
+        udomain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, False),
             resolution=(8, 4),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
@@ -50,7 +50,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            domain_types.UniformDomain_2D(
+            domain_models.UniformDomain_2D(
                 num_sdims=2, # type: ignore
                 periodicity=(True, False),
                 resolution=(8, 4),
@@ -61,7 +61,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            domain_types.UniformDomain_2D(
+            domain_models.UniformDomain_2D(
                 periodicity=(True, False),
                 resolution=(8, 4, 2),  # type: ignore
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -71,7 +71,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            domain_types.UniformDomain_2D(
+            domain_models.UniformDomain_2D(
                 periodicity=(True, False),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), ),  # type: ignore
@@ -83,7 +83,7 @@ class TestProperties(unittest.TestCase):
     def test_lengths_widths_area_total_area(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D(
+        udomain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(10, 4),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0)),
@@ -108,7 +108,7 @@ class TestProperties(unittest.TestCase):
     def test_cell_centers_shapes_and_values(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D(
+        udomain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(4, 2),
             domain_bounds=((0.0, 1.0), (0.0, 2.0)),
@@ -134,7 +134,7 @@ class TestProperties(unittest.TestCase):
     def test_cached_properties_return_same_object(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D(
+        udomain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -158,7 +158,7 @@ class TestSliced3D(unittest.TestCase):
     def test_constructs_and_normalises_axis_enum(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D_Sliced3D.from_slice(
+        udomain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(8, 8),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -178,7 +178,7 @@ class TestSliced3D(unittest.TestCase):
     def test_accepts_int_and_enum_axis_inputs(
         self,
     ):
-        udomain_from_int = domain_types.UniformDomain_2D_Sliced3D.from_slice(
+        udomain_from_int = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -195,7 +195,7 @@ class TestSliced3D(unittest.TestCase):
             2,
         )
 
-        udomain_from_enum = domain_types.UniformDomain_2D_Sliced3D.from_slice(
+        udomain_from_enum = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -216,7 +216,7 @@ class TestSliced3D(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            domain_types.UniformDomain_2D_Sliced3D.from_slice(
+            domain_models.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -229,7 +229,7 @@ class TestSliced3D(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            domain_types.UniformDomain_2D_Sliced3D.from_slice(
+            domain_models.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -242,7 +242,7 @@ class TestSliced3D(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            domain_types.UniformDomain_2D_Sliced3D(
+            domain_models.UniformDomain_2D_Sliced3D(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -255,7 +255,7 @@ class TestSliced3D(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            domain_types.UniformDomain_2D_Sliced3D.from_slice(
+            domain_models.UniformDomain_2D_Sliced3D.from_slice(
                 periodicity=(True, True),
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -270,7 +270,7 @@ class TestEnsureHelpers(unittest.TestCase):
     def test_ensure_2d_udomain_accepts_subtype(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D_Sliced3D.from_slice(
+        udomain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -278,18 +278,18 @@ class TestEnsureHelpers(unittest.TestCase):
             slice_index=0,
             slice_position=0.0,
         )
-        domain_types.ensure_2d_udomain(udomain_2d=udomain_2d)
+        domain_models.ensure_2d_udomain(udomain_2d=udomain_2d)
 
     def test_ensure_2d_udomain_sliced_from_3d_rejects_plain_2d(
         self,
     ):
-        udomain_2d = domain_types.UniformDomain_2D(
+        udomain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(TypeError):
-            domain_types.ensure_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
+            domain_models.ensure_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
 
 
 ##

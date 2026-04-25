@@ -11,7 +11,7 @@ from jormi.ww_arrays.farrays_3d import (
 )
 from jormi.ww_fields.fields_3d import (
     field_operators,
-    field_types,
+    field_models,
 )
 from jormi.ww_validation import validate_types
 
@@ -21,22 +21,22 @@ from jormi.ww_validation import validate_types
 
 
 def compute_magnetic_energy_density_sfield(
-    vfield_3d_b: field_types.VectorField_3D,
+    vfield_3d_b: field_models.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
     field_label: str = "E_mag",
-) -> field_types.ScalarField_3D:
+) -> field_models.ScalarField_3D:
     """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
     validate_types.ensure_finite_float(
         param=energy_prefactor,
         param_name="<energy_prefactor>",
         allow_none=False,
     )
-    field_types.ensure_3d_vfield(
+    field_models.ensure_3d_vfield(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    varray_3d_b = field_types.extract_3d_varray(
+    varray_3d_b = field_models.extract_3d_varray(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
@@ -49,7 +49,7 @@ def compute_magnetic_energy_density_sfield(
         sarray_3d=sarray_3d_b2,
         scale=energy_prefactor,
     )
-    return field_types.ScalarField_3D.from_3d_sarray(
+    return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_b2,
         udomain_3d=udomain_3d,
         field_label=field_label,
@@ -58,7 +58,7 @@ def compute_magnetic_energy_density_sfield(
 
 
 def compute_total_magnetic_energy_value(
-    vfield_3d_b: field_types.VectorField_3D,
+    vfield_3d_b: field_models.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
 ) -> float:
@@ -78,16 +78,16 @@ def compute_total_magnetic_energy_value(
 
 
 def compute_kinetic_dissipation_vfield(
-    vfield_3d_u: field_types.VectorField_3D,
+    vfield_3d_u: field_models.VectorField_3D,
     *,
     grad_order: int = 2,
-) -> field_types.VectorField_3D:
+) -> field_models.VectorField_3D:
     """
     Compute d_j S_ji for a 3D velocity field u_i, where
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    field_types.ensure_3d_vfield(
+    field_models.ensure_3d_vfield(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
@@ -97,7 +97,7 @@ def compute_kinetic_dissipation_vfield(
         allow_none=False,
         require_positive=True,
     )
-    varray_3d_u = field_types.extract_3d_varray(
+    varray_3d_u = field_models.extract_3d_varray(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
@@ -108,7 +108,7 @@ def compute_kinetic_dissipation_vfield(
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    return field_types.VectorField_3D.from_3d_varray(
+    return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_df,
         udomain_3d=udomain_3d,
         field_label=r"d_j \mathcal{S}_{j i}",
@@ -122,12 +122,12 @@ def compute_kinetic_dissipation_vfield(
 
 
 def compute_curvature_sfield(
-    vfield_3d: field_types.VectorField_3D,
+    vfield_3d: field_models.VectorField_3D,
     *,
     grad_order: int = 2,
-) -> field_types.ScalarField_3D:
+) -> field_models.ScalarField_3D:
     """Compute field line curvature magnitude sqrt(kappa_i kappa_i) from a 3D vector field."""
-    field_types.ensure_3d_vfield(
+    field_models.ensure_3d_vfield(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
@@ -137,7 +137,7 @@ def compute_curvature_sfield(
         allow_none=False,
         require_positive=True,
     )
-    varray_3d = field_types.extract_3d_varray(
+    varray_3d = field_models.extract_3d_varray(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
@@ -148,7 +148,7 @@ def compute_curvature_sfield(
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    return field_types.ScalarField_3D.from_3d_sarray(
+    return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_kappa,
         udomain_3d=udomain_3d,
         field_label="sqrt(kappa_i kappa_i)",

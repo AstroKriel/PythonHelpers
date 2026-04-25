@@ -12,10 +12,10 @@ from typing import Any, Self
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields import _field_types
+from jormi.ww_fields import _field_models
 from jormi.ww_fields.fields_2d import (
-    fdata_types,
-    domain_types,
+    _field_data,
+    domain_models,
 )
 from jormi.ww_validation import validate_types
 
@@ -25,11 +25,11 @@ from jormi.ww_validation import validate_types
 
 
 @dataclass(frozen=True)
-class ScalarField_2D(_field_types.Field):
+class ScalarField_2D(_field_models.Field):
     """2D scalar field: `num_ranks == 0`, `num_comps == 1`, `num_sdims == 2`."""
 
-    fdata: fdata_types.ScalarFieldData_2D
-    udomain: domain_types.UniformDomain_2D
+    fdata: _field_data.ScalarFieldData_2D
+    udomain: domain_models.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -40,11 +40,11 @@ class ScalarField_2D(_field_types.Field):
     def _ensure_sdata(
         self,
     ) -> None:
-        fdata_types.ensure_2d_sdata(
+        _field_data.ensure_2d_sdata(
             sdata_2d=self.fdata,
             param_name="<sfield_2d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field_models.ensure_field_metadata(
             field=self,
             num_comps=1,
             num_sdims=2,
@@ -57,16 +57,16 @@ class ScalarField_2D(_field_types.Field):
         cls,
         *,
         sarray_2d: NDArray[Any],
-        udomain_2d: domain_types.UniformDomain_2D,
+        udomain_2d: domain_models.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D scalar field from a (num_x0_cells, num_x1_cells) ndarray."""
-        fdata_types.ensure_2d_sarray(
+        _field_data.ensure_2d_sarray(
             sarray_2d=sarray_2d,
             param_name="<sarray_2d>",
         )
-        sdata_2d = fdata_types.ScalarFieldData_2D(
+        sdata_2d = _field_data.ScalarFieldData_2D(
             farray=sarray_2d,
             param_name="<sdata_2d>",
         )
@@ -82,15 +82,15 @@ class ScalarField_2D(_field_types.Field):
         self,
     ) -> bool:
         """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain_types.UniformDomain_2D_Sliced3D)
+        return isinstance(self.udomain, domain_models.UniformDomain_2D_Sliced3D)
 
 
 @dataclass(frozen=True)
-class VectorField_2D(_field_types.Field):
+class VectorField_2D(_field_models.Field):
     """2D vector field: `num_ranks == 1`, `num_comps == 2`, `num_sdims == 2`."""
 
-    fdata: fdata_types.VectorFieldData_2D
-    udomain: domain_types.UniformDomain_2D
+    fdata: _field_data.VectorFieldData_2D
+    udomain: domain_models.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -101,11 +101,11 @@ class VectorField_2D(_field_types.Field):
     def _ensure_vdata(
         self,
     ) -> None:
-        fdata_types.ensure_2d_vdata(
+        _field_data.ensure_2d_vdata(
             vdata_2d=self.fdata,
             param_name="<vfield_2d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field_models.ensure_field_metadata(
             field=self,
             num_comps=2,
             num_sdims=2,
@@ -118,16 +118,16 @@ class VectorField_2D(_field_types.Field):
         cls,
         *,
         varray_2d: NDArray[Any],
-        udomain_2d: domain_types.UniformDomain_2D,
+        udomain_2d: domain_models.UniformDomain_2D,
         field_label: str,
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D vector field from a (2, num_x0_cells, num_x1_cells) ndarray."""
-        fdata_types.ensure_2d_varray(
+        _field_data.ensure_2d_varray(
             varray_2d=varray_2d,
             param_name="<varray_2d>",
         )
-        vdata_2d = fdata_types.VectorFieldData_2D(
+        vdata_2d = _field_data.VectorFieldData_2D(
             farray=varray_2d,
             param_name="<vdata_2d>",
         )
@@ -143,7 +143,7 @@ class VectorField_2D(_field_types.Field):
         self,
     ) -> bool:
         """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain_types.UniformDomain_2D_Sliced3D)
+        return isinstance(self.udomain, domain_models.UniformDomain_2D_Sliced3D)
 
 
 ##
@@ -185,7 +185,7 @@ def ensure_2d_sfield_sliced_from_3d(
         sfield_2d=sfield_2d,
         param_name=param_name,
     )
-    domain_types.ensure_2d_udomain_sliced_from_3d(
+    domain_models.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=sfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )
@@ -201,7 +201,7 @@ def ensure_2d_vfield_sliced_from_3d(
         vfield_2d=vfield_2d,
         param_name=param_name,
     )
-    domain_types.ensure_2d_udomain_sliced_from_3d(
+    domain_models.ensure_2d_udomain_sliced_from_3d(
         udomain_2d=vfield_2d.udomain,
         param_name=f"{param_name}.udomain",
     )

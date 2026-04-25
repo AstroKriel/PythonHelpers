@@ -7,16 +7,16 @@
 ## local
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_fields.fields_2d import (
-    domain_types as _2d_domain_type,
+    domain_models as _2d_domain_model,
 )
 from jormi.ww_fields.fields_2d import (
-    field_types as _2d_field_type,
+    field_models as _2d_field_model,
 )
 from jormi.ww_fields.fields_3d import (
-    domain_types as _3d_domain_type,
+    domain_models as _3d_domain_model,
 )
 from jormi.ww_fields.fields_3d import (
-    field_types as _3d_field_type,
+    field_models as _3d_field_model,
 )
 from jormi.ww_validation import validate_types
 
@@ -27,11 +27,11 @@ from jormi.ww_validation import validate_types
 
 def _slice_3d_udomain(
     *,
-    udomain_3d: _3d_domain_type.UniformDomain_3D,
+    udomain_3d: _3d_domain_model.UniformDomain_3D,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     param_name: str = "<udomain_3d>",
-) -> _2d_domain_type.UniformDomain_2D_Sliced3D:
+) -> _2d_domain_model.UniformDomain_2D_Sliced3D:
     """Construct a 2D sliced domain from a 3D uniform domain."""
     out_of_plane_axis = cartesian_axes.as_axis(
         axis=out_of_plane_axis,
@@ -79,7 +79,7 @@ def _slice_3d_udomain(
     cell_centers_3d = udomain_3d.cell_centers
     out_of_plane_cell_centers = cell_centers_3d[out_of_plane_axis_index]
     slice_position = float(out_of_plane_cell_centers[slice_index])
-    return _2d_domain_type.UniformDomain_2D_Sliced3D.from_slice(
+    return _2d_domain_model.UniformDomain_2D_Sliced3D.from_slice(
         periodicity=periodicity_2d,
         resolution=resolution_2d,
         domain_bounds=domain_bounds_2d,
@@ -95,20 +95,20 @@ def _slice_3d_udomain(
 
 
 def slice_3d_sfield(
-    sfield_3d: _3d_field_type.ScalarField_3D,
+    sfield_3d: _3d_field_model.ScalarField_3D,
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
-) -> _2d_field_type.ScalarField_2D:
+) -> _2d_field_model.ScalarField_2D:
     """
     Slice a 3D scalar field into a 2D scalar field.
 
     The 2D domain is a UniformDomain_2D_Sliced3D carrying metadata
     about the out-of-plane axis and slice position.
     """
-    _3d_field_type.ensure_3d_sfield(sfield_3d=sfield_3d)
-    sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d=sfield_3d)
+    _3d_field_model.ensure_3d_sfield(sfield_3d=sfield_3d)
+    sarray_3d = _3d_field_model.extract_3d_sarray(sfield_3d=sfield_3d)
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
     slice_param_name = "<sfield_3d_slice>"
@@ -131,7 +131,7 @@ def slice_3d_sfield(
         sarray_2d = sarray_3d[:, :, slice_index]
     if field_label is None:
         field_label = sfield_3d.field_label
-    return _2d_field_type.ScalarField_2D.from_2d_sarray(
+    return _2d_field_model.ScalarField_2D.from_2d_sarray(
         sarray_2d=sarray_2d,
         udomain_2d=udomain_2d,
         field_label=field_label,
@@ -145,20 +145,20 @@ def slice_3d_sfield(
 
 
 def slice_3d_vfield_inplane(
-    vfield_3d: _3d_field_type.VectorField_3D,
+    vfield_3d: _3d_field_model.VectorField_3D,
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
-) -> _2d_field_type.VectorField_2D:
+) -> _2d_field_model.VectorField_2D:
     """
     Slice a 3D vector field into a 2D vector field of in-plane components.
 
     The resulting 2D vector has two components corresponding to the
     components tangent to the slice plane.
     """
-    _3d_field_type.ensure_3d_vfield(vfield_3d=vfield_3d)
-    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d=vfield_3d)
+    _3d_field_model.ensure_3d_vfield(vfield_3d=vfield_3d)
+    varray_3d = _3d_field_model.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     slice_param_name = "<vfield_3d_slice_inplane>"
@@ -183,7 +183,7 @@ def slice_3d_vfield_inplane(
         varray_2d = varray_3d[comp_indices, :, :, slice_index]
     if field_label is None:
         field_label = vfield_3d.field_label
-    return _2d_field_type.VectorField_2D.from_2d_varray(
+    return _2d_field_model.VectorField_2D.from_2d_varray(
         varray_2d=varray_2d,
         udomain_2d=udomain_2d,
         field_label=field_label,
@@ -192,15 +192,15 @@ def slice_3d_vfield_inplane(
 
 
 def slice_3d_vfield_outofplane(
-    vfield_3d: _3d_field_type.VectorField_3D,
+    vfield_3d: _3d_field_model.VectorField_3D,
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     field_label: str | None = None,
-) -> _2d_field_type.ScalarField_2D:
+) -> _2d_field_model.ScalarField_2D:
     """Slice a 3D vector field into a 2D scalar field of the out-of-plane component."""
-    _3d_field_type.ensure_3d_vfield(vfield_3d=vfield_3d)
-    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d=vfield_3d)
+    _3d_field_model.ensure_3d_vfield(vfield_3d=vfield_3d)
+    varray_3d = _3d_field_model.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     slice_param_name = "<vfield_3d_slice_outofplane>"
@@ -223,7 +223,7 @@ def slice_3d_vfield_outofplane(
         sarray_2d = varray_3d[2, :, :, slice_index]
     if field_label is None:
         field_label = vfield_3d.field_label
-    return _2d_field_type.ScalarField_2D.from_2d_sarray(
+    return _2d_field_model.ScalarField_2D.from_2d_sarray(
         sarray_2d=sarray_2d,
         udomain_2d=udomain_2d,
         field_label=field_label,

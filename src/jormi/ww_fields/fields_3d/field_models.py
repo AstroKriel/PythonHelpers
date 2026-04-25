@@ -15,12 +15,12 @@ from jormi.ww_arrays.farrays_3d import farray_operators
 
 ## local
 from jormi.ww_fields import (
-    _field_types,
+    _field_models,
     cartesian_axes,
 )
 from jormi.ww_fields.fields_3d import (
-    domain_types,
-    fdata_types,
+    domain_models,
+    _field_data,
 )
 from jormi.ww_validation import validate_types
 
@@ -30,11 +30,11 @@ from jormi.ww_validation import validate_types
 
 
 @dataclass(frozen=True)
-class ScalarField_3D(_field_types.Field):
+class ScalarField_3D(_field_models.Field):
     """3D scalar field: num_ranks=0, num_comps=1, num_sdims=3."""
 
-    fdata: fdata_types.ScalarFieldData_3D
-    udomain: domain_types.UniformDomain_3D
+    fdata: _field_data.ScalarFieldData_3D
+    udomain: domain_models.UniformDomain_3D
 
     def __post_init__(
         self,
@@ -45,11 +45,11 @@ class ScalarField_3D(_field_types.Field):
     def _ensure_sdata(
         self,
     ) -> None:
-        fdata_types.ensure_3d_sdata(
+        _field_data.ensure_3d_sdata(
             sdata_3d=self.fdata,
             param_name="<sfield_3d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field_models.ensure_field_metadata(
             field=self,
             num_comps=1,
             num_sdims=3,
@@ -62,7 +62,7 @@ class ScalarField_3D(_field_types.Field):
         cls,
         *,
         sarray_3d: NDArray[Any],
-        udomain_3d: domain_types.UniformDomain_3D,
+        udomain_3d: domain_models.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
     ) -> "ScalarField_3D":
@@ -72,17 +72,17 @@ class ScalarField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=fdata_types.ScalarFieldData_3D,
+            fdata_fn=_field_data.ScalarFieldData_3D,
             fdata_param_name="<sarray_3d>",
         )
 
 
 @dataclass(frozen=True)
-class VectorField_3D(_field_types.Field):
+class VectorField_3D(_field_models.Field):
     """3D vector field: num_ranks=1, num_comps=3, num_sdims=3."""
 
-    fdata: fdata_types.VectorFieldData_3D
-    udomain: domain_types.UniformDomain_3D
+    fdata: _field_data.VectorFieldData_3D
+    udomain: domain_models.UniformDomain_3D
     comp_axes: cartesian_axes.AxisTuple_3D = cartesian_axes.DEFAULT_3D_AXES_ORDER
 
     def __post_init__(
@@ -95,11 +95,11 @@ class VectorField_3D(_field_types.Field):
     def _ensure_vdata(
         self,
     ) -> None:
-        fdata_types.ensure_3d_vdata(
+        _field_data.ensure_3d_vdata(
             vdata_3d=self.fdata,
             param_name="<vfield_3d.fdata>",
         )
-        _field_types.ensure_field_metadata(
+        _field_models.ensure_field_metadata(
             field=self,
             num_comps=3,
             num_sdims=3,
@@ -132,7 +132,7 @@ class VectorField_3D(_field_types.Field):
         cls,
         *,
         varray_3d: NDArray[Any],
-        udomain_3d: domain_types.UniformDomain_3D,
+        udomain_3d: domain_models.UniformDomain_3D,
         field_label: str,
         sim_time: float | None = None,
     ) -> "VectorField_3D":
@@ -142,7 +142,7 @@ class VectorField_3D(_field_types.Field):
             udomain=udomain_3d,
             field_label=field_label,
             sim_time=sim_time,
-            fdata_fn=fdata_types.VectorFieldData_3D,
+            fdata_fn=_field_data.VectorFieldData_3D,
             fdata_param_name="<varray_3d>",
         )
 
@@ -258,7 +258,7 @@ def ensure_3d_uvfield(
 def ensure_3d_udomain_matches_sfield(
     *,
     sfield_3d: ScalarField_3D,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain_models.UniformDomain_3D,
     domain_name: str = "<udomain_3d>",
     sfield_name: str = "<sfield_3d>",
 ) -> None:
@@ -267,7 +267,7 @@ def ensure_3d_udomain_matches_sfield(
         sfield_3d=sfield_3d,
         param_name=sfield_name,
     )
-    _field_types.ensure_udomain_matches_field(
+    _field_models.ensure_udomain_matches_field(
         udomain=udomain_3d,
         field=sfield_3d,
         domain_name=domain_name,
@@ -277,7 +277,7 @@ def ensure_3d_udomain_matches_sfield(
 
 def ensure_3d_udomain_matches_vfield(
     *,
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain_models.UniformDomain_3D,
     vfield_3d: VectorField_3D,
     domain_name: str = "<udomain_3d>",
     vfield_name: str = "<vfield_3d>",
@@ -287,7 +287,7 @@ def ensure_3d_udomain_matches_vfield(
         vfield_3d=vfield_3d,
         param_name=vfield_name,
     )
-    _field_types.ensure_udomain_matches_field(
+    _field_models.ensure_udomain_matches_field(
         udomain=udomain_3d,
         field=vfield_3d,
         domain_name=domain_name,
@@ -297,23 +297,23 @@ def ensure_3d_udomain_matches_vfield(
 
 def ensure_same_3d_field_shape(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field_models.Field,
+    field_3d_b: _field_models.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
     """Ensure two 3D Field instances have shape-compatible data arrays."""
-    _field_types.ensure_field_metadata(
+    _field_models.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
         num_sdims=3,
     )
-    _field_types.ensure_field_metadata(
+    _field_models.ensure_field_metadata(
         field=field_3d_b,
         param_name=field_name_b,
         num_sdims=3,
     )
-    _field_types.ensure_same_field_shape(
+    _field_models.ensure_same_field_shape(
         field_a=field_3d_a,
         field_b=field_3d_b,
         field_name_a=field_name_a,
@@ -323,18 +323,18 @@ def ensure_same_3d_field_shape(
 
 def ensure_same_3d_field_udomains(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field_models.Field,
+    field_3d_b: _field_models.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
     """Ensure two 3D Field instances have matching UniformDomain objects."""
-    _field_types.ensure_field_metadata(
+    _field_models.ensure_field_metadata(
         field=field_3d_a,
         param_name=field_name_a,
         num_sdims=3,
     )
-    _field_types.ensure_field_metadata(
+    _field_models.ensure_field_metadata(
         field=field_3d_b,
         param_name=field_name_b,
         num_sdims=3,
@@ -347,8 +347,8 @@ def ensure_same_3d_field_udomains(
 
 def ensure_same_3d_field_shape_and_udomains(
     *,
-    field_3d_a: _field_types.Field,
-    field_3d_b: _field_types.Field,
+    field_3d_a: _field_models.Field,
+    field_3d_b: _field_models.Field,
     field_name_a: str = "<field_3d_a>",
     field_name_b: str = "<field_3d_b>",
 ) -> None:
@@ -382,7 +382,7 @@ def extract_3d_sarray(
         sfield_3d=sfield_3d,
         param_name=param_name,
     )
-    return fdata_types.extract_3d_sarray(
+    return _field_data.extract_3d_sarray(
         sdata_3d=sfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
@@ -398,7 +398,7 @@ def extract_3d_varray(
         vfield_3d=vfield_3d,
         param_name=param_name,
     )
-    return fdata_types.extract_3d_varray(
+    return _field_data.extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
@@ -410,7 +410,7 @@ def extract_3d_varray(
 
 
 def get_label(
-    field: _field_types.Field,
+    field: _field_models.Field,
     *,
     param_name: str = "<field>",
 ) -> str:
@@ -418,7 +418,7 @@ def get_label(
     validate_types.ensure_type(
         param=field,
         param_name=param_name,
-        valid_types=_field_types.Field,
+        valid_types=_field_models.Field,
     )
     return f"${field.field_label}$"
 

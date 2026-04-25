@@ -11,7 +11,7 @@ import unittest
 import numpy
 
 ## local
-from jormi.ww_fields.fields_3d import domain_types
+from jormi.ww_fields.fields_3d import domain_models
 
 ##
 ## === TEST SUITES
@@ -23,7 +23,7 @@ class TestConstruction(unittest.TestCase):
     def test_constructs_valid_3d_domain(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, False),
             resolution=(8, 4, 2),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0), (10.0, 12.0)),
@@ -49,7 +49,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            domain_types.UniformDomain_3D(
+            domain_models.UniformDomain_3D(
                 num_sdims=3, # type: ignore
                 periodicity=(True, False, True),
                 resolution=(8, 4),
@@ -60,7 +60,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            domain_types.UniformDomain_3D(
+            domain_models.UniformDomain_3D(
                 periodicity=(True, True, True),
                 resolution=(8, 4), # type: ignore
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -70,7 +70,7 @@ class TestConstruction(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            domain_types.UniformDomain_3D(
+            domain_models.UniformDomain_3D(
                 periodicity=(True, True, True),
                 resolution=(8, 4, 2),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # type: ignore
@@ -82,7 +82,7 @@ class TestProperties(unittest.TestCase):
     def test_lengths_widths_volume_total_volume(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(10, 4, 2),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0), (0.0, 1.0)),
@@ -111,7 +111,7 @@ class TestProperties(unittest.TestCase):
     def test_cell_centers_shapes_and_values(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 2, 2),
             domain_bounds=((0.0, 1.0), (0.0, 2.0), (-1.0, 1.0)),
@@ -154,7 +154,7 @@ class TestProperties(unittest.TestCase):
     def test_cached_properties_return_same_object(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(3, 3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -178,39 +178,39 @@ class TestEnsureHelpers(unittest.TestCase):
     def test_ensure_3d_udomain_accepts(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
-        domain_types.ensure_3d_udomain(udomain_3d=udomain_3d)
+        domain_models.ensure_3d_udomain(udomain_3d=udomain_3d)
 
     def test_ensure_3d_udomain_rejects_wrong_type(
         self,
     ):
         with self.assertRaises(TypeError):
-            domain_types.ensure_3d_udomain(udomain_3d=None)  # type: ignore
+            domain_models.ensure_3d_udomain(udomain_3d=None)  # type: ignore
 
     def test_ensure_3d_periodic_udomain_accepts_fully_periodic(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, True, True),
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
-        domain_types.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
+        domain_models.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
 
     def test_ensure_3d_periodic_udomain_rejects_not_fully_periodic(
         self,
     ):
-        udomain_3d = domain_types.UniformDomain_3D(
+        udomain_3d = domain_models.UniformDomain_3D(
             periodicity=(True, False, True),
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(ValueError):
-            domain_types.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
+            domain_models.ensure_3d_periodic_udomain(udomain_3d=udomain_3d)
 
 
 ##
