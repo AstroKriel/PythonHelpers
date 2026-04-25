@@ -12,7 +12,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_arrays.farrays_3d.farray_types import FieldArray
+from jormi.ww_arrays.farrays_3d.farray_types import FieldArray as FieldArray
 from jormi.ww_validation import validate_arrays, validate_types
 
 ##
