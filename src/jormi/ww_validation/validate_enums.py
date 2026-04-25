@@ -12,7 +12,7 @@ from typing import get_args
 ## local
 from jormi import ww_lists
 from jormi.ww_validation import validate_types
-from jormi.ww_types import enums
+from jormi.ww_types import enum_aliases
 
 ##
 ## === INTERNAL HELPERS
@@ -28,7 +28,7 @@ def _normalise_string(
 def _find_match_in_enum(
     member_key: str,
     *,
-    enum_type: enums.EnumType,
+    enum_type: enum_aliases.EnumType,
 ) -> Enum | None:
     for member in enum_type:
         if member_key == _normalise_string(member.name):
@@ -41,7 +41,7 @@ def _find_match_in_enum(
 def _find_unique_match(
     member_key: str,
     *,
-    valid_enums: tuple[enums.EnumType, ...],
+    valid_enums: tuple[enum_aliases.EnumType, ...],
 ) -> Enum | None:
     matched_member = None
     for enum_type in valid_enums:
@@ -58,7 +58,7 @@ def _find_unique_match(
 
 
 def _enum_member_names(
-    enum_types: tuple[enums.EnumType, ...],
+    enum_types: tuple[enum_aliases.EnumType, ...],
 ) -> str:
     member_names = [member.name for enum_type in enum_types for member in enum_type]
     member_names = sorted(set(member_names))
@@ -91,7 +91,7 @@ def as_runtime_type(
 
 
 def ensure_sequence_of_enums(
-    param: tuple[enums.EnumType, ...] | list[enums.EnumType],
+    param: tuple[enum_aliases.EnumType, ...] | list[enum_aliases.EnumType],
     *,
     param_name: str = "param",
 ) -> None:
@@ -113,9 +113,9 @@ def ensure_sequence_of_enums(
 
 
 def resolve_member(
-    member: enums.EnumMemberLike,
+    member: enum_aliases.EnumMemberLike,
     *,
-    valid_enums: enums.EnumTypesLike,
+    valid_enums: enum_aliases.EnumTypesLike,
 ) -> Enum:
     """Return `member` as an Enum member from one of `valid_enums`."""
     valid_enums = validate_types.as_tuple(
@@ -151,9 +151,9 @@ def resolve_member(
 
 
 def ensure_valid_member(
-    member: enums.EnumMemberLike,
+    member: enum_aliases.EnumMemberLike,
     *,
-    valid_enums: enums.EnumTypesLike,
+    valid_enums: enum_aliases.EnumTypesLike,
     param_name: str = "<param>",
 ) -> None:
     try:
@@ -166,7 +166,7 @@ def ensure_valid_member(
 
 
 def ensure_member_in(
-    member: enums.EnumMemberLike,
+    member: enum_aliases.EnumMemberLike,
     *,
     valid_members: tuple[Enum, ...] | list[Enum],
     param_name: str = "<param>",
