@@ -79,7 +79,7 @@ class TestScalarFieldRms(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=3.0)
         self.assertAlmostEqual(
-            field_operators.compute_sfield_rms(sfield),
+            field_operators.compute_sfield_rms(sfield_3d=sfield),
             3.0,
         )
 
@@ -88,7 +88,7 @@ class TestScalarFieldRms(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=0.0)
         self.assertAlmostEqual(
-            field_operators.compute_sfield_rms(sfield),
+            field_operators.compute_sfield_rms(sfield_3d=sfield),
             0.0,
         )
 
@@ -103,7 +103,7 @@ class TestScalarFieldRms(unittest.TestCase):
             field_label="f",
         )
         self.assertAlmostEqual(
-            field_operators.compute_sfield_rms(sfield),
+            field_operators.compute_sfield_rms(sfield_3d=sfield),
             1.0,
         )
 
@@ -112,7 +112,7 @@ class TestScalarFieldRms(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=2.0)
         self.assertIsInstance(
-            field_operators.compute_sfield_rms(sfield),
+            field_operators.compute_sfield_rms(sfield_3d=sfield),
             float,
         )
 
@@ -129,7 +129,7 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
             field_label="ones",
         )
         self.assertAlmostEqual(
-            field_operators.compute_sfield_volume_integral(sfield),
+            field_operators.compute_sfield_volume_integral(sfield_3d=sfield),
             2.0 * 3.0 * 4.0,
             places=10,
         )
@@ -139,7 +139,7 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=0.0)
         self.assertAlmostEqual(
-            field_operators.compute_sfield_volume_integral(sfield),
+            field_operators.compute_sfield_volume_integral(sfield_3d=sfield),
             0.0,
         )
 
@@ -150,7 +150,7 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
         domain = _make_3d_udomain()
         sfield = _make_constant_sfield(value=value)
         self.assertAlmostEqual(
-            field_operators.compute_sfield_volume_integral(sfield),
+            field_operators.compute_sfield_volume_integral(sfield_3d=sfield),
             value * domain.total_volume,
             places=10,
         )
@@ -160,7 +160,7 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=1.0)
         self.assertIsInstance(
-            field_operators.compute_sfield_volume_integral(sfield),
+            field_operators.compute_sfield_volume_integral(sfield_3d=sfield),
             float,
         )
 
@@ -174,7 +174,7 @@ class TestScalarFieldGradient(unittest.TestCase):
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_varray(vfield_grad),
+                field_types.extract_3d_varray(vfield_3d=vfield_grad),
                 0.0,
             ),
         )
@@ -242,7 +242,7 @@ class TestScalarFieldGradient(unittest.TestCase):
             field_label="sin_x0",
         )
         vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
-        varray = field_types.extract_3d_varray(vfield_grad)
+        varray = field_types.extract_3d_varray(vfield_3d=vfield_grad)
         expected_dx0 = (
             2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0_centers)[:, None, None] * numpy.ones(resolution)
         )
@@ -295,10 +295,10 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x1=4.0,
             value_in_x2=0.0,
         )
-        sfield_magn = field_operators.compute_vfield_magnitude(vfield)
+        sfield_magn = field_operators.compute_vfield_magnitude(vfield_3d=vfield)
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_magn),
+                field_types.extract_3d_sarray(sfield_3d=sfield_magn),
                 5.0,
             ),
         )
@@ -311,10 +311,10 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        sfield_magn = field_operators.compute_vfield_magnitude(vfield)
+        sfield_magn = field_operators.compute_vfield_magnitude(vfield_3d=vfield)
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_magn),
+                field_types.extract_3d_sarray(sfield_3d=sfield_magn),
                 0.0,
             ),
         )
@@ -327,10 +327,10 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        sfield_magn = field_operators.compute_vfield_magnitude(vfield)
+        sfield_magn = field_operators.compute_vfield_magnitude(vfield_3d=vfield)
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_magn),
+                field_types.extract_3d_sarray(sfield_3d=sfield_magn),
                 1.0,
             ),
         )
@@ -344,7 +344,7 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertIsInstance(
-            field_operators.compute_vfield_magnitude(vfield),
+            field_operators.compute_vfield_magnitude(vfield_3d=vfield),
             field_types.ScalarField_3D,
         )
 
@@ -356,7 +356,7 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        sfield_magn = field_operators.compute_vfield_magnitude(vfield)
+        sfield_magn = field_operators.compute_vfield_magnitude(vfield_3d=vfield)
         self.assertEqual(
             sfield_magn.udomain,
             vfield.udomain,
@@ -384,7 +384,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_dot),
+                field_types.extract_3d_sarray(sfield_3d=sfield_dot),
                 0.0,
             ),
         )
@@ -403,7 +403,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_dot),
+                field_types.extract_3d_sarray(sfield_3d=sfield_dot),
                 1.0,
             ),
         )
@@ -426,7 +426,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             vfield_3d_b=vfield_b,
         )
         self.assertTrue(
-            numpy.allclose(field_types.extract_3d_sarray(sfield_dot), 32.0),
+            numpy.allclose(field_types.extract_3d_sarray(sfield_3d=sfield_dot), 32.0),
         )
 
     def test_dot_product_is_commutative(
@@ -452,8 +452,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_ab),
-                field_types.extract_3d_sarray(sfield_ba),
+                field_types.extract_3d_sarray(sfield_3d=sfield_ab),
+                field_types.extract_3d_sarray(sfield_3d=sfield_ba),
             ),
         )
 
@@ -518,7 +518,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_a=vfield_x0,
             vfield_3d_b=vfield_x1,
         )
-        varray = field_types.extract_3d_varray(vfield_cross)
+        varray = field_types.extract_3d_varray(vfield_3d=vfield_cross)
         self.assertTrue(
             numpy.allclose(
                 varray[0],
@@ -555,7 +555,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_a=vfield_x1,
             vfield_3d_b=vfield_x0,
         )
-        varray = field_types.extract_3d_varray(vfield_cross)
+        varray = field_types.extract_3d_varray(vfield_3d=vfield_cross)
         self.assertTrue(
             numpy.allclose(varray[2], -1.0),
         )
@@ -583,8 +583,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_varray(vfield_ab),
-                -field_types.extract_3d_varray(vfield_ba),
+                field_types.extract_3d_varray(vfield_3d=vfield_ab),
+                -field_types.extract_3d_varray(vfield_3d=vfield_ba),
             ),
         )
 
@@ -602,7 +602,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_varray(vfield_cross),
+                field_types.extract_3d_varray(vfield_3d=vfield_cross),
                 0.0,
             ),
         )
@@ -657,9 +657,9 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x1=2.0,
             value_in_x2=3.0,
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield)
+        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
         self.assertTrue(
-            numpy.allclose(field_types.extract_3d_sarray(sfield_div), 0.0),
+            numpy.allclose(field_types.extract_3d_sarray(sfield_3d=sfield_div), 0.0),
         )
 
     def test_divergence_returns_scalar_field(
@@ -671,7 +671,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertIsInstance(
-            field_operators.compute_vfield_divergence(vfield),
+            field_operators.compute_vfield_divergence(vfield_3d=vfield),
             field_types.ScalarField_3D,
         )
 
@@ -683,7 +683,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield)
+        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
         self.assertEqual(
             sfield_div.udomain,
             vfield.udomain,
@@ -697,7 +697,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield)
+        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
         self.assertEqual(
             sfield_div.fdata.shape,
             _RESOLUTION,
@@ -712,7 +712,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
             field_label="v",
             sim_time=1.0,
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield)
+        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
         assert sfield_div.sim_time is not None
         self.assertAlmostEqual(
             sfield_div.sim_time,
@@ -737,13 +737,13 @@ class TestVectorFieldDivergence(unittest.TestCase):
             udomain_3d=domain,
             field_label="v_sin",
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield)
+        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
         expected = (
             2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0_centers)[:, None, None] * numpy.ones(resolution)
         )
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_sarray(sfield_div),
+                field_types.extract_3d_sarray(sfield_3d=sfield_div),
                 expected,
                 atol=1e-3,
             ),
@@ -759,7 +759,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
         )
         array = numpy.empty(_RESOLUTION)
         result = field_operators.compute_vfield_divergence(
-            vfield,
+            vfield_3d=vfield,
             sarray_3d_out=array,
         )
         self.assertTrue(
@@ -780,10 +780,10 @@ class TestVectorFieldCurl(unittest.TestCase):
             value_in_x1=2.0,
             value_in_x2=3.0,
         )
-        vfield_curl = field_operators.compute_vfield_curl(vfield)
+        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
         self.assertTrue(
             numpy.allclose(
-                field_types.extract_3d_varray(vfield_curl),
+                field_types.extract_3d_varray(vfield_3d=vfield_curl),
                 0.0,
             ),
         )
@@ -797,7 +797,7 @@ class TestVectorFieldCurl(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertIsInstance(
-            field_operators.compute_vfield_curl(vfield),
+            field_operators.compute_vfield_curl(vfield_3d=vfield),
             field_types.VectorField_3D,
         )
 
@@ -805,7 +805,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         self,
     ):
         vfield = _make_constant_vfield(value_in_x0=1.0, value_in_x1=0.0, value_in_x2=0.0)
-        vfield_curl = field_operators.compute_vfield_curl(vfield)
+        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
         self.assertEqual(
             vfield_curl.udomain,
             vfield.udomain,
@@ -815,7 +815,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         self,
     ):
         vfield = _make_constant_vfield(value_in_x0=1.0, value_in_x1=0.0, value_in_x2=0.0)
-        vfield_curl = field_operators.compute_vfield_curl(vfield)
+        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
         self.assertEqual(
             vfield_curl.fdata.sdims_shape,
             _RESOLUTION,
@@ -830,7 +830,7 @@ class TestVectorFieldCurl(unittest.TestCase):
             field_label="v",
             sim_time=3.0,
         )
-        vfield_curl = field_operators.compute_vfield_curl(vfield)
+        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
         assert vfield_curl.sim_time is not None
         self.assertAlmostEqual(
             vfield_curl.sim_time,
@@ -855,8 +855,8 @@ class TestVectorFieldCurl(unittest.TestCase):
             udomain_3d=domain,
             field_label="v_sin",
         )
-        vfield_curl = field_operators.compute_vfield_curl(vfield)
-        varray_curl = field_types.extract_3d_varray(vfield_curl)
+        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
+        varray_curl = field_types.extract_3d_varray(vfield_3d=vfield_curl)
         expected_x2 = (
             2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0_centers)[:, None, None] * numpy.ones(resolution)
         )
@@ -892,7 +892,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         )
         array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_curl(
-            vfield,
+            vfield_3d=vfield,
             varray_3d_out=array,
         )
         self.assertTrue(

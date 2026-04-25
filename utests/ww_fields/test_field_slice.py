@@ -215,7 +215,7 @@ class TestScalarField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d)
+        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d=sfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
@@ -245,7 +245,7 @@ class TestScalarField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d)
+        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d=sfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
@@ -267,7 +267,7 @@ class TestScalarField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d)
+        sarray_3d = field_types_3d.extract_3d_sarray(sfield_3d=sfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
@@ -324,7 +324,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         varray_2d = field_types_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
@@ -347,7 +347,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         varray_2d = field_types_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
@@ -370,7 +370,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         varray_2d = field_types_2d.extract_2d_varray(vfield_2d)
         self.assertEqual(
             varray_2d.shape,
@@ -393,7 +393,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis=0,
             slice_index=1,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
@@ -415,7 +415,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis="X1",
             slice_index=2,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,
@@ -437,7 +437,7 @@ class TestVectorField(unittest.TestCase):
             out_of_plane_axis=cartesian_axes.CartesianAxis_3D.X2,
             slice_index=4,
         )
-        varray_3d = field_types_3d.extract_3d_varray(vfield_3d)
+        varray_3d = field_types_3d.extract_3d_varray(vfield_3d=vfield_3d)
         sarray_2d = field_types_2d.extract_2d_sarray(sfield_2d)
         self.assertEqual(
             sarray_2d.shape,

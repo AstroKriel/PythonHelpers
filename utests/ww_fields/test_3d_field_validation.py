@@ -86,51 +86,51 @@ class TestEnsureFieldTypes(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_3d()
-        field_types.ensure_3d_sfield(sfield)
+        field_types.ensure_3d_sfield(sfield_3d=sfield)
 
     def test_ensure_3d_sfield_rejects_vector_field(
         self,
     ):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_sfield(vfield)  # type: ignore
+            field_types.ensure_3d_sfield(sfield_3d=vfield)  # type: ignore
 
     def test_ensure_3d_sfield_rejects_none(
         self,
     ):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_sfield(None)  # type: ignore
+            field_types.ensure_3d_sfield(sfield_3d=None)  # type: ignore
 
     def test_ensure_3d_vfield_accepts_vector_field(
         self,
     ):
         vfield = _make_vfield_3d()
-        field_types.ensure_3d_vfield(vfield)
+        field_types.ensure_3d_vfield(vfield_3d=vfield)
 
     def test_ensure_3d_vfield_rejects_scalar_field(
         self,
     ):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_vfield(sfield)  # type: ignore
+            field_types.ensure_3d_vfield(vfield_3d=sfield)  # type: ignore
 
     def test_ensure_3d_vfield_rejects_none(
         self,
     ):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_vfield(None)  # type: ignore
+            field_types.ensure_3d_vfield(vfield_3d=None)  # type: ignore
 
     def test_ensure_3d_uvfield_accepts_unit_vector_field(
         self,
     ):
         uvfield = _make_unit_vfield_3d()
-        field_types.ensure_3d_uvfield(uvfield)
+        field_types.ensure_3d_uvfield(uvfield_3d=uvfield)
 
     def test_ensure_3d_uvfield_accepts_uvfield_as_vfield(
         self,
     ):
         uvfield = _make_unit_vfield_3d()
-        field_types.ensure_3d_vfield(uvfield)
+        field_types.ensure_3d_vfield(vfield_3d=uvfield)
 
     def test_ensure_3d_uvfield_rejects_plain_vector_field(
         self,
@@ -143,13 +143,13 @@ class TestEnsureFieldTypes(unittest.TestCase):
             field_label="unit_but_not_uvfield",
         )
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_uvfield(vfield)  # type: ignore
+            field_types.ensure_3d_uvfield(uvfield_3d=vfield)  # type: ignore
 
     def test_ensure_3d_uvfield_rejects_none(
         self,
     ):
         with self.assertRaises(TypeError):
-            field_types.ensure_3d_uvfield(None)  # type: ignore
+            field_types.ensure_3d_uvfield(uvfield_3d=None)  # type: ignore
 
 
 class TestEnsureUdomainMatchesField(unittest.TestCase):
@@ -379,7 +379,7 @@ class TestExtractArrays(unittest.TestCase):
             udomain_3d=_make_3d_udomain(),
             field_label="f",
         )
-        result = field_types.extract_3d_sarray(sfield)
+        result = field_types.extract_3d_sarray(sfield_3d=sfield)
         self.assertEqual(
             result.shape,
             (4, 4, 4),
@@ -396,13 +396,13 @@ class TestExtractArrays(unittest.TestCase):
     ):
         vfield = _make_vfield_3d()
         with self.assertRaises(TypeError):
-            field_types.extract_3d_sarray(vfield)  # type: ignore
+            field_types.extract_3d_sarray(sfield_3d=vfield)  # type: ignore
 
     def test_extract_3d_sarray_rejects_none(
         self,
     ):
         with self.assertRaises(TypeError):
-            field_types.extract_3d_sarray(None)  # type: ignore
+            field_types.extract_3d_sarray(sfield_3d=None)  # type: ignore
 
     def test_extract_3d_varray_returns_correct_array(
         self,
@@ -413,7 +413,7 @@ class TestExtractArrays(unittest.TestCase):
             udomain_3d=_make_3d_udomain(),
             field_label="v",
         )
-        result = field_types.extract_3d_varray(vfield)
+        result = field_types.extract_3d_varray(vfield_3d=vfield)
         self.assertEqual(
             result.shape,
             (3, 4, 4, 4),
@@ -430,19 +430,19 @@ class TestExtractArrays(unittest.TestCase):
     ):
         sfield = _make_sfield_3d()
         with self.assertRaises(TypeError):
-            field_types.extract_3d_varray(sfield)  # type: ignore
+            field_types.extract_3d_varray(vfield_3d=sfield)  # type: ignore
 
     def test_extract_3d_varray_rejects_none(
         self,
     ):
         with self.assertRaises(TypeError):
-            field_types.extract_3d_varray(None)  # type: ignore
+            field_types.extract_3d_varray(vfield_3d=None)  # type: ignore
 
     def test_extract_3d_varray_accepts_uvfield(
         self,
     ):
         uvfield = _make_unit_vfield_3d()
-        result = field_types.extract_3d_varray(uvfield)
+        result = field_types.extract_3d_varray(vfield_3d=uvfield)
         self.assertEqual(
             result.shape,
             (3, 4, 4, 4),
