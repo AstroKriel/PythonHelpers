@@ -16,12 +16,12 @@ from jormi.ww_types import check_enums
 ##
 
 
-class _Center(str, Enum):
+class Center(str, Enum):
 
     Center = "center"
 
 
-class _QuadrantCorner(str, Enum):
+class QuadrantCorner(str, Enum):
     """Corner placements using mpl-loc strings."""
 
     TopLeft = "upper left"
@@ -30,7 +30,7 @@ class _QuadrantCorner(str, Enum):
     BottomRight = "lower right"
 
 
-class _QuadrantEdge(str, Enum):
+class QuadrantEdge(str, Enum):
     """Edge-center placements using mpl-loc strings."""
 
     Top = "upper center"
@@ -39,7 +39,7 @@ class _QuadrantEdge(str, Enum):
     Bottom = "lower center"
 
 
-class _Side(str, Enum):
+class Side(str, Enum):
 
     Top = "top"
     Left = "left"
@@ -61,16 +61,16 @@ class TypeHints:
 
     class Box:
 
-        Center = _Center
-        Corner = _QuadrantCorner
-        Edge = _QuadrantEdge
-        Side = _Side
+        Center = Center
+        Corner = QuadrantCorner
+        Edge = QuadrantEdge
+        Side = Side
 
     class MPL:
         """Type-hint groupings for mpl-style parameters."""
 
-        AnchorLike = _QuadrantCorner | _QuadrantEdge | _Center
-        AlignLike = _Side | _Center
+        AnchorLike = QuadrantCorner | QuadrantEdge | Center
+        AlignLike = Side | Center
 
 
 class RuntimeTypes:
