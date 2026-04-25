@@ -13,11 +13,12 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields.fields_3d import (
+from jormi.ww_arrays.farrays_3d import (
     _difference_sarrays,
-    _farray_operators,
-    _fdata_types,
+    farray_operators,
+    farray_types,
 )
+from jormi.ww_fields.fields_3d import _fdata_types
 from jormi.ww_validation import validate_types
 
 ##
@@ -36,15 +37,15 @@ class HelmholtzDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_div,
             param_name="<varray_3d_div>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_sol,
             param_name="<varray_3d_sol>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_bulk,
             param_name="<varray_3d_bulk>",
         )
@@ -85,7 +86,7 @@ def compute_helmholtz_decomposed_farrays(
     HelmholtzDecomposedFArrays_3D
         Decomposed varrays.
     """
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d_q,
         param_name="<varray_3d_q>",
     )
@@ -95,7 +96,7 @@ def compute_helmholtz_decomposed_farrays(
             f" resolution={resolution},"
             f" varray_3d_q.shape[1:]={varray_3d_q.shape[1:]}.",
         )
-    _farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     num_cells_x, num_cells_y, num_cells_z = resolution
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     dtype = varray_3d_q.dtype
@@ -181,19 +182,19 @@ class TNBDecomposedFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.uvarray_3d_tangent,
             param_name="<uvarray_3d_tangent>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.uvarray_3d_normal,
             param_name="<uvarray_3d_normal>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.uvarray_3d_binormal,
             param_name="<uvarray_3d_binormal>",
         )
-        _fdata_types.ensure_3d_sarray(
+        farray_types.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
         )
@@ -232,11 +233,11 @@ def compute_tnb_farrays(
       - uvarray_3d_binormal  (3, num_x0_cells, num_x1_cells, num_x2_cells)
       - sarray_3d_curvature  (num_x0_cells, num_x1_cells, num_x2_cells)
     """
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    _farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -244,7 +245,7 @@ def compute_tnb_farrays(
         require_positive=True,
     )
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_f_magn_sq = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## |f| = sqrt(f_i f_i)
@@ -261,7 +262,7 @@ def compute_tnb_farrays(
         where=(sarray_3d_f_magn > 0),
     )
     ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
-    r2tarray_3d_gradf = _farray_operators.compute_varray_grad(
+    r2tarray_3d_gradf = farray_operators.compute_varray_grad(
         varray_3d=varray_3d,
         cell_widths_3d=cell_widths_3d,
         r2tarray_3d_gradf=None,
@@ -296,7 +297,7 @@ def compute_tnb_farrays(
         varray_3d_normal_term1 * sarray_3d_inv_magn_sq
         - varray_3d_normal_term2 * sarray_3d_inv_magn4
     )
-    sarray_3d_curvature = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
     numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
@@ -309,7 +310,7 @@ def compute_tnb_farrays(
         where=(sarray_3d_curvature > 0.0),
     )
     ## B_i = (T x N)_i
-    uvarray_3d_binormal = _farray_operators.compute_varray_cross_product(
+    uvarray_3d_binormal = farray_operators.compute_varray_cross_product(
         varray_3d_a=uvarray_3d_tangent,
         varray_3d_b=uvarray_3d_normal,
     )
@@ -328,11 +329,11 @@ def compute_curvature_sarray(
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """Compute curvature magnitude sqrt(kappa_i kappa_i) from a 3D varray."""
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    _farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -340,20 +341,20 @@ def compute_curvature_sarray(
         require_positive=True,
     )
     ## promote low-precision inputs so gradient and curvature algebra run in float64
-    varray_3d = _farray_operators._as_float_view(varray_3d)
+    varray_3d = farray_operators._as_float_view(varray_3d)
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_f_magn_sq = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## term1_j = f_i * (d_i f_j) = ((f . grad) f)_j
-    varray_3d_normal_term1 = _farray_operators.compute_varray_directional_derivative(
+    varray_3d_normal_term1 = farray_operators.compute_varray_directional_derivative(
         varray_3d_direction=varray_3d,
         varray_3d_target=varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
     ## term2_j = f_j * [f_m * term1_m]
-    sarray_3d_normal_prefactor = _farray_operators.dot_over_varray_comps(
+    sarray_3d_normal_prefactor = farray_operators.dot_over_varray_comps(
         varray_3d_a=varray_3d,
         varray_3d_b=varray_3d_normal_term1,
     )
@@ -377,7 +378,7 @@ def compute_curvature_sarray(
         sarray_3d_inv_magn4,
     )
     ## |kappa| = sqrt(kappa_i kappa_i)
-    sarray_3d_curvature = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
     del varray_3d_kappa
@@ -401,15 +402,15 @@ class MagneticCurvatureFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_sarray(
+        farray_types.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_curvature,
             param_name="<sarray_3d_curvature>",
         )
-        _fdata_types.ensure_3d_sarray(
+        farray_types.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_stretching,
             param_name="<sarray_3d_stretching>",
         )
-        _fdata_types.ensure_3d_sarray(
+        farray_types.ensure_3d_sarray(
             sarray_3d=self.sarray_3d_compression,
             param_name="<sarray_3d_compression>",
         )
@@ -444,15 +445,15 @@ def compute_magnetic_curvature_farrays(
         stretching  = t_i t_j d_i u_j
         compression = d_i u_i
     """
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=uvarray_3d_tangent,
         param_name="<uvarray_3d_tangent>",
     )
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=uvarray_3d_normal,
         param_name="<uvarray_3d_normal>",
     )
@@ -468,7 +469,7 @@ def compute_magnetic_curvature_farrays(
             f" tangent={uvarray_3d_tangent.shape},"
             f" normal={uvarray_3d_normal.shape}.",
         )
-    _farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -476,7 +477,7 @@ def compute_magnetic_curvature_farrays(
         require_positive=True,
     )
     ## d_i u_j: (j, i, x0, x1, x2)
-    r2tarray_3d_gradu = _farray_operators.compute_varray_grad(
+    r2tarray_3d_gradu = farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,
         r2tarray_3d_gradf=r2tarray_3d_gradu,
@@ -527,15 +528,15 @@ class LorentzForceFArrays_3D:
     def __post_init__(
         self,
     ) -> None:
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_lorentz,
             param_name="<varray_3d_lorentz>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_tension,
             param_name="<varray_3d_tension>",
         )
-        _fdata_types.ensure_3d_varray(
+        farray_types.ensure_3d_varray(
             varray_3d=self.varray_3d_gradP_perp,
             param_name="<varray_3d_gradP_perp>",
         )
@@ -566,11 +567,11 @@ def compute_lorentz_force_farrays(
         gradP_perp_i = d_i (b_k b_k / 2) - t_i t_j d_j (b_k b_k / 2)
         lorentz_i    = tension_i - gradP_perp_i
     """
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
     )
-    _farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -587,14 +588,14 @@ def compute_lorentz_force_farrays(
     uvarray_3d_normal = tnb_farrays.uvarray_3d_normal
     sarray_3d_curvature = tnb_farrays.sarray_3d_curvature
     ## |b|^2
-    sarray_3d_b_magn_sq = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_b_magn_sq = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_b,
     )
     ## d_i P where P = 0.5 * |b|^2
     nabla = _difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
-    varray_3d_gradP = _fdata_types.ensure_farray_metadata(
+    varray_3d_gradP = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=sarray_3d_b_magn_sq.dtype,

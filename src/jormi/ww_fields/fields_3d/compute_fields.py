@@ -10,10 +10,13 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_arrays.farrays_3d import (
+    _difference_sarrays,
+    farray_operators,
+    farray_types,
+)
 from jormi.ww_fields.fields_3d import (
     _decompose_farrays,
-    _difference_sarrays,
-    _farray_operators,
     _fdata_types,
     field_operators,
     field_types,
@@ -47,10 +50,10 @@ def compute_magnetic_energy_density_sfield(
     )
     udomain_3d = vfield_3d_b.udomain
     sim_time = vfield_3d_b.sim_time
-    sarray_3d_b2 = _farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_b2 = farray_operators.sum_of_varray_comps_squared(
         varray_3d=varray_3d_b,
     )
-    _farray_operators.scale_sarray_inplace(
+    farray_operators.scale_sarray_inplace(
         sarray_3d=sarray_3d_b2,
         scale=energy_prefactor,
     )
@@ -93,13 +96,13 @@ def _compute_kinetic_dissipation_varray(
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
-    _fdata_types.ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
     num_cells_x, num_cells_y, num_cells_z = varray_3d_u.shape[1:]
     dtype = varray_3d_u.dtype
-    r2tarray_3d_gradu = _farray_operators.compute_varray_grad(
+    r2tarray_3d_gradu = farray_operators.compute_varray_grad(
         varray_3d=varray_3d_u,
         cell_widths_3d=cell_widths_3d,
         r2tarray_3d_gradf=None,
@@ -124,7 +127,7 @@ def _compute_kinetic_dissipation_varray(
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
     nabla = _difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_df = _fdata_types.ensure_farray_metadata(
+    varray_3d_df = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
         dtype=dtype,

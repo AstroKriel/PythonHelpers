@@ -6,19 +6,14 @@
 
 ## stdlib
 from dataclasses import dataclass
-from typing import Any, TypeAlias
+from typing import Any
 
 ## third-party
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_arrays.farrays_3d.farray_types import FieldArray
 from jormi.ww_validation import validate_arrays, validate_types
-
-##
-## === TYPE ALIASES
-##
-
-FieldArray: TypeAlias = NDArray[Any]
 
 ##
 ## === DATA CLASSES

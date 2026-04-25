@@ -13,8 +13,8 @@ import numpy
 from numpy.typing import NDArray, DTypeLike
 
 ## local
+from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_fields import _fdata_types
-from jormi.ww_validation import validate_arrays
 
 ##
 ## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY
@@ -78,33 +78,6 @@ class Rank2TensorData_3D(_fdata_types.FieldData):
         )
 
 
-##
-## --- 3D NDARRAY VALIDATION
-##
-
-
-def ensure_farray_metadata(
-    *,
-    farray_shape: tuple[int, ...],
-    farray: NDArray[Any] | None = None,
-    dtype: DTypeLike | None = None,
-) -> NDArray[Any]:
-    """
-    Return a farray with the requested shape/dtype, reusing the provided farray
-    if compatible, otherwise allocate a new farray.
-    """
-    if dtype is None:
-        if farray is not None:
-            dtype = farray.dtype
-        else:
-            dtype = numpy.float64
-    else:
-        dtype = numpy.dtype(dtype)
-    if (farray is None) or (farray.shape != farray_shape) or (farray.dtype != dtype):
-        return numpy.empty(farray_shape, dtype=dtype)
-    return farray
-
-
 def ensure_3d_sdata(
     sdata_3d: ScalarFieldData_3D,
     *,
@@ -163,62 +136,6 @@ def ensure_3d_r2tdata(
 
 
 ##
-## --- 3D NDARRAY VALIDATION
-##
-
-
-def ensure_3d_sarray(
-    sarray_3d: NDArray[Any],
-    *,
-    param_name: str = "<sarray_3d>",
-) -> None:
-    """Ensure `sarray_3d` is a 3D scalar ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
-    validate_arrays.ensure_dims(
-        array=sarray_3d,
-        param_name=param_name,
-        num_dims=3,
-    )
-
-
-def ensure_3d_varray(
-    varray_3d: NDArray[Any],
-    *,
-    param_name: str = "<varray_3d>",
-) -> None:
-    """Ensure `varray_3d` is a 4D vector ndarray with leading axis of length 3."""
-    validate_arrays.ensure_dims(
-        array=varray_3d,
-        param_name=param_name,
-        num_dims=4,
-    )
-    if varray_3d.shape[0] != 3:
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={varray_3d.shape}.",
-        )
-
-
-def ensure_3d_r2tarray(
-    r2tarray_3d: NDArray[Any],
-    *,
-    param_name: str = "<r2tarray_3d>",
-) -> None:
-    """Ensure `r2tarray_3d` is a 5D rank-2 tensor ndarray with two leading axes of length 3."""
-    validate_arrays.ensure_dims(
-        array=r2tarray_3d,
-        param_name=param_name,
-        num_dims=5,
-    )
-    if (r2tarray_3d.shape[0] != 3) or (r2tarray_3d.shape[1] != 3):
-        raise ValueError(
-            f"`{param_name}` must have shape"
-            f" (3, 3, num_cells_x, num_cells_y, num_cells_z);"
-            f" got shape={r2tarray_3d.shape}.",
-        )
-
-
-##
 ## --- 3D NDARRAY NORMALISERS
 ##
 
@@ -234,7 +151,7 @@ def extract_3d_sarray(
         param_name=param_name,
     )
     sarray_3d = sdata_3d.farray
-    ensure_3d_sarray(
+    farray_types.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name=f"{param_name}.farray",
     )
@@ -252,7 +169,7 @@ def extract_3d_varray(
         param_name=param_name,
     )
     varray_3d = vdata_3d.farray
-    ensure_3d_varray(
+    farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
         param_name=f"{param_name}.farray",
     )
@@ -270,7 +187,7 @@ def extract_3d_r2tarray(
         param_name=param_name,
     )
     r2tarray_3d = r2tdata_3d.farray
-    ensure_3d_r2tarray(
+    farray_types.ensure_3d_r2tarray(
         r2tarray_3d=r2tarray_3d,
         param_name=f"{param_name}.farray",
     )

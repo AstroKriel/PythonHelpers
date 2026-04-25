@@ -10,7 +10,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields.fields_3d import _fdata_types
+from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_validation import validate_types
 
 ##
@@ -25,7 +25,7 @@ def _ensure_args(
     grad_axis: int,
     sarray_name: str,
 ) -> None:
-    _fdata_types.ensure_3d_sarray(
+    farray_types.ensure_3d_sarray(
         sarray_3d=sarray_3d,
         param_name=sarray_name,
     )

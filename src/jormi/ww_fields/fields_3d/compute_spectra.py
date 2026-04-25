@@ -15,6 +15,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_arrays.farrays_3d import farray_types
 from jormi.ww_fields.fields_3d import (
     _fdata_types,
     field_types,
@@ -98,7 +99,7 @@ def _compute_3d_power_spectrum_sarray(
     resolution_3d: tuple[int, int, int],
 ) -> NDArray[Any]:
     """Compute the 3D power spectrum |F(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
-    _fdata_types.ensure_3d_sarray(
+    farray_types.ensure_3d_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
     )
@@ -142,7 +143,7 @@ def _integrate_spectrum_over_spherical_shells(
     resolution_3d: tuple[int, int, int],
 ) -> IsotropicPowerSpectrum:
     """Integrate a 3D power spectrum over spherical shells in index-space."""
-    _fdata_types.ensure_3d_sarray(
+    farray_types.ensure_3d_sarray(
         sarray_3d=centered_3d_spectrum,
         param_name="<centered_3d_spectrum>",
     )

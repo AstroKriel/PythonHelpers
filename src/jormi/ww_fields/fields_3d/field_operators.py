@@ -9,10 +9,8 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields.fields_3d import (
-    _farray_operators,
-    field_types,
-)
+from jormi.ww_arrays.farrays_3d import farray_operators
+from jormi.ww_fields.fields_3d import field_types
 from jormi.ww_validation import validate_types
 
 ##
@@ -28,7 +26,7 @@ def compute_sfield_rms(
         sfield_3d=sfield_3d,
         param_name="<sfield_3d>",
     )
-    return _farray_operators.compute_sarray_rms(
+    return farray_operators.compute_sarray_rms(
         sarray_3d=sarray_3d,
     )
 
@@ -42,7 +40,7 @@ def compute_sfield_volume_integral(
         param_name="<sfield_3d>",
     )
     udomain_3d = sfield_3d.udomain
-    return _farray_operators.compute_sarray_volume_integral(
+    return farray_operators.compute_sarray_volume_integral(
         sarray_3d=sarray_3d,
         cell_volume=udomain_3d.cell_volume,
     )
@@ -68,7 +66,7 @@ def compute_sfield_gradient(
     )
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
-    varray_3d_gradf = _farray_operators.compute_sarray_grad(
+    varray_3d_gradf = farray_operators.compute_sarray_grad(
         sarray_3d=sarray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         varray_3d_out=varray_3d_out,
@@ -99,7 +97,7 @@ def compute_vfield_magnitude(
     )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    sarray_3d_vmagn = _farray_operators.compute_varray_magnitude(
+    sarray_3d_vmagn = farray_operators.compute_varray_magnitude(
         varray_3d=varray_3d,
     )
     return field_types.ScalarField_3D.from_3d_sarray(
@@ -131,7 +129,7 @@ def compute_vfield_dot_product(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    sarray_3d_adotb = _farray_operators.dot_over_varray_comps(
+    sarray_3d_adotb = farray_operators.dot_over_varray_comps(
         varray_3d_a=varray_3d_a,
         varray_3d_b=varray_3d_b,
     )
@@ -166,7 +164,7 @@ def compute_vfield_cross_product(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    varray_3d_axb = _farray_operators.compute_varray_cross_product(
+    varray_3d_axb = farray_operators.compute_varray_cross_product(
         varray_3d_a=varray_3d_a,
         varray_3d_b=varray_3d_b,
         varray_3d_out=varray_3d_out,
@@ -200,7 +198,7 @@ def compute_vfield_curl(
     )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    varray_3d_curl = _farray_operators.compute_varray_curl(
+    varray_3d_curl = farray_operators.compute_varray_curl(
         varray_3d=varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         varray_3d_out=varray_3d_out,
@@ -234,7 +232,7 @@ def compute_vfield_divergence(
     )
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    sarray_3d_div = _farray_operators.compute_varray_divergence(
+    sarray_3d_div = farray_operators.compute_varray_divergence(
         varray_3d=varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         sarray_3d_out=sarray_3d_out,

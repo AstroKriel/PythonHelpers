@@ -16,8 +16,8 @@ from jormi.ww_fields import (
     _field_types,
     cartesian_axes,
 )
+from jormi.ww_arrays.farrays_3d import farray_operators
 from jormi.ww_fields.fields_3d import (
-    _farray_operators,
     _fdata_types,
     domain_types,
 )
@@ -177,7 +177,7 @@ class UnitVectorField_3D(VectorField_3D):
             vfield_3d=self,
             param_name="<uvfield_3d>",
         )
-        _farray_operators.ensure_uvarray_magnitude(
+        farray_operators.ensure_uvarray_magnitude(
             varray_3d=varray_3d,
             tol=self.tol,
             param_name="<uvfield_3d>",
