@@ -638,11 +638,8 @@ def compute_lorentz_force_farrays(
         optimize=True,
     )
     ## tension_i = |b|^2 kappa_i
-    varray_3d_tension = (
-        sarray_3d_b_magn_sq[numpy.newaxis, ...]
-        * sarray_3d_curvature[numpy.newaxis, ...]
-        * uvarray_3d_normal
-    )
+    sarray_3d_tension_scalar = sarray_3d_b_magn_sq * sarray_3d_curvature
+    varray_3d_tension = sarray_3d_tension_scalar[numpy.newaxis, ...] * uvarray_3d_normal
     ## grad_p_perp_i = d_i P - t_i t_j d_j P
     varray_3d_grad_p_perp = varray_3d_grad_p - varray_3d_grad_p_aligned
     ## lorentz_i = tension_i - grad_p_perp_i
