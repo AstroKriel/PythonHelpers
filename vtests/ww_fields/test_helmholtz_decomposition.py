@@ -16,9 +16,9 @@ from matplotlib.axes import Axes as mpl_Axes
 from jormi import ww_lists
 from jormi.ww_fields.fields_3d import (
     decompose_fields,
-    domain_types,
+    domain_models,
     field_operators,
-    field_types,
+    field_models,
 )
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots
@@ -27,7 +27,7 @@ from jormi.ww_validation import validate_types
 
 class _VFieldEntry(TypedDict):
     label: str
-    vfield: field_types.VectorField_3D
+    vfield: field_models.VectorField_3D
 
 
 ##
@@ -36,8 +36,8 @@ class _VFieldEntry(TypedDict):
 
 
 def generate_div_vfield(
-    udomain_3d: domain_types.UniformDomain_3D,
-) -> field_types.VectorField_3D:
+    udomain_3d: domain_models.UniformDomain_3D,
+) -> field_models.VectorField_3D:
     """Generate a curl-free (irrotational) vector field."""
     x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
@@ -47,7 +47,7 @@ def generate_div_vfield(
         indexing="ij",
     )
     varray = numpy.stack([2 * grid_x0, 2 * grid_x1, 2 * grid_x2])
-    return field_types.VectorField_3D.from_3d_varray(
+    return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
         field_label=r"\vec{q}",
@@ -55,8 +55,8 @@ def generate_div_vfield(
 
 
 def generate_sol_vfield(
-    udomain_3d: domain_types.UniformDomain_3D,
-) -> field_types.VectorField_3D:
+    udomain_3d: domain_models.UniformDomain_3D,
+) -> field_models.VectorField_3D:
     """Generate a solenoidal (divergence-free) vector field."""
     x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
     domain_length = udomain_3d.domain_lengths[0]
@@ -71,7 +71,7 @@ def generate_sol_vfield(
     vcomp_x1 = k * grid_x1 * numpy.sin(k * grid_x0 * grid_x1)
     vcomp_x2 = numpy.zeros_like(grid_x2)
     varray = numpy.stack([vcomp_x0, vcomp_x1, vcomp_x2])
-    return field_types.VectorField_3D.from_3d_varray(
+    return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
         field_label=r"\vec{q}",
@@ -80,8 +80,8 @@ def generate_sol_vfield(
 
 def generate_uniform_vfield(
     const_vector: tuple[float, float, float],
-    udomain_3d: domain_types.UniformDomain_3D,
-) -> field_types.VectorField_3D:
+    udomain_3d: domain_models.UniformDomain_3D,
+) -> field_models.VectorField_3D:
     """Generate a uniform (bulk-only) vector field with constant components."""
     validate_types.ensure_sequence(
         param=const_vector,
@@ -99,7 +99,7 @@ def generate_uniform_vfield(
             numpy.full(resolution, float(const_vector[2])),
         ],
     )
-    return field_types.VectorField_3D.from_3d_varray(
+    return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
         field_label=r"\vec{q}",
@@ -107,9 +107,9 @@ def generate_uniform_vfield(
 
 
 def generate_mixed_vfield(
-    udomain_3d: domain_types.UniformDomain_3D,
+    udomain_3d: domain_models.UniformDomain_3D,
     bulk_vector: tuple[float, float, float] | None = None,
-) -> field_types.VectorField_3D:
+) -> field_models.VectorField_3D:
     """Generate a mixed field: div + sol (+ optional uniform bulk)."""
     validate_types.ensure_sequence(
         param=bulk_vector,
@@ -119,10 +119,10 @@ def generate_mixed_vfield(
         valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=validate_types.RuntimeTypes.Numerics.FloatLike,
     )
-    varray_div = field_types.extract_3d_varray(generate_div_vfield(udomain_3d))
-    varray_sol = field_types.extract_3d_varray(generate_sol_vfield(udomain_3d))
+    varray_div = field_models.extract_3d_varray(generate_div_vfield(udomain_3d))
+    varray_sol = field_models.extract_3d_varray(generate_sol_vfield(udomain_3d))
     if bulk_vector is not None:
-        varray_bulk = field_types.extract_3d_varray(
+        varray_bulk = field_models.extract_3d_varray(
             vfield_3d=generate_uniform_vfield(
                 const_vector=bulk_vector,
                 udomain_3d=udomain_3d,
@@ -131,7 +131,7 @@ def generate_mixed_vfield(
         varray = varray_div + varray_sol + varray_bulk
     else:
         varray = varray_div + varray_sol
-    return field_types.VectorField_3D.from_3d_varray(
+    return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
         field_label=r"\vec{q}",
@@ -144,9 +144,9 @@ def generate_mixed_vfield(
 
 
 def _sfield_abs_median_std(
-    sfield: field_types.ScalarField_3D,
+    sfield: field_models.ScalarField_3D,
 ) -> tuple[float, float]:
-    arr = numpy.abs(field_types.extract_3d_sarray(sfield))
+    arr = numpy.abs(field_models.extract_3d_sarray(sfield))
     return float(numpy.median(arr)), float(numpy.std(arr))
 
 
@@ -164,10 +164,10 @@ def compute_field_fraction(
 
 def plot_vfield_slice(
     ax: mpl_Axes,
-    vfield: field_types.VectorField_3D,
+    vfield: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
-    varray = field_types.extract_3d_varray(vfield)
+    varray = field_models.extract_3d_varray(vfield)
     num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
     index_x2 = num_cells_x2 // 2  # middle slice in the z-direction
     grid_x0, grid_x1 = numpy.meshgrid(
@@ -176,7 +176,7 @@ def plot_vfield_slice(
         indexing="xy",
     )
     sfield_q_magn = field_operators.compute_vfield_magnitude(vfield)
-    sfield_q_magn_array = field_types.extract_3d_sarray(sfield_q_magn)
+    sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn)
     sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
     sfield_q_magn_min = float(numpy.min(sfield_q_magn_slice))
     sfield_q_magn_max = float(numpy.max(sfield_q_magn_slice))
@@ -225,7 +225,7 @@ def main():
     num_cells = 50
     domain_bounds = (-1.0, 1.0)
     resolution = (num_cells, num_cells, num_cells)
-    udomain_3d = domain_types.UniformDomain_3D(
+    udomain_3d = domain_models.UniformDomain_3D(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=(domain_bounds, domain_bounds, domain_bounds),
@@ -272,17 +272,17 @@ def main():
         vfield_3d_sol = dfields.vfield_3d_sol
         vfield_3d_bulk = dfields.vfield_3d_bulk
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
-        vfield_rec = field_types.VectorField_3D.from_3d_varray(
+        vfield_rec = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
-                field_types.extract_3d_varray(vfield_3d_div) + field_types.extract_3d_varray(vfield_3d_sol) +
-                field_types.extract_3d_varray(vfield_3d_bulk)
+                field_models.extract_3d_varray(vfield_3d_div) + field_models.extract_3d_varray(vfield_3d_sol) +
+                field_models.extract_3d_varray(vfield_3d_bulk)
             ),
             udomain_3d=udomain_3d,
             field_label=vfield.field_label,
         )
         ## residual: q - q_rec (should be ~0)
-        vfield_residual = field_types.VectorField_3D.from_3d_varray(
-            varray_3d=(field_types.extract_3d_varray(vfield) - field_types.extract_3d_varray(vfield_rec)),
+        vfield_residual = field_models.VectorField_3D.from_3d_varray(
+            varray_3d=(field_models.extract_3d_varray(vfield) - field_models.extract_3d_varray(vfield_rec)),
             udomain_3d=udomain_3d,
             field_label=vfield.field_label,
         )
