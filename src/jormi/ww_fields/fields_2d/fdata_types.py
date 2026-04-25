@@ -12,7 +12,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_fields import fdata_types
+from jormi.ww_fields import _fdata_types
 from jormi.ww_validation import validate_arrays
 
 ##
@@ -21,13 +21,13 @@ from jormi.ww_validation import validate_arrays
 
 
 @dataclass(frozen=True, init=False)
-class ScalarFieldData_2D(fdata_types.FieldData):
+class ScalarFieldData_2D(_fdata_types.FieldData):
     """2D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells)."""
 
     def __init__(
         self,
         *,
-        farray: fdata_types.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<sdata_2d>",
     ) -> None:
         super().__init__(
@@ -40,13 +40,13 @@ class ScalarFieldData_2D(fdata_types.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class VectorFieldData_2D(fdata_types.FieldData):
+class VectorFieldData_2D(_fdata_types.FieldData):
     """2D vector field data: ndarray of shape (2, num_x0_cells, num_x1_cells)."""
 
     def __init__(
         self,
         *,
-        farray: fdata_types.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<vdata_2d>",
     ) -> None:
         super().__init__(
@@ -73,7 +73,7 @@ def ensure_2d_sdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_2D; got type={type(sdata_2d)}.",
         )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=sdata_2d,
         num_comps=1,
         num_sdims=2,
@@ -92,7 +92,7 @@ def ensure_2d_vdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_2D; got type={type(vdata_2d)}.",
         )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=vdata_2d,
         num_comps=2,
         num_sdims=2,

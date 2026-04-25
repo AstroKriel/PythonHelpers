@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import farray_types
-from jormi.ww_fields import fdata_types
+from jormi.ww_fields import _fdata_types
 
 ##
 ## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY
@@ -21,13 +21,13 @@ from jormi.ww_fields import fdata_types
 
 
 @dataclass(frozen=True, init=False)
-class ScalarFieldData_3D(fdata_types.FieldData):
+class ScalarFieldData_3D(_fdata_types.FieldData):
     """3D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
         *,
-        farray: fdata_types.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<sdata_3d>",
     ) -> None:
         super().__init__(
@@ -40,13 +40,13 @@ class ScalarFieldData_3D(fdata_types.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class VectorFieldData_3D(fdata_types.FieldData):
+class VectorFieldData_3D(_fdata_types.FieldData):
     """3D vector field data: ndarray of shape (3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
         *,
-        farray: fdata_types.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<vdata_3d>",
     ) -> None:
         super().__init__(
@@ -59,13 +59,13 @@ class VectorFieldData_3D(fdata_types.FieldData):
 
 
 @dataclass(frozen=True, init=False)
-class Rank2TensorData_3D(fdata_types.FieldData):
+class Rank2TensorData_3D(_fdata_types.FieldData):
     """3D rank-2 tensor data: ndarray of shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 
     def __init__(
         self,
         *,
-        farray: fdata_types.FieldArray,
+        farray: _fdata_types.FieldArray,
         param_name: str = "<r2tdata_3d>",
     ) -> None:
         super().__init__(
@@ -87,7 +87,7 @@ def ensure_3d_sdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_3D; got type={type(sdata_3d)}.",
         )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=sdata_3d,
         num_comps=1,
         num_sdims=3,
@@ -106,7 +106,7 @@ def ensure_3d_vdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_3D; got type={type(vdata_3d)}.",
         )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=vdata_3d,
         num_comps=3,
         num_sdims=3,
@@ -125,7 +125,7 @@ def ensure_3d_r2tdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be Rank2TensorData_3D; got type={type(r2tdata_3d)}.",
         )
-    fdata_types.ensure_fdata_metadata(
+    _fdata_types.ensure_fdata_metadata(
         fdata=r2tdata_3d,
         num_comps=9,
         num_sdims=3,
