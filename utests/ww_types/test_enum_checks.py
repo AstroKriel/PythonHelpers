@@ -10,7 +10,7 @@ import unittest
 from enum import Enum
 
 ## local
-from jormi.ww_types import check_enums
+from jormi.ww_checks import check_enums
 
 ##
 ## === TEST ENUMS

@@ -35,10 +35,8 @@ from jormi.ww_io import (
     manage_shell,
 )
 from jormi.ww_plots import style_plots
-from jormi.ww_types import (
-    check_positions,
-    check_types,
-)
+from jormi.ww_checks import check_box_positions, check_python_types
+from jormi.ww_types import box_positions
 
 ##
 ## === TYPE ALIASES
@@ -156,12 +154,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,
@@ -238,7 +236,7 @@ def create_figure_grid(
 ## === AXIS HELPERS
 ##
 
-_Side = check_positions.Positions.Side
+_Side = box_positions.Positions.Side
 
 
 @dataclass(frozen=True)
@@ -251,7 +249,7 @@ class AxisBounds:
 
 def compute_adjacent_ax_bounds(
     ax: PlotAxis,
-    side: _Side = check_positions.Positions.Side.Right,
+    side: _Side = box_positions.Positions.Side.Right,
     gap: float = 0.1,
     thickness: float = 1.0,
     length: float = 1.0,
@@ -308,12 +306,12 @@ def add_inset_axis(
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
-    x_label_alignment: check_positions.Positions.PositionLike = check_positions.Positions.Side.Top,
-    y_label_alignment: check_positions.Positions.PositionLike = check_positions.Positions.Side.Right,
+    x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
+    y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> PlotAxis:
     """Add an inset Axis to `ax`."""
-    x_label_side = check_positions.as_box_side(x_label_alignment)
-    y_label_side = check_positions.as_box_side(y_label_alignment)
+    x_label_side = check_box_positions.as_box_side(x_label_alignment)
+    y_label_side = check_box_positions.as_box_side(y_label_alignment)
     ax_inset = ax.inset_axes(bounds)
     if fontsize is None:
         fontsize = rcParams["axes.labelsize"]
@@ -331,21 +329,21 @@ def add_inset_axis(
         ax_inset.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
     ax_inset.tick_params(
         axis="x",
-        labeltop=(x_label_side is check_positions.Positions.Side.Top),
-        labelbottom=(x_label_side is check_positions.Positions.Side.Bottom),
+        labeltop=(x_label_side is box_positions.Positions.Side.Top),
+        labelbottom=(x_label_side is box_positions.Positions.Side.Bottom),
         top=True,
         bottom=True,
     )
-    if x_label_side is check_positions.Positions.Side.Top:
+    if x_label_side is box_positions.Positions.Side.Top:
         ax_inset.xaxis.tick_top()
     ax_inset.tick_params(
         axis="y",
-        labelleft=(y_label_side is check_positions.Positions.Side.Left),
-        labelright=(y_label_side is check_positions.Positions.Side.Right),
+        labelleft=(y_label_side is box_positions.Positions.Side.Left),
+        labelright=(y_label_side is box_positions.Positions.Side.Right),
         left=True,
         right=True,
     )
-    if y_label_side is check_positions.Positions.Side.Right:
+    if y_label_side is box_positions.Positions.Side.Right:
         ax_inset.yaxis.tick_right()
     return ax_inset
 

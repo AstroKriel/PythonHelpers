@@ -9,7 +9,7 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_log
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === FUNCTIONS
@@ -35,16 +35,16 @@ def _validate_inputs(
     email_on_finish: bool,
     verbose: bool,
 ) -> None:
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=directory,
         valid_types=(str, Path),
         param_name="directory",
     )
-    check_types.ensure_nonempty_string(
+    check_python_types.ensure_nonempty_string(
         param=file_name,
         param_name="file_name",
     )
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=directives,
         valid_types=(list,),
         param_name="directives",
@@ -54,38 +54,38 @@ def _validate_inputs(
         if len(directives) == 0:
             raise ValueError("`directives` must contain at least one PBS header line.")
         for directive in directives:
-            check_types.ensure_nonempty_string(
+            check_python_types.ensure_nonempty_string(
                 param=directive,
                 param_name="directives[]",
             )
-    check_types.ensure_nonempty_string(
+    check_python_types.ensure_nonempty_string(
         param=main_command,
         param_name="main_command",
     )
-    check_types.ensure_nonempty_string(
+    check_python_types.ensure_nonempty_string(
         param=tag_name,
         param_name="tag_name",
     )
-    check_types.ensure_string(
+    check_python_types.ensure_string(
         param=queue_name,
         param_name="queue_name",
         allow_none=True,
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=num_procs,
         param_name="num_procs",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=memory_gb,
         param_name="memory_gb",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=wall_time_hours,
         param_name="wall_time_hours",
         allow_none=True,
@@ -105,34 +105,34 @@ def _validate_inputs(
             raise ValueError(
                 "`wall_time_hours` is required when `directives` are not provided."
             )
-    check_types.ensure_string(
+    check_python_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
         allow_none=True,
     )
-    check_types.ensure_string(
+    check_python_types.ensure_string(
         param=post_command,
         param_name="post_command",
         allow_none=True,
     )
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=always_run_post,
         param_name="always_run_post",
     )
-    check_types.ensure_string(
+    check_python_types.ensure_string(
         param=email_address,
         param_name="email_address",
         allow_none=True,
     )
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=email_on_start,
         param_name="email_on_start",
     )
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=email_on_finish,
         param_name="email_on_finish",
     )
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
     )

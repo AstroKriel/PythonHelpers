@@ -17,7 +17,7 @@ from jormi.ww_fields.fields_2d import (
     _fdata_types,
     domain_types,
 )
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === 2D FIELD TYPES
@@ -156,7 +156,7 @@ def ensure_2d_sfield(
     *,
     param_name: str = "<sfield_2d>",
 ) -> None:
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=sfield_2d,
         param_name=param_name,
         valid_types=ScalarField_2D,
@@ -168,7 +168,7 @@ def ensure_2d_vfield(
     *,
     param_name: str = "<vfield_2d>",
 ) -> None:
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=vfield_2d,
         param_name=param_name,
         valid_types=VectorField_2D,

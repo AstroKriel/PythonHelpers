@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _fdata_types
-from jormi.ww_types import check_arrays
+from jormi.ww_checks import check_arrays
 
 ##
 ## === 2D SCALAR / VECTOR NDARRAY

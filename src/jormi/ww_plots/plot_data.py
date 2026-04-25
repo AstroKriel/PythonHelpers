@@ -16,11 +16,8 @@ from jormi.ww_plots import (
     add_color,
     manage_plots,
 )
-from jormi.ww_types import (
-    check_positions,
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_python_types
+from jormi.ww_types import box_positions
 
 ##
 ## === DATA TYPES
@@ -66,21 +63,21 @@ def _as_axis_extent(
     """
     if axis_bounds is None:
         return None
-    check_types.ensure_nested_tuple(
+    check_python_types.ensure_nested_tuple(
         param=axis_bounds,
         param_name="axis_bounds",
         outer_length=2,
         inner_length=2,
-        valid_elem_types=check_types.RuntimeTypes.Numerics.NumericLike,
+        valid_elem_types=check_python_types.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
-    check_types.ensure_ordered_pair(
+    check_python_types.ensure_ordered_pair(
         param=axis_bounds[0],
         param_name="axis_bounds[0]",
         allow_none=False,
         strict_ordering=True,
     )
-    check_types.ensure_ordered_pair(
+    check_python_types.ensure_ordered_pair(
         param=axis_bounds[1],
         param_name="axis_bounds[1]",
         allow_none=False,
@@ -108,7 +105,7 @@ def _get_value_range(
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
-        check_types.ensure_ordered_pair(
+        check_python_types.ensure_ordered_pair(
             param=cbar_bounds,
             param_name="cbar_bounds",
             allow_none=False,
@@ -154,7 +151,7 @@ def plot_2d_array(
     palette_config: add_color.PaletteConfig | None = None,
     add_cbar: bool = True,
     cbar_label: str | None = None,
-    cbar_side: check_positions.Positions.PositionLike = check_positions.Positions.Side.Right,
+    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()

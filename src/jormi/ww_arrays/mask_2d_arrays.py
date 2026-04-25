@@ -12,11 +12,8 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_types import (
-    check_positions,
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_box_positions, check_python_types
+from jormi.ww_types import box_positions
 
 ##
 ## === DATA TYPES
@@ -51,13 +48,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
     """Return (row_indices, col_indices) for a 2D grid."""
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,
@@ -82,10 +79,10 @@ class HalfMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: check_positions.Positions.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_side = check_positions.as_box_side(anchor)
-        BoxSide = check_positions.Positions.Side
+        anchor_side = check_box_positions.as_box_side(anchor)
+        BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -115,10 +112,10 @@ class QuadrantMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: check_positions.Positions.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_corner = check_positions.as_box_corner(anchor)
-        BoxCorner = check_positions.Positions.Corner
+        anchor_corner = check_box_positions.as_box_corner(anchor)
+        BoxCorner = box_positions.Positions.Corner
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -197,10 +194,10 @@ class WedgeMasks2D:
     def get_mask(
         num_rows: int,
         num_cols: int,
-        anchor: check_positions.Positions.PositionLike,
+        anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_side = check_positions.as_box_side(anchor)
-        BoxSide = check_positions.Positions.Side
+        anchor_side = check_box_positions.as_box_side(anchor)
+        BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,

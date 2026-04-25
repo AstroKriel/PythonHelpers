@@ -14,7 +14,7 @@ from numpy.typing import NDArray, DTypeLike
 
 ## local
 from jormi.ww_fields import _fdata_types
-from jormi.ww_types import check_arrays
+from jormi.ww_checks import check_arrays
 
 ##
 ## --- 3D SCALAR / VECTOR / RANK-2 TENSOR NDARRAY

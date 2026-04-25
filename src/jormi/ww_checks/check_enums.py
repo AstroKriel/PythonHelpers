@@ -11,17 +11,8 @@ from typing import get_args
 
 ## local
 from jormi import ww_lists
-from jormi.ww_types import check_types
-
-##
-## === TYPE DEFINITIONS
-## Enumerators (Enums for short) are a class (i.e. type) that defines a fixed set of named members;
-## each member has a `.name` and `.value`, and members are themselves an instance of the Enum class
-##
-
-EnumType = type[Enum]
-EnumTypesLike = EnumType | tuple[EnumType, ...] | list[EnumType]
-EnumMemberLike = Enum | str
+from jormi.ww_checks import check_python_types
+from jormi.ww_types import python_enums
 
 ##
 ## === INTERNAL HELPERS
@@ -37,7 +28,7 @@ def _normalise_string(
 def _find_match_in_enum(
     member_key: str,
     *,
-    enum_type: EnumType,
+    enum_type: python_enums.EnumType,
 ) -> Enum | None:
     for member in enum_type:
         if member_key == _normalise_string(member.name):
@@ -50,7 +41,7 @@ def _find_match_in_enum(
 def _find_unique_match(
     member_key: str,
     *,
-    valid_enums: tuple[EnumType, ...],
+    valid_enums: tuple[python_enums.EnumType, ...],
 ) -> Enum | None:
     matched_member = None
     for enum_type in valid_enums:
@@ -67,7 +58,7 @@ def _find_unique_match(
 
 
 def _enum_member_names(
-    enum_types: tuple[EnumType, ...],
+    enum_types: tuple[python_enums.EnumType, ...],
 ) -> str:
     member_names = [member.name for enum_type in enum_types for member in enum_type]
     member_names = sorted(set(member_names))
@@ -84,7 +75,7 @@ def as_runtime_type(
 ) -> tuple[type[Enum], ...]:
     """
     Convert a union of Enum member types into a tuple of Enum classes
-    suitable for `enum_checks`' runtime validation.
+    suitable for `check_enums`' runtime validation.
     """
     args = get_args(type_hint)
     if args:
@@ -100,16 +91,16 @@ def as_runtime_type(
 
 
 def ensure_sequence_of_enums(
-    param: tuple[EnumType, ...] | list[EnumType],
+    param: tuple[python_enums.EnumType, ...] | list[python_enums.EnumType],
     *,
     param_name: str = "param",
 ) -> None:
     """Ensure `param` is a non-empty sequence of Enum types."""
-    check_types.ensure_sequence(
+    check_python_types.ensure_sequence(
         param=param,
         param_name=param_name,
         allow_none=False,
-        valid_seq_types=check_types.RuntimeTypes.Sequences.SequenceLike,
+        valid_seq_types=check_python_types.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=type,
     )
     ## reject empty sequences
@@ -122,12 +113,12 @@ def ensure_sequence_of_enums(
 
 
 def resolve_member(
-    member: EnumMemberLike,
+    member: python_enums.EnumMemberLike,
     *,
-    valid_enums: EnumTypesLike,
+    valid_enums: python_enums.EnumTypesLike,
 ) -> Enum:
     """Return `member` as an Enum member from one of `valid_enums`."""
-    valid_enums = check_types.as_tuple(
+    valid_enums = check_python_types.as_tuple(
         param=valid_enums,
         param_name="valid_enums",
     )
@@ -142,7 +133,7 @@ def resolve_member(
             return member
         raise ValueError(f"enum member {member!r} is not in the set of valid Enum types.")
     ## otherwise search for a unique instance of the string the user passed in valid_enums name or value
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=member,
         param_name="member",
         valid_types=str,
@@ -160,9 +151,9 @@ def resolve_member(
 
 
 def ensure_valid_member(
-    member: EnumMemberLike,
+    member: python_enums.EnumMemberLike,
     *,
-    valid_enums: EnumTypesLike,
+    valid_enums: python_enums.EnumTypesLike,
     param_name: str = "<param>",
 ) -> None:
     try:
@@ -175,12 +166,12 @@ def ensure_valid_member(
 
 
 def ensure_member_in(
-    member: EnumMemberLike,
+    member: python_enums.EnumMemberLike,
     *,
     valid_members: tuple[Enum, ...] | list[Enum],
     param_name: str = "<param>",
 ) -> None:
-    valid_members = check_types.as_tuple(
+    valid_members = check_python_types.as_tuple(
         param=valid_members,
         param_name="valid_members",
     )

@@ -12,10 +12,7 @@ from typing import Any, TypeAlias
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_types import (
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_python_types
 
 ##
 ## === TYPE ALIASES
@@ -62,19 +59,19 @@ class FieldData:
     def __post_init__(
         self,
     ) -> None:
-        check_types.ensure_finite_int(
+        check_python_types.ensure_finite_int(
             param=self.num_comps,
             param_name=f"{self.param_name}.num_comps",
             allow_none=False,
             require_positive=True,
         )
-        check_types.ensure_finite_int(
+        check_python_types.ensure_finite_int(
             param=self.num_sdims,
             param_name=f"{self.param_name}.num_sdims",
             allow_none=False,
             require_positive=True,
         )
-        check_types.ensure_finite_int(
+        check_python_types.ensure_finite_int(
             param=self.num_ranks,
             param_name=f"{self.param_name}.num_ranks",
             allow_none=False,

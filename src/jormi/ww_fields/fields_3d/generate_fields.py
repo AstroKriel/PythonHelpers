@@ -14,7 +14,7 @@ from jormi.ww_fields.fields_3d import (
     domain_types,
     field_types,
 )
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === GAUSSIAN RANDOM SARRAYS
@@ -67,7 +67,7 @@ def generate_gaussian_random_3d_sfield(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=correlation_length,
         param_name="<correlation_length>",
         allow_none=False,
@@ -157,14 +157,14 @@ def generate_powerlaw_random_3d_sfield(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=alpha_perp,
         param_name="<alpha_perp>",
         allow_none=False,
         require_positive=False,
     )
     if alpha_para is not None:
-        check_types.ensure_finite_float(
+        check_python_types.ensure_finite_float(
             param=alpha_para,
             param_name="<alpha_para>",
             allow_none=False,

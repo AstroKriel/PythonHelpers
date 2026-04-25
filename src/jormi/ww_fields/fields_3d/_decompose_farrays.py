@@ -18,7 +18,7 @@ from jormi.ww_fields.fields_3d import (
     _farray_operators,
     _fdata_types,
 )
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === HELMHOLTZ DECOMPOSITION
@@ -237,7 +237,7 @@ def compute_tnb_farrays(
         param_name="<varray_3d>",
     )
     _farray_operators.validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -333,7 +333,7 @@ def compute_curvature_sarray(
         param_name="<varray_3d>",
     )
     _farray_operators.validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -469,7 +469,7 @@ def compute_magnetic_curvature_farrays(
             f" normal={uvarray_3d_normal.shape}.",
         )
     _farray_operators.validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -571,7 +571,7 @@ def compute_lorentz_force_farrays(
         param_name="<varray_3d_b>",
     )
     _farray_operators.validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

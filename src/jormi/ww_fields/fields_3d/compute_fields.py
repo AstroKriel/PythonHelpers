@@ -18,7 +18,7 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
     field_types,
 )
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === MAGNETIC FIELD ENERGY
@@ -32,7 +32,7 @@ def compute_magnetic_energy_density_sfield(
     field_label: str = "E_mag",
 ) -> field_types.ScalarField_3D:
     """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=energy_prefactor,
         param_name="<energy_prefactor>",
         allow_none=False,
@@ -170,7 +170,7 @@ def compute_kinetic_dissipation_vfield(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -210,7 +210,7 @@ def compute_curvature_sfield(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

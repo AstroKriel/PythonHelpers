@@ -19,10 +19,7 @@ from jormi.ww_fields.fields_3d import (
     _fdata_types,
     field_types,
 )
-from jormi.ww_types import (
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_python_types
 
 ##
 ## === DATA STRUCTURES
@@ -73,7 +70,7 @@ def _compute_3d_radial_k_magnitude(
     Each entry stores the index-space distance from the central mode (k=0),
     so values run from ~0 at the center up to k_max near the edges.
     """
-    check_types.ensure_tuple_of_ints(
+    check_python_types.ensure_tuple_of_ints(
         param=num_cells_per_dim,
         param_name="<num_cells_per_dim>",
         seq_length=3,
@@ -105,7 +102,7 @@ def _compute_3d_power_spectrum_sarray(
         sarray_3d=sarray_3d_q,
         param_name="<sarray_3d_q>",
     )
-    check_types.ensure_tuple_of_ints(
+    check_python_types.ensure_tuple_of_ints(
         param=resolution_3d,
         param_name="<resolution_3d>",
         seq_length=3,

@@ -20,10 +20,8 @@ from jormi.ww_plots.color_palettes import (
     SequentialPalette,
 )
 from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
-from jormi.ww_types import (
-    check_positions,
-    check_types,
-)
+from jormi.ww_checks import check_box_positions, check_python_types
+from jormi.ww_types import box_positions
 
 ##
 ## === PALETTE CONFIGS
@@ -129,7 +127,7 @@ def make_palette(
 ## === INTERNAL HELPERS
 ##
 
-_Side = check_positions.Positions.Side
+_Side = box_positions.Positions.Side
 
 _SIDE_TO_ORIENTATION: dict[_Side, str] = {
     _Side.Top: "horizontal",
@@ -183,7 +181,7 @@ def add_colorbar(
     *,
     palette: ColorPalette,
     label: str | None = None,
-    cbar_side: check_positions.Positions.PositionLike = check_positions.Positions.Side.Right,
+    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     cbar_thickness: float = 0.1,
     cbar_length: float = 1.0,
     cbar_pad: float = 0.02,
@@ -191,35 +189,35 @@ def add_colorbar(
     label_size: int | float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=cbar_thickness,
         param_name="cbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=cbar_pad,
         param_name="cbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=label_pad,
         param_name="label_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    check_types.ensure_finite_scalar(
+    check_python_types.ensure_finite_scalar(
         param=label_size,
         param_name="label_size",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    cbar_side = check_positions.as_box_side(side=cbar_side)
+    cbar_side = check_box_positions.as_box_side(side=cbar_side)
     cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
     ax_bounds = compute_adjacent_ax_bounds(
         ax=ax,

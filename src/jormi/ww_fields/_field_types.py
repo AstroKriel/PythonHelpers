@@ -20,10 +20,7 @@ from jormi.ww_fields import (
     _domain_types,
     _fdata_types,
 )
-from jormi.ww_types import (
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_python_types
 
 ##
 ## === BASE FIELD TYPE
@@ -77,7 +74,7 @@ class Field:
     def _validate_label(
         self,
     ) -> None:
-        check_types.ensure_nonempty_string(
+        check_python_types.ensure_nonempty_string(
             param=self.field_label,
             param_name="<field_label>",
         )
@@ -90,7 +87,7 @@ class Field:
     def _validate_sim_time(
         self,
     ) -> None:
-        check_types.ensure_finite_float(
+        check_python_types.ensure_finite_float(
             param=self.sim_time,
             param_name="<sim_time>",
             allow_none=True,
@@ -156,7 +153,7 @@ def _ensure_field(
     *,
     param_name: str = "<field>",
 ) -> None:
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=Field,

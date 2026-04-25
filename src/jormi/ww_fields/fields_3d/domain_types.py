@@ -17,7 +17,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _domain_types
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === 3D DOMAIN
@@ -105,7 +105,7 @@ def ensure_3d_udomain(
     *,
     param_name: str = "<udomain_3d>",
 ) -> None:
-    check_types.ensure_type(
+    check_python_types.ensure_type(
         param=udomain_3d,
         param_name=param_name,
         valid_types=UniformDomain_3D,

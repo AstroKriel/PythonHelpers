@@ -12,7 +12,7 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_log
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === FUNCTIONS
@@ -22,7 +22,7 @@ from jormi.ww_types import check_types
 def _ensure_path_is_valid(
     file_path: str | Path,
 ) -> Path:
-    check_types.ensure_not_none(
+    check_python_types.ensure_not_none(
         param=file_path,
         param_name="file_path",
     )
@@ -35,7 +35,7 @@ def _ensure_path_is_valid(
 def _validate_input_dict(
     input_dict: dict[str, Any],
 ) -> None:
-    check_types.ensure_dict(
+    check_python_types.ensure_dict(
         param=input_dict,
         param_name="input_dict",
         allow_none=False,
@@ -43,7 +43,7 @@ def _validate_input_dict(
     if not input_dict:
         return
     keys_as_list = list(input_dict.keys())
-    check_types.ensure_list_of_strings(
+    check_python_types.ensure_list_of_strings(
         param=keys_as_list,
         param_name="input_dict keys",
         allow_none=False,
@@ -56,12 +56,12 @@ def read_csv_file_into_dict(
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,
     )
-    check_types.ensure_char(
+    check_python_types.ensure_char(
         param=delimiter,
         param_name="delimiter",
         allow_none=False,
@@ -101,12 +101,12 @@ def save_dict_to_csv_file(
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=overwrite,
         param_name="overwrite",
         allow_none=False,
     )
-    check_types.ensure_bool(
+    check_python_types.ensure_bool(
         param=verbose,
         param_name="verbose",
         allow_none=False,

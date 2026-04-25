@@ -20,7 +20,7 @@ from jormi.ww_plots.color_palettes._base_palette import (
     resolve_palette,
     subset_palette,
 )
-from jormi.ww_types import check_types
+from jormi.ww_checks import check_python_types
 
 ##
 ## === SEQUENTIAL PALETTE
@@ -41,7 +41,7 @@ class SequentialPalette(ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        check_types.ensure_ordered_pair(
+        check_python_types.ensure_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )

@@ -14,10 +14,7 @@ from jormi.ww_fields.fields_3d import (
     _difference_sarrays,
     _fdata_types,
 )
-from jormi.ww_types import (
-    check_arrays,
-    check_types,
-)
+from jormi.ww_checks import check_arrays, check_python_types
 
 ##
 ## === WORKSPACE UTILITIES
@@ -42,16 +39,16 @@ def validate_3d_cell_widths(
     param_name: str = "<cell_widths_3d>",
 ) -> None:
     """Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats."""
-    check_types.ensure_sequence(
+    check_python_types.ensure_sequence(
         param=cell_widths_3d,
         param_name=param_name,
         allow_none=False,
         seq_length=3,
-        valid_seq_types=check_types.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=check_types.RuntimeTypes.Numerics.FloatLike,
+        valid_seq_types=check_python_types.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=check_python_types.RuntimeTypes.Numerics.FloatLike,
     )
     for dim_index, cell_width in enumerate(cell_widths_3d):
-        check_types.ensure_finite_float(
+        check_python_types.ensure_finite_float(
             param=cell_width,
             param_name=f"{param_name}[{dim_index}]",
             allow_none=False,
@@ -87,7 +84,7 @@ def compute_sarray_volume_integral(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
-    check_types.ensure_finite_float(
+    check_python_types.ensure_finite_float(
         param=cell_volume,
         param_name="<cell_volume>",
         allow_none=False,
@@ -114,7 +111,7 @@ def compute_sarray_grad(
         param_name="<sarray_3d>",
     )
     validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -288,7 +285,7 @@ def compute_varray_directional_derivative(
         param_name_b="<varray_3d_target>",
     )
     validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -341,7 +338,7 @@ def compute_varray_grad(
         param_name="<varray_3d>",
     )
     validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -446,7 +443,7 @@ def compute_varray_curl(
         param_name="<varray_3d>",
     )
     validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -521,7 +518,7 @@ def compute_varray_divergence(
         param_name="<varray_3d>",
     )
     validate_3d_cell_widths(cell_widths_3d)
-    check_types.ensure_finite_int(
+    check_python_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
