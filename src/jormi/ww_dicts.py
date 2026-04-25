@@ -63,6 +63,7 @@ def are_dicts_different(
     dict_a: dict[Any, Any],
     dict_b: dict[Any, Any],
 ) -> bool:
+    """Return `True` if `dict_a` and `dict_b` differ in any key or value."""
     ## check that the dictionaries have the same number of keys
     if len(dict_a) != len(dict_b):
         return True

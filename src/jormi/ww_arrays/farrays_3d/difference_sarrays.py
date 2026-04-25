@@ -55,6 +55,7 @@ def _ensure_args(
 def get_grad_fn(
     grad_order: int,
 ):
+    """Return the centered finite-difference function for `grad_order` (2, 4, or 6)."""
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
