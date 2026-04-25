@@ -8,7 +8,10 @@
 import multiprocessing
 import os
 
-from collections.abc import Iterable
+from collections.abc import (
+    Iterable,
+    Mapping,
+)
 from concurrent.futures import TimeoutError
 from typing import (
     Any,
@@ -37,13 +40,16 @@ def _spawn_fresh_processes() -> None:
 
 def _normalise_grouped_args(
     grouped_args: Iterable[Any],
-) -> list[list[Any]]:
-    _grouped_args: list[list[Any]] = []
+) -> list[tuple[list[Any], dict[str, Any]]]:
+    _grouped_args: list[tuple[list[Any], dict[str, Any]]] = []
     for args in grouped_args:
+        if isinstance(args, Mapping):
+            _grouped_args.append(([], dict(cast(Mapping[str, Any], args))))
+            continue
         if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
-            _grouped_args.append(list(cast(list[Any] | tuple[Any, ...], args)))
+            _grouped_args.append((list(cast(list[Any] | tuple[Any, ...], args)), {}))
         else:
-            _grouped_args.append([args])
+            _grouped_args.append(([args], {}))
     return _grouped_args
 
 
@@ -65,8 +71,10 @@ def _enable_plotting(
 
 
 def _invoke_with_plotting(
+    *,
     worker_fn: Callable[..., Any],
     task_args: list[Any],
+    task_kwargs: dict[str, Any],
     theme: str,
     use_tex: bool,
 ) -> Any:
@@ -74,7 +82,7 @@ def _invoke_with_plotting(
         theme=theme,
         use_tex=use_tex,
     )
-    return worker_fn(*task_args)
+    return worker_fn(*task_args, **task_kwargs)
 
 
 ##
@@ -99,8 +107,8 @@ def run_in_parallel(
     Parameters
     ---
     - `grouped_args`:
-        Each element is a tuple or list of positional args for one `worker_fn` call;
-        scalars are automatically wrapped in a single-element list.
+        Each element is either positional args for one `worker_fn` call
+        (tuple/list/scalar) or a mapping of keyword args.
 
     - `num_workers`:
         Number of worker processes; `None` uses `os.cpu_count()`.
@@ -126,12 +134,15 @@ def run_in_parallel(
     failed_tasks: list[tuple[int, str]] = []
     with ProcessPool(max_workers=num_workers) as pool:
         tasks: list[tuple[int, Any]] = []
-        for task_index, task_args in enumerate(grouped_args):
+        for task_index, (task_args, task_kwargs) in enumerate(grouped_args):
             if enable_plotting:
-                task: Any = pool.schedule(                    _invoke_with_plotting,
-                    args=[worker_fn, task_args],
+                task: Any = pool.schedule(
+                    function=_invoke_with_plotting,
                     timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                     kwargs={
+                        "worker_fn": worker_fn,
+                        "task_args": task_args,
+                        "task_kwargs": task_kwargs,
                         "theme": theme,
                         "use_tex": use_tex,
                     },
@@ -140,6 +151,7 @@ def run_in_parallel(
                 task = pool.schedule(
                     function=worker_fn,
                     args=task_args,
+                    kwargs=task_kwargs,
                     timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                 )
             tasks.append((task_index, task))

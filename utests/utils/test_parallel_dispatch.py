@@ -5,12 +5,12 @@
 ##
 
 ## stdlib
+from dataclasses import dataclass
 import math
 import os
 import shutil
 import time
 import unittest
-
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +28,14 @@ from jormi.ww_plots import (
 ##
 ## === WORKER FUNCTIONS
 ##
+
+
+@dataclass(frozen=True)
+class PlotTaskResult:
+    success: bool
+    pid: int | None
+    mpl_cache_dir: str | None
+    tex_output_dir: str | None
 
 
 def dummy_task(
@@ -67,6 +75,7 @@ def crashing_task() -> None:
 
 
 def delayed_return(
+    *,
     duration: float,
     result: Any,
 ) -> Any:
@@ -75,9 +84,10 @@ def delayed_return(
 
 
 def plot_task(
+    *,
     fig_directory: Path,
     num_samples: int,
-) -> bool:
+) -> PlotTaskResult:
     try:
         fig, ax = manage_plots.create_figure()
         x_values = numpy.linspace(0, 5 * numpy.pi, num_samples)
@@ -85,43 +95,87 @@ def plot_task(
         ax.plot(x_values, y_values, color="black", ls="-", lw=1, marker="o", ms=5)
         ax.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
         ax.set_ylabel(r"$\sin(2\pi x + 32)$")
-        annotate_axis.add_text(ax=ax, x_pos=0.05, y_pos=0.95, label=r"$(0.05, 0.95)$ \% of the fig uniform_domain")
+        annotate_axis.add_text(
+            ax=ax,
+            x_pos=0.05,
+            y_pos=0.95,
+            label=r"$(0.05, 0.95)$ \% of the fig uniform_domain",
+        )
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
         fig_path = fig_directory / fig_name
         manage_plots.save_figure(fig=fig, fig_path=fig_path, verbose=False)
-        return True
+        return PlotTaskResult(
+            success=True,
+            pid=os.getpid(),
+            mpl_cache_dir=os.environ.get("MPLCONFIGDIR"),
+            tex_output_dir=os.environ.get("TEXMFOUTPUT"),
+        )
     except Exception:
-        return False
+        return PlotTaskResult(
+            success=False,
+            pid=None,
+            mpl_cache_dir=None,
+            tex_output_dir=None,
+        )
 
 
 class Tests(unittest.TestCase):
-
     def test_parallel_plotting(
         self,
     ):
         script_directory = Path(__file__).parent
         fig_directory = script_directory / "plots"
-        manage_io.create_directory(directory=fig_directory, verbose=False)
+        manage_io.create_directory(fig_directory, verbose=False)
         self.addCleanup(shutil.rmtree, fig_directory, True)
-        grouped_args = [(
-            fig_directory,
-            5 + 5 * plot_index,
-        ) for plot_index in range(100)]
-        result = parallel_dispatch.run_in_parallel(
+        grouped_args = [
+            {
+                "fig_directory": fig_directory,
+                "num_samples": 10,
+            },
+            {
+                "fig_directory": fig_directory,
+                "num_samples": 20,
+            },
+            {
+                "fig_directory": fig_directory,
+                "num_samples": 30,
+            },
+            {
+                "fig_directory": fig_directory,
+                "num_samples": 40,
+            },
+        ]
+        results = parallel_dispatch.run_in_parallel(
             worker_fn=plot_task,
             grouped_args=grouped_args,
             show_progress=False,
             enable_plotting=True,
+            num_workers=2,
         )
         self.assertEqual(
-            all(result),
+            all(result.success for result in results),
             True,
+        )
+        self.assertTrue(
+            all(result.pid is not None for result in results),
+        )
+        cache_dirs_by_pid = {
+            result.pid: (result.mpl_cache_dir, result.tex_output_dir)
+            for result in results
+        }
+        self.assertEqual(
+            len(cache_dirs_by_pid),
+            2,
+        )
+        self.assertEqual(
+            len(set(cache_dirs_by_pid.values())),
+            2,
         )
 
     def test_timeout(
         self,
     ):
-        grouped_args = [(duration, ) for duration in [0.5, 1, 3, 5]]
+        grouped_args = [(duration,) for duration in [0.5, 1, 3, 5]]
         try:
             parallel_dispatch.run_in_parallel(
                 worker_fn=sleepy_task,
@@ -162,9 +216,14 @@ class Tests(unittest.TestCase):
     ):
         num_values_per_block = 10
         num_blocks = 6
-        blocks = [[float(value) for value in range(num_values_per_block)] for _ in range(num_blocks)]
-        grouped_args = [(block_of_values, ) for block_of_values in blocks]
-        expected_results = [cpu_heavy_task(block_of_values) for block_of_values in blocks]
+        blocks = [
+            [float(value) for value in range(num_values_per_block)]
+            for _ in range(num_blocks)
+        ]
+        grouped_args = [(block_of_values,) for block_of_values in blocks]
+        expected_results = [
+            cpu_heavy_task(block_of_values) for block_of_values in blocks
+        ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=cpu_heavy_task,
             grouped_args=grouped_args,
@@ -207,7 +266,7 @@ class Tests(unittest.TestCase):
                 num_workers=2,
                 show_progress=False,
             )
-        error_lines = str(cm.exception).split('\n')[1:]
+        error_lines = str(cm.exception).split("\n")[1:]
         self.assertEqual(
             len(error_lines),
             3,
@@ -219,7 +278,7 @@ class Tests(unittest.TestCase):
     def test_mixed_success_failure(
         self,
     ):
-        grouped_args = [(task_index, ) for task_index in range(10)]
+        grouped_args = [(task_index,) for task_index in range(10)]
         with self.assertRaises(RuntimeError) as cm:
             parallel_dispatch.run_in_parallel(
                 worker_fn=mixed_task,
@@ -256,7 +315,12 @@ class Tests(unittest.TestCase):
     def test_result_ordering(
         self,
     ):
-        grouped_args = [(0.2, 3), (10.1, 1), (0.3, 4), (0.0, 2)]
+        grouped_args = [
+            {"duration": 0.2, "result": 3},
+            {"duration": 10.1, "result": 1},
+            {"duration": 0.3, "result": 4},
+            {"duration": 0.0, "result": 2},
+        ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=delayed_return,
             grouped_args=grouped_args,
@@ -272,12 +336,14 @@ class Tests(unittest.TestCase):
         self,
     ):
         grouped_args = [
-            ("hello", ),
-            ({
-                "key": "value",
-            }, ),
-            (123, ),
-            (b"bytes", ),
+            ("hello",),
+            (
+                {
+                    "key": "value",
+                },
+            ),
+            (123,),
+            (b"bytes",),
         ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
@@ -311,7 +377,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## show_progress=True wraps iteration in tqdm; verify it doesn't alter results
-        grouped_args = [(task_index, ) for task_index in range(4)]
+        grouped_args = [(task_index,) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
             grouped_args=grouped_args,
@@ -327,7 +393,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## num_workers=None should fall back to os.cpu_count() without error
-        grouped_args = [(task_index, ) for task_index in range(4)]
+        grouped_args = [(task_index,) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
             grouped_args=grouped_args,
@@ -343,7 +409,10 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## timeout_seconds=None should not raise for tasks that take some time
-        grouped_args = [(0.1, 2), (0.1, 3)]
+        grouped_args = [
+            {"duration": 0.1, "result": 2},
+            {"duration": 0.1, "result": 3},
+        ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=delayed_return,
             grouped_args=grouped_args,
