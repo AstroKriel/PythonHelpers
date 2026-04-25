@@ -23,6 +23,7 @@ from jormi.ww_plots.color_palettes import DiscretePalette
 
 
 def _make_gradient(
+    *,
     value_min: float,
     value_max: float,
 ) -> numpy.ndarray:
@@ -39,7 +40,10 @@ def _make_gradient(
 
 def main() -> None:
     value_min, value_max = 0.0, 1.0
-    data = _make_gradient(value_min, value_max)
+    data = _make_gradient(
+        value_min=value_min,
+        value_max=value_max,
+    )
 
     palettes = [
         (

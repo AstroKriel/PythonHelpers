@@ -26,8 +26,8 @@ from jormi.ww_validation import validate_types
 
 
 def _slice_3d_udomain(
-    udomain_3d: _3d_domain_type.UniformDomain_3D,
     *,
+    udomain_3d: _3d_domain_type.UniformDomain_3D,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
     param_name: str = "<udomain_3d>",

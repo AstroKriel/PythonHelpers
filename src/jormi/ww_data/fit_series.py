@@ -329,6 +329,7 @@ class LinearFitSummary(FitSummary):
 
 
 def _linear_model_fn(
+    *,
     x: NDArray[Any],
     intercept: float,
     slope: float,
@@ -337,11 +338,36 @@ def _linear_model_fn(
 
 
 def _fixed_slope_model_fn(
+    *,
     x: NDArray[Any],
     intercept: float,
     _fixed_slope: float,
 ) -> NDArray[Any]:
     return intercept + _fixed_slope * x
+
+
+def _linear_model_fn_curve_fit(
+    x: NDArray[Any],
+    intercept: float,
+    slope: float,
+) -> NDArray[Any]:
+    return _linear_model_fn(
+        x=x,
+        intercept=intercept,
+        slope=slope,
+    )
+
+
+def _fixed_slope_model_fn_curve_fit(
+    x: NDArray[Any],
+    intercept: float,
+    _fixed_slope: float,
+) -> NDArray[Any]:
+    return _fixed_slope_model_fn(
+        x=x,
+        intercept=intercept,
+        _fixed_slope=_fixed_slope,
+    )
 
 
 ##
@@ -363,7 +389,7 @@ def fit_linear_model(
     linear_model = Model(
         model_name="linear",
         param_names=("intercept", "slope"),
-        model_fn=_linear_model_fn,
+        model_fn=_linear_model_fn_curve_fit,
     )
     if gaussian_series.x_sigmas is not None:
         manage_log.log_hint(
@@ -389,8 +415,9 @@ def fit_linear_model(
         sigmas_vector=sigmas_vector,  # uncertainties can be ill-conditioned
     )
     residual_array = gaussian_series.y_values - linear_model.model_fn(
-        gaussian_series.x_values,
-        *fitted_vector,
+        x=gaussian_series.x_values,
+        intercept=fitted_vector[0],
+        slope=fitted_vector[1],
     )
     return LinearFitSummary(
         model=linear_model,
@@ -422,7 +449,7 @@ def fit_line_with_fixed_slope(
     fixed_slope_model = Model(
         model_name="linear_fixed_slope",
         param_names=("intercept", "slope"),
-        model_fn=_fixed_slope_model_fn,
+        model_fn=_fixed_slope_model_fn_curve_fit,
     )
     weight_array = gaussian_series.y_weights()
     uses_absolute_sigma = gaussian_series.y_sigmas is not None

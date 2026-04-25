@@ -149,8 +149,8 @@ class Field:
 
 
 def _ensure_field(
-    field: Field,
     *,
+    field: Field,
     param_name: str = "<field>",
 ) -> None:
     validate_types.ensure_type(
