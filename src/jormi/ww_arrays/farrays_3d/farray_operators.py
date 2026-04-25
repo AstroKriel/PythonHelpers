@@ -587,6 +587,72 @@ def compute_varray_magnitude(
 
 
 ##
+## === RANK-2 TENSOR (3D) ARRAY OPERATORS
+##
+
+
+def compute_r2tarray_divergence(
+    r2tarray_3d: NDArray[Any],
+    *,
+    cell_widths_3d: tuple[float, float, float],
+    varray_3d_out: NDArray[Any] | None = None,
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """
+    Compute the divergence (d_j T_ji) of a 3D rank-2 tensor field.
+
+    r2tarray_3d has shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells),
+    where index [j, i, ...] = T_ji.
+    Returns a varray_3d with shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
+    """
+    farray_types.ensure_3d_r2tarray(
+        r2tarray_3d=r2tarray_3d,
+        param_name="<r2tarray_3d>",
+    )
+    ensure_3d_cell_widths(cell_widths_3d)
+    validate_types.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    nabla = difference_sarrays.get_grad_fn(grad_order)
+    domain_shape = r2tarray_3d.shape[2:]
+    dtype = numpy.result_type(r2tarray_3d.dtype, numpy.float64)
+    varray_3d_out = farray_types.ensure_farray_metadata(
+        farray_shape=(3, *domain_shape),
+        farray=varray_3d_out,
+        dtype=dtype,
+    )
+    cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
+    for comp_i in range(3):
+        varray_3d_out[comp_i, ...] = nabla(
+            sarray_3d=r2tarray_3d[0, comp_i],
+            cell_width=cell_width_x,
+            grad_axis=0,
+        )
+        numpy.add(
+            varray_3d_out[comp_i, ...],
+            nabla(
+                sarray_3d=r2tarray_3d[1, comp_i],
+                cell_width=cell_width_y,
+                grad_axis=1,
+            ),
+            out=varray_3d_out[comp_i, ...],
+        )
+        numpy.add(
+            varray_3d_out[comp_i, ...],
+            nabla(
+                sarray_3d=r2tarray_3d[2, comp_i],
+                cell_width=cell_width_z,
+                grad_axis=2,
+            ),
+            out=varray_3d_out[comp_i, ...],
+        )
+    return varray_3d_out
+
+
+##
 ## === KINETIC DISSIPATION
 ##
 
@@ -606,7 +672,6 @@ def compute_varray_kinetic_dissipation(
         varray_3d=varray_3d_u,
         param_name="<varray_3d_u>",
     )
-    num_cells_x, num_cells_y, num_cells_z = varray_3d_u.shape[1:]
     dtype = varray_3d_u.dtype
     r2tarray_3d_gradu = compute_varray_grad(
         varray_3d=varray_3d_u,
@@ -631,38 +696,11 @@ def compute_varray_kinetic_dissipation(
         optimize=True,
     )
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
-    nabla = difference_sarrays.get_grad_fn(grad_order)
-    cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_df = farray_types.ensure_farray_metadata(
-        farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
-        farray=None,
-        dtype=dtype,
+    return compute_r2tarray_divergence(
+        r2tarray_3d=r2tarray_3d_S,
+        cell_widths_3d=cell_widths_3d,
+        grad_order=grad_order,
     )
-    for comp_i in range(3):
-        varray_3d_df[comp_i, ...] = nabla(
-            sarray_3d=r2tarray_3d_S[0, comp_i],
-            cell_width=cell_width_x,
-            grad_axis=0,
-        )
-        numpy.add(
-            varray_3d_df[comp_i, ...],
-            nabla(
-                sarray_3d=r2tarray_3d_S[1, comp_i],
-                cell_width=cell_width_y,
-                grad_axis=1,
-            ),
-            out=varray_3d_df[comp_i, ...],
-        )
-        numpy.add(
-            varray_3d_df[comp_i, ...],
-            nabla(
-                sarray_3d=r2tarray_3d_S[2, comp_i],
-                cell_width=cell_width_z,
-                grad_axis=2,
-            ),
-            out=varray_3d_df[comp_i, ...],
-        )
-    return varray_3d_df
 
 
 ##
