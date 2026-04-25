@@ -13,13 +13,11 @@ from numpy.typing import NDArray
 
 ##
 ## === TYPE DEFINITIONS
-## TypeHints defines categories for annotations.
-## RuntimeTypes converts them for isinstance checks.
 ##
 
 
-class TypeHints:
-    """Type-hint groupings for common concepts."""
+class Types:
+    """Public namespace for common Python type groupings; use for both annotations and value selection."""
 
     class Strings:
         StringLike = str
@@ -62,29 +60,29 @@ def _as_runtime_type(
 
 
 class RuntimeTypes:
-    """Runtime type tuples derived from TypeHints for isinstance checks."""
+    """Runtime type tuples derived from `Types` for isinstance checks."""
 
     class Strings:
-        StringLike = _as_runtime_type(TypeHints.Strings.StringLike)
+        StringLike = _as_runtime_type(Types.Strings.StringLike)
 
     class Booleans:
-        BooleanLike = _as_runtime_type(TypeHints.Booleans.BooleanLike)
+        BooleanLike = _as_runtime_type(Types.Booleans.BooleanLike)
 
     class Numerics:
-        IntLike = _as_runtime_type(TypeHints.Numerics.IntLike)
-        FloatLike = _as_runtime_type(TypeHints.Numerics.FloatLike)
-        NumericLike = _as_runtime_type(TypeHints.Numerics.NumericLike)
+        IntLike = _as_runtime_type(Types.Numerics.IntLike)
+        FloatLike = _as_runtime_type(Types.Numerics.FloatLike)
+        NumericLike = _as_runtime_type(Types.Numerics.NumericLike)
 
     class Containers:
-        SetLike = _as_runtime_type(TypeHints.Containers.SetLike)
-        DictLike = _as_runtime_type(TypeHints.Containers.DictLike)
-        ArrayLike = _as_runtime_type(TypeHints.Containers.ArrayLike)
-        ContainerLike = _as_runtime_type(TypeHints.Containers.ContainerLike)
+        SetLike = _as_runtime_type(Types.Containers.SetLike)
+        DictLike = _as_runtime_type(Types.Containers.DictLike)
+        ArrayLike = _as_runtime_type(Types.Containers.ArrayLike)
+        ContainerLike = _as_runtime_type(Types.Containers.ContainerLike)
 
     class Sequences:
-        ListLike = _as_runtime_type(TypeHints.Sequences.ListLike)
-        TupleLike = _as_runtime_type(TypeHints.Sequences.TupleLike)
-        SequenceLike = _as_runtime_type(TypeHints.Sequences.SequenceLike)
+        ListLike = _as_runtime_type(Types.Sequences.ListLike)
+        TupleLike = _as_runtime_type(Types.Sequences.TupleLike)
+        SequenceLike = _as_runtime_type(Types.Sequences.SequenceLike)
 
 
 ##
@@ -193,7 +191,7 @@ def ensure_string(
 
 
 def ensure_nonempty_string(
-    param: TypeHints.Strings.StringLike,
+    param: Types.Strings.StringLike,
     *,
     param_name: str = "<param>",
 ) -> None:
