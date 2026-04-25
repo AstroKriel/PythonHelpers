@@ -4,10 +4,6 @@
 ## === DEPENDENCIES
 ##
 
-## third-party
-from typing import Any
-from numpy.typing import NDArray
-
 ## local
 from jormi.ww_arrays.farrays_3d import (
     decompose_farrays,

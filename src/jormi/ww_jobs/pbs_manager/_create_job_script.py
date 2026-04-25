@@ -95,15 +95,15 @@ def _ensure_inputs(
     if directives is None:
         if queue_name is None:
             raise ValueError(
-                "`queue_name` is required when `directives` are not provided."
+                "`queue_name` is required when `directives` are not provided.",
             )
         if num_procs is None:
             raise ValueError(
-                "`num_procs` is required when `directives` are not provided."
+                "`num_procs` is required when `directives` are not provided.",
             )
         if wall_time_hours is None:
             raise ValueError(
-                "`wall_time_hours` is required when `directives` are not provided."
+                "`wall_time_hours` is required when `directives` are not provided.",
             )
     validate_types.ensure_string(
         param=prep_command,

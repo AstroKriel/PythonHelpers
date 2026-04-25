@@ -266,7 +266,7 @@ def render_line(
     ## ensure line-only constraints (no titles on lines)
     if message.message_title is not None:
         raise ValueError(
-            "`message_title` is only valid for blocks; omit it when rendering a line."
+            "`message_title` is only valid for blocks; omit it when rendering a line.",
         )
     ## collect style and timestamp for this line
     timestamp = message.timestamp or get_timestamp()
@@ -321,13 +321,13 @@ def render_block(
     ## optional message at top
     if message.message and message_position == "top":
         body_lines.append(
-            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour)
+            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour),
         )
     ## include notes as "— key : value" entries
     if message.message_notes:
         if not isinstance(message.message_notes, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError(
-                "Message.message_notes must be a dict[str, Any] if provided."
+                "Message.message_notes must be a dict[str, Any] if provided.",
             )
         for key_label, value in message.message_notes.items():
             note_line = rich_Text(f"{row_prefix} ", style=_Colours.GREY.value)
@@ -338,7 +338,7 @@ def render_block(
     ## optional message at bottom (default)
     if message.message and message_position == "bottom":
         body_lines.append(
-            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour)
+            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour),
         )
     ## compute width required to fit title and body lines
     content_width = panel_title.cell_len

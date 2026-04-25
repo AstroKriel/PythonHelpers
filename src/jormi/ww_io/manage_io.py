@@ -231,7 +231,7 @@ def filter_directory(
 
     if not (include_files or include_folders):
         raise ValueError(
-            "At least one of `include_files` or `include_folders` must be provided."
+            "At least one of `include_files` or `include_folders` must be provided.",
         )
     directory = Path(directory).absolute()
     if not directory.is_dir():
