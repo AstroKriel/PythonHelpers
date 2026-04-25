@@ -20,6 +20,7 @@ from jormi.ww_validation import validate_types
 
 
 def sample_gaussian_distribution_from_quantiles(
+    *,
     q1: float,
     q2: float,
     p1: float,

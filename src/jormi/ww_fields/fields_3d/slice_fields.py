@@ -100,8 +100,8 @@ def slice_3d_sfield(
     The 2D domain is a UniformDomain_2D_Sliced3D carrying metadata
     about the out-of-plane axis and slice position.
     """
-    _3d_field_type.ensure_3d_sfield(sfield_3d)
-    sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d)
+    _3d_field_type.ensure_3d_sfield(sfield_3d=sfield_3d)
+    sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d=sfield_3d)
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
     slice_param_name = "<sfield_3d_slice>"
@@ -150,8 +150,8 @@ def slice_3d_vfield_inplane(
     The resulting 2D vector has two components corresponding to the
     components tangent to the slice plane.
     """
-    _3d_field_type.ensure_3d_vfield(vfield_3d)
-    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
+    _3d_field_type.ensure_3d_vfield(vfield_3d=vfield_3d)
+    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     slice_param_name = "<vfield_3d_slice_inplane>"
@@ -192,8 +192,8 @@ def slice_3d_vfield_outofplane(
     field_label: str | None = None,
 ) -> _2d_field_type.ScalarField_2D:
     """Slice a 3D vector field into a 2D scalar field of the out-of-plane component."""
-    _3d_field_type.ensure_3d_vfield(vfield_3d)
-    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
+    _3d_field_type.ensure_3d_vfield(vfield_3d=vfield_3d)
+    varray_3d = _3d_field_type.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
     slice_param_name = "<vfield_3d_slice_outofplane>"

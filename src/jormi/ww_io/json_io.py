@@ -40,8 +40,8 @@ def _ensure_path_is_valid(
 
 
 def read_json_file_into_dict(
-    file_path: str | Path,
     *,
+    file_path: str | Path,
     verbose: bool = True,
 ) -> dict[str, Any]:
     validate_types.ensure_bool(
@@ -53,7 +53,7 @@ def read_json_file_into_dict(
     if not file_path.is_file():
         raise FileNotFoundError(f"No json-file found: {file_path}")
     if verbose:
-        manage_log.log_task(f"Reading json-file: {file_path}")
+        manage_log.log_task(text=f"Reading json-file: {file_path}")
     with open(file_path, "r", encoding="utf-8") as file_pointer:
         data = json.load(file_pointer)
     validate_types.ensure_dict(
@@ -85,9 +85,9 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 def save_dict_to_json_file(
+    *,
     file_path: str | Path,
     input_dict: dict[str, Any],
-    *,
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
@@ -143,6 +143,7 @@ def save_dict_to_json_file(
 
 
 def _dump_dict_to_json(
+    *,
     file_path: str | Path,
     input_dict: dict[str, Any],
 ) -> None:
@@ -158,6 +159,7 @@ def _dump_dict_to_json(
 
 
 def _add_dict_to_json_file(
+    *,
     file_path: str | Path,
     input_dict: dict[str, Any],
 ) -> None:

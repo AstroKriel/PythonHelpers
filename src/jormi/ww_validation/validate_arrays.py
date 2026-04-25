@@ -104,9 +104,9 @@ def ensure_same_shape(
 
 
 def ensure_dims(
+    *,
     array: NDArray[Any],
     num_dims: int,
-    *,
     param_name: str = "<array>",
 ) -> None:
     """Ensure `array` is a NumPy ndarray with array.ndim == num_dims."""

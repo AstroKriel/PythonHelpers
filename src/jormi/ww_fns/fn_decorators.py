@@ -34,7 +34,7 @@ def time_fn(
                 f"Error occurred in {fn.__name__}() while measuring the elapsed time.",
             ) from error
         elapsed_time = time.time() - start_time
-        manage_log.log_note(f"{fn.__name__}() took {elapsed_time:.3f}s.")
+        manage_log.log_note(text=f"{fn.__name__}() took {elapsed_time:.3f}s.")
         return result
 
     return wrapper

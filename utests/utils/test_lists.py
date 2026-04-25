@@ -24,49 +24,49 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## default: no quotes, no conjunction
-        result = ww_lists.as_string(["a", "b", "c"])
+        result = ww_lists.as_string(elems=["a", "b", "c"])
         self.assertEqual(
             result,
             "a, b, c",
         )
         ## with conjunction
-        result = ww_lists.as_string(["a", "b", "c"], conjunction="and")
+        result = ww_lists.as_string(elems=["a", "b", "c"], conjunction="and")
         self.assertEqual(
             result,
             "a, b and c",
         )
         ## with conjunction and quotes
-        result = ww_lists.as_string(["a", "b", "c"], wrap_in_quotes=True, conjunction="or")
+        result = ww_lists.as_string(elems=["a", "b", "c"], wrap_in_quotes=True, conjunction="or")
         self.assertEqual(
             result,
             "`a`, `b` or `c`",
         )
         ## two elements with conjunction
-        result = ww_lists.as_string(["a", "b"], conjunction="or")
+        result = ww_lists.as_string(elems=["a", "b"], conjunction="or")
         self.assertEqual(
             result,
             "a or b",
         )
         ## two elements no conjunction
-        result = ww_lists.as_string(["a", "b"])
+        result = ww_lists.as_string(elems=["a", "b"])
         self.assertEqual(
             result,
             "a, b",
         )
         ## single element
-        result = ww_lists.as_string(["a"])
+        result = ww_lists.as_string(elems=["a"])
         self.assertEqual(
             result,
             "a",
         )
         ## empty list
-        result = ww_lists.as_string([])
+        result = ww_lists.as_string(elems=[])
         self.assertEqual(
             result,
             "",
         )
         ## no quotes, conjunction
-        result = ww_lists.as_string(["x", "y"], wrap_in_quotes=False, conjunction="and")
+        result = ww_lists.as_string(elems=["x", "y"], wrap_in_quotes=False, conjunction="and")
         self.assertEqual(
             result,
             "x and y",

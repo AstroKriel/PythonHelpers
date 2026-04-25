@@ -158,8 +158,8 @@ class FieldData:
 
 
 def ensure_fdata(
-    fdata: FieldData,
     *,
+    fdata: FieldData,
     param_name: str = "<fdata>",
 ) -> None:
     """Ensure `fdata` is a `FieldData` instance."""
@@ -170,8 +170,8 @@ def ensure_fdata(
 
 
 def ensure_fdata_metadata(
-    fdata: FieldData,
     *,
+    fdata: FieldData,
     num_comps: int | None = None,
     num_sdims: int | None = None,
     num_ranks: int | None = None,

@@ -19,6 +19,7 @@ from jormi.ww_validation import validate_types
 
 @fn_decorators.warn_if_fn_result_is_unused
 def merge_dicts(
+    *,
     dict_a: dict[Any, Any],
     dict_b: dict[Any, Any],
 ) -> dict[Any, Any]:
@@ -36,7 +37,10 @@ def merge_dicts(
         if key in merged_dict:
             ## both elements are dictionaries: merge them recursively
             if isinstance(merged_dict[key], dict) and isinstance(value, dict):
-                merged_dict[key] = merge_dicts(merged_dict[key], value)
+                merged_dict[key] = merge_dicts(
+                    dict_a=merged_dict[key],
+                    dict_b=value,
+                )
             ## both elements are lists: concatenate them
             elif isinstance(merged_dict[key], list) and isinstance(value, list):
                 merged_dict[key] = merged_dict[key] + value
@@ -55,6 +59,7 @@ def merge_dicts(
 
 
 def are_dicts_different(
+    *,
     dict_a: dict[Any, Any],
     dict_b: dict[Any, Any],
 ) -> bool:

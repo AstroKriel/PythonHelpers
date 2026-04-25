@@ -121,19 +121,19 @@ def main():
             ax.tick_params(labelbottom=False)
         if max_abs_error > max_error_tol:
             manage_log.log_outcome(
-                f"order={spline_order}: max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
+                text=f"order={spline_order}: max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
                 outcome=manage_log.ActionOutcome.FAILURE,
             )
             orders_that_failed.append(spline_order)
         else:
             manage_log.log_outcome(
-                f"order={spline_order}: max error {max_abs_error:.2e}",
+                text=f"order={spline_order}: max error {max_abs_error:.2e}",
                 outcome=manage_log.ActionOutcome.SUCCESS,
             )
     ## save figure always so it can be inspected on failure
     fig_name = "interpolated_series.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig, fig_path)
+    manage_plots.save_figure(fig=fig, fig_path=fig_path)
     assert len(orders_that_failed) == 0, (f"Test failed for spline orders: {orders_that_failed}")
     manage_log.log_action(
         title="Series interpolation",

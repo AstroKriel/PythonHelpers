@@ -13,23 +13,23 @@ from jormi.ww_io import manage_log
 
 
 def demo_lines() -> None:
-    manage_log.log_section("Demo: line helpers", add_spacing=True)
-    manage_log.log_task("Prepare environment", show_time=True)
-    manage_log.log_note("Using cache at /gdata/user/cache", show_time=True)
-    manage_log.log_hint("This may take a while")
-    manage_log.log_alert("Running with default settings")
-    manage_log.log_debug("rank=0 seed=42")
-    manage_log.log_outcome("Initialized MPI", outcome=manage_log.ActionOutcome.SUCCESS)
-    manage_log.log_outcome("Optional step skipped", outcome=manage_log.ActionOutcome.SKIPPED)
-    manage_log.log_outcome("Post-check failed", outcome=manage_log.ActionOutcome.FAILURE)
-    manage_log.log_task("printing 2 empty lines...")
+    manage_log.log_section(title="Demo: line helpers", add_spacing=True)
+    manage_log.log_task(text="Prepare environment", show_time=True)
+    manage_log.log_note(text="Using cache at /gdata/user/cache", show_time=True)
+    manage_log.log_hint(text="This may take a while")
+    manage_log.log_alert(text="Running with default settings")
+    manage_log.log_debug(text="rank=0 seed=42")
+    manage_log.log_outcome(text="Initialized MPI", outcome=manage_log.ActionOutcome.SUCCESS)
+    manage_log.log_outcome(text="Optional step skipped", outcome=manage_log.ActionOutcome.SKIPPED)
+    manage_log.log_outcome(text="Post-check failed", outcome=manage_log.ActionOutcome.FAILURE)
+    manage_log.log_task(text="printing 2 empty lines...")
     manage_log.log_empty_lines(lines=2)
-    manage_log.log_task("^there are two empty lines above^", show_time=False)
+    manage_log.log_task(text="^there are two empty lines above^", show_time=False)
     manage_log.log_empty_lines()
 
 
 def demo_blocks() -> None:
-    manage_log.log_section("Demo: block helpers", add_spacing=True)
+    manage_log.log_section(title="Demo: block helpers", add_spacing=True)
     manage_log.log_action(
         title="Copy File",
         outcome=manage_log.ActionOutcome.SUCCESS,
@@ -59,14 +59,14 @@ def demo_blocks() -> None:
         notes={"Path": "/tmp/sim/OT_N32"},
     )
     manage_log.log_warning(
-        "Existing file was overwritten.",
+        text="Existing file was overwritten.",
         notes={
             "Path": "/tmp/sim/OT_N64/sim_params.json",
             "Format": "json",
         },
     )
     manage_log.log_error(
-        "Command not found on PATH.",
+        text="Command not found on PATH.",
         notes={"Command": "qstat -f"},
     )
     manage_log.log_action(
@@ -127,7 +127,7 @@ def demo_blocks() -> None:
 def main() -> None:
     demo_lines()
     demo_blocks()
-    manage_log.log_note("finished!", show_time=True)
+    manage_log.log_note(text="finished!", show_time=True)
 
 
 if __name__ == "__main__":

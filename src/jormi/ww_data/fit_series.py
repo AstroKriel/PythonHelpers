@@ -27,6 +27,7 @@ from jormi.ww_validation import validate_arrays, validate_types
 
 
 def get_linear_intercept(
+    *,
     slope: float,
     x_ref: float,
     y_ref: float,
@@ -51,6 +52,7 @@ def get_linear_intercept(
 
 
 def get_powerlaw_coefficient(
+    *,
     exponent: float,
     x_ref: float,
     y_ref: float,
@@ -80,6 +82,7 @@ def get_powerlaw_coefficient(
 
 
 def get_line_angle(
+    *,
     slope: float,
     domain_bounds: tuple[float, float, float, float],
     aspect_ratio: float = 1.0,
@@ -155,6 +158,7 @@ class Model:
 
     def create_fit_stats(
         self,
+        *,
         values_vector: list[Any] | NDArray[Any],
         sigmas_vector: list[Any] | NDArray[Any] | None = None,
     ) -> dict[str, FitStatistic]:
@@ -399,6 +403,7 @@ def fit_linear_model(
 
 
 def fit_line_with_fixed_slope(
+    *,
     gaussian_series: GaussianSeries,
     fixed_slope: int | float,
 ) -> LinearFitSummary:

@@ -115,7 +115,7 @@ def main() -> None:
         ax.set_yticks([])
 
     script_path = Path(__file__).parent
-    manage_plots.save_figure(fig, script_path / "discrete_palettes.png")
+    manage_plots.save_figure(fig=fig, fig_path=script_path / "discrete_palettes.png")
 
 
 ##

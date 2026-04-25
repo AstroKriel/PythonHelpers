@@ -44,6 +44,7 @@ def get_2d_shape(
 
 
 def _get_grid_indices(
+    *,
     num_rows: int,
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
@@ -77,6 +78,7 @@ class HalfMasks2D:
 
     @staticmethod
     def get_mask(
+        *,
         num_rows: int,
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
@@ -110,6 +112,7 @@ class QuadrantMasks2D:
 
     @staticmethod
     def get_mask(
+        *,
         num_rows: int,
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
@@ -145,6 +148,7 @@ class DiagonalMasks2D:
 
     @staticmethod
     def get_mask_above_main_diagonal(
+        *,
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -156,6 +160,7 @@ class DiagonalMasks2D:
 
     @staticmethod
     def get_mask_below_main_diagonal(
+        *,
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -166,6 +171,7 @@ class DiagonalMasks2D:
 
     @staticmethod
     def get_mask_above_anti_diagonal(
+        *,
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -178,6 +184,7 @@ class DiagonalMasks2D:
 
     @staticmethod
     def get_mask_below_anti_diagonal(
+        *,
         num_rows: int,
         num_cols: int,
     ) -> Mask2D:
@@ -192,6 +199,7 @@ class WedgeMasks2D:
 
     @staticmethod
     def get_mask(
+        *,
         num_rows: int,
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
@@ -230,9 +238,9 @@ class CircleMasks2D:
 
     @staticmethod
     def get_mask_inside(
+        *,
         num_rows: int,
         num_cols: int,
-        *,
         center_row_col: tuple[float, float] | None = None,
         radius: float | None = None,
         include_boundary: bool = True,
@@ -254,9 +262,9 @@ class CircleMasks2D:
 
     @staticmethod
     def get_mask_outside(
+        *,
         num_rows: int,
         num_cols: int,
-        *,
         center_row_col: tuple[float, float] | None = None,
         radius: float | None = None,
         include_boundary: bool = False,

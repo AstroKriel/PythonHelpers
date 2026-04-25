@@ -154,8 +154,8 @@ def get_index_of_first_crossing(
 
 
 def as_string(
-    elems: list[Any],
     *,
+    elems: list[Any],
     wrap_in_quotes: bool = False,
     conjunction: str = "",
 ) -> str:
@@ -199,8 +199,8 @@ def as_quoted_string(
 
 
 def get_preview_string(
-    elems: list[Any],
     *,
+    elems: list[Any],
     preview_length: int = 5,
     wrap_in_quotes: bool = False,
 ) -> str:

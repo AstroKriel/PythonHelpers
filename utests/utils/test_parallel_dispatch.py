@@ -85,10 +85,10 @@ def plot_task(
         ax.plot(x_values, y_values, color="black", ls="-", lw=1, marker="o", ms=5)
         ax.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
         ax.set_ylabel(r"$\sin(2\pi x + 32)$")
-        annotate_axis.add_text(ax, 0.05, 0.95, r"$(0.05, 0.95)$ \% of the fig uniform_domain")
+        annotate_axis.add_text(ax=ax, x_pos=0.05, y_pos=0.95, label=r"$(0.05, 0.95)$ \% of the fig uniform_domain")
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
         fig_path = fig_directory / fig_name
-        manage_plots.save_figure(fig, fig_path, verbose=False)
+        manage_plots.save_figure(fig=fig, fig_path=fig_path, verbose=False)
         return True
     except Exception:
         return False
@@ -101,7 +101,7 @@ class Tests(unittest.TestCase):
     ):
         script_directory = Path(__file__).parent
         fig_directory = script_directory / "plots"
-        manage_io.create_directory(fig_directory, verbose=False)
+        manage_io.create_directory(directory=fig_directory, verbose=False)
         self.addCleanup(shutil.rmtree, fig_directory, True)
         grouped_args = [(
             fig_directory,

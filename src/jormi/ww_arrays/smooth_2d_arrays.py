@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 
 
 def _apply_2d_convolution(
+    *,
     data: NDArray[Any],
     smoothing_kernel: NDArray[Any],
 ) -> NDArray[Any]:
@@ -39,6 +40,7 @@ def _apply_2d_convolution(
 
 
 def _define_2d_gaussian_kernel(
+    *,
     size: int,
     sigma: float,
 ) -> NDArray[Any]:
@@ -59,12 +61,19 @@ def _define_2d_gaussian_kernel(
 
 
 def smooth_2d_array(
+    *,
     data: NDArray[Any],
     sigma: float,
 ) -> NDArray[Any]:
     kernel_size = int(6 * sigma) + 1
-    smoothing_kernel = _define_2d_gaussian_kernel(kernel_size, sigma)
-    smoothed_data = _apply_2d_convolution(data, smoothing_kernel)
+    smoothing_kernel = _define_2d_gaussian_kernel(
+        size=kernel_size,
+        sigma=sigma,
+    )
+    smoothed_data = _apply_2d_convolution(
+        data=data,
+        smoothing_kernel=smoothing_kernel,
+    )
     return smoothed_data
 
 

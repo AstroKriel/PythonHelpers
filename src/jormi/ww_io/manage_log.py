@@ -257,8 +257,8 @@ def render_blank(
 
 
 def render_line(
-    message: Message,
     *,
+    message: Message,
     show_time: bool = False,
     show_symbol: bool = True,
     add_spacing: bool = False,
@@ -291,8 +291,8 @@ def render_line(
 
 
 def render_block(
-    message: Message,
     *,
+    message: Message,
     show_time: bool = True,
     min_width: int | None = None,
     max_width: int | None = None,
@@ -382,68 +382,68 @@ def log_empty_lines(
 
 
 def log_task(
-    text: str,
     *,
+    text: str,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(text, message_type=MessageType.TASK),
+        message=Message(text, message_type=MessageType.TASK),
         show_time=show_time,
     )
 
 
 def log_note(
-    text: str,
     *,
+    text: str,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(text, message_type=MessageType.NOTE),
+        message=Message(text, message_type=MessageType.NOTE),
         show_time=show_time,
     )
 
 
 def log_hint(
-    text: str,
     *,
+    text: str,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(text, message_type=MessageType.HINT),
+        message=Message(text, message_type=MessageType.HINT),
         show_time=show_time,
     )
 
 
 def log_alert(
-    text: str,
     *,
+    text: str,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(text, message_type=MessageType.ALERT),
+        message=Message(text, message_type=MessageType.ALERT),
         show_time=show_time,
     )
 
 
 def log_debug(
-    text: str,
     *,
+    text: str,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(text, message_type=MessageType.DEBUG),
+        message=Message(text, message_type=MessageType.DEBUG),
         show_time=show_time,
     )
 
 
 def log_outcome(
-    text: str,
     *,
+    text: str,
     outcome: ActionOutcome,
     show_time: bool = True,
 ) -> None:
     render_line(
-        Message(
+        message=Message(
             text,
             message_type=MessageType.ACTION,
             action_outcome=outcome,
@@ -468,7 +468,7 @@ def log_action(
 ) -> None:
     message_notes: dict[str, Any] = dict(notes) if notes else {}
     render_block(
-        Message(
+        message=Message(
             message=message,
             message_type=MessageType.ACTION,
             message_title=title,
@@ -490,7 +490,7 @@ def log_context(
 ) -> None:
     message_notes: dict[str, Any] = dict(notes) if notes else {}
     render_block(
-        Message(
+        message=Message(
             message=message,
             message_type=MessageType.NOTE,
             message_title=title,
@@ -513,7 +513,7 @@ def log_items(
         f"{item_index + 1}": item for item_index, item in enumerate(items)
     }
     render_block(
-        Message(
+        message=Message(
             message=message,
             message_type=MessageType.LIST,
             message_title=title,
@@ -525,14 +525,14 @@ def log_items(
 
 
 def log_warning(
+    *,
     text: str,
     notes: Mapping[str, object] | None = None,
-    *,
     message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
     message_notes: dict[str, Any] = dict(notes) if notes else {}
     render_block(
-        Message(
+        message=Message(
             message=text,
             message_type=MessageType.ACTION,
             message_title="Warning",
@@ -545,14 +545,14 @@ def log_warning(
 
 
 def log_error(
+    *,
     text: str,
     notes: Mapping[str, object] | None = None,
-    *,
     message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
     message_notes: dict[str, Any] = dict(notes) if notes else {}
     render_block(
-        Message(
+        message=Message(
             message=text,
             message_type=MessageType.ACTION,
             message_title="Error",
@@ -574,7 +574,7 @@ def log_summary(
 ) -> None:
     message_notes: dict[str, Any] = dict(notes)
     render_block(
-        Message(
+        message=Message(
             message=message,
             message_type=MessageType.SUMMARY,
             message_title=title,
@@ -586,13 +586,13 @@ def log_summary(
 
 
 def log_section(
-    title: str,
     *,
+    title: str,
     show_time: bool = False,
     add_spacing: bool = False,
 ) -> None:
     render_line(
-        Message(title, message_type=MessageType.SECTION),
+        message=Message(title, message_type=MessageType.SECTION),
         show_time=show_time,
         add_spacing=add_spacing,
     )

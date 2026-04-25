@@ -182,6 +182,7 @@ class UniformDomain:
     ) -> tuple[NDArray[Any], ...]:
 
         def _get_cell_centers(
+            *,
             axis_min: float,
             cell_width: float,
             num_cells: int,
@@ -194,7 +195,11 @@ class UniformDomain:
                 self.cell_widths,
                 self.resolution,
         ):
-            cell_centers = _get_cell_centers(axis_min, cell_width, num_cells)
+            cell_centers = _get_cell_centers(
+                axis_min=axis_min,
+                cell_width=cell_width,
+                num_cells=num_cells,
+            )
             cell_centers_per_axis.append(cell_centers)
         return tuple(cell_centers_per_axis)
 

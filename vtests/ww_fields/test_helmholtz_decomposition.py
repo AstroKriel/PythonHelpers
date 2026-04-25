@@ -263,7 +263,7 @@ def main():
     for vfield_index, vfield_entry in enumerate(list_vfields):
         vfield_name = vfield_entry["label"]
         vfield = vfield_entry["vfield"]
-        manage_log.log_task(f"Input: {vfield_name} field")
+        manage_log.log_task(text=f"Input: {vfield_name} field")
         ## decompose
         dfields = decompose_fields.compute_helmholtz_decomposed_fields(
             vfield_3d_q=vfield,
@@ -336,7 +336,7 @@ def main():
         failed_checks = []
         for label, sfield, threshold, fail_msg in check_items:
             median, std = _sfield_abs_median_std(sfield)
-            manage_log.log_note(f"{label} median = {median:.2e} +/- {std:.2e}")
+            manage_log.log_note(text=f"{label} median = {median:.2e} +/- {std:.2e}")
             if median >= threshold:
                 failed_checks.append(fail_msg)
         ## plots: for each input field, fill a 4x4 block column-wise:
@@ -400,22 +400,22 @@ def main():
         if failed_checks:
             for check_msg in failed_checks:
                 manage_log.log_outcome(
-                    check_msg,
+                    text=check_msg,
                     outcome=manage_log.ActionOutcome.FAILURE,
                 )
             failed_vfields.append(vfield_name)
         else:
             manage_log.log_outcome(
-                f"{vfield_name}",
+                text=f"{vfield_name}",
                 outcome=manage_log.ActionOutcome.SUCCESS,
             )
         manage_log.log_empty_lines()
     file_name = "helmholtz_decomposition.png"
     file_path = Path(__file__).parent / file_name
-    manage_plots.save_figure(fig, file_path)
+    manage_plots.save_figure(fig=fig, fig_path=file_path)
     assert len(failed_vfields) == 0, (
         f"Test failed for the following vector field(s): "
-        f"{ww_lists.as_string(failed_vfields)}"
+        f"{ww_lists.as_string(elems=failed_vfields)}"
     )
     manage_log.log_action(
         title="Helmholtz decomposition",

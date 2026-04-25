@@ -36,8 +36,8 @@ class RuntimeTypes:
 
 
 def ensure_box_corner(
-    corner: box_positions.Positions.PositionLike,
     *,
+    corner: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     validate_enums.ensure_valid_member(
@@ -48,8 +48,8 @@ def ensure_box_corner(
 
 
 def ensure_box_edge(
-    edge: box_positions.Positions.PositionLike,
     *,
+    edge: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     validate_enums.ensure_valid_member(
@@ -60,8 +60,8 @@ def ensure_box_edge(
 
 
 def ensure_box_center(
-    center: box_positions.Positions.PositionLike,
     *,
+    center: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     validate_enums.ensure_valid_member(
@@ -72,8 +72,8 @@ def ensure_box_center(
 
 
 def ensure_box_side(
-    side: box_positions.Positions.PositionLike,
     *,
+    side: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     validate_enums.ensure_valid_member(
@@ -145,8 +145,8 @@ def as_box_side(
 
 
 def ensure_mpl_anchor(
-    position: box_positions.Positions.PositionLike,
     *,
+    position: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `position` is valid for mpl-loc placement."""
@@ -158,8 +158,8 @@ def ensure_mpl_anchor(
 
 
 def ensure_mpl_ha(
-    ha: box_positions.Positions.PositionLike,
     *,
+    ha: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `ha` is valid for mpl-ha."""
@@ -175,8 +175,8 @@ def ensure_mpl_ha(
 
 
 def ensure_mpl_va(
-    va: box_positions.Positions.PositionLike,
     *,
+    va: box_positions.Positions.PositionLike,
     param_name: str = "<param>",
 ) -> None:
     """Ensure `va` is valid for mpl-va."""

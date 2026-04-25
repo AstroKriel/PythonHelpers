@@ -41,8 +41,8 @@ class DataSeries:
     def __post_init__(
         self,
     ):
-        self._ensure_data_array(self.x_values)
-        self._ensure_data_array(self.y_values)
+        self._ensure_data_array(array=self.x_values)
+        self._ensure_data_array(array=self.y_values)
         validate_arrays.ensure_same_shape(
             array_a=self.x_values,
             array_b=self.y_values,
@@ -50,6 +50,7 @@ class DataSeries:
 
     @staticmethod
     def _ensure_data_array(
+        *,
         array: NDArray[Any],
         rel_tol: float = 1e-2,
         abs_tol: float = 1e-9,
@@ -67,6 +68,7 @@ class DataSeries:
 
     @staticmethod
     def _ensure_sigma_array(
+        *,
         sigma_array: NDArray[Any],
         ref_array: NDArray[Any],
     ):

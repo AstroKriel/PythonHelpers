@@ -24,15 +24,15 @@ def main():
     validation_root = Path(__file__).parent
     test_scripts = sorted(validation_root.rglob("test_*.py"))
     if not test_scripts:
-        manage_log.log_alert("No validation scripts found.")
+        manage_log.log_alert(text="No validation scripts found.")
         sys.exit(0)
-    manage_log.log_section("Validation Suite", show_time=True)
+    manage_log.log_section(title="Validation Suite", show_time=True)
     manage_log.log_empty_lines()
     ## run each script as a subprocess and collect results
     results: list[tuple[str, bool, float]] = []
     for script_path in test_scripts:
         test_label = str(script_path.relative_to(validation_root))
-        manage_log.log_task(test_label, show_time=False)
+        manage_log.log_task(text=test_label, show_time=False)
         start_time = time.perf_counter()
         test = subprocess.run(
             args=[sys.executable, str(script_path)],

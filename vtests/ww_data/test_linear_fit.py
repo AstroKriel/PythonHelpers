@@ -101,19 +101,19 @@ def main():
         if failed_checks:
             for check_msg in failed_checks:
                 manage_log.log_outcome(
-                    f"{fit_label}: {check_msg}",
+                    text=f"{fit_label}: {check_msg}",
                     outcome=manage_log.ActionOutcome.FAILURE,
                 )
             fits_that_failed.append(fit_label)
         else:
             manage_log.log_outcome(
-                f"{fit_label} (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
+                text=f"{fit_label} (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
                 outcome=manage_log.ActionOutcome.SUCCESS,
             )
     ## save figure always so it can be inspected on failure
     fig_name = "linear_fit.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig, fig_path)
+    manage_plots.save_figure(fig=fig, fig_path=fig_path)
     assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
     manage_log.log_action(
         title="Linear fit",

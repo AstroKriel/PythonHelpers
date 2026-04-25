@@ -540,7 +540,7 @@ class TestUnitVectorField3D(unittest.TestCase):
         self,
     ):
         vfield = self._make_unit_vfield()
-        uvfield = field_types.as_3d_uvfield(vfield)
+        uvfield = field_types.as_3d_uvfield(vfield_3d=vfield)
         self.assertIsInstance(
             uvfield,
             field_types.UnitVectorField_3D,

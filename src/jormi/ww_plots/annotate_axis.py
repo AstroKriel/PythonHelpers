@@ -51,6 +51,7 @@ _VALID_LINES: list[str] = [
 
 
 def add_text(
+    *,
     ax: manage_plots.PlotAxis,
     x_pos: float,
     y_pos: float,
@@ -129,6 +130,7 @@ def add_text(
 
 
 def add_custom_legend(
+    *,
     ax: manage_plots.PlotAxis,
     artists: list[str],
     labels: list[str],
@@ -249,6 +251,7 @@ def add_custom_legend(
 
 
 def overlay_curve(
+    *,
     ax: manage_plots.PlotAxis,
     x_values: list[float] | NDArray[Any],
     y_values: list[float] | NDArray[Any],

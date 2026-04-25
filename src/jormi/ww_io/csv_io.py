@@ -51,8 +51,8 @@ def _ensure_input_dict(
 
 
 def read_csv_file_into_dict(
-    file_path: str | Path,
     *,
+    file_path: str | Path,
     verbose: bool = True,
     delimiter: str = ",",
 ) -> dict[str, list[float]]:
@@ -70,7 +70,7 @@ def read_csv_file_into_dict(
     if not file_path.is_file():
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
-        manage_log.log_task(f"Reading csv-file: {file_path}")
+        manage_log.log_task(text=f"Reading csv-file: {file_path}")
     with open(file_path, "r", newline="", encoding="utf-8") as file_pointer:
         csv_reader = csv.DictReader(
             file_pointer,
@@ -95,9 +95,9 @@ def read_csv_file_into_dict(
 
 
 def save_dict_to_csv_file(
+    *,
     file_path: str | Path,
     input_dict: dict[str, Any],
-    *,
     overwrite: bool = False,
     verbose: bool = True,
 ) -> None:
@@ -163,6 +163,7 @@ def save_dict_to_csv_file(
 
 
 def _write_csv(
+    *,
     file_path: Path,
     input_dict: dict[str, Any],
 ) -> None:
@@ -179,6 +180,7 @@ def _write_csv(
 
 
 def _update_csv(
+    *,
     file_path: Path,
     input_dict: dict[str, Any],
 ) -> None:
@@ -228,7 +230,10 @@ def _update_csv(
         raise ValueError(
             f"Final dataset has inconsistent column lengths: {final_dataset_shape}",
         )
-    _write_csv(file_path, existing_dataset)
+    _write_csv(
+        file_path=file_path,
+        input_dict=existing_dataset,
+    )
 
 
 ## } MODULE

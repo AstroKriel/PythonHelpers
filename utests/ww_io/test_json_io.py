@@ -63,11 +63,11 @@ class Tests(unittest.TestCase):
         self,
     ):
         data = {"a": 1, "b": [1, 2, 3]}
-        save_dict_to_json_file(self.test_file_path, data)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data)
         self.assertTrue(
             self.test_file_path.exists(),
         )
-        result = read_json_file_into_dict(self.test_file_path)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             data,
@@ -78,10 +78,10 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"a": 1}
         data2 = {"b": 2}
-        expected = ww_dicts.merge_dicts(data1, data2)
-        save_dict_to_json_file(self.test_file_path, data1)
-        save_dict_to_json_file(self.test_file_path, data2)
-        result = read_json_file_into_dict(self.test_file_path)
+        expected = ww_dicts.merge_dicts(dict_a=data1, dict_b=data2)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             expected,
@@ -92,9 +92,9 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"a": 1}
         data2 = {"b": 2}
-        save_dict_to_json_file(self.test_file_path, data1)
-        json_io.save_dict_to_json_file(self.test_file_path, data2, overwrite=True, verbose=False)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        json_io.save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2, overwrite=True, verbose=False)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             data2,
@@ -117,7 +117,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         with self.assertRaises(ValueError):
-            json_io._dump_dict_to_json("invalid.txt", {"a": 1})
+            json_io._dump_dict_to_json(file_path="invalid.txt", input_dict={"a": 1})
 
     def test_numpy_serialization(
         self,
@@ -128,8 +128,8 @@ class Tests(unittest.TestCase):
             "bool": numpy.bool_(True),
             "array": numpy.array([1, 2, 3]),
         }
-        save_dict_to_json_file(self.test_file_path, data)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         expected = {"int": 42, "float": 3.14, "bool": True, "array": [1, 2, 3]}
         self.assertEqual(
             result,
@@ -141,10 +141,10 @@ class Tests(unittest.TestCase):
     ):
         d1 = {"a": {"x": 1}, "b": 2}
         d2 = {"a": {"y": 3}, "c": 4}
-        save_dict_to_json_file(self.test_file_path, d1)
-        save_dict_to_json_file(self.test_file_path, d2)
-        expected = ww_dicts.merge_dicts(d1, d2)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=d1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=d2)
+        expected = ww_dicts.merge_dicts(dict_a=d1, dict_b=d2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             expected,
@@ -155,9 +155,9 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"a": 1}
         data2 = {"a": [2, 3]}
-        save_dict_to_json_file(self.test_file_path, data1)
-        save_dict_to_json_file(self.test_file_path, data2)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             {"a": [2, 3]},
@@ -168,9 +168,9 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"a": [1, 2]}
         data2 = {"a": 42}
-        save_dict_to_json_file(self.test_file_path, data1)
-        save_dict_to_json_file(self.test_file_path, data2)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             {"a": 42},
@@ -181,9 +181,9 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"a": {"x": 1}}
         data2 = {"a": 100}
-        save_dict_to_json_file(self.test_file_path, data1)
-        save_dict_to_json_file(self.test_file_path, data2)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             {"a": 100},
@@ -194,9 +194,9 @@ class Tests(unittest.TestCase):
     ):
         data1 = {"key": "value"}
         data2 = {"key": None}
-        save_dict_to_json_file(self.test_file_path, data1)
-        save_dict_to_json_file(self.test_file_path, data2)
-        result = read_json_file_into_dict(self.test_file_path)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
+        save_dict_to_json_file(file_path=self.test_file_path, input_dict=data2)
+        result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(
             result,
             {"key": None},

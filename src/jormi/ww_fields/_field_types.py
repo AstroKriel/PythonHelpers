@@ -149,8 +149,8 @@ class Field:
 
 
 def _ensure_field(
-    field: Field,
     *,
+    field: Field,
     param_name: str = "<field>",
 ) -> None:
     validate_types.ensure_type(
@@ -161,8 +161,8 @@ def _ensure_field(
 
 
 def ensure_field_metadata(
-    field: Field,
     *,
+    field: Field,
     num_comps: int | None = None,
     num_sdims: int | None = None,
     num_ranks: int | None = None,

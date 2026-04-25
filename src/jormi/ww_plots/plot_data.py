@@ -35,6 +35,7 @@ AxisBounds = tuple[
 
 
 def as_plot_view(
+    *,
     data_array: NDArray[Any],
     data_format: DataFormat,
 ) -> NDArray[Any]:
@@ -93,6 +94,7 @@ def _as_axis_extent(
 
 
 def _get_value_range(
+    *,
     array_2d: NDArray[Any],
     cbar_bounds: tuple[float, float] | None,
 ) -> tuple[float, float]:
@@ -142,6 +144,7 @@ def _get_value_range(
 
 
 def plot_2d_array(
+    *,
     ax: manage_plots.PlotAxis,
     array_2d: NDArray[Any],
     data_format: DataFormat,
@@ -155,7 +158,7 @@ def plot_2d_array(
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
-    add_color.ensure_continuous_config(palette_config)
+    add_color.ensure_continuous_config(config=palette_config)
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -196,6 +199,7 @@ def plot_2d_array(
 
 
 def _generate_grid(
+    *,
     field_shape: tuple[int, int],
     axis_extent: tuple[float, float, float, float],
 ) -> tuple[NDArray[Any], NDArray[Any]]:
@@ -208,6 +212,7 @@ def _generate_grid(
 
 
 def plot_2d_quiver(
+    *,
     ax: manage_plots.PlotAxis,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
@@ -254,6 +259,7 @@ def plot_2d_quiver(
 
 
 def plot_2d_streamlines(
+    *,
     ax: manage_plots.PlotAxis,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],

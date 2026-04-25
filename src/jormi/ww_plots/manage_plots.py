@@ -51,6 +51,7 @@ PlotAxesGrid: TypeAlias = NDArray[numpy.object_]
 
 
 def _get_fig_shape(
+    *,
     num_rows: int = 1,
     num_cols: int = 1,
     fig_scale: float = 1.0,
@@ -248,6 +249,7 @@ class AxisBounds:
 
 
 def compute_adjacent_ax_bounds(
+    *,
     ax: PlotAxis,
     side: _Side = box_positions.Positions.Side.Right,
     gap: float = 0.1,
@@ -301,6 +303,7 @@ def compute_adjacent_ax_bounds(
 
 
 def add_inset_axis(
+    *,
     ax: PlotAxis,
     bounds: tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
     x_label: str | None = None,
@@ -354,6 +357,7 @@ def add_inset_axis(
 
 
 def save_figure(
+    *,
     fig: mpl_Figure,
     fig_path: str | Path,
     dpi: int = 200,
@@ -371,24 +375,25 @@ def save_figure(
                 notes={"file": str(fig_path)},
             )
     except FileNotFoundError as exception:
-        manage_log.log_error(f"FileNotFoundError: {exception}")
+        manage_log.log_error(text=f"FileNotFoundError: {exception}")
     except PermissionError as exception:
         manage_log.log_error(
-            f"PermissionError: You do not have permission to save to: {fig_path}",
+            text=f"PermissionError: You do not have permission to save to: {fig_path}",
             notes={"details": str(exception)},
         )
     except IOError as exception:
         manage_log.log_error(
-            f"IOError: An error occurred while trying to save the figure to: {fig_path}",
+            text=f"IOError: An error occurred while trying to save the figure to: {fig_path}",
             notes={"details": str(exception)},
         )
     except Exception as exception:
-        manage_log.log_error(f"Unexpected error while saving the figure to {fig_path}: {exception}")
+        manage_log.log_error(text=f"Unexpected error while saving the figure to {fig_path}: {exception}")
     finally:
         mpl_plot.close(fig)
 
 
 def animate_pngs_to_mp4(
+    *,
     frames_dir: str | Path,
     mp4_path: str | Path,
     pattern: str = "frame_*.png",
@@ -397,7 +402,7 @@ def animate_pngs_to_mp4(
 ) -> None:
     frames_dir = Path(frames_dir)
     mp4_path = Path(mp4_path)
-    manage_io.create_directory(mp4_path.parent, verbose=False)
+    manage_io.create_directory(directory=mp4_path.parent, verbose=False)
     args = " ".join(
         [
             "-hide_banner",  # less stdout

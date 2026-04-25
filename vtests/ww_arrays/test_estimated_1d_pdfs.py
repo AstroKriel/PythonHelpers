@@ -74,13 +74,13 @@ def main():
         ax.set_ylabel(r"PDF$(x)$")
         if failed_bins:
             manage_log.log_outcome(
-                f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
+                text=f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
                 outcome=manage_log.ActionOutcome.FAILURE,
             )
             pdfs_that_failed.append(pdf_label)
         else:
             manage_log.log_outcome(
-                f"{pdf_label}",
+                text=f"{pdf_label}",
                 outcome=manage_log.ActionOutcome.SUCCESS,
             )
     axs_grid[-1, 0].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
@@ -88,9 +88,9 @@ def main():
     ## save figure always so it can be inspected on failure
     fig_name = "estimated_1d_pdfs.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig, fig_path)
+    manage_plots.save_figure(fig=fig, fig_path=fig_path)
     assert len(pdfs_that_failed) == 0, (
-        f"Test failed for the following distributions: {ww_lists.as_string(pdfs_that_failed)}"
+        f"Test failed for the following distributions: {ww_lists.as_string(elems=pdfs_that_failed)}"
     )
     manage_log.log_action(
         title="Estimate 1D PDFs",

@@ -17,8 +17,8 @@ from jormi.ww_io import manage_log
 
 
 def create_directory(
-    directory: str | Path,
     *,
+    directory: str | Path,
     verbose: bool = True,
 ) -> None:
     directory = Path(directory).resolve(strict=False)
@@ -87,6 +87,7 @@ def _log_file_action(
 
 
 def copy_file(
+    *,
     directory_from: str | Path,
     directory_to: str | Path,
     file_name: str,
@@ -109,7 +110,10 @@ def copy_file(
                 notes={"directory": str(directory_to)},
             )
     else:
-        create_directory(directory=directory_to, verbose=False)
+        create_directory(
+            directory=directory_to,
+            verbose=False,
+        )
         shutil.copy2(src=file_path_from, dst=file_path_to)
     if verbose or dry_run:
         _log_file_action(
@@ -122,6 +126,7 @@ def copy_file(
 
 
 def move_file(
+    *,
     directory_from: str | Path,
     directory_to: str | Path,
     file_name: str,
@@ -144,7 +149,10 @@ def move_file(
                 notes={"directory": str(directory_to)},
             )
     else:
-        create_directory(directory=directory_to, verbose=False)
+        create_directory(
+            directory=directory_to,
+            verbose=False,
+        )
         shutil.move(src=file_path_from, dst=file_path_to)
     if verbose or dry_run:
         _log_file_action(
@@ -157,6 +165,7 @@ def move_file(
 
 
 def delete_file(
+    *,
     directory: str | Path,
     file_name: str,
     dry_run: bool = False,
@@ -178,8 +187,8 @@ def delete_file(
 
 
 def filter_directory(
-    directory: str | Path,
     *,
+    directory: str | Path,
     req_include_words: str | list[str] | None = None,
     req_exclude_words: str | list[str] | None = None,
     prefix: str | None = None,

@@ -18,7 +18,7 @@ def compute_isotropic_power_spectrum_sfield(
     sfield_3d: field_types.ScalarField_3D,
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a 3D scalar field."""
-    sarray_3d = field_types.extract_3d_sarray(sfield_3d)
+    sarray_3d = field_types.extract_3d_sarray(sfield_3d=sfield_3d)
     udomain_3d = sfield_3d.udomain
     resolution_3d = udomain_3d.resolution
     return _compute_spectra.compute_isotropic_power_spectrum_sarray(

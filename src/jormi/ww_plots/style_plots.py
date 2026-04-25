@@ -195,6 +195,7 @@ def _get_base_rc_params(
 
 
 def _compose_rc_params(
+    *,
     theme: Theme = Theme.LIGHT,
     use_tex: bool = True,
 ) -> dict[str, object]:
@@ -209,6 +210,7 @@ def _compose_rc_params(
 
 
 def set_theme(
+    *,
     theme: Theme | str = Theme.LIGHT,
     use_tex: bool = True,
 ) -> None:

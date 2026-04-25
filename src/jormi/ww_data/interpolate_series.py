@@ -21,6 +21,7 @@ from jormi.ww_validation import validate_arrays, validate_types
 
 
 def interpolate_1d(
+    *,
     data_series: DataSeries,
     x_interp: NDArray[Any],
     spline_order: int = 3,

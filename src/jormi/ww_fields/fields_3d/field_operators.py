@@ -19,6 +19,7 @@ from jormi.ww_validation import validate_types
 
 
 def compute_sfield_rms(
+    *,
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the RMS of a 3D scalar field."""
@@ -32,6 +33,7 @@ def compute_sfield_rms(
 
 
 def compute_sfield_volume_integral(
+    *,
     sfield_3d: field_types.ScalarField_3D,
 ) -> float:
     """Compute the volume integral of a 3D scalar field."""
@@ -86,8 +88,8 @@ def compute_sfield_gradient(
 
 
 def compute_vfield_magnitude(
-    vfield_3d: field_types.VectorField_3D,
     *,
+    vfield_3d: field_types.VectorField_3D,
     field_label: str = "sqrt(f_i f_i)",
 ) -> field_types.ScalarField_3D:
     """Compute the magnitude sqrt(f_i f_i) of a 3D vector field."""
@@ -179,8 +181,8 @@ def compute_vfield_cross_product(
 
 
 def compute_vfield_curl(
-    vfield_3d: field_types.VectorField_3D,
     *,
+    vfield_3d: field_types.VectorField_3D,
     varray_3d_out: NDArray[Any] | None = None,
     field_label: str = "epsilon_ijk d_j f_k",
     grad_order: int = 2,
@@ -213,8 +215,8 @@ def compute_vfield_curl(
 
 
 def compute_vfield_divergence(
-    vfield_3d: field_types.VectorField_3D,
     *,
+    vfield_3d: field_types.VectorField_3D,
     sarray_3d_out: NDArray[Any] | None = None,
     field_label: str = "d_i f_i",
     grad_order: int = 2,

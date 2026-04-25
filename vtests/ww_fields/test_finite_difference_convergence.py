@@ -129,10 +129,10 @@ class TestFiniteDifferenceConvergence:
         self._annotate_figure()
         file_name = "finite_difference_convergence.png"
         file_path = Path(__file__).parent / file_name
-        manage_plots.save_figure(fig, file_path)
+        manage_plots.save_figure(fig=fig, fig_path=file_path)
         assert len(
             failed_methods,
-        ) == 0, f"Convergence test failed for the following method(s): {ww_lists.as_string(failed_methods)}"
+        ) == 0, f"Convergence test failed for the following method(s): {ww_lists.as_string(elems=failed_methods)}"
         manage_log.log_action(
             title="Finite difference convergence",
             outcome=manage_log.ActionOutcome.SUCCESS,

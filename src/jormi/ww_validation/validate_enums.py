@@ -26,8 +26,8 @@ def _normalise_string(
 
 
 def _find_match_in_enum(
-    member_key: str,
     *,
+    member_key: str,
     enum_type: enum_aliases.EnumType,
 ) -> Enum | None:
     for member in enum_type:
@@ -39,8 +39,8 @@ def _find_match_in_enum(
 
 
 def _find_unique_match(
-    member_key: str,
     *,
+    member_key: str,
     valid_enums: tuple[enum_aliases.EnumType, ...],
 ) -> Enum | None:
     matched_member = None
@@ -91,8 +91,8 @@ def as_runtime_type(
 
 
 def ensure_sequence_of_enums(
-    param: tuple[enum_aliases.EnumType, ...] | list[enum_aliases.EnumType],
     *,
+    param: tuple[enum_aliases.EnumType, ...] | list[enum_aliases.EnumType],
     param_name: str = "param",
 ) -> None:
     """Ensure `param` is a non-empty sequence of Enum types."""
@@ -113,8 +113,8 @@ def ensure_sequence_of_enums(
 
 
 def resolve_member(
-    member: enum_aliases.EnumMemberLike,
     *,
+    member: enum_aliases.EnumMemberLike,
     valid_enums: enum_aliases.EnumTypesLike,
 ) -> Enum:
     """Return `member` as an Enum member from one of `valid_enums`."""
@@ -151,8 +151,8 @@ def resolve_member(
 
 
 def ensure_valid_member(
-    member: enum_aliases.EnumMemberLike,
     *,
+    member: enum_aliases.EnumMemberLike,
     valid_enums: enum_aliases.EnumTypesLike,
     param_name: str = "<param>",
 ) -> None:
@@ -166,8 +166,8 @@ def ensure_valid_member(
 
 
 def ensure_member_in(
-    member: enum_aliases.EnumMemberLike,
     *,
+    member: enum_aliases.EnumMemberLike,
     valid_members: tuple[Enum, ...] | list[Enum],
     param_name: str = "<param>",
 ) -> None:

@@ -56,6 +56,7 @@ PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
 
 
 def ensure_sequential_config(
+    *,
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -65,6 +66,7 @@ def ensure_sequential_config(
 
 
 def ensure_diverging_config(
+    *,
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -74,6 +76,7 @@ def ensure_diverging_config(
 
 
 def ensure_continuous_config(
+    *,
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -85,6 +88,7 @@ def ensure_continuous_config(
 
 
 def ensure_discrete_config(
+    *,
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -94,6 +98,7 @@ def ensure_discrete_config(
 
 
 def make_palette(
+    *,
     config: PaletteConfig,
     value_range: tuple[float, float],
 ) -> ColorPalette:
@@ -138,8 +143,8 @@ _SIDE_TO_ORIENTATION: dict[_Side, str] = {
 
 
 def _label_cbar(
-    cbar: mpl_colorbar.Colorbar,
     *,
+    cbar: mpl_colorbar.Colorbar,
     label: str | None,
     cbar_side: _Side,
     label_size: int | float,
@@ -177,8 +182,8 @@ def _label_cbar(
 
 
 def add_colorbar(
-    ax: mpl_axes.Axes,
     *,
+    ax: mpl_axes.Axes,
     palette: ColorPalette,
     label: str | None = None,
     cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
@@ -244,7 +249,7 @@ def add_colorbar(
         orientation=cbar_orientation,
     )
     _label_cbar(
-        cbar,
+        cbar=cbar,
         label=label,
         cbar_side=cbar_side,
         label_size=label_size,

@@ -111,6 +111,7 @@ def subset_palette(
 
 
 def _make_builtin_palette(
+    *,
     name: str,
     colors: list[str],
 ) -> tuple[str, mpl_colors.Colormap]:

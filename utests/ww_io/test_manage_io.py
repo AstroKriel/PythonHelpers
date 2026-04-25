@@ -24,7 +24,7 @@ class TestFilterDirectory_Validation(unittest.TestCase):
     ) -> None:
         with self.assertRaises(NotADirectoryError):
             manage_io.filter_directory(
-                Path("/nonexistent/path/that/does/not/exist"),
+                directory=Path("/nonexistent/path/that/does/not/exist"),
             )
 
     def test_no_include_types_raises(
@@ -33,7 +33,7 @@ class TestFilterDirectory_Validation(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             with self.assertRaises(ValueError):
                 manage_io.filter_directory(
-                    Path(tmp),
+                    directory=Path(tmp),
                     include_files=False,
                     include_folders=False,
                 )
@@ -60,7 +60,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
     def test_no_filter_returns_all(
         self,
     ) -> None:
-        results = manage_io.filter_directory(self.tmp_dir)
+        results = manage_io.filter_directory(directory=self.tmp_dir)
         self.assertEqual(
             len(results),
             4,
@@ -70,7 +70,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             include_files=False,
         )
         self.assertTrue(
@@ -85,7 +85,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             include_folders=False,
         )
         self.assertTrue(
@@ -100,7 +100,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             req_include_words="Mach2",
         )
         self.assertEqual(
@@ -115,7 +115,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             req_include_words=["Mach2", "Re1500"],
         )
         self.assertEqual(
@@ -131,7 +131,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             req_exclude_words="Re500",
             include_files=False,
         )
@@ -146,7 +146,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
     def test_results_are_sorted(
         self,
     ) -> None:
-        results = manage_io.filter_directory(self.tmp_dir)
+        results = manage_io.filter_directory(directory=self.tmp_dir)
         self.assertEqual(
             results,
             sorted(results),
@@ -175,7 +175,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             prefix="Turb_hdf5_plt_cnt_",
         )
         self.assertEqual(
@@ -190,7 +190,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             suffix=".npz",
         )
         self.assertEqual(
@@ -206,7 +206,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             prefix="Turb_hdf5_plt_cnt_",
             num_parts=5,
         )
@@ -219,7 +219,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             num_parts=1,
         )
         self.assertEqual(
@@ -235,7 +235,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
         self,
     ) -> None:
         results = manage_io.filter_directory(
-            self.tmp_dir,
+            directory=self.tmp_dir,
             suffix=".npz",
             delimiter=".",
             num_parts=2,

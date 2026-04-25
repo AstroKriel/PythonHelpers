@@ -19,18 +19,22 @@ from jormi.ww_io import (
 
 
 def submit_job(
+    *,
     directory: str | Path,
     file_name: str,
     check_status: bool = False,
 ) -> bool:
     directory = Path(directory).resolve()
-    if check_status and is_job_already_in_queue(directory, file_name):
+    if check_status and is_job_already_in_queue(
+        directory=directory,
+        file_name=file_name,
+    ):
         manage_log.log_outcome(
-            f"Job is already currently running: {file_name}",
+            text=f"Job is already currently running: {file_name}",
             outcome=manage_log.ActionOutcome.SKIPPED,
         )
         return False
-    manage_log.log_task(f"Submitting job: {file_name}")
+    manage_log.log_task(text=f"Submitting job: {file_name}")
     try:
         manage_shell.execute_shell_command(
             command=f"qsub {file_name}",
@@ -38,22 +42,23 @@ def submit_job(
         )
         return True
     except RuntimeError as error:
-        manage_log.log_error(f"Failed to submit job `{file_name}`: {error}")
+        manage_log.log_error(text=f"Failed to submit job `{file_name}`: {error}")
         return False
 
 
 def is_job_already_in_queue(
+    *,
     directory: str | Path,
     file_name: str,
 ) -> bool:
     """Checks if a job name is already in the queue."""
     file_path = Path(directory) / file_name
     if not file_path.is_file():
-        manage_log.log_alert(f"`{file_name}` job file does not exist in: {directory}")
+        manage_log.log_alert(text=f"`{file_name}` job file does not exist in: {directory}")
         return False
     job_tag = get_job_tag_from_pbs_script(file_path)
     if not job_tag:
-        manage_log.log_alert(f"`#PBS -N` not found in job file: {file_name}")
+        manage_log.log_alert(text=f"`#PBS -N` not found in job file: {file_name}")
         return False
     queued_jobs = get_list_of_queued_jobs()
     if not queued_jobs:
@@ -101,7 +106,7 @@ def get_list_of_queued_jobs() -> list[tuple[str, str]] | None:
             jobs.append((job_id, job_tag))
         return jobs if jobs else []
     except RuntimeError as error:
-        manage_log.log_error(f"Error retrieving job info from the queue: {error}")
+        manage_log.log_error(text=f"Error retrieving job info from the queue: {error}")
         return None
 
 

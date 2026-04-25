@@ -90,7 +90,7 @@ def main():
     ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
     fig_name = "estimated_2d_jpdf.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig, fig_path)
+    manage_plots.save_figure(fig=fig, fig_path=fig_path)
     ## check
     assert abs(pdf_integral - 1.0) < integral_error_tol, (
         f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"

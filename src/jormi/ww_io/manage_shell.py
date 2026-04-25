@@ -58,8 +58,8 @@ class CommandOutcome:
 
 
 def execute_shell_command(
-    command: str,
     *,
+    command: str,
     working_directory: str | Path | None = None,
     timeout_seconds: float = 60,
     use_shell: bool = False,

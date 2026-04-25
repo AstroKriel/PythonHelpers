@@ -201,6 +201,7 @@ class UnitVectorField_3D(VectorField_3D):
 
 
 def as_3d_uvfield(
+    *,
     vfield_3d: VectorField_3D,
     tol: float = 1e-6,
 ) -> UnitVectorField_3D:
@@ -217,8 +218,8 @@ def as_3d_uvfield(
 
 
 def ensure_3d_sfield(
-    sfield_3d: ScalarField_3D,
     *,
+    sfield_3d: ScalarField_3D,
     param_name: str = "<sfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -229,8 +230,8 @@ def ensure_3d_sfield(
 
 
 def ensure_3d_vfield(
-    vfield_3d: VectorField_3D,
     *,
+    vfield_3d: VectorField_3D,
     param_name: str = "<vfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -241,8 +242,8 @@ def ensure_3d_vfield(
 
 
 def ensure_3d_uvfield(
-    uvfield_3d: UnitVectorField_3D,
     *,
+    uvfield_3d: UnitVectorField_3D,
     param_name: str = "<uvfield_3d>",
 ) -> None:
     validate_types.ensure_type(
@@ -370,8 +371,8 @@ def ensure_same_3d_field_shape_and_udomains(
 
 
 def extract_3d_sarray(
-    sfield_3d: ScalarField_3D,
     *,
+    sfield_3d: ScalarField_3D,
     param_name: str = "<sfield_3d>",
 ) -> NDArray[Any]:
     """Validate and extract the underlying (num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D scalar field."""
@@ -386,8 +387,8 @@ def extract_3d_sarray(
 
 
 def extract_3d_varray(
-    vfield_3d: VectorField_3D,
     *,
+    vfield_3d: VectorField_3D,
     param_name: str = "<vfield_3d>",
 ) -> NDArray[Any]:
     """Validate and extract the underlying (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D vector field."""
@@ -407,8 +408,8 @@ def extract_3d_varray(
 
 
 def get_label(
-    field: _field_types.Field,
     *,
+    field: _field_types.Field,
     param_name: str = "<field>",
 ) -> str:
     """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
@@ -421,9 +422,9 @@ def get_label(
 
 
 def get_vcomp_label(
+    *,
     vfield_3d: VectorField_3D,
     comp_axis: cartesian_axes.AxisLike_3D,
-    *,
     param_name: str = "<vfield_3d>",
 ) -> str:
     """Return the render-ready label for a vector field component.

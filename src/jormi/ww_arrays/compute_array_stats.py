@@ -46,7 +46,7 @@ def check_no_zero_values(
     )
     if raise_error:
         raise ValueError(msg)
-    manage_log.log_alert(msg)
+    manage_log.log_alert(text=msg)
     return True
 
 
@@ -82,13 +82,13 @@ def check_no_nonfinite_values(
     if not troubled_findings:
         return False
     msg = (
-        f"{param_name} contains non-finite values ({ww_lists.as_string(troubled_findings)}); "
+        f"{param_name} contains non-finite values ({ww_lists.as_string(elems=troubled_findings)}); "
         "these will be zeroed automatically. "
         "Inspect your simulation data if this is unexpected."
     )
     if raise_error:
         raise ValueError(msg)
-    manage_log.log_alert(msg)
+    manage_log.log_alert(text=msg)
     return True
 
 
@@ -836,7 +836,7 @@ def estimate_jpdf(
         estimated_jpdf = smooth_2d_arrays.smooth_2d_array(
             data=estimated_jpdf,
             sigma=smoothing_length,
-        )
+        )  # already uses keyword args
         total = float(
             numpy.sum(
                 estimated_jpdf * bin_areas,

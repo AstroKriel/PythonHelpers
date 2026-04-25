@@ -48,6 +48,7 @@ def _normalise_grouped_args(
 
 
 def _enable_plotting(
+    *,
     theme: str,
     use_tex: bool,
 ) -> None:
