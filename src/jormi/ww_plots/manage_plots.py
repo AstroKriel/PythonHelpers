@@ -35,7 +35,7 @@ from jormi.ww_io import (
     manage_shell,
 )
 from jormi.ww_plots import style_plots
-from jormi.ww_checks import check_box_positions, check_python_types
+from jormi.ww_validation import validate_box_positions, validate_python_types
 from jormi.ww_types import box_positions
 
 ##
@@ -154,12 +154,12 @@ def create_figure(
             "Either specify both `num_rows` and `num_cols`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,
@@ -310,8 +310,8 @@ def add_inset_axis(
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> PlotAxis:
     """Add an inset Axis to `ax`."""
-    x_label_side = check_box_positions.as_box_side(x_label_alignment)
-    y_label_side = check_box_positions.as_box_side(y_label_alignment)
+    x_label_side = validate_box_positions.as_box_side(x_label_alignment)
+    y_label_side = validate_box_positions.as_box_side(y_label_alignment)
     ax_inset = ax.inset_axes(bounds)
     if fontsize is None:
         fontsize = rcParams["axes.labelsize"]

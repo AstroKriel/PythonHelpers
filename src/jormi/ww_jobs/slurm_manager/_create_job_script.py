@@ -9,7 +9,7 @@ from pathlib import Path
 
 ## local
 from jormi.ww_io import manage_log
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === FUNCTIONS
@@ -35,16 +35,16 @@ def _validate_inputs(
     email_on_finish: bool,
     verbose: bool,
 ) -> None:
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=directory,
         valid_types=(str, Path),
         param_name="directory",
     )
-    check_python_types.ensure_nonempty_string(
+    validate_python_types.validate_nonempty_string(
         param=file_name,
         param_name="file_name",
     )
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=directives,
         valid_types=(list,),
         param_name="directives",
@@ -54,38 +54,38 @@ def _validate_inputs(
         if len(directives) == 0:
             raise ValueError("`directives` must contain at least one SLURM header line.")
         for directive in directives:
-            check_python_types.ensure_nonempty_string(
+            validate_python_types.validate_nonempty_string(
                 param=directive,
                 param_name="directives[]",
             )
-    check_python_types.ensure_nonempty_string(
+    validate_python_types.validate_nonempty_string(
         param=main_command,
         param_name="main_command",
     )
-    check_python_types.ensure_nonempty_string(
+    validate_python_types.validate_nonempty_string(
         param=tag_name,
         param_name="tag_name",
     )
-    check_python_types.ensure_string(
+    validate_python_types.validate_string(
         param=partition_name,
         param_name="partition_name",
         allow_none=True,
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=num_cpus,
         param_name="num_cpus",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=memory_gb,
         param_name="memory_gb",
         allow_none=True,
         require_positive=True,
         allow_zero=False,
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=wall_time_hours,
         param_name="wall_time_hours",
         allow_none=True,
@@ -99,40 +99,40 @@ def _validate_inputs(
             raise ValueError("`num_cpus` is required when `directives` are not provided.")
         if wall_time_hours is None:
             raise ValueError("`wall_time_hours` is required when `directives` are not provided.")
-    check_python_types.ensure_string(
+    validate_python_types.validate_string(
         param=prep_command,
         param_name="prep_command",
         allow_none=True,
     )
-    check_python_types.ensure_string(
+    validate_python_types.validate_string(
         param=post_command,
         param_name="post_command",
         allow_none=True,
     )
-    check_python_types.ensure_bool(
+    validate_python_types.validate_bool(
         param=always_run_post,
         param_name="always_run_post",
     )
-    check_python_types.ensure_string(
+    validate_python_types.validate_string(
         param=email_address,
         param_name="email_address",
         allow_none=True,
     )
-    check_python_types.ensure_bool(
+    validate_python_types.validate_bool(
         param=email_on_start,
         param_name="email_on_start",
     )
-    check_python_types.ensure_bool(
+    validate_python_types.validate_bool(
         param=email_on_finish,
         param_name="email_on_finish",
     )
-    check_python_types.ensure_bool(
+    validate_python_types.validate_bool(
         param=verbose,
         param_name="verbose",
     )
 
 
-def _ensure_path_is_valid(
+def _validate_path_is_valid(
     *,
     file_path: Path,
 ) -> Path:
@@ -297,7 +297,7 @@ def create_slurm_job_script(
         email_events.append("END")
     email_events_string = ",".join(email_events)
     file_path = Path(directory) / file_name
-    file_path = _ensure_path_is_valid(file_path=file_path)
+    file_path = _validate_path_is_valid(file_path=file_path)
     file_lines = _build_slurm_script(
         directives=directives,
         tag_name=tag_name,

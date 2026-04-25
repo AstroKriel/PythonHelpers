@@ -13,7 +13,7 @@ from jormi.ww_fields.fields_3d import (
     domain_types,
     field_types,
 )
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === HELMHOLTZ DECOMPOSITION
@@ -29,25 +29,25 @@ class HelmholtzDecomposedFields_3D:
     def __post_init__(
         self,
     ) -> None:
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_div,
             param_name="<vfield_3d_div>",
         )
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_sol,
             param_name="<vfield_3d_sol>",
         )
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_bulk,
             param_name="<vfield_3d_bulk>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_div,
             field_3d_b=self.vfield_3d_sol,
             field_name_a="<vfield_3d_div>",
             field_name_b="<vfield_3d_sol>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_div,
             field_3d_b=self.vfield_3d_bulk,
             field_name_a="<vfield_3d_div>",
@@ -59,12 +59,12 @@ def compute_helmholtz_decomposed_fields(
     vfield_3d_q: field_types.VectorField_3D,
 ) -> HelmholtzDecomposedFields_3D:
     """Field-level Helmholtz decomposition wrapper."""
-    field_types.ensure_3d_vfield(
+    field_types.validate_3d_vfield(
         vfield_3d=vfield_3d_q,
         param_name="<vfield_3d_q>",
     )
     udomain_3d = vfield_3d_q.udomain
-    domain_types.ensure_3d_periodic_udomain(
+    domain_types.validate_3d_periodic_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
@@ -118,35 +118,35 @@ class TNBDecomposedFields_3D:
     def __post_init__(
         self,
     ) -> None:
-        field_types.ensure_3d_uvfield(
+        field_types.validate_3d_uvfield(
             uvfield_3d=self.uvfield_3d_tangent,
             param_name="<uvfield_3d_tangent>",
         )
-        field_types.ensure_3d_uvfield(
+        field_types.validate_3d_uvfield(
             uvfield_3d=self.uvfield_3d_normal,
             param_name="<uvfield_3d_normal>",
         )
-        field_types.ensure_3d_uvfield(
+        field_types.validate_3d_uvfield(
             uvfield_3d=self.uvfield_3d_binormal,
             param_name="<uvfield_3d_binormal>",
         )
-        field_types.ensure_3d_sfield(
+        field_types.validate_3d_sfield(
             sfield_3d=self.sfield_3d_curvature,
             param_name="<sfield_3d_curvature>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.uvfield_3d_tangent,
             field_3d_b=self.uvfield_3d_normal,
             field_name_a="<uvfield_3d_tangent>",
             field_name_b="<uvfield_3d_normal>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.uvfield_3d_tangent,
             field_3d_b=self.uvfield_3d_binormal,
             field_name_a="<uvfield_3d_tangent>",
             field_name_b="<uvfield_3d_binormal>",
         )
-        field_types.ensure_same_3d_field_udomains(
+        field_types.validate_same_3d_field_udomains(
             field_3d_a=self.uvfield_3d_tangent,
             field_3d_b=self.sfield_3d_curvature,
             field_name_a="<uvfield_3d_tangent>",
@@ -160,11 +160,11 @@ def compute_tnb_decomposed_fields(
     grad_order: int = 2,
 ) -> TNBDecomposedFields_3D:
     """Field-level TNB decomposition wrapper."""
-    field_types.ensure_3d_vfield(
+    field_types.validate_3d_vfield(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -236,25 +236,25 @@ class MagneticCurvatureFields_3D:
     def __post_init__(
         self,
     ) -> None:
-        field_types.ensure_3d_sfield(
+        field_types.validate_3d_sfield(
             sfield_3d=self.sfield_3d_curvature,
             param_name="<sfield_3d_curvature>",
         )
-        field_types.ensure_3d_sfield(
+        field_types.validate_3d_sfield(
             sfield_3d=self.sfield_3d_stretching,
             param_name="<sfield_3d_stretching>",
         )
-        field_types.ensure_3d_sfield(
+        field_types.validate_3d_sfield(
             sfield_3d=self.sfield_3d_compression,
             param_name="<sfield_3d_compression>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.sfield_3d_curvature,
             field_3d_b=self.sfield_3d_stretching,
             field_name_a="<sfield_3d_curvature>",
             field_name_b="<sfield_3d_stretching>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.sfield_3d_curvature,
             field_3d_b=self.sfield_3d_compression,
             field_name_a="<sfield_3d_curvature>",
@@ -277,31 +277,31 @@ def compute_magnetic_curvature_decomposed_fields(
         stretching  = t_i t_j d_i u_j
         compression = d_i u_i
     """
-    field_types.ensure_3d_vfield(
+    field_types.validate_3d_vfield(
         vfield_3d=vfield_3d_u,
         param_name="<vfield_3d_u>",
     )
-    field_types.ensure_3d_uvfield(
+    field_types.validate_3d_uvfield(
         uvfield_3d=uvfield_3d_tangent,
         param_name="<uvfield_3d_tangent>",
     )
-    field_types.ensure_3d_uvfield(
+    field_types.validate_3d_uvfield(
         uvfield_3d=uvfield_3d_normal,
         param_name="<uvfield_3d_normal>",
     )
-    field_types.ensure_same_3d_field_udomains(
+    field_types.validate_same_3d_field_udomains(
         field_3d_a=vfield_3d_u,
         field_3d_b=uvfield_3d_tangent,
         field_name_a="<vfield_3d_u>",
         field_name_b="<uvfield_3d_tangent>",
     )
-    field_types.ensure_same_3d_field_udomains(
+    field_types.validate_same_3d_field_udomains(
         field_3d_a=vfield_3d_u,
         field_3d_b=uvfield_3d_normal,
         field_name_a="<vfield_3d_u>",
         field_name_b="<uvfield_3d_normal>",
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -367,25 +367,25 @@ class LorentzForceFields_3D:
     def __post_init__(
         self,
     ) -> None:
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_lorentz,
             param_name="<vfield_3d_lorentz>",
         )
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_tension,
             param_name="<vfield_3d_tension>",
         )
-        field_types.ensure_3d_vfield(
+        field_types.validate_3d_vfield(
             vfield_3d=self.vfield_3d_gradP_perp,
             param_name="<vfield_3d_gradP_perp>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_lorentz,
             field_3d_b=self.vfield_3d_tension,
             field_name_a="<vfield_3d_lorentz>",
             field_name_b="<vfield_3d_tension>",
         )
-        field_types.ensure_same_3d_field_shape_and_udomains(
+        field_types.validate_same_3d_field_shape_and_udomains(
             field_3d_a=self.vfield_3d_lorentz,
             field_3d_b=self.vfield_3d_gradP_perp,
             field_name_a="<vfield_3d_lorentz>",
@@ -399,18 +399,18 @@ def compute_lorentz_force_decomposed_fields(
     grad_order: int = 2,
 ) -> LorentzForceFields_3D:
     """Field-level Lorentz force decomposition wrapper."""
-    field_types.ensure_3d_vfield(
+    field_types.validate_3d_vfield(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
         require_positive=True,
     )
     udomain_3d = vfield_3d_b.udomain
-    domain_types.ensure_3d_udomain(
+    domain_types.validate_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )

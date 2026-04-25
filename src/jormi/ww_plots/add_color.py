@@ -20,7 +20,7 @@ from jormi.ww_plots.color_palettes import (
     SequentialPalette,
 )
 from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
-from jormi.ww_checks import check_box_positions, check_python_types
+from jormi.ww_validation import validate_box_positions, validate_python_types
 from jormi.ww_types import box_positions
 
 ##
@@ -55,7 +55,7 @@ ContinuousPaletteConfig = SequentialConfig | DivergingConfig
 PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
 
 
-def ensure_sequential_config(
+def validate_sequential_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -64,7 +64,7 @@ def ensure_sequential_config(
         raise TypeError(f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}.")
 
 
-def ensure_diverging_config(
+def validate_diverging_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -73,7 +73,7 @@ def ensure_diverging_config(
         raise TypeError(f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}.")
 
 
-def ensure_continuous_config(
+def validate_continuous_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -84,7 +84,7 @@ def ensure_continuous_config(
         )
 
 
-def ensure_discrete_config(
+def validate_discrete_config(
     config: PaletteConfig,
     param_name: str = "palette_config",
 ) -> None:
@@ -189,35 +189,35 @@ def add_colorbar(
     label_size: int | float = 20.0,
 ) -> mpl_colorbar.Colorbar:
     ## validate numeric params
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=cbar_thickness,
         param_name="cbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=cbar_pad,
         param_name="cbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=label_pad,
         param_name="label_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
-    check_python_types.ensure_finite_scalar(
+    validate_python_types.validate_finite_scalar(
         param=label_size,
         param_name="label_size",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    cbar_side = check_box_positions.as_box_side(side=cbar_side)
+    cbar_side = validate_box_positions.as_box_side(side=cbar_side)
     cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
     ax_bounds = compute_adjacent_ax_bounds(
         ax=ax,

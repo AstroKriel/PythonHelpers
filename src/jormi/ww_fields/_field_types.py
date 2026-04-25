@@ -20,7 +20,7 @@ from jormi.ww_fields import (
     _domain_types,
     _fdata_types,
 )
-from jormi.ww_checks import check_arrays, check_python_types
+from jormi.ww_validation import validate_arrays, validate_python_types
 
 ##
 ## === BASE FIELD TYPE
@@ -52,7 +52,7 @@ class Field:
     def _validate_fdata(
         self,
     ) -> None:
-        _fdata_types.ensure_fdata(
+        _fdata_types.validate_fdata(
             fdata=self.fdata,
             param_name="<field.fdata>",
         )
@@ -60,7 +60,7 @@ class Field:
     def _validate_udomain(
         self,
     ) -> None:
-        _domain_types.ensure_udomain(
+        _domain_types.validate_udomain(
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
@@ -74,7 +74,7 @@ class Field:
     def _validate_label(
         self,
     ) -> None:
-        check_python_types.ensure_nonempty_string(
+        validate_python_types.validate_nonempty_string(
             param=self.field_label,
             param_name="<field_label>",
         )
@@ -87,7 +87,7 @@ class Field:
     def _validate_sim_time(
         self,
     ) -> None:
-        check_python_types.ensure_finite_float(
+        validate_python_types.validate_finite_float(
             param=self.sim_time,
             param_name="<sim_time>",
             allow_none=True,
@@ -148,19 +148,19 @@ class Field:
 ##
 
 
-def _ensure_field(
+def _validate_field(
     field: Field,
     *,
     param_name: str = "<field>",
 ) -> None:
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=field,
         param_name=param_name,
         valid_types=Field,
     )
 
 
-def ensure_field_metadata(
+def validate_field_metadata(
     field: Field,
     *,
     num_comps: int | None = None,
@@ -174,11 +174,11 @@ def ensure_field_metadata(
     Any of `num_comps`, `num_sdims`, or `num_ranks` can be left as `None`
     to skip that check.
     """
-    _ensure_field(
+    _validate_field(
         field=field,
         param_name=param_name,
     )
-    _fdata_types.ensure_fdata_metadata(
+    _fdata_types.validate_fdata_metadata(
         fdata=field.fdata,
         num_comps=num_comps,
         num_sdims=num_sdims,
@@ -187,7 +187,7 @@ def ensure_field_metadata(
     )
 
 
-def ensure_udomain_matches_field(
+def validate_udomain_matches_field(
     *,
     field: Field,
     udomain: _domain_types.UniformDomain,
@@ -195,11 +195,11 @@ def ensure_udomain_matches_field(
     field_name: str = "<field>",
 ) -> None:
     """Ensure UniformDomain matches Field."""
-    _domain_types.ensure_udomain(
+    _domain_types.validate_udomain(
         udomain=udomain,
         param_name=domain_name,
     )
-    _ensure_field(
+    _validate_field(
         field=field,
         param_name=field_name,
     )
@@ -214,7 +214,7 @@ def ensure_udomain_matches_field(
         )
 
 
-def ensure_same_field_shape(
+def validate_same_field_shape(
     *,
     field_a: Field,
     field_b: Field,
@@ -227,15 +227,15 @@ def ensure_same_field_shape(
     This checks that `field_a.fdata.farray` and `field_b.fdata.farray` have
     the same shape.
     """
-    _ensure_field(
+    _validate_field(
         field=field_a,
         param_name=field_name_a,
     )
-    _ensure_field(
+    _validate_field(
         field=field_b,
         param_name=field_name_b,
     )
-    check_arrays.ensure_same_shape(
+    validate_arrays.validate_same_shape(
         array_a=field_a.fdata.farray,
         array_b=field_b.fdata.farray,
         param_name_a=f"{field_name_a}.fdata.farray",

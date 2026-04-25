@@ -14,7 +14,7 @@ from jormi.ww_fields.fields_3d import (
     domain_types as _3d_domain_type,
     field_types as _3d_field_type,
 )
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === SLICE HELPERS
@@ -34,7 +34,7 @@ def _slice_3d_udomain(
         param_name=f"{param_name}.out_of_plane_axis",
     )
     out_of_plane_axis_index = out_of_plane_axis.axis_index
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=slice_index,
         param_name=f"{param_name}.slice_index",
         allow_none=False,
@@ -100,7 +100,7 @@ def slice_3d_sfield(
     The 2D domain is a UniformDomain_2D_Sliced3D carrying metadata
     about the out-of-plane axis and slice position.
     """
-    _3d_field_type.ensure_3d_sfield(sfield_3d)
+    _3d_field_type.validate_3d_sfield(sfield_3d)
     sarray_3d = _3d_field_type.extract_3d_sarray(sfield_3d)
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
@@ -150,7 +150,7 @@ def slice_3d_vfield_inplane(
     The resulting 2D vector has two components corresponding to the
     components tangent to the slice plane.
     """
-    _3d_field_type.ensure_3d_vfield(vfield_3d)
+    _3d_field_type.validate_3d_vfield(vfield_3d)
     varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
@@ -192,7 +192,7 @@ def slice_3d_vfield_outofplane(
     field_label: str | None = None,
 ) -> _2d_field_type.ScalarField_2D:
     """Slice a 3D vector field into a 2D scalar field of the out-of-plane component."""
-    _3d_field_type.ensure_3d_vfield(vfield_3d)
+    _3d_field_type.validate_3d_vfield(vfield_3d)
     varray_3d = _3d_field_type.extract_3d_varray(vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time

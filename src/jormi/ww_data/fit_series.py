@@ -19,7 +19,7 @@ from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_checks import check_arrays, check_python_types
+from jormi.ww_validation import validate_arrays, validate_python_types
 
 ##
 ## === UTILITY FUNCTIONS
@@ -35,15 +35,15 @@ def get_linear_intercept(
     Compute the y-intercept (b) for a line y = slope * x + b
     passing through a reference point (x_ref, y_ref).
     """
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=slope,
         param_name="slope",
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -60,15 +60,15 @@ def get_powerlaw_coefficient(
         `y = A * x^exponent`
     given a reference point `(x_ref, y_ref)`.
     """
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=exponent,
         param_name="exponent",
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=x_ref,
         param_name="x_ref",
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=y_ref,
         param_name="y_ref",
     )
@@ -89,18 +89,18 @@ def get_line_angle(
     when plotted in a rectangular domain stretched to have a particular aspect ratio.
     """
     ## validate scalars
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=slope,
         param_name="slope",
     )
-    check_python_types.ensure_finite_float(
+    validate_python_types.validate_finite_float(
         param=aspect_ratio,
         param_name="aspect_ratio",
     )
     if aspect_ratio <= 0.0:
         raise ValueError("`aspect_ratio` must be positive.")
     ## validate domain_bounds
-    check_python_types.ensure_sequence(
+    validate_python_types.validate_sequence(
         param=domain_bounds,
         seq_length=4,
         valid_seq_types=(tuple, list),
@@ -158,7 +158,7 @@ class Model:
         values_vector: list[Any] | NDArray[Any],
         sigmas_vector: list[Any] | NDArray[Any] | None = None,
     ) -> dict[str, FitStatistic]:
-        values_array = check_arrays.as_1d(
+        values_array = validate_arrays.as_1d(
             array_like=values_vector,
             check_finite=True,
         )
@@ -166,11 +166,11 @@ class Model:
             raise ValueError("`values_vector` length does not match `param_names`.")
         sigmas_array = None
         if sigmas_vector is not None:
-            sigmas_array = check_arrays.as_1d(
+            sigmas_array = validate_arrays.as_1d(
                 array_like=sigmas_vector,
                 check_finite=False,
             )
-            check_arrays.ensure_same_shape(
+            validate_arrays.validate_same_shape(
                 array_a=values_array,
                 array_b=sigmas_array,
             )
@@ -238,9 +238,9 @@ class FitSummary:
                 conjunction="and",
             )
             raise ValueError(f"missing parameter(s): {missing_string}.")
-        check_arrays.ensure_array(self.residual_array)
-        check_arrays.ensure_1d(self.residual_array)
-        check_arrays.ensure_finite(self.residual_array)
+        validate_arrays.validate_array(self.residual_array)
+        validate_arrays.validate_1d(self.residual_array)
+        validate_arrays.validate_finite(self.residual_array)
         if self.residual_array.size != self.num_points:
             raise ValueError("`num_points` must equal the length of `residual_array`.")
 
@@ -283,7 +283,7 @@ class FitSummary:
         self,
         x_values: list[Any] | NDArray[Any],
     ) -> NDArray[Any]:
-        x_data_array = check_arrays.as_1d(
+        x_data_array = validate_arrays.as_1d(
             array_like=x_values,
             check_finite=True,
         )
@@ -349,7 +349,7 @@ def fit_linear_model(
     gaussian_series: GaussianSeries,
 ) -> LinearFitSummary:
     """Fit a linear model to a 1D gaussian_series using least squares."""
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
@@ -403,12 +403,12 @@ def fit_line_with_fixed_slope(
     fixed_slope: int | float,
 ) -> LinearFitSummary:
     """Fit a line with a fixed slope to a 1D gaussian_series."""
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=gaussian_series,
         valid_types=GaussianSeries,
         param_name="gaussian_series",
     )
-    check_python_types.ensure_finite_scalar(
+    validate_python_types.validate_finite_scalar(
         param=fixed_slope,
         param_name="fixed_slope",
     )

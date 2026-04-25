@@ -12,7 +12,7 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_checks import check_arrays, check_box_positions, check_python_types
+from jormi.ww_validation import validate_arrays, validate_box_positions, validate_python_types
 from jormi.ww_types import box_positions
 
 ##
@@ -30,7 +30,7 @@ def get_2d_shape(
     array_2d: NDArray[Any],
 ) -> tuple[int, int]:
     """Validate that array_2d is a 2D array and return it shape: (num_rows, num_cols)."""
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=array_2d,
         num_dims=2,
         param_name="array_2d",
@@ -48,13 +48,13 @@ def _get_grid_indices(
     num_cols: int,
 ) -> tuple[NDArray[numpy.int_], NDArray[numpy.int_]]:
     """Return (row_indices, col_indices) for a 2D grid."""
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=num_rows,
         param_name="num_rows",
         require_positive=True,
         allow_zero=False,
     )
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=num_cols,
         param_name="num_cols",
         require_positive=True,
@@ -81,7 +81,7 @@ class HalfMasks2D:
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_side = check_box_positions.as_box_side(anchor)
+        anchor_side = validate_box_positions.as_box_side(anchor)
         BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
@@ -114,7 +114,7 @@ class QuadrantMasks2D:
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_corner = check_box_positions.as_box_corner(anchor)
+        anchor_corner = validate_box_positions.as_box_corner(anchor)
         BoxCorner = box_positions.Positions.Corner
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
@@ -196,7 +196,7 @@ class WedgeMasks2D:
         num_cols: int,
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
-        anchor_side = check_box_positions.as_box_side(anchor)
+        anchor_side = validate_box_positions.as_box_side(anchor)
         BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,

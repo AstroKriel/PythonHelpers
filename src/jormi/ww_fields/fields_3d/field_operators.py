@@ -13,7 +13,7 @@ from jormi.ww_fields.fields_3d import (
     _farray_operators,
     field_types,
 )
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === OPERATORS WORKING ON SCALAR FIELDS
@@ -56,7 +56,7 @@ def compute_sfield_gradient(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the gradient d_i f of a 3D scalar field."""
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -117,7 +117,7 @@ def compute_vfield_dot_product(
     field_label: str = "a_i b_i",
 ) -> field_types.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector field_types."""
-    field_types.ensure_same_3d_field_udomains(
+    field_types.validate_same_3d_field_udomains(
         field_3d_a=vfield_3d_a,
         field_3d_b=vfield_3d_b,
         field_name_a="<vfield_3d_a>",
@@ -152,7 +152,7 @@ def compute_vfield_cross_product(
     field_label: str = "epsilon_ijk a_j b_k",
 ) -> field_types.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector field_types."""
-    field_types.ensure_same_3d_field_udomains(
+    field_types.validate_same_3d_field_udomains(
         field_3d_a=vfield_3d_a,
         field_3d_b=vfield_3d_b,
         field_name_a="<vfield_3d_a>",
@@ -188,7 +188,7 @@ def compute_vfield_curl(
     grad_order: int = 2,
 ) -> field_types.VectorField_3D:
     """Compute the curl epsilon_ijk d_j f_k of a 3D vector field."""
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,
@@ -222,7 +222,7 @@ def compute_vfield_divergence(
     grad_order: int = 2,
 ) -> field_types.ScalarField_3D:
     """Compute the divergence d_i f_i of a 3D vector field."""
-    check_python_types.ensure_finite_int(
+    validate_python_types.validate_finite_int(
         param=grad_order,
         param_name="<grad_order>",
         allow_none=False,

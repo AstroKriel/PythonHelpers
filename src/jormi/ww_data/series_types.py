@@ -14,7 +14,7 @@ from typing import Any
 from numpy.typing import NDArray
 
 ## local
-from jormi.ww_checks import check_arrays
+from jormi.ww_validation import validate_arrays
 
 ##
 ## === DATA SERIES
@@ -43,7 +43,7 @@ class DataSeries:
     ):
         self._validate_data_array(self.x_values)
         self._validate_data_array(self.y_values)
-        check_arrays.ensure_same_shape(
+        validate_arrays.validate_same_shape(
             array_a=self.x_values,
             array_b=self.y_values,
         )
@@ -54,9 +54,9 @@ class DataSeries:
         rel_tol: float = 1e-2,
         abs_tol: float = 1e-9,
     ):
-        check_arrays.ensure_nonempty(array)
-        check_arrays.ensure_finite(array)
-        check_arrays.ensure_1d(array)
+        validate_arrays.validate_nonempty(array)
+        validate_arrays.validate_finite(array)
+        validate_arrays.validate_1d(array)
         value_range = numpy.max(array) - numpy.min(array)
         ref_value = max(
             1.0,  # clamp: prevents near-zero scale from inflating the ratio
@@ -70,10 +70,10 @@ class DataSeries:
         sigma_array: NDArray[Any],
         ref_array: NDArray[Any],
     ):
-        check_arrays.ensure_nonempty(sigma_array)
-        check_arrays.ensure_finite(sigma_array)
-        check_arrays.ensure_1d(sigma_array)
-        check_arrays.ensure_same_shape(
+        validate_arrays.validate_nonempty(sigma_array)
+        validate_arrays.validate_finite(sigma_array)
+        validate_arrays.validate_1d(sigma_array)
+        validate_arrays.validate_same_shape(
             array_a=sigma_array,
             array_b=ref_array,
         )

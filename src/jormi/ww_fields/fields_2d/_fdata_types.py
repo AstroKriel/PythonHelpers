@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import _fdata_types
-from jormi.ww_checks import check_arrays
+from jormi.ww_validation import validate_arrays
 
 ##
 ## === 2D SCALAR / VECTOR NDARRAY
@@ -63,7 +63,7 @@ class VectorFieldData_2D(_fdata_types.FieldData):
 ##
 
 
-def ensure_2d_sdata(
+def validate_2d_sdata(
     sdata_2d: ScalarFieldData_2D,
     *,
     param_name: str = "<sdata_2d>",
@@ -73,7 +73,7 @@ def ensure_2d_sdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be ScalarFieldData_2D; got type={type(sdata_2d)}.",
         )
-    _fdata_types.ensure_fdata_metadata(
+    _fdata_types.validate_fdata_metadata(
         fdata=sdata_2d,
         num_comps=1,
         num_sdims=2,
@@ -82,7 +82,7 @@ def ensure_2d_sdata(
     )
 
 
-def ensure_2d_vdata(
+def validate_2d_vdata(
     vdata_2d: VectorFieldData_2D,
     *,
     param_name: str = "<vdata_2d>",
@@ -92,7 +92,7 @@ def ensure_2d_vdata(
         raise TypeError(  # pyright: ignore[reportUnreachable]
             f"`{param_name}` must be VectorFieldData_2D; got type={type(vdata_2d)}.",
         )
-    _fdata_types.ensure_fdata_metadata(
+    _fdata_types.validate_fdata_metadata(
         fdata=vdata_2d,
         num_comps=2,
         num_sdims=2,
@@ -106,26 +106,26 @@ def ensure_2d_vdata(
 ##
 
 
-def ensure_2d_sarray(
+def validate_2d_sarray(
     sarray_2d: NDArray[Any],
     *,
     param_name: str = "<sarray_2d>",
 ) -> None:
     """Ensure `sarray_2d` is a 2D scalar ndarray with shape (num_x0_cells, num_x1_cells)."""
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=sarray_2d,
         param_name=param_name,
         num_dims=2,
     )
 
 
-def ensure_2d_varray(
+def validate_2d_varray(
     varray_2d: NDArray[Any],
     *,
     param_name: str = "<varray_2d>",
 ) -> None:
     """Ensure `varray_2d` is a 3D vector ndarray with leading axis of length 2."""
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=varray_2d,
         param_name=param_name,
         num_dims=3,
@@ -149,12 +149,12 @@ def extract_2d_sarray(
     param_name: str = "<sdata_2d>",
 ) -> NDArray[Any]:
     """Normalise `sdata_2d` to a 2D scalar ndarray and validate its structure."""
-    ensure_2d_sdata(
+    validate_2d_sdata(
         sdata_2d=sdata_2d,
         param_name=param_name,
     )
     sarray_2d = sdata_2d.farray
-    ensure_2d_sarray(
+    validate_2d_sarray(
         sarray_2d=sarray_2d,
         param_name=f"{param_name}.farray",
     )
@@ -167,12 +167,12 @@ def extract_2d_varray(
     param_name: str = "<vdata_2d>",
 ) -> NDArray[Any]:
     """Normalise `vdata_2d` to a 2D vector ndarray and validate its structure."""
-    ensure_2d_vdata(
+    validate_2d_vdata(
         vdata_2d=vdata_2d,
         param_name=param_name,
     )
     varray_2d = vdata_2d.farray
-    ensure_2d_varray(
+    validate_2d_varray(
         varray_2d=varray_2d,
         param_name=f"{param_name}.farray",
     )

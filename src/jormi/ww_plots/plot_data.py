@@ -16,7 +16,7 @@ from jormi.ww_plots import (
     add_color,
     manage_plots,
 )
-from jormi.ww_checks import check_arrays, check_python_types
+from jormi.ww_validation import validate_arrays, validate_python_types
 from jormi.ww_types import box_positions
 
 ##
@@ -63,21 +63,21 @@ def _as_axis_extent(
     """
     if axis_bounds is None:
         return None
-    check_python_types.ensure_nested_tuple(
+    validate_python_types.validate_nested_tuple(
         param=axis_bounds,
         param_name="axis_bounds",
         outer_length=2,
         inner_length=2,
-        valid_elem_types=check_python_types.RuntimeTypes.Numerics.NumericLike,
+        valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
-    check_python_types.ensure_ordered_pair(
+    validate_python_types.validate_ordered_pair(
         param=axis_bounds[0],
         param_name="axis_bounds[0]",
         allow_none=False,
         strict_ordering=True,
     )
-    check_python_types.ensure_ordered_pair(
+    validate_python_types.validate_ordered_pair(
         param=axis_bounds[1],
         param_name="axis_bounds[1]",
         allow_none=False,
@@ -105,7 +105,7 @@ def _get_value_range(
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
     if cbar_bounds is not None:
-        check_python_types.ensure_ordered_pair(
+        validate_python_types.validate_ordered_pair(
             param=cbar_bounds,
             param_name="cbar_bounds",
             allow_none=False,
@@ -155,8 +155,8 @@ def plot_2d_array(
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
-    add_color.ensure_continuous_config(palette_config)
-    check_arrays.ensure_dims(
+    add_color.validate_continuous_config(palette_config)
+    validate_arrays.validate_dims(
         array=array_2d,
         num_dims=2,
     )
@@ -216,15 +216,15 @@ def plot_2d_quiver(
     quiver_width: float = 5e-3,
     color: str = "white",
 ):
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=array_2d_rows,
         num_dims=2,
     )
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=array_2d_cols,
         num_dims=2,
     )
-    check_arrays.ensure_same_shape(
+    validate_arrays.validate_same_shape(
         array_a=array_2d_rows,
         array_b=array_2d_cols,
         param_name_a="array_2d_rows",
@@ -263,15 +263,15 @@ def plot_2d_streamlines(
     arrow_size: float = 1.0,
     color: str = "white",
 ):
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=array_2d_rows,
         num_dims=2,
     )
-    check_arrays.ensure_dims(
+    validate_arrays.validate_dims(
         array=array_2d_cols,
         num_dims=2,
     )
-    check_arrays.ensure_same_shape(
+    validate_arrays.validate_same_shape(
         array_a=array_2d_rows,
         array_b=array_2d_cols,
         param_name_a="array_2d_rows",

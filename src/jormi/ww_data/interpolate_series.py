@@ -13,7 +13,7 @@ from scipy.interpolate import make_interp_spline as scipy_make_interp_spline
 ## local
 from jormi.ww_data.series_types import DataSeries
 from jormi.ww_io import manage_log
-from jormi.ww_checks import check_arrays, check_python_types
+from jormi.ww_validation import validate_arrays, validate_python_types
 
 ##
 ## === INTERPOLATION FUNCTIONS
@@ -34,7 +34,7 @@ def interpolate_1d(
 
     Returns a new `DataSeries` of the in-bounds interpolated (x, y) values.
     """
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=data_series,
         valid_types=DataSeries,
         param_name="data_series",
@@ -43,15 +43,15 @@ def interpolate_1d(
         raise ValueError(f"`spline_order` must be 1, 2, or 3; got {spline_order!r}.")
     ## validate x_interp
     x_interp = numpy.asarray(x_interp, dtype=numpy.float64)
-    check_arrays.ensure_nonempty(
+    validate_arrays.validate_nonempty(
         array=x_interp,
         param_name="x_interp",
     )
-    check_arrays.ensure_1d(
+    validate_arrays.validate_1d(
         array=x_interp,
         param_name="x_interp",
     )
-    check_arrays.ensure_finite(
+    validate_arrays.validate_finite(
         array=x_interp,
         param_name="x_interp",
     )

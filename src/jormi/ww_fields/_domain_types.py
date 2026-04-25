@@ -15,7 +15,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_fields import cartesian_axes
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === DATA STRUCTURES
@@ -64,7 +64,7 @@ class UniformDomain:
     def _validate_num_sdims(
         self,
     ) -> None:
-        check_python_types.ensure_finite_int(
+        validate_python_types.validate_finite_int(
             param=self.num_sdims,
             param_name="<num_sdims>",
             allow_none=False,
@@ -75,23 +75,23 @@ class UniformDomain:
     def _validate_periodicity(
         self,
     ) -> None:
-        check_python_types.ensure_sequence(
+        validate_python_types.validate_sequence(
             param=self.periodicity,
             param_name="<periodicity>",
             seq_length=self.num_sdims,
-            valid_seq_types=check_python_types.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=check_python_types.RuntimeTypes.Booleans.BooleanLike,
+            valid_seq_types=validate_python_types.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=validate_python_types.RuntimeTypes.Booleans.BooleanLike,
         )
 
     def _validate_resolution(
         self,
     ) -> None:
-        check_python_types.ensure_sequence(
+        validate_python_types.validate_sequence(
             param=self.resolution,
             param_name="<resolution>",
             seq_length=self.num_sdims,
-            valid_seq_types=check_python_types.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=check_python_types.RuntimeTypes.Numerics.IntLike,
+            valid_seq_types=validate_python_types.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=validate_python_types.RuntimeTypes.Numerics.IntLike,
         )
         for axis_index, num_cells in enumerate(self.resolution):
             axis_label = self._axis_label_from_index(axis_index)
@@ -103,33 +103,33 @@ class UniformDomain:
     def _validate_domain_bounds(
         self,
     ) -> None:
-        check_python_types.ensure_sequence(
+        validate_python_types.validate_sequence(
             param=self.domain_bounds,
             param_name="<domain_bounds>",
             seq_length=self.num_sdims,
-            valid_seq_types=check_python_types.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=check_python_types.RuntimeTypes.Sequences.TupleLike,
+            valid_seq_types=validate_python_types.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=validate_python_types.RuntimeTypes.Sequences.TupleLike,
         )
         for axis_index in range(self.num_sdims):
             bounds = self.domain_bounds[axis_index]
             axis_label = self._axis_label_from_index(axis_index)
             axis_param_name = f"<domain_bounds[{axis_label}]>"
-            check_python_types.ensure_sequence(
+            validate_python_types.validate_sequence(
                 param=bounds,
                 param_name=axis_param_name,
                 seq_length=2,
-                valid_seq_types=check_python_types.RuntimeTypes.Sequences.TupleLike,
-                valid_elem_types=check_python_types.RuntimeTypes.Numerics.NumericLike,
+                valid_seq_types=validate_python_types.RuntimeTypes.Sequences.TupleLike,
+                valid_elem_types=validate_python_types.RuntimeTypes.Numerics.NumericLike,
             )
             lo_value, hi_value = bounds
-            check_python_types.ensure_finite_float(
+            validate_python_types.validate_finite_float(
                 param=lo_value,
                 param_name=f"{axis_param_name}[0]",
                 allow_none=False,
                 allow_zero=True,
                 require_positive=False,
             )
-            check_python_types.ensure_finite_float(
+            validate_python_types.validate_finite_float(
                 param=hi_value,
                 param_name=f"{axis_param_name}[1]",
                 allow_none=False,
@@ -204,26 +204,26 @@ class UniformDomain:
 ##
 
 
-def ensure_udomain(
+def validate_udomain(
     udomain: UniformDomain,
     *,
     param_name: str = "<udomain>",
 ) -> None:
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=udomain,
         param_name=param_name,
         valid_types=UniformDomain,
     )
 
 
-def ensure_udomain_metadata(
+def validate_udomain_metadata(
     udomain: UniformDomain,
     *,
     num_sdims: int | None = None,
     param_name: str = "<udomain>",
 ) -> None:
     """Check metadata for `UniformDomain`."""
-    ensure_udomain(
+    validate_udomain(
         udomain=udomain,
         param_name=param_name,
     )

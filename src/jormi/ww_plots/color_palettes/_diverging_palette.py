@@ -20,7 +20,7 @@ from jormi.ww_plots.color_palettes._base_palette import (
     resolve_palette,
     subset_palette,
 )
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === DIVERGING PALETTE
@@ -42,11 +42,11 @@ class DivergingPalette(ColorPalette):
     def __post_init__(
         self,
     ) -> None:
-        check_python_types.ensure_ordered_pair(
+        validate_python_types.validate_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )
-        check_python_types.ensure_finite_float(
+        validate_python_types.validate_finite_float(
             param=self.mid_value,
             param_name="mid_value",
         )
@@ -100,7 +100,7 @@ class DivergingPalette(ColorPalette):
     def mpl_norm(
         self,
     ) -> mpl_colors.TwoSlopeNorm:
-        check_python_types.ensure_ordered_pair(
+        validate_python_types.validate_ordered_pair(
             param=self.value_range,
             param_name="value_range",
         )

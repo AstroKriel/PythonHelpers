@@ -10,7 +10,7 @@ from typing import Any, cast
 
 ## local
 from jormi.ww_fns import fn_decorators
-from jormi.ww_checks import check_python_types
+from jormi.ww_validation import validate_python_types
 
 ##
 ## === FUNCTIONS
@@ -23,11 +23,11 @@ def merge_dicts(
     dict_b: dict[Any, Any],
 ) -> dict[Any, Any]:
     """Recursively merge two dictionaries (`dict_b` will be prefered)."""
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=dict_a,
         valid_types=dict,
     )
-    check_python_types.ensure_type(
+    validate_python_types.validate_type(
         param=dict_b,
         valid_types=dict,
     )
