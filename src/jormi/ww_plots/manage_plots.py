@@ -238,7 +238,7 @@ def create_figure_grid(
 ## === AXIS HELPERS
 ##
 
-_Side = box_positions.Positions.Box.Side
+_Side = box_positions.Positions.Side
 
 
 @dataclass(frozen=True)
@@ -251,7 +251,7 @@ class AxisBounds:
 
 def compute_adjacent_ax_bounds(
     ax: PlotAxis,
-    side: _Side = box_positions.Positions.Box.Side.Right,
+    side: _Side = box_positions.Positions.Side.Right,
     gap: float = 0.1,
     thickness: float = 1.0,
     length: float = 1.0,
@@ -308,8 +308,8 @@ def add_inset_axis(
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
-    x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Box.Side.Top,
-    y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Box.Side.Right,
+    x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
+    y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> PlotAxis:
     """Add an inset Axis to `ax`."""
     x_label_side = box_positions.as_box_side(x_label_alignment)
@@ -331,21 +331,21 @@ def add_inset_axis(
         ax_inset.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
     ax_inset.tick_params(
         axis="x",
-        labeltop=(x_label_side is box_positions.Positions.Box.Side.Top),
-        labelbottom=(x_label_side is box_positions.Positions.Box.Side.Bottom),
+        labeltop=(x_label_side is box_positions.Positions.Side.Top),
+        labelbottom=(x_label_side is box_positions.Positions.Side.Bottom),
         top=True,
         bottom=True,
     )
-    if x_label_side is box_positions.Positions.Box.Side.Top:
+    if x_label_side is box_positions.Positions.Side.Top:
         ax_inset.xaxis.tick_top()
     ax_inset.tick_params(
         axis="y",
-        labelleft=(y_label_side is box_positions.Positions.Box.Side.Left),
-        labelright=(y_label_side is box_positions.Positions.Box.Side.Right),
+        labelleft=(y_label_side is box_positions.Positions.Side.Left),
+        labelright=(y_label_side is box_positions.Positions.Side.Right),
         left=True,
         right=True,
     )
-    if y_label_side is box_positions.Positions.Box.Side.Right:
+    if y_label_side is box_positions.Positions.Side.Right:
         ax_inset.yaxis.tick_right()
     return ax_inset
 

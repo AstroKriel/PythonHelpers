@@ -129,7 +129,7 @@ def make_palette(
 ## === INTERNAL HELPERS
 ##
 
-_Side = box_positions.Positions.Box.Side
+_Side = box_positions.Positions.Side
 
 _SIDE_TO_ORIENTATION: dict[_Side, str] = {
     _Side.Top: "horizontal",
@@ -183,7 +183,7 @@ def add_colorbar(
     *,
     palette: ColorPalette,
     label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Box.Side.Right,
+    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     cbar_thickness: float = 0.1,
     cbar_length: float = 1.0,
     cbar_pad: float = 0.02,

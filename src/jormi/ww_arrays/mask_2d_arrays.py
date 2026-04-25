@@ -85,7 +85,7 @@ class HalfMasks2D:
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
-        BoxSide = box_positions.Positions.Box.Side
+        BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -118,7 +118,7 @@ class QuadrantMasks2D:
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_corner = box_positions.as_box_corner(anchor)
-        BoxCorner = box_positions.Positions.Box.Corner
+        BoxCorner = box_positions.Positions.Corner
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,
@@ -200,7 +200,7 @@ class WedgeMasks2D:
         anchor: box_positions.Positions.PositionLike,
     ) -> Mask2D:
         anchor_side = box_positions.as_box_side(anchor)
-        BoxSide = box_positions.Positions.Box.Side
+        BoxSide = box_positions.Positions.Side
         row_indices, col_indices = _get_grid_indices(
             num_rows=num_rows,
             num_cols=num_cols,

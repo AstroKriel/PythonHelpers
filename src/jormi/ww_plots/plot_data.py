@@ -154,7 +154,7 @@ def plot_2d_array(
     palette_config: add_color.PaletteConfig | None = None,
     add_cbar: bool = True,
     cbar_label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Box.Side.Right,
+    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
