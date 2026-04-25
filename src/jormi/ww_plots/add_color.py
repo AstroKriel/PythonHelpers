@@ -20,8 +20,8 @@ from jormi.ww_plots.color_palettes import (
     SequentialPalette,
 )
 from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
-from jormi.ww_validation import validate_box_positions, validate_types
 from jormi.ww_types import box_positions
+from jormi.ww_validation import validate_box_positions, validate_types
 
 ##
 ## === PALETTE CONFIGS
@@ -31,6 +31,7 @@ from jormi.ww_types import box_positions
 @dataclass
 class SequentialConfig:
     """Lightweight config for a sequential (single-direction) palette."""
+
     palette_name: str = "cmr.arctic"
     palette_range: tuple[float, float] = (0.0, 1.0)
 
@@ -38,6 +39,7 @@ class SequentialConfig:
 @dataclass
 class DivergingConfig:
     """Lightweight config for a diverging (two-sided) palette."""
+
     mid_value: float = 0.0
     palette_name: str = "blue-white-red"
     palette_range: tuple[float, float] = (0.0, 1.0)
@@ -46,6 +48,7 @@ class DivergingConfig:
 @dataclass
 class DiscreteConfig:
     """Lightweight config for a discrete (binned) palette."""
+
     bin_edges: tuple[float, ...]
     palette_name: str = "cmr.arctic"
     palette_range: tuple[float, float] = (0.0, 1.0)
@@ -56,29 +59,33 @@ PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
 
 
 def ensure_sequential_config(
-    *,
     config: PaletteConfig,
-    param_name: str = "palette_config",
+    *,
+    param_name: str = "<palette_config>",
 ) -> None:
     """Raise TypeError if config is not a SequentialConfig."""
     if not isinstance(config, SequentialConfig):
-        raise TypeError(f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}.")
+        raise TypeError(
+            f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}."
+        )
 
 
 def ensure_diverging_config(
-    *,
     config: PaletteConfig,
-    param_name: str = "palette_config",
+    *,
+    param_name: str = "<palette_config>",
 ) -> None:
     """Raise TypeError if config is not a DivergingConfig."""
     if not isinstance(config, DivergingConfig):
-        raise TypeError(f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}.")
+        raise TypeError(
+            f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}."
+        )
 
 
 def ensure_continuous_config(
-    *,
     config: PaletteConfig,
-    param_name: str = "palette_config",
+    *,
+    param_name: str = "<palette_config>",
 ) -> None:
     """Raise TypeError if config is not a continuous palette config (sequential or diverging)."""
     if not isinstance(config, (SequentialConfig, DivergingConfig)):
@@ -88,13 +95,15 @@ def ensure_continuous_config(
 
 
 def ensure_discrete_config(
-    *,
     config: PaletteConfig,
-    param_name: str = "palette_config",
+    *,
+    param_name: str = "<palette_config>",
 ) -> None:
     """Raise TypeError if config is not a DiscreteConfig."""
     if not isinstance(config, DiscreteConfig):
-        raise TypeError(f"`{param_name}` must be a DiscreteConfig, got {type(config).__name__}.")
+        raise TypeError(
+            f"`{param_name}` must be a DiscreteConfig, got {type(config).__name__}."
+        )
 
 
 def make_palette(
@@ -231,12 +240,14 @@ def add_colorbar(
         length=cbar_length,
         gap=cbar_pad,
     )
-    cbar_ax = ax.figure.add_axes((
-        ax_bounds.x_min,
-        ax_bounds.y_min,
-        ax_bounds.x_width,
-        ax_bounds.y_width,
-    ))
+    cbar_ax = ax.figure.add_axes(
+        (
+            ax_bounds.x_min,
+            ax_bounds.y_min,
+            ax_bounds.x_width,
+            ax_bounds.y_width,
+        )
+    )
     cbar_mappable = mpl_cm.ScalarMappable(
         norm=palette.mpl_norm,
         cmap=palette.mpl_cmap,
