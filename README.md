@@ -30,9 +30,9 @@ uv pip install -e .
 jormi/
 ├── src/
 │   └── jormi/              # package root (ww_ = "working with")
-│       ├── ww_arrays/      # array operations (norms, masking, PDFs) and Fourier-array ops
+│       ├── ww_arrays/      # array operations (norms, masking, and PDFs) and 3D field-array operations
 │       ├── ww_data/        # fitting and interpolating data series
-│       ├── ww_fields/      # 2D/3D scalar and vector field models, operators, spectra, decompositions
+│       ├── ww_fields/      # 2D/3D scalar/vector field models + operators, spectra, and decompositions (wrappers over array operations)
 │       ├── ww_fns/         # function decorators and parallel dispatch
 │       ├── ww_io/          # file I/O (CSV, JSON), logging, shell commands
 │       ├── ww_jobs/        # HPC (PBS and SLURM) job submission
