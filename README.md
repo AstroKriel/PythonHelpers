@@ -29,46 +29,24 @@ uv pip install -e .
 ```
 jormi/
 ├── src/
-│   └── jormi/                  # package root (ww_ = "working with")
-│       ├── ww_arrays/          # array operations (norms, masking, PDFs, spectra)
-│       │   ├── farrays_3d/     # Fourier-array ops (spectra, decompositions, differential operators)
-│       │   ├── compute_array_stats.py
-│       │   ├── mask_2d_arrays.py
-│       │   └── smooth_2d_arrays.py
-│       ├── ww_data/            # fitting and interpolating data series
-│       ├── ww_fields/          # scalar and vector field abstractions
-│       │   ├── fields_2d/      # 2D field models and domain
-│       │   └── fields_3d/      # 3D field models, domain, operators, spectra, decompositions
-│       ├── ww_fns/             # function decorators and parallel dispatch
-│       ├── ww_io/              # file I/O (CSV, JSON), logging, shell commands
-│       ├── ww_jobs/            # HPC job submission
-│       │   ├── pbs_manager/    # PBS job scripts and queue interface
-│       │   └── slurm_manager/  # SLURM job scripts and queue interface
-│       ├── ww_plots/           # matplotlib figures, styling, colormaps, annotations
-│       │   └── color_palettes/ # discrete, sequential, and diverging palette builders
-│       ├── ww_types/           # type hints, enums, and positional types
-│       ├── ww_validation/      # runtime validation for arrays, types, enums, and box positions
-│       ├── ww_dicts.py         # dict helpers
-│       ├── ww_lists.py         # list helpers
-│       └── ww_stats.py         # statistics helpers
-├── utests/                     # unit tests (mirroring src/ layout)
-│   ├── ww_arrays/
-│   ├── ww_fields/
-│   ├── ww_fns/
-│   ├── ww_io/
-│   ├── ww_jobs/
-│   ├── ww_types/
-│   ├── ww_validation/
-│   ├── test_dicts.py
-│   └── test_lists.py
-├── vtests/                     # validation tests
-│   ├── ww_arrays/
-│   ├── ww_data/
-│   ├── ww_fields/
-│   └── run_all.py
-├── pyproject.toml              # project metadata and dependencies
-├── uv.lock                     # pinned dependency versions
-└── README.md                   # this file
+│   └── jormi/              # package root (ww_ = "working with")
+│       ├── ww_arrays/      # array operations (norms, masking, PDFs) and Fourier-array ops
+│       ├── ww_data/        # fitting and interpolating data series
+│       ├── ww_fields/      # 2D/3D scalar and vector field models, operators, spectra, decompositions
+│       ├── ww_fns/         # function decorators and parallel dispatch
+│       ├── ww_io/          # file I/O (CSV, JSON), logging, shell commands
+│       ├── ww_jobs/        # HPC (PBS and SLURM) job submission
+│       ├── ww_plots/       # mpl figures, styling, colormaps, annotations
+│       ├── ww_types/       # type hints, enums, and positional types
+│       ├── ww_validation/  # runtime validation for arrays, types, enums, and positions
+│       ├── ww_dicts.py     # dict helpers
+│       ├── ww_lists.py     # list helpers
+│       └── ww_stats.py     # statistics helpers
+├── utests/                 # unit tests
+├── vtests/                 # validation tests
+├── pyproject.toml          # project metadata and dependencies
+├── uv.lock                 # pinned dependency versions
+└── README.md               # this file
 ```
 
 ## Run test suites
