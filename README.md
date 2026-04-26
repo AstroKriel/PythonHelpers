@@ -1,6 +1,6 @@
 # jormi (Jormungandr; the World Serpent)
 
-jormi is a utility library for computing all kinds of MHD turbulence related statistics, including:
+`jormi` is a utility library for computing all kinds of MHD turbulence related statistics, including:
 - vector field decompositions (e.g., Helmholtz and Frenet-Serret basis)
 - 1D and 3D power spectra
 - 1D and joint probability density functions
@@ -18,7 +18,7 @@ cd jormi
 uv sync
 ```
 
-To make jormi importable from other projects in editable mode:
+To make `jormi` importable from other projects, install it in editable mode:
 
 ```bash
 uv pip install -e .
