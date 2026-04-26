@@ -10,7 +10,7 @@ as well as providing general utilities for fitting data series, managing figures
 
 ## Getting setup
 
-jormi is typically used as a submodule within the [Asgard](https://github.com/AstroKriel/Asgard) project. You can, however, clone this repository directly for standalone development:
+`jormi` is typically used as a submodule within the [Asgard](https://github.com/AstroKriel/Asgard) project. You can, however, clone this repository directly for standalone development:
 
 ```bash
 git clone git@github.com:AstroKriel/PythonHelpers.git jormi  # clone and rename
