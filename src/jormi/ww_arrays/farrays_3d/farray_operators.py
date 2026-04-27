@@ -48,7 +48,15 @@ def compute_sarray_rms(
         param_name="<sarray_3d>",
     )
     sarray_3d_float = _as_float_view(sarray_3d)
-    return float(numpy.sqrt(numpy.mean(numpy.square(sarray_3d_float))))
+    return float(
+        numpy.sqrt(
+            numpy.mean(
+                numpy.square(
+                    sarray_3d_float,
+                ),
+            ),
+        ),
+    )
 
 
 def compute_sarray_volume_integral(
