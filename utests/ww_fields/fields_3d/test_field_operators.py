@@ -92,7 +92,11 @@ class TestScalarFieldRms(unittest.TestCase):
         self,
     ):
         self.assertIsInstance(
-            field_operators.compute_sfield_rms(sfield_3d=_make_constant_sfield(value=2.0)),
+            field_operators.compute_sfield_rms(
+                sfield_3d=_make_constant_sfield(
+                    value=2.0,
+                ),
+            ),
             float,
         )
 
@@ -103,7 +107,11 @@ class TestScalarFieldVolumeIntegral(unittest.TestCase):
         self,
     ):
         self.assertIsInstance(
-            field_operators.compute_sfield_volume_integral(sfield_3d=_make_constant_sfield(value=1.0)),
+            field_operators.compute_sfield_volume_integral(
+                sfield_3d=_make_constant_sfield(
+                    value=1.0,
+                ),
+            ),
             float,
         )
 
@@ -114,7 +122,11 @@ class TestScalarFieldGradient(unittest.TestCase):
         self,
     ):
         self.assertIsInstance(
-            field_operators.compute_sfield_gradient(sfield_3d=_make_constant_sfield(value=1.0)),
+            field_operators.compute_sfield_gradient(
+                sfield_3d=_make_constant_sfield(
+                    value=1.0,
+                ),
+            ),
             field_models.VectorField_3D,
         )
 
@@ -233,7 +245,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)),
         )
-        with self.assertRaises(ValueError, ):
+        with self.assertRaises(ValueError):
             field_operators.compute_vfield_dot_product(
                 vfield_3d_a=vfield_a,
                 vfield_3d_b=vfield_b,
@@ -278,7 +290,10 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             varray_3d_out=array,
         )
         self.assertTrue(
-            numpy.shares_memory(result.fdata.farray, array),
+            numpy.shares_memory(
+                result.fdata.farray,
+                array,
+            ),
         )
 
 
@@ -354,7 +369,10 @@ class TestVectorFieldDivergence(unittest.TestCase):
             sarray_3d_out=array,
         )
         self.assertTrue(
-            numpy.shares_memory(result.fdata.farray, array),
+            numpy.shares_memory(
+                result.fdata.farray,
+                array,
+            ),
         )
 
 
@@ -430,7 +448,10 @@ class TestVectorFieldCurl(unittest.TestCase):
             varray_3d_out=array,
         )
         self.assertTrue(
-            numpy.shares_memory(result.fdata.farray, array),
+            numpy.shares_memory(
+                result.fdata.farray,
+                array,
+            ),
         )
 
 

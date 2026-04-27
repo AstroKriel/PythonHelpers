@@ -348,7 +348,11 @@ class Tests(unittest.TestCase):
             _input_length: int,
             _sampled_length: int,
         ) -> None:
-            elems = list(range(_input_length))
+            elems = list(
+                range(
+                    _input_length,
+                ),
+            )
             out_elems = ww_lists.sample_list(
                 elems=elems,
                 max_elems=_sampled_length,
@@ -369,7 +373,11 @@ class Tests(unittest.TestCase):
     ):
         ## test: (num_elems - 1) % (max_elems - 1) == 0 -> last element included
         ## 20 % 4 == 0
-        elems = list(range(21))
+        elems = list(
+            range(
+                21,
+            ),
+        )
         out = ww_lists.sample_list(
             elems=elems,
             max_elems=5,
@@ -379,7 +387,11 @@ class Tests(unittest.TestCase):
             [0, 5, 10, 15, 20],
         )
         ## 12 % 4 == 0
-        elems = list(range(13))
+        elems = list(
+            range(
+                13,
+            ),
+        )
         out = ww_lists.sample_list(
             elems=elems,
             max_elems=5,
@@ -394,7 +406,11 @@ class Tests(unittest.TestCase):
     ):
         ## last element is typically NOT included with pure integer stride
         ## 19 % 4 != 0
-        elems = list(range(20))
+        elems = list(
+            range(
+                20,
+            ),
+        )
         out = ww_lists.sample_list(
             elems=elems,
             max_elems=5,
@@ -408,7 +424,11 @@ class Tests(unittest.TestCase):
             elems[-1],
         )  # sanity check: last elem is not included
         ## 21 % 4 != 0
-        elems = list(range(22))
+        elems = list(
+            range(
+                22,
+            ),
+        )
         out = ww_lists.sample_list(
             elems=elems,
             max_elems=5,
@@ -425,7 +445,11 @@ class Tests(unittest.TestCase):
     def test_first_element_and_constant_stringide(
         self,
     ):
-        elems = list(range(37))
+        elems = list(
+            range(
+                37,
+            ),
+        )
         max_elems = 7
         out = ww_lists.sample_list(
             elems=elems,
@@ -440,7 +464,9 @@ class Tests(unittest.TestCase):
         indices_to_keep = [value_index for value_index, _value in enumerate(out)]
         gaps = [b - a for a, b in zip(indices_to_keep[:-1], indices_to_keep[1:])]
         self.assertTrue(
-            all(g == gaps[0] for g in gaps),
+            all(
+                g == gaps[0] for g in gaps,
+            ),
         )  # constant gap
         self.assertGreater(
             gaps[0],

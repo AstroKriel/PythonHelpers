@@ -23,7 +23,9 @@ class TestComputeSafeLog10(unittest.TestCase):
     def test_positive_values(
         self,
     ) -> None:
-        result = compute_array_stats.compute_safe_log10(numpy.array([1.0, 10.0, 100.0]))
+        result = compute_array_stats.compute_safe_log10(
+            numpy.array([1.0, 10.0, 100.0], ),
+        )
         numpy.testing.assert_array_almost_equal(
             result,
             [0.0, 1.0, 2.0],
@@ -32,28 +34,44 @@ class TestComputeSafeLog10(unittest.TestCase):
     def test_zero_gives_nan(
         self,
     ) -> None:
-        result = compute_array_stats.compute_safe_log10(numpy.array([0.0]))
+        result = compute_array_stats.compute_safe_log10(
+            numpy.array([0.0], ),
+        )
         self.assertTrue(
-            numpy.isnan(result[0]),
+            numpy.isnan(
+                result[0],
+            ),
         )
 
     def test_negative_gives_nan(
         self,
     ) -> None:
-        result = compute_array_stats.compute_safe_log10(numpy.array([-1.0, -100.0]))
+        result = compute_array_stats.compute_safe_log10(
+            numpy.array([-1.0, -100.0], ),
+        )
         self.assertTrue(
-            numpy.all(numpy.isnan(result)),
+            numpy.all(
+                numpy.isnan(
+                    result,
+                ),
+            ),
         )
 
     def test_mixed_array(
         self,
     ) -> None:
-        result = compute_array_stats.compute_safe_log10(numpy.array([-1.0, 0.0, 10.0]))
-        self.assertTrue(
-            numpy.isnan(result[0]),
+        result = compute_array_stats.compute_safe_log10(
+            numpy.array([-1.0, 0.0, 10.0], ),
         )
         self.assertTrue(
-            numpy.isnan(result[1]),
+            numpy.isnan(
+                result[0],
+            ),
+        )
+        self.assertTrue(
+            numpy.isnan(
+                result[1],
+            ),
         )
         self.assertAlmostEqual(
             result[2],
@@ -63,7 +81,9 @@ class TestComputeSafeLog10(unittest.TestCase):
     def test_integer_array_returns_float(
         self,
     ) -> None:
-        result = compute_array_stats.compute_safe_log10(numpy.array([1, 10, 100]))
+        result = compute_array_stats.compute_safe_log10(
+            numpy.array([1, 10, 100], ),
+        )
         self.assertEqual(
             result.dtype,
             numpy.float64,

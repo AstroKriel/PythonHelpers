@@ -71,7 +71,9 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_pbs_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
+                **_make_minimal_kwargs(
+                    directory=tmp_dir,
+                ),
             )
             self.assertTrue(
                 file_path.is_file(),
@@ -82,7 +84,9 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_pbs_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
+                **_make_minimal_kwargs(
+                    directory=tmp_dir,
+                ),
             )
             self.assertIsInstance(
                 file_path,
@@ -114,7 +118,9 @@ class TestCreateJobScript_Header(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_pbs_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
+                **_make_minimal_kwargs(
+                    directory=tmp_dir,
+                ),
             )
             content = file_path.read_text()
             self.assertIn(
@@ -173,7 +179,9 @@ class TestCreateJobScript_Header(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_pbs_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
+                **_make_minimal_kwargs(
+                    directory=tmp_dir,
+                ),
             )
             content = file_path.read_text()
             self.assertNotIn(
@@ -221,7 +229,9 @@ class TestCreateJobScript_Commands(unittest.TestCase):
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_pbs_job_script(
-                **_make_minimal_kwargs(directory=tmp_dir),
+                **_make_minimal_kwargs(
+                    directory=tmp_dir,
+                ),
             )
             content = file_path.read_text()
             self.assertIn(

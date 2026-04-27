@@ -174,45 +174,69 @@ class Tests(unittest.TestCase):
         dict1 = {"a": 1, "b": 2}
         dict2 = {"a": 1, "b": 2}
         self.assertFalse(
-            ww_dicts.are_dicts_different(dict_a=dict1, dict_b=dict2),
+            ww_dicts.are_dicts_different(
+                dict_a=dict1,
+                dict_b=dict2,
+            ),
         )
         ## typical case 2: different dictionaries
         dict3 = {"a": 1, "b": 3}
         dict4 = {"a": 1}
         self.assertTrue(
-            ww_dicts.are_dicts_different(dict_a=dict1, dict_b=dict3),
+            ww_dicts.are_dicts_different(
+                dict_a=dict1,
+                dict_b=dict3,
+            ),
         )
         self.assertTrue(
-            ww_dicts.are_dicts_different(dict_a=dict1, dict_b=dict4),
+            ww_dicts.are_dicts_different(
+                dict_a=dict1,
+                dict_b=dict4,
+            ),
         )
         ## edge case 1: comparing two empty dictionaries
         dict_empty1 = {}
         dict_empty2 = {}
         self.assertFalse(
-            ww_dicts.are_dicts_different(dict_a=dict_empty1, dict_b=dict_empty2),
+            ww_dicts.are_dicts_different(
+                dict_a=dict_empty1,
+                dict_b=dict_empty2,
+            ),
         )
         ## edge case 2: comparing an empty dictionary with a non-empty one
         dict_empty_non_empty = {}
         dict_non_empty = {"a": 1}
         self.assertTrue(
-            ww_dicts.are_dicts_different(dict_a=dict_empty_non_empty, dict_b=dict_non_empty),
+            ww_dicts.are_dicts_different(
+                dict_a=dict_empty_non_empty,
+                dict_b=dict_non_empty,
+            ),
         )
         ## edge case 3: comparing dictionaries with lists in the same key
         dict_with_list1 = {"a": [1, 2], "b": 3}
         dict_with_list2 = {"a": [1, 2], "b": 4}
         self.assertTrue(
-            ww_dicts.are_dicts_different(dict_a=dict_with_list1, dict_b=dict_with_list2),
+            ww_dicts.are_dicts_different(
+                dict_a=dict_with_list1,
+                dict_b=dict_with_list2,
+            ),
         )
         ## edge case 4: comparing nested dictionaries
         dict_with_nested1 = {"a": 1, "b": {"c": 2}}
         dict_with_nested2 = {"a": 1, "b": {"c": 3}}
         self.assertTrue(
-            ww_dicts.are_dicts_different(dict_a=dict_with_nested1, dict_b=dict_with_nested2),
+            ww_dicts.are_dicts_different(
+                dict_a=dict_with_nested1,
+                dict_b=dict_with_nested2,
+            ),
         )
         ## edge case 5: comparing identical nested dictionaries
         dict_with_nested_same = {"a": 1, "b": {"c": 2}}
         self.assertFalse(
-            ww_dicts.are_dicts_different(dict_a=dict_with_nested1, dict_b=dict_with_nested_same),
+            ww_dicts.are_dicts_different(
+                dict_a=dict_with_nested1,
+                dict_b=dict_with_nested_same,
+            ),
         )
 
 

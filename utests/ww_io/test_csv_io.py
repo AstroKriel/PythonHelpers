@@ -185,7 +185,11 @@ class Tests(unittest.TestCase):
         self,
     ):
         with self.assertRaises(FileNotFoundError):
-            read_csv_file_into_dict_wrapper(file_path=Path("nonexistent.csv"))
+            read_csv_file_into_dict_wrapper(
+                file_path=Path(
+                    "nonexistent.csv",
+                ),
+            )
 
 
 ##

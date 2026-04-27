@@ -24,13 +24,14 @@ _R2TSHAPE = (3, 3, _N, _N, _N)
 
 
 class TestEnsure3dSarray(unittest.TestCase):
+
     def test_accepts_3d_array(
         self,
     ) -> None:
         farray_types.ensure_3d_sarray(
             numpy.zeros(
                 _SSHAPE,
-            )
+            ),
         )
 
     def test_rejects_2d_array(
@@ -38,9 +39,7 @@ class TestEnsure3dSarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_sarray(
-                numpy.zeros(
-                    (_N, _N),
-                )
+                numpy.zeros((_N, _N), ),
             )
 
     def test_rejects_4d_array(
@@ -48,9 +47,7 @@ class TestEnsure3dSarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_sarray(
-                numpy.zeros(
-                    (_N, _N, _N, _N),
-                )
+                numpy.zeros((_N, _N, _N, _N), ),
             )
 
     def test_rejects_1d_array(
@@ -58,20 +55,19 @@ class TestEnsure3dSarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_sarray(
-                numpy.zeros(
-                    (_N,),
-                )
+                numpy.zeros((_N, ), ),
             )
 
 
 class TestEnsure3dVarray(unittest.TestCase):
+
     def test_accepts_valid_varray(
         self,
     ) -> None:
         farray_types.ensure_3d_varray(
             numpy.zeros(
                 _VSHAPE,
-            )
+            ),
         )
 
     def test_rejects_wrong_leading_axis(
@@ -79,9 +75,7 @@ class TestEnsure3dVarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_varray(
-                numpy.zeros(
-                    (2, _N, _N, _N),
-                )
+                numpy.zeros((2, _N, _N, _N), ),
             )
 
     def test_rejects_3d_array(
@@ -91,7 +85,7 @@ class TestEnsure3dVarray(unittest.TestCase):
             farray_types.ensure_3d_varray(
                 numpy.zeros(
                     _SSHAPE,
-                )
+                ),
             )
 
     def test_rejects_5d_array(
@@ -99,20 +93,19 @@ class TestEnsure3dVarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_varray(
-                numpy.zeros(
-                    (3, _N, _N, _N, _N),
-                )
+                numpy.zeros((3, _N, _N, _N, _N), ),
             )
 
 
 class TestEnsure3dR2tarray(unittest.TestCase):
+
     def test_accepts_valid_r2tarray(
         self,
     ) -> None:
         farray_types.ensure_3d_r2tarray(
             numpy.zeros(
                 _R2TSHAPE,
-            )
+            ),
         )
 
     def test_rejects_wrong_first_axis(
@@ -120,9 +113,7 @@ class TestEnsure3dR2tarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_r2tarray(
-                numpy.zeros(
-                    (2, 3, _N, _N, _N),
-                )
+                numpy.zeros((2, 3, _N, _N, _N), ),
             )
 
     def test_rejects_wrong_second_axis(
@@ -130,9 +121,7 @@ class TestEnsure3dR2tarray(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             farray_types.ensure_3d_r2tarray(
-                numpy.zeros(
-                    (3, 2, _N, _N, _N),
-                )
+                numpy.zeros((3, 2, _N, _N, _N), ),
             )
 
     def test_rejects_4d_array(
@@ -142,11 +131,12 @@ class TestEnsure3dR2tarray(unittest.TestCase):
             farray_types.ensure_3d_r2tarray(
                 numpy.zeros(
                     _VSHAPE,
-                )
+                ),
             )
 
 
 class TestEnsureFarrayMetadata(unittest.TestCase):
+
     def test_allocates_when_farray_is_none(
         self,
     ) -> None:

@@ -50,7 +50,11 @@ def cpu_heavy_task(
     total = 0.0
     for _ in range(500):
         for value in block_of_values:
-            total += math.sin(math.log(abs(value) + 1.0))
+            total += math.sin(
+                math.log(
+                    abs(value) + 1.0,
+                ),
+            )
     return total
 
 
@@ -158,7 +162,9 @@ class Tests(unittest.TestCase):
             True,
         )
         self.assertTrue(
-            all(result.pid is not None for result in results),
+            all(
+                result.pid is not None for result in results,
+            ),
         )
         cache_dirs_by_pid = {result.pid: (result.mpl_cache_dir, result.tex_output_dir) for result in results}
         self.assertEqual(
@@ -166,7 +172,11 @@ class Tests(unittest.TestCase):
             2,
         )
         self.assertEqual(
-            len(set(cache_dirs_by_pid.values())),
+            len(
+                set(
+                    cache_dirs_by_pid.values(),
+                ),
+            ),
             2,
         )
 
@@ -265,7 +275,9 @@ class Tests(unittest.TestCase):
             3,
         )
         self.assertTrue(
-            all("ValueError" in line for line in error_lines),
+            all(
+                "ValueError" in line for line in error_lines,
+            ),
         )
 
     def test_mixed_success_failure(

@@ -70,7 +70,9 @@ class TestKBinCenters(unittest.TestCase):
     ):
         ## k_bin_centers should be [1, 2, 3, ..., N//2] for all supported N
         for num_cells in (8, 16, 32):
-            sfield = _make_sfield(numpy.ones((num_cells, num_cells, num_cells)))
+            sfield = _make_sfield(
+                numpy.ones((num_cells, num_cells, num_cells), ),
+            )
             spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
             expected_centers = numpy.arange(1, num_cells // 2 + 1, dtype=float)
             numpy.testing.assert_array_equal(
@@ -83,7 +85,9 @@ class TestKBinCenters(unittest.TestCase):
         self,
     ):
         for num_cells in (8, 16):
-            sfield = _make_sfield(numpy.ones((num_cells, num_cells, num_cells)))
+            sfield = _make_sfield(
+                numpy.ones((num_cells, num_cells, num_cells), ),
+            )
             spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
             self.assertEqual(
                 spectrum.k_bin_centers_1d.shape,
@@ -129,7 +133,11 @@ class TestPureModeBinPlacement(unittest.TestCase):
         sarray_3d = _cosine_mode_field(mode_k=mode_k, num_cells=num_cells)
         sfield = _make_sfield(sarray_3d)
         spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
-        peak_index = int(numpy.argmax(spectrum.spectrum_1d))
+        peak_index = int(
+            numpy.argmax(
+                spectrum.spectrum_1d,
+            ),
+        )
         self.assertEqual(
             spectrum.k_bin_centers_1d[peak_index],
             mode_k,
