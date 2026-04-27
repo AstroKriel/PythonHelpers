@@ -64,7 +64,7 @@ class HelmholtzDecomposedFArrays_3D:
 
 def compute_helmholtz_decomposed_farrays(
     *,
-    varray_3d_q: NDArray[Any],
+    varray_3d: NDArray[Any],
     resolution: tuple[int, int, int],
     cell_widths_3d: tuple[float, float, float],
 ) -> HelmholtzDecomposedFArrays_3D:
@@ -73,7 +73,7 @@ def compute_helmholtz_decomposed_farrays(
 
     Parameters
     ----------
-    varray_3d_q : ndarray
+    varray_3d : ndarray
         3D vector field with shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     resolution : (int, int, int)
         Spatial resolution (num_x0_cells, num_x1_cells, num_x2_cells).
@@ -86,19 +86,19 @@ def compute_helmholtz_decomposed_farrays(
         Decomposed varrays.
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_q,
-        param_name="<varray_3d_q>",
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
     )
-    if varray_3d_q.shape[1:] != resolution:
+    if varray_3d.shape[1:] != resolution:
         raise ValueError(
-            "`<resolution>` must match the spatial shape of `<varray_3d_q>`:"
+            "`<resolution>` must match the spatial shape of `<varray_3d>`:"
             f" resolution={resolution},"
-            f" varray_3d_q.shape[1:]={varray_3d_q.shape[1:]}.",
+            f" varray_3d.shape[1:]={varray_3d.shape[1:]}.",
         )
     farray_operators.ensure_3d_cell_widths(cell_widths_3d)
     num_cells_x, num_cells_y, num_cells_z = resolution
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    dtype = varray_3d_q.dtype
+    dtype = varray_3d.dtype
     kx_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_x, d=cell_width_x)
     ky_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_y, d=cell_width_y)
     kz_values = 2.0 * numpy.pi * numpy.fft.fftfreq(num_cells_z, d=cell_width_z)
@@ -110,29 +110,29 @@ def compute_helmholtz_decomposed_farrays(
     )
     k_magn_grid = kx_grid**2 + ky_grid**2 + kz_grid**2
     k_magn_grid[0, 0, 0] = 1.0  ## avoid division by zero at k=0
-    varray_3d_fft_q = numpy.fft.fftn(
-        varray_3d_q,
+    varray_3d_fft = numpy.fft.fftn(
+        varray_3d,
         axes=(1, 2, 3),
         norm="forward",
     )
-    varray_3d_fft_bulk = numpy.zeros_like(varray_3d_fft_q)
-    varray_3d_fft_bulk[:, 0, 0, 0] = varray_3d_fft_q[:, 0, 0, 0]
-    varray_3d_fft_q[:, 0, 0, 0] = 0.0
-    sarray_3d_k_dot_fft_q = (
-        kx_grid * varray_3d_fft_q[0] + ky_grid * varray_3d_fft_q[1] + kz_grid * varray_3d_fft_q[2]
+    varray_3d_fft_bulk = numpy.zeros_like(varray_3d_fft)
+    varray_3d_fft_bulk[:, 0, 0, 0] = varray_3d_fft[:, 0, 0, 0]
+    varray_3d_fft[:, 0, 0, 0] = 0.0
+    sarray_3d_k_dot_fft = (
+        kx_grid * varray_3d_fft[0] + ky_grid * varray_3d_fft[1] + kz_grid * varray_3d_fft[2]
     )
     with numpy.errstate(divide="ignore", invalid="ignore"):
         varray_3d_fft_div = numpy.stack(
             [
-                (kx_grid / k_magn_grid) * sarray_3d_k_dot_fft_q,
-                (ky_grid / k_magn_grid) * sarray_3d_k_dot_fft_q,
-                (kz_grid / k_magn_grid) * sarray_3d_k_dot_fft_q,
+                (kx_grid / k_magn_grid) * sarray_3d_k_dot_fft,
+                (ky_grid / k_magn_grid) * sarray_3d_k_dot_fft,
+                (kz_grid / k_magn_grid) * sarray_3d_k_dot_fft,
             ],
             axis=0,
         )
-    del kx_grid, ky_grid, kz_grid, k_magn_grid, sarray_3d_k_dot_fft_q
-    varray_3d_fft_sol = varray_3d_fft_q - varray_3d_fft_div
-    del varray_3d_fft_q
+    del kx_grid, ky_grid, kz_grid, k_magn_grid, sarray_3d_k_dot_fft
+    varray_3d_fft_sol = varray_3d_fft - varray_3d_fft_div
+    del varray_3d_fft
     varray_3d_div = numpy.fft.ifftn(
         varray_3d_fft_div,
         axes=(1, 2, 3),

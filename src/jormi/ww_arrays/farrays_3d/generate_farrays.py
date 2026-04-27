@@ -43,9 +43,9 @@ def generate_gaussian_random_3d_sarray(
     sarray_3d_fft_filter = numpy.exp(
         -0.5 * numpy.square(k_magn_grid * correlation_length),
     )
-    sarray_3d_fft_q = sarray_3d_fft_filter * numpy.fft.fftn(sarray_3d_white_noise)
-    sarray_3d_q = numpy.fft.ifftn(sarray_3d_fft_q).real
-    return sarray_3d_q
+    sarray_3d_fft = sarray_3d_fft_filter * numpy.fft.fftn(sarray_3d_white_noise)
+    sarray_3d = numpy.fft.ifftn(sarray_3d_fft).real
+    return sarray_3d
 
 
 ##
@@ -102,9 +102,9 @@ def generate_powerlaw_random_3d_sarray(
         numpy.random.randn(num_cells_x, num_cells_y, num_cells_z) +
         1j * numpy.random.randn(num_cells_x, num_cells_y, num_cells_z)
     )
-    sarray_3d_fft_q = sarray_3d_random_complex * sarray_3d_amplitude
-    sarray_3d_q = numpy.fft.ifftn(sarray_3d_fft_q).real
-    return sarray_3d_q
+    sarray_3d_fft = sarray_3d_random_complex * sarray_3d_amplitude
+    sarray_3d = numpy.fft.ifftn(sarray_3d_fft).real
+    return sarray_3d
 
 
 ## } MODULE

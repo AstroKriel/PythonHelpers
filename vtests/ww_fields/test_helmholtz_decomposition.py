@@ -266,7 +266,7 @@ def main():
         manage_log.log_task(text=f"Input: {vfield_name} field")
         ## decompose
         dfields = decompose_fields.compute_helmholtz_decomposed_fields(
-            vfield_3d_q=vfield,
+            vfield_3d=vfield,
         )
         vfield_3d_div = dfields.vfield_3d_div
         vfield_3d_sol = dfields.vfield_3d_sol

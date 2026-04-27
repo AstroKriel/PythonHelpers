@@ -90,13 +90,13 @@ def _compute_3d_radial_k_magnitude(
 
 def _compute_3d_power_spectrum_sarray(
     *,
-    sarray_3d_q: NDArray[Any],
+    sarray_3d: NDArray[Any],
     resolution_3d: tuple[int, int, int],
 ) -> NDArray[Any]:
     """Compute the 3D power spectrum |f(k)|^2 of a scalar array (num_x0_cells, num_x1_cells, num_x2_cells)."""
     farray_types.ensure_3d_sarray(
-        sarray_3d=sarray_3d_q,
-        param_name="<sarray_3d_q>",
+        sarray_3d=sarray_3d,
+        param_name="<sarray_3d>",
     )
     validate_types.ensure_tuple_of_ints(
         param=resolution_3d,
@@ -105,10 +105,10 @@ def _compute_3d_power_spectrum_sarray(
         allow_none=False,
     )
     num_cells_x, num_cells_y, num_cells_z = resolution_3d
-    if sarray_3d_q.shape != resolution_3d:
+    if sarray_3d.shape != resolution_3d:
         raise ValueError(
-            "_compute_3d_power_spectrum_sarray expects `sarray_3d_q.shape` to match"
-            f" `resolution_3d`: got shape={sarray_3d_q.shape},"
+            "_compute_3d_power_spectrum_sarray expects `sarray_3d.shape` to match"
+            f" `resolution_3d`: got shape={sarray_3d.shape},"
             f" resolution_3d={resolution_3d}.",
         )
     if not (num_cells_x == num_cells_y == num_cells_z):
@@ -116,9 +116,9 @@ def _compute_3d_power_spectrum_sarray(
             "_compute_3d_power_spectrum_sarray assumes a cubic grid:"
             f" got resolution_3d={resolution_3d} (expected num_x0_cells=num_x1_cells=num_x2_cells).",
         )
-    sarray_3d_shifted_fft_q = numpy.fft.fftshift(
+    sarray_3d_shifted_fft = numpy.fft.fftshift(
         numpy.fft.fftn(
-            sarray_3d_q,
+            sarray_3d,
             axes=(0, 1, 2),
             norm="forward",
         ),
@@ -126,7 +126,7 @@ def _compute_3d_power_spectrum_sarray(
     )
     centered_3d_spectrum = numpy.square(
         numpy.abs(
-            sarray_3d_shifted_fft_q,
+            sarray_3d_shifted_fft,
         ),
     )
     return centered_3d_spectrum
@@ -186,7 +186,7 @@ def compute_isotropic_power_spectrum_sarray(
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a 3D scalar array."""
     centered_3d_spectrum = _compute_3d_power_spectrum_sarray(
-        sarray_3d_q=sarray_3d,
+        sarray_3d=sarray_3d,
         resolution_3d=resolution_3d,
     )
     return _integrate_spectrum_over_spherical_shells(

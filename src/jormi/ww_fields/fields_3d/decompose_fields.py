@@ -58,25 +58,25 @@ class HelmholtzDecomposedFields_3D:
 
 
 def compute_helmholtz_decomposed_fields(
-    vfield_3d_q: field_models.VectorField_3D,
+    vfield_3d: field_models.VectorField_3D,
 ) -> HelmholtzDecomposedFields_3D:
     """Field-level Helmholtz decomposition wrapper."""
     field_models.ensure_3d_vfield(
-        vfield_3d=vfield_3d_q,
-        param_name="<vfield_3d_q>",
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
     )
-    udomain_3d = vfield_3d_q.udomain
+    udomain_3d = vfield_3d.udomain
     domain_models.ensure_3d_periodic_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    varray_3d_q = field_models.extract_3d_varray(
-        vfield_3d=vfield_3d_q,
-        param_name="<vfield_3d_q>",
+    varray_3d = field_models.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
     )
-    sim_time = vfield_3d_q.sim_time
+    sim_time = vfield_3d.sim_time
     hd_3d_farrays = _decompose_farrays.compute_helmholtz_decomposed_farrays(
-        varray_3d_q=varray_3d_q,
+        varray_3d=varray_3d,
         resolution=udomain_3d.resolution,
         cell_widths_3d=udomain_3d.cell_widths,
     )
