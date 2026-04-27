@@ -407,7 +407,7 @@ class TestCurl(unittest.TestCase):
     def test_curl_v1_sin_x0_gives_curl2(
         self,
     ) -> None:
-        ## v₁ = sin(2π x₀) → curl[2] = d₀v₁ = 2π cos(2π x₀), others zero
+        ## v1 = sin(2*pi*x0) -> curl[2] = d0(v1) = 2*pi*cos(2*pi*x0), others zero
         n = _N_HIGH
         x0 = _cell_centers(n)
         varray = numpy.zeros((3, n, 2, 2))
@@ -444,7 +444,7 @@ class TestCurl(unittest.TestCase):
     def test_curl_v2_sin_x1_gives_curl0(
         self,
     ) -> None:
-        ## v₂ = sin(2π x₁) → curl[0] = d₁v₂ = 2π cos(2π x₁), others zero
+        ## v2 = sin(2*pi*x1) -> curl[0] = d1(v2) = 2*pi*cos(2*pi*x1), others zero
         n = _N_HIGH
         x1 = _cell_centers(n)
         varray = numpy.zeros((3, 2, n, 2))
@@ -481,7 +481,7 @@ class TestCurl(unittest.TestCase):
     def test_curl_v0_sin_x2_gives_curl1(
         self,
     ) -> None:
-        ## v₀ = sin(2π x₂) → curl[1] = d₂v₀ = 2π cos(2π x₂), others zero
+        ## v0 = sin(2*pi*x2) -> curl[1] = d2(v0) = 2*pi*cos(2*pi*x2), others zero
         n = _N_HIGH
         x2 = _cell_centers(n)
         varray = numpy.zeros((3, 2, 2, n))
