@@ -18,8 +18,8 @@ _N_HIGH = 256
 _SSHAPE = (_N_LOW, _N_LOW, _N_LOW)
 _VSHAPE = (3, _N_LOW, _N_LOW, _N_LOW)
 _CELL_WIDTHS = (1.0 / _N_LOW, 1.0 / _N_LOW, 1.0 / _N_LOW)
-_ATOL = 1e-10
-_ATOL_FD = 1e-3
+_ATOL_ROUNDOFF = 1e-10
+_ATOL_FINITE_DIFF = 1e-3
 
 ##
 ## === HELPERS
@@ -169,7 +169,7 @@ class TestGradient(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -200,21 +200,21 @@ class TestGradient(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -233,21 +233,21 @@ class TestGradient(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -266,21 +266,21 @@ class TestGradient(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
 
@@ -298,7 +298,7 @@ class TestDivergence(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -330,7 +330,7 @@ class TestDivergence(unittest.TestCase):
             numpy.allclose(
                 result,
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
 
@@ -350,7 +350,7 @@ class TestDivergence(unittest.TestCase):
             numpy.allclose(
                 result,
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
 
@@ -370,7 +370,7 @@ class TestDivergence(unittest.TestCase):
             numpy.allclose(
                 result,
                 expected,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
 
@@ -388,7 +388,7 @@ class TestCurl(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -423,21 +423,21 @@ class TestCurl(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 expected_curl2,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
 
@@ -460,21 +460,21 @@ class TestCurl(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 expected_curl0,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -497,21 +497,21 @@ class TestCurl(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 expected_curl1,
-                atol=_ATOL_FD,
+                atol=_ATOL_FINITE_DIFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -530,7 +530,7 @@ class TestCrossProduct(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -557,21 +557,21 @@ class TestCrossProduct(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 1.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -586,21 +586,21 @@ class TestCrossProduct(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 1.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -615,21 +615,21 @@ class TestCrossProduct(unittest.TestCase):
             numpy.allclose(
                 result[0],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[1],
                 1.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
         self.assertTrue(
             numpy.allclose(
                 result[2],
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -650,7 +650,7 @@ class TestCrossProduct(unittest.TestCase):
             numpy.allclose(
                 result_ab,
                 -result_ba,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -668,7 +668,7 @@ class TestDotProduct(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -684,7 +684,7 @@ class TestDotProduct(unittest.TestCase):
             numpy.allclose(
                 result,
                 1.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -699,7 +699,7 @@ class TestDotProduct(unittest.TestCase):
             numpy.allclose(
                 result,
                 32.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -720,7 +720,7 @@ class TestDotProduct(unittest.TestCase):
             numpy.allclose(
                 result_ab,
                 result_ba,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -740,7 +740,7 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
             numpy.allclose(
                 sum_sq,
                 dot,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -753,7 +753,7 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
             numpy.allclose(
                 result,
                 14.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -790,7 +790,7 @@ class TestMagnitude(unittest.TestCase):
             numpy.allclose(
                 result,
                 5.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -808,7 +808,7 @@ class TestMagnitude(unittest.TestCase):
             numpy.allclose(
                 result,
                 0.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
@@ -826,7 +826,7 @@ class TestMagnitude(unittest.TestCase):
             numpy.allclose(
                 result,
                 1.0,
-                atol=_ATOL,
+                atol=_ATOL_ROUNDOFF,
             ),
         )
 
