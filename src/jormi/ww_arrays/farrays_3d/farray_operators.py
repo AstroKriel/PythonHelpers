@@ -779,39 +779,4 @@ def compute_varray_kinetic_dissipation(
 ##
 
 
-def ensure_uvarray_magnitude(
-    varray_3d: NDArray[Any],
-    *,
-    tol: float = 1e-6,
-    param_name: str = "<varray_3d>",
-) -> None:
-    """
-    Validate that every vector in a (3, num_x0_cells, num_x1_cells, num_x2_cells) array has unit magnitude.
-
-    Raises ValueError if any element is non-finite, or if any magnitude deviates
-    from 1.0 by more than `tol`.
-    """
-    farray_types.ensure_3d_varray(
-        varray_3d=varray_3d,
-        param_name=param_name,
-    )
-    sarray_3d_vmagn_sq = compute_sum_of_varray_comps_squared(varray_3d=varray_3d)
-    if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq, ), ):
-        raise ValueError(
-            f"`{param_name}` should not contain any NaN/Inf magnitudes.",
-        )
-    max_error = float(
-        numpy.max(
-            numpy.abs(
-                numpy.sqrt(sarray_3d_vmagn_sq) - 1.0,
-            ),
-        ),
-    )
-    if max_error > tol:
-        raise ValueError(
-            f"`{param_name}` magnitude deviates from unit-magnitude=1.0 by"
-            f" max(error)={max_error:.3e} (tol={tol}).",
-        )
-
-
 ## } MODULE

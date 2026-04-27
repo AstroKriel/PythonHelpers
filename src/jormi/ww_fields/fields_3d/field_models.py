@@ -11,7 +11,7 @@ from typing import Any, Self
 ## third-party
 from numpy.typing import NDArray
 
-from jormi.ww_arrays.farrays_3d import farray_operators
+from jormi.ww_arrays.farrays_3d import farray_types
 
 ## local
 from jormi.ww_fields import (
@@ -155,7 +155,7 @@ class UnitVectorField_3D(VectorField_3D):
             vfield_3d=self,
             param_name="<uvfield_3d>",
         )
-        farray_operators.ensure_uvarray_magnitude(
+        farray_types.ensure_uvarray_magnitude(
             varray_3d=varray_3d,
             tol=self.tol,
             param_name="<uvfield_3d>",
