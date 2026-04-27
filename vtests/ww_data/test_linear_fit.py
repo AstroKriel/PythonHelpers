@@ -55,7 +55,7 @@ def main():
     )
     x_fit_values = numpy.linspace(series.x_bounds[0], series.x_bounds[1], 200)
     fits_that_failed = []
-    for fit_index, (fit_label, fit) in enumerate(fits_to_test.items(), ):
+    for fit_index, (fit_label, fit) in enumerate(fits_to_test.items()):
         ax = axs_grid[fit_index, 0]
         is_top_ax = fit_index == 0
         is_bottom_ax = fit_index == num_fits - 1

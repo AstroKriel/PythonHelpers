@@ -24,7 +24,7 @@ class TestComputeSafeLog10(unittest.TestCase):
         self,
     ) -> None:
         result = compute_array_stats.compute_safe_log10(
-            numpy.array([1.0, 10.0, 100.0], ),
+            numpy.array([1.0, 10.0, 100.0]),
         )
         numpy.testing.assert_array_almost_equal(
             result,
@@ -35,7 +35,7 @@ class TestComputeSafeLog10(unittest.TestCase):
         self,
     ) -> None:
         result = compute_array_stats.compute_safe_log10(
-            numpy.array([0.0], ),
+            numpy.array([0.0]),
         )
         self.assertTrue(
             numpy.isnan(
@@ -47,7 +47,7 @@ class TestComputeSafeLog10(unittest.TestCase):
         self,
     ) -> None:
         result = compute_array_stats.compute_safe_log10(
-            numpy.array([-1.0, -100.0], ),
+            numpy.array([-1.0, -100.0]),
         )
         self.assertTrue(
             numpy.all(
@@ -61,7 +61,7 @@ class TestComputeSafeLog10(unittest.TestCase):
         self,
     ) -> None:
         result = compute_array_stats.compute_safe_log10(
-            numpy.array([-1.0, 0.0, 10.0], ),
+            numpy.array([-1.0, 0.0, 10.0]),
         )
         self.assertTrue(
             numpy.isnan(
@@ -82,7 +82,7 @@ class TestComputeSafeLog10(unittest.TestCase):
         self,
     ) -> None:
         result = compute_array_stats.compute_safe_log10(
-            numpy.array([1, 10, 100], ),
+            numpy.array([1, 10, 100]),
         )
         self.assertEqual(
             result.dtype,

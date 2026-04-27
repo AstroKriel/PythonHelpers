@@ -241,7 +241,7 @@ class Tests(unittest.TestCase):
         output = ww_lists.flatten_list([
             numpy.array([1, 2, 3]),
             numpy.array([4, 5, 6, 7]),
-        ], )
+        ])
         self.assertEqual(
             len(output),
             2,

@@ -71,7 +71,7 @@ class TestKBinCenters(unittest.TestCase):
         ## k_bin_centers should be [1, 2, 3, ..., N//2] for all supported N
         for num_cells in (8, 16, 32):
             sfield = _make_sfield(
-                numpy.ones((num_cells, num_cells, num_cells), ),
+                numpy.ones((num_cells, num_cells, num_cells)),
             )
             spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
             expected_centers = numpy.arange(1, num_cells // 2 + 1, dtype=float)
@@ -86,7 +86,7 @@ class TestKBinCenters(unittest.TestCase):
     ):
         for num_cells in (8, 16):
             sfield = _make_sfield(
-                numpy.ones((num_cells, num_cells, num_cells), ),
+                numpy.ones((num_cells, num_cells, num_cells)),
             )
             spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
             self.assertEqual(

@@ -33,7 +33,7 @@ def _find_match_in_enum(
     for member in enum_type:
         if member_key == _normalise_string(member.name):
             return member
-        if member_key == _normalise_string(str(member.value, ), ):
+        if member_key == _normalise_string(str(member.value)):
             return member
     return None
 

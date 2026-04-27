@@ -186,7 +186,7 @@ def _write_csv(
     input_dict: dict[str, Any],
 ) -> None:
     dataset_shape = [len(column) for column in input_dict.values()]
-    if len(set(dataset_shape, ), ) != 1:
+    if len(set(dataset_shape)) != 1:
         raise ValueError(
             "All dataset columns should be the same length."
             f" Provided `input_dict` shape: {dataset_shape}.",
@@ -254,7 +254,7 @@ def _update_csv(
             existing_dataset[key] = input_dict[key]
     ## final sanity check before saving
     final_dataset_shape = [len(column) for column in existing_dataset.values()]
-    if len(set(final_dataset_shape, ), ) != 1:
+    if len(set(final_dataset_shape)) != 1:
         raise ValueError(
             f"Final dataset has inconsistent column lengths: {final_dataset_shape}",
         )

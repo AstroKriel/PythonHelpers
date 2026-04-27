@@ -53,7 +53,7 @@ class HelmholtzDecomposedFArrays_3D:
         if any([
                 self.varray_3d_div.shape != self.varray_3d_sol.shape,
                 self.varray_3d_div.shape != self.varray_3d_bulk.shape,
-        ], ):
+        ]):
             raise ValueError(
                 "HelmholtzDecomposedFArrays_3D components must share the same shape:"
                 f" div={self.varray_3d_div.shape},"
@@ -205,7 +205,7 @@ class TNBDecomposedFArrays_3D:
         if any([
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_normal.shape,
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_binormal.shape,
-        ], ):
+        ]):
             raise ValueError(
                 "TNBDecomposedFArrays_3D vector components must share the same shape:"
                 f" tangent={self.uvarray_3d_tangent.shape},"
@@ -302,7 +302,12 @@ def compute_tnb_farrays(
     varray_3d_kappa = (
         varray_3d_normal_term1 * sarray_3d_inv_magn_sq - varray_3d_normal_term2 * sarray_3d_inv_magn4
     )
-    del varray_3d_normal_term1, varray_3d_normal_term2, sarray_3d_inv_magn_sq, sarray_3d_inv_magn4
+    del (
+        varray_3d_normal_term1,
+        varray_3d_normal_term2,
+        sarray_3d_inv_magn_sq,
+        sarray_3d_inv_magn4,
+    )
     sarray_3d_curvature = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
@@ -338,8 +343,8 @@ def compute_curvature_sarray(
     """
     Compute curvature magnitude sqrt(kappa_i kappa_i) from a 3D varray.
 
-    This implementation is tailored to the scalar curvature magnitude and
-    avoids building the full curvature vector first.
+    This implementation is optimised to compute the scalar curvature magnitude
+    and avoids building the full curvature vector first.
     """
     farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -431,7 +436,7 @@ class MagneticCurvatureFArrays_3D:
         if any([
                 self.sarray_3d_curvature.shape != self.sarray_3d_stretching.shape,
                 self.sarray_3d_curvature.shape != self.sarray_3d_compression.shape,
-        ], ):
+        ]):
             raise ValueError(
                 "MagneticCurvatureFArrays_3D components must share the same shape:"
                 f" curvature={self.sarray_3d_curvature.shape},"
@@ -450,7 +455,7 @@ def compute_magnetic_curvature_farrays(
     grad_order: int = 2,
 ) -> MagneticCurvatureFArrays_3D:
     """
-    Compute curvature, stretching, and compression terms for a 3D velocity farray.
+    Compute the curvature, stretching, and compression terms contributing to the magnetic amplitude and curvature coupling.
 
     Index notation (Einstein summation):
         curvature   = n_i n_j d_i u_j
@@ -472,9 +477,9 @@ def compute_magnetic_curvature_farrays(
     if any([
             varray_3d_u.shape != uvarray_3d_tangent.shape,
             varray_3d_u.shape != uvarray_3d_normal.shape,
-    ], ):
+    ]):
         raise ValueError(
-            "Velocity/tangent/normal farrays must share the same shape:"
+            "the input velocity field and tangent/normal magnetic field farrays must share the same shape:"
             f" u={varray_3d_u.shape},"
             f" tangent={uvarray_3d_tangent.shape},"
             f" normal={uvarray_3d_normal.shape}.",
@@ -556,7 +561,7 @@ class LorentzForceFArrays_3D:
         if any([
                 self.varray_3d_lorentz.shape != self.varray_3d_tension.shape,
                 self.varray_3d_lorentz.shape != self.varray_3d_grad_p_perp.shape,
-        ], ):
+        ]):
             raise ValueError(
                 "LorentzForceFArrays_3D components must share the same shape:"
                 f" lorentz={self.varray_3d_lorentz.shape},"

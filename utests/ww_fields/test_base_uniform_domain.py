@@ -349,10 +349,10 @@ class TestProperties(unittest.TestCase):
             (7, ),
         )
         self.assertTrue(
-            numpy.all((x1_centers > 10.0) & (x1_centers < 20.0), ),
+            numpy.all((x1_centers > 10.0) & (x1_centers < 20.0)),
         )
         self.assertTrue(
-            numpy.all((x2_centers > -7.0) & (x2_centers < 0.0), ),
+            numpy.all((x2_centers > -7.0) & (x2_centers < 0.0)),
         )
 
     def test_cached_properties_return_same_object(

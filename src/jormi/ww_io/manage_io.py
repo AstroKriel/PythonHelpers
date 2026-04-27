@@ -282,7 +282,7 @@ def filter_directory(
             continue
         if suffix and not name.endswith(suffix):
             continue
-        if num_parts is not None and len(name.split(delimiter, ), ) != num_parts:
+        if num_parts is not None and len(name.split(delimiter)) != num_parts:
             continue
         matched.append(item)
     return sorted(matched)

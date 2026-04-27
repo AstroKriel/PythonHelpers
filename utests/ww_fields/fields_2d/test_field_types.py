@@ -191,7 +191,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
                 dataclasses.FrozenInstanceError,
                 AttributeError,
                 TypeError,
-        ), ):
+        )):
             sfield.field_label = "modified"  # type: ignore
 
 

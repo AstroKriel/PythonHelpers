@@ -46,7 +46,7 @@ class TestGet2dShape(unittest.TestCase):
     ):
         with self.assertRaises(Exception):
             mask_2d_arrays.get_2d_shape(
-                numpy.zeros((2, 3, 4), ),
+                numpy.zeros((2, 3, 4)),
             )
 
 
@@ -223,7 +223,7 @@ class TestQuadrantMasks2D(unittest.TestCase):
             num_rows=5,
             num_cols=6,
         )
-        for i in range(len(masks, ), ):
+        for i in range(len(masks)):
             for j in range(i + 1, len(masks)):
                 self.assertFalse(
                     numpy.any(

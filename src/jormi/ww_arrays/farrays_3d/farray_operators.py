@@ -774,9 +774,4 @@ def compute_varray_kinetic_dissipation(
     )
 
 
-##
-## === UNIT VECTOR (3D) ARRAY OPERATORS
-##
-
-
 ## } MODULE
