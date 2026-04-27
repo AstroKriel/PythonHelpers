@@ -248,7 +248,7 @@ def compute_tnb_farrays(
         require_positive=True,
     )
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_f_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## |f| = sqrt(f_i f_i)
@@ -303,7 +303,7 @@ def compute_tnb_farrays(
         varray_3d_normal_term1 * sarray_3d_inv_magn_sq - varray_3d_normal_term2 * sarray_3d_inv_magn4
     )
     del varray_3d_normal_term1, varray_3d_normal_term2, sarray_3d_inv_magn_sq, sarray_3d_inv_magn4
-    sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_curvature = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
     numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
@@ -355,7 +355,7 @@ def compute_curvature_sarray(
     ## promote low-precision inputs so gradient and curvature algebra run in float64
     varray_3d = farray_operators._as_float_view(varray_3d)
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_f_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## term1_j = f_i * (d_i f_j) = ((f . grad) f)_j
@@ -366,7 +366,7 @@ def compute_curvature_sarray(
         grad_order=grad_order,
     )
     ## term2_j = f_j * [f_m * term1_m]
-    sarray_3d_normal_prefactor = farray_operators.dot_over_varray_comps(
+    sarray_3d_normal_prefactor = farray_operators.compute_dot_over_varray_comps(
         varray_3d_a=varray_3d,
         varray_3d_b=varray_3d_normal_term1,
     )
@@ -390,7 +390,7 @@ def compute_curvature_sarray(
         sarray_3d_inv_magn4,
     )
     ## |kappa| = sqrt(kappa_i kappa_i)
-    sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_curvature = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d_kappa,
     )
     del varray_3d_kappa
@@ -599,7 +599,7 @@ def compute_lorentz_force_farrays(
     uvarray_3d_normal = tnb_farrays.uvarray_3d_normal
     sarray_3d_curvature = tnb_farrays.sarray_3d_curvature
     ## |b|^2
-    sarray_3d_b_magn_sq = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_b_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d_b,
     )
     ## d_i p where p = 0.5 * |b|^2

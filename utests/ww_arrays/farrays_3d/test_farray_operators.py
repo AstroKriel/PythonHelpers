@@ -660,7 +660,7 @@ class TestDotProduct(unittest.TestCase):
     def test_dot_of_orthogonal_unit_vectors_is_zero(
         self,
     ) -> None:
-        result = farray_operators.dot_over_varray_comps(
+        result = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=_const_varray(x0=1.0, x1=0.0, x2=0.0),
             varray_3d_b=_const_varray(x0=0.0, x1=1.0, x2=0.0),
         )
@@ -676,7 +676,7 @@ class TestDotProduct(unittest.TestCase):
         self,
     ) -> None:
         varray = _const_varray(x0=1.0, x1=0.0, x2=0.0)
-        result = farray_operators.dot_over_varray_comps(
+        result = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=varray,
             varray_3d_b=varray,
         )
@@ -691,7 +691,7 @@ class TestDotProduct(unittest.TestCase):
     def test_dot_product_of_known_vectors(
         self,
     ) -> None:
-        result = farray_operators.dot_over_varray_comps(
+        result = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=_const_varray(x0=1.0, x1=2.0, x2=3.0),
             varray_3d_b=_const_varray(x0=4.0, x1=5.0, x2=6.0),
         )
@@ -708,11 +708,11 @@ class TestDotProduct(unittest.TestCase):
     ) -> None:
         varray_a = _const_varray(x0=1.0, x1=2.0, x2=3.0)
         varray_b = _const_varray(x0=4.0, x1=5.0, x2=6.0)
-        result_ab = farray_operators.dot_over_varray_comps(
+        result_ab = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=varray_a,
             varray_3d_b=varray_b,
         )
-        result_ba = farray_operators.dot_over_varray_comps(
+        result_ba = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=varray_b,
             varray_3d_b=varray_a,
         )
@@ -731,8 +731,8 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
         self,
     ) -> None:
         varray = _const_varray(x0=1.0, x1=2.0, x2=3.0)
-        sum_sq = farray_operators.sum_of_varray_comps_squared(varray_3d=varray)
-        dot = farray_operators.dot_over_varray_comps(
+        sum_sq = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=varray)
+        dot = farray_operators.compute_dot_over_varray_comps(
             varray_3d_a=varray,
             varray_3d_b=varray,
         )
@@ -748,7 +748,7 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
         self,
     ) -> None:
         varray = _const_varray(x0=1.0, x1=2.0, x2=3.0)
-        result = farray_operators.sum_of_varray_comps_squared(varray_3d=varray)
+        result = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=varray)
         self.assertTrue(
             numpy.allclose(
                 result,

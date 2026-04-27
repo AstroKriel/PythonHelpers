@@ -42,7 +42,7 @@ def compute_magnetic_energy_density_sfield(
     )
     udomain_3d = vfield_3d_b.udomain
     sim_time = vfield_3d_b.sim_time
-    sarray_3d_b2 = farray_operators.sum_of_varray_comps_squared(
+    sarray_3d_b2 = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d_b,
     )
     farray_operators.scale_sarray_inplace(

@@ -159,7 +159,7 @@ def sqrt_sarray_inplace(
 ##
 
 
-def sum_of_varray_comps_squared(
+def compute_sum_of_varray_comps_squared(
     varray_3d: NDArray[Any],
     *,
     sarray_3d_out: NDArray[Any] | None = None,
@@ -220,7 +220,7 @@ def sum_of_varray_comps_squared(
     return sarray_3d_out
 
 
-def dot_over_varray_comps(
+def compute_dot_over_varray_comps(
     *,
     varray_3d_a: NDArray[Any],
     varray_3d_b: NDArray[Any],
@@ -645,7 +645,7 @@ def compute_varray_magnitude(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    sarray_3d_vmagn_sq = sum_of_varray_comps_squared(
+    sarray_3d_vmagn_sq = compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
         sarray_3d_out=sarray_3d_out,
         sarray_3d_tmp=sarray_3d_tmp,
@@ -795,7 +795,7 @@ def ensure_uvarray_magnitude(
         varray_3d=varray_3d,
         param_name=param_name,
     )
-    sarray_3d_vmagn_sq = sum_of_varray_comps_squared(varray_3d=varray_3d)
+    sarray_3d_vmagn_sq = compute_sum_of_varray_comps_squared(varray_3d=varray_3d)
     if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq, ), ):
         raise ValueError(
             f"`{param_name}` should not contain any NaN/Inf magnitudes.",

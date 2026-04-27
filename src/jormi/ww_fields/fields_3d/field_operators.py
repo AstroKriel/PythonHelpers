@@ -130,7 +130,7 @@ def compute_vfield_dot_product(
         vfield_3d=vfield_3d_b,
         param_name="<vfield_3d_b>",
     )
-    sarray_3d_adotb = farray_operators.dot_over_varray_comps(
+    sarray_3d_adotb = farray_operators.compute_dot_over_varray_comps(
         varray_3d_a=varray_3d_a,
         varray_3d_b=varray_3d_b,
     )
