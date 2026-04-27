@@ -179,15 +179,36 @@ def sum_of_varray_comps_squared(
         farray=sarray_3d_tmp,
         dtype=dtype,
     )
-    numpy.multiply(varray_3d[0], varray_3d[0], out=sarray_3d_out)  # out = v_x^2
-    numpy.multiply(varray_3d[1], varray_3d[1], out=sarray_3d_tmp)  # tmp = v_y^2
-    numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out = v_x^2 + v_y^2
-    numpy.multiply(varray_3d[2], varray_3d[2], out=sarray_3d_tmp)  # tmp = v_z^2
+    ## out = v_x^2
+    numpy.multiply(
+        varray_3d[0],
+        varray_3d[0],
+        out=sarray_3d_out,
+    )
+    ## tmp = v_y^2
+    numpy.multiply(
+        varray_3d[1],
+        varray_3d[1],
+        out=sarray_3d_tmp,
+    )
+    ## out = v_x^2 + v_y^2
     numpy.add(
         sarray_3d_out,
         sarray_3d_tmp,
         out=sarray_3d_out,
-    )  # out = v_x^2 + v_y^2 + v_z^2
+    )
+    ## tmp = v_z^2
+    numpy.multiply(
+        varray_3d[2],
+        varray_3d[2],
+        out=sarray_3d_tmp,
+    )
+    ## out = v_x^2 + v_y^2 + v_z^2
+    numpy.add(
+        sarray_3d_out,
+        sarray_3d_tmp,
+        out=sarray_3d_out,
+    )
     return sarray_3d_out
 
 
@@ -230,11 +251,36 @@ def dot_over_varray_comps(
         farray=sarray_3d_tmp,
         dtype=dtype,
     )
-    numpy.multiply(varray_3d_a[0], varray_3d_b[0], out=sarray_3d_out)  # out = a_x b_x
-    numpy.multiply(varray_3d_a[1], varray_3d_b[1], out=sarray_3d_tmp)  # tmp = a_y b_y
-    numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out += a_y b_y
-    numpy.multiply(varray_3d_a[2], varray_3d_b[2], out=sarray_3d_tmp)  # tmp = a_z b_z
-    numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out += a_z b_z
+    ## out = a_x b_x
+    numpy.multiply(
+        varray_3d_a[0],
+        varray_3d_b[0],
+        out=sarray_3d_out,
+    )
+    ## tmp = a_y b_y
+    numpy.multiply(
+        varray_3d_a[1],
+        varray_3d_b[1],
+        out=sarray_3d_tmp,
+    )
+    ## out += a_y b_y
+    numpy.add(
+        sarray_3d_out,
+        sarray_3d_tmp,
+        out=sarray_3d_out,
+    )
+    ## tmp = a_z b_z
+    numpy.multiply(
+        varray_3d_a[2],
+        varray_3d_b[2],
+        out=sarray_3d_tmp,
+    )
+    ## out += a_z b_z
+    numpy.add(
+        sarray_3d_out,
+        sarray_3d_tmp,
+        out=sarray_3d_out,
+    )
     return sarray_3d_out
 
 
@@ -393,17 +439,53 @@ def compute_varray_cross_product(
         farray=sarray_3d_tmp,
     )
     ## cross_x = a_y * b_z - a_z * b_y
-    numpy.multiply(varray_3d_a[1], varray_3d_b[2], out=varray_3d_axb[0])
-    numpy.multiply(varray_3d_a[2], varray_3d_b[1], out=sarray_3d_tmp)
-    numpy.subtract(varray_3d_axb[0], sarray_3d_tmp, out=varray_3d_axb[0])
+    numpy.multiply(
+        varray_3d_a[1],
+        varray_3d_b[2],
+        out=varray_3d_axb[0],
+    )
+    numpy.multiply(
+        varray_3d_a[2],
+        varray_3d_b[1],
+        out=sarray_3d_tmp,
+    )
+    numpy.subtract(
+        varray_3d_axb[0],
+        sarray_3d_tmp,
+        out=varray_3d_axb[0],
+    )
     ## cross_y = -a_x * b_z + a_z * b_x
-    numpy.multiply(varray_3d_a[2], varray_3d_b[0], out=varray_3d_axb[1])
-    numpy.multiply(varray_3d_a[0], varray_3d_b[2], out=sarray_3d_tmp)
-    numpy.subtract(varray_3d_axb[1], sarray_3d_tmp, out=varray_3d_axb[1])
+    numpy.multiply(
+        varray_3d_a[2],
+        varray_3d_b[0],
+        out=varray_3d_axb[1],
+    )
+    numpy.multiply(
+        varray_3d_a[0],
+        varray_3d_b[2],
+        out=sarray_3d_tmp,
+    )
+    numpy.subtract(
+        varray_3d_axb[1],
+        sarray_3d_tmp,
+        out=varray_3d_axb[1],
+    )
     ## cross_z = a_x * b_y - a_y * b_x
-    numpy.multiply(varray_3d_a[0], varray_3d_b[1], out=varray_3d_axb[2])
-    numpy.multiply(varray_3d_a[1], varray_3d_b[0], out=sarray_3d_tmp)
-    numpy.subtract(varray_3d_axb[2], sarray_3d_tmp, out=varray_3d_axb[2])
+    numpy.multiply(
+        varray_3d_a[0],
+        varray_3d_b[1],
+        out=varray_3d_axb[2],
+    )
+    numpy.multiply(
+        varray_3d_a[1],
+        varray_3d_b[0],
+        out=sarray_3d_tmp,
+    )
+    numpy.subtract(
+        varray_3d_axb[2],
+        sarray_3d_tmp,
+        out=varray_3d_axb[2],
+    )
     return varray_3d_axb
 
 
@@ -666,6 +748,7 @@ def compute_varray_kinetic_dissipation(
         r2tarray_3d_grad_u,
         axes=(1, 0, 2, 3, 4),
     )
+    del r2tarray_3d_grad_u
     identity_matrix = numpy.eye(3, dtype=dtype)
     r2tarray_3d_bulk = numpy.einsum(
         "ij,xyz->jixyz",
@@ -673,7 +756,9 @@ def compute_varray_kinetic_dissipation(
         sarray_3d_div_u,
         optimize=True,
     )
+    del sarray_3d_div_u
     r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
+    del r2tarray_3d_sym, r2tarray_3d_bulk
     return compute_r2tarray_divergence(
         r2tarray_3d=r2tarray_3d_S,
         cell_widths_3d=cell_widths_3d,

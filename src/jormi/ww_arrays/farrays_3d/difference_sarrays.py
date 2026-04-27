@@ -135,7 +135,9 @@ def fourth_order_centered_difference(
         shift=int(2 * backward),
         axis=grad_axis,
     )
-    return (-sarray_3d_f2 + 8.0 * sarray_3d_f1 - 8.0 * sarray_3d_b1 + sarray_3d_b2) / (12.0 * cell_width)
+    return (-sarray_3d_f2 + 8.0 * sarray_3d_f1 - 8.0 * sarray_3d_b1 + sarray_3d_b2) / (
+        12.0 * cell_width
+    )
 
 
 def sixth_order_centered_difference(
@@ -153,40 +155,53 @@ def sixth_order_centered_difference(
     )
     forward = -1
     backward = +1
-    sarray_3d_f1 = numpy.roll(
-        a=sarray_3d,
-        shift=int(1 * forward),
-        axis=grad_axis,
-    )
-    sarray_3d_f2 = numpy.roll(
-        a=sarray_3d,
-        shift=int(2 * forward),
-        axis=grad_axis,
+    out = numpy.zeros_like(
+        sarray_3d, dtype=numpy.result_type(sarray_3d.dtype, numpy.float64)
     )
     sarray_3d_f3 = numpy.roll(
         a=sarray_3d,
         shift=int(3 * forward),
         axis=grad_axis,
     )
+    out += sarray_3d_f3
+    del sarray_3d_f3
+    sarray_3d_f2 = numpy.roll(
+        a=sarray_3d,
+        shift=int(2 * forward),
+        axis=grad_axis,
+    )
+    out -= 9.0 * sarray_3d_f2
+    del sarray_3d_f2
+    sarray_3d_f1 = numpy.roll(
+        a=sarray_3d,
+        shift=int(1 * forward),
+        axis=grad_axis,
+    )
+    out += 45.0 * sarray_3d_f1
+    del sarray_3d_f1
     sarray_3d_b1 = numpy.roll(
         a=sarray_3d,
         shift=int(1 * backward),
         axis=grad_axis,
     )
+    out -= 45.0 * sarray_3d_b1
+    del sarray_3d_b1
     sarray_3d_b2 = numpy.roll(
         a=sarray_3d,
         shift=int(2 * backward),
         axis=grad_axis,
     )
+    out += 9.0 * sarray_3d_b2
+    del sarray_3d_b2
     sarray_3d_b3 = numpy.roll(
         a=sarray_3d,
         shift=int(3 * backward),
         axis=grad_axis,
     )
-    return (
-        sarray_3d_f3 - 9.0 * sarray_3d_f2 + 45.0 * sarray_3d_f1 - 45.0 * sarray_3d_b1 + 9.0 * sarray_3d_b2 -
-        sarray_3d_b3
-    ) / (60.0 * cell_width)
+    out -= sarray_3d_b3
+    del sarray_3d_b3
+    out /= 60.0 * cell_width
+    return out
 
 
 ## } MODULE
