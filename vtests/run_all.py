@@ -22,7 +22,11 @@ from jormi.ww_io import manage_log
 def main():
     ## discover all validation scripts
     validation_root = Path(__file__).parent
-    test_scripts = sorted(validation_root.rglob("test_*.py"))
+    test_scripts = sorted(
+        validation_root.rglob(
+            "test_*.py",
+        ),
+    )
     if not test_scripts:
         manage_log.log_alert(text="No validation scripts found.")
         sys.exit(0)
@@ -31,7 +35,11 @@ def main():
     ## run each script as a subprocess and collect results
     results: list[tuple[str, bool, float]] = []
     for script_path in test_scripts:
-        test_label = str(script_path.relative_to(validation_root))
+        test_label = str(
+            script_path.relative_to(
+                validation_root,
+            ),
+        )
         manage_log.log_task(text=test_label, show_time=False)
         start_time = time.perf_counter()
         test = subprocess.run(

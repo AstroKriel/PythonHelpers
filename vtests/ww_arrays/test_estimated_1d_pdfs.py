@@ -42,7 +42,7 @@ def main():
     )
     ## estimate PDF for each distribution at multiple bin counts
     pdfs_that_failed = []
-    for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
+    for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items(), ):
         ax = axs_grid[pdf_index, 0]
         failed_bins = []
         for num_bins in binning_to_test:

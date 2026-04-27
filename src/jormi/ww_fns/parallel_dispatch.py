@@ -44,10 +44,26 @@ def _normalise_grouped_args(
     _grouped_args: list[tuple[list[Any], dict[str, Any]]] = []
     for args in grouped_args:
         if isinstance(args, Mapping):
-            _grouped_args.append(([], dict(cast(Mapping[str, Any], args))))
+            _grouped_args.append((
+                [],
+                dict(
+                    cast(
+                        Mapping[str, Any],
+                        args,
+                    ),
+                ),
+            ))
             continue
         if isinstance(args, (list, tuple)) and not isinstance(args, (str, bytes)):
-            _grouped_args.append((list(cast(list[Any] | tuple[Any, ...], args)), {}))
+            _grouped_args.append((
+                list(
+                    cast(
+                        list[Any] | tuple[Any, ...],
+                        args,
+                    ),
+                ),
+                {},
+            ))
         else:
             _grouped_args.append(([args], {}))
     return _grouped_args

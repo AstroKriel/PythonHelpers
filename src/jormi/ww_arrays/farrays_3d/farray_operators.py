@@ -796,13 +796,15 @@ def ensure_uvarray_magnitude(
         param_name=param_name,
     )
     sarray_3d_vmagn_sq = sum_of_varray_comps_squared(varray_3d=varray_3d)
-    if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq)):
+    if not numpy.all(numpy.isfinite(sarray_3d_vmagn_sq, ), ):
         raise ValueError(
             f"`{param_name}` should not contain any NaN/Inf magnitudes.",
         )
     max_error = float(
         numpy.max(
-            numpy.abs(numpy.sqrt(sarray_3d_vmagn_sq) - 1.0),
+            numpy.abs(
+                numpy.sqrt(sarray_3d_vmagn_sq) - 1.0,
+            ),
         ),
     )
     if max_error > tol:

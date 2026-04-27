@@ -235,7 +235,9 @@ class FitSummary:
         self,
     ):
         ## validate that all fitted parameters have recorded fit statistics
-        missing_params = set(self.model.param_names) - set(self.fit_stats.keys())
+        missing_params = set(self.model.param_names) - set(
+            self.fit_stats.keys(),
+        )
         if missing_params:
             missing_string = ww_lists.as_string(
                 elems=sorted(missing_params),
@@ -466,7 +468,11 @@ def fit_line_with_fixed_slope(
     ## weighted intercept
     x_values = gaussian_series.x_values
     y_values = gaussian_series.y_values
-    weight_sum = float(numpy.sum(weight_array))
+    weight_sum = float(
+        numpy.sum(
+            weight_array,
+        ),
+    )
     y_minus_mx_array = y_values - fixed_slope * x_values
     intercept_value = float(numpy.sum(weight_array * y_minus_mx_array) / weight_sum)
     ## residuals
@@ -476,9 +482,17 @@ def fit_line_with_fixed_slope(
         sigma_sq = 1.0
     else:
         num_dof = gaussian_series.num_points - 1
-        ssr_value = float(numpy.sum(weight_array * numpy.square(residual_array)))
+        ssr_value = float(
+            numpy.sum(
+                weight_array * numpy.square(residual_array),
+            ),
+        )
         sigma_sq = ssr_value / num_dof
-    intercept_std = float(numpy.sqrt(sigma_sq / weight_sum))
+    intercept_std = float(
+        numpy.sqrt(
+            sigma_sq / weight_sum,
+        ),
+    )
     fitted_vector = numpy.array([intercept_value, fixed_slope], dtype=float)
     sigmas_vector = numpy.array([intercept_std, numpy.nan], dtype=float)
     fit_stats = fixed_slope_model.create_fit_stats(

@@ -79,7 +79,12 @@ def as_tuple(
     if isinstance(param, tuple):
         return cast(tuple[Any, ...], param)
     if isinstance(param, list):
-        return tuple(cast(list[Any], param))
+        return tuple(
+            cast(
+                list[Any],
+                param,
+            ),
+        )
     return (param, )
 
 
@@ -197,9 +202,12 @@ def ensure_char(
         param_name=param_name,
         allow_none=False,
     )
-    if len(cast(str, param)) != 1:
+    if len(cast(
+            str,
+            param,
+    ), ) != 1:
         raise ValueError(
-            f"`{param_name}` must be a single-character string, got length {len(cast(str, param))}.",
+            f"`{param_name}` must be a single-character string, got length {len(cast(str, param,),)}.",
         )
 
 
@@ -501,7 +509,10 @@ def ensure_nested_sequence(
         valid_seq_types=valid_outer_types,
         valid_elem_types=valid_inner_types,
     )
-    for outer_index, inner_seq in enumerate(cast(list[Any] | tuple[Any, ...], param)):
+    for outer_index, inner_seq in enumerate(cast(
+            list[Any] | tuple[Any, ...],
+            param,
+    ), ):
         ensure_sequence(
             param=inner_seq,
             param_name=f"{param_name}[{outer_index}]",
@@ -538,8 +549,12 @@ def ensure_flat_tuple(
     )
     invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
-        if isinstance(elem, invalid_elem_types)
+        elem_index for elem_index, elem in enumerate(
+            cast(
+                tuple[Any, ...],
+                param,
+            ),
+        ) if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)
@@ -616,8 +631,12 @@ def ensure_tuple_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
-        if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
+        elem_index for elem_index, elem in enumerate(
+            cast(
+                tuple[Any, ...],
+                param,
+            ),
+        ) if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)
@@ -737,8 +756,12 @@ def ensure_flat_list(
     )
     invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
-        if isinstance(elem, invalid_elem_types)
+        elem_index for elem_index, elem in enumerate(
+            cast(
+                list[Any],
+                param,
+            ),
+        ) if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)
@@ -785,8 +808,12 @@ def ensure_list_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
-        if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
+        elem_index for elem_index, elem in enumerate(
+            cast(
+                list[Any],
+                param,
+            ),
+        ) if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:
         preview_bad_indices_string = _preview_indices(indices=bad_indices)

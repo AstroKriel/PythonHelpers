@@ -49,7 +49,12 @@ def merge_dicts(
                 merged_dict[key] = merged_dict[key] | value
             ## other types, deepcopy to avoid modifying original dict_a
             elif isinstance(value, (dict, list, set)):
-                merged_dict[key] = copy.deepcopy(cast(Any, value))
+                merged_dict[key] = copy.deepcopy(
+                    cast(
+                        Any,
+                        value,
+                    ),
+                )
             ## replace directly
             else:
                 merged_dict[key] = value

@@ -284,7 +284,11 @@ def render_line(
     ## always append the main message body
     line_parts.append(message.message)
     ## join parts with spaces and render
-    _CONSOLE.print(" ".join(line_parts))
+    _CONSOLE.print(
+        " ".join(
+            line_parts,
+        ),
+    )
     ## add spacing line if requested
     if add_spacing:
         _CONSOLE.print()
@@ -321,7 +325,10 @@ def render_block(
     ## optional message at top
     if message.message and message_position == "top":
         body_lines.append(
-            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour),
+            rich_Text(
+                f"{row_prefix} {message.message}",
+                style=message_style.colour,
+            ),
         )
     ## include notes as "— key : value" entries
     if message.message_notes:
@@ -338,7 +345,10 @@ def render_block(
     ## optional message at bottom (default)
     if message.message and message_position == "bottom":
         body_lines.append(
-            rich_Text(f"{row_prefix} {message.message}", style=message_style.colour),
+            rich_Text(
+                f"{row_prefix} {message.message}",
+                style=message_style.colour,
+            ),
         )
     ## compute width required to fit title and body lines
     content_width = panel_title.cell_len

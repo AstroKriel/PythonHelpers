@@ -119,8 +119,16 @@ def generate_mixed_vfield(
         valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=validate_types.RuntimeTypes.Numerics.FloatLike,
     )
-    varray_div = field_models.extract_3d_varray(generate_div_vfield(udomain_3d))
-    varray_sol = field_models.extract_3d_varray(generate_sol_vfield(udomain_3d))
+    varray_div = field_models.extract_3d_varray(
+        generate_div_vfield(
+            udomain_3d,
+        ),
+    )
+    varray_sol = field_models.extract_3d_varray(
+        generate_sol_vfield(
+            udomain_3d,
+        ),
+    )
     if bulk_vector is not None:
         varray_bulk = field_models.extract_3d_varray(
             vfield_3d=generate_uniform_vfield(
@@ -146,8 +154,20 @@ def generate_mixed_vfield(
 def _sfield_abs_median_std(
     sfield: field_models.ScalarField_3D,
 ) -> tuple[float, float]:
-    arr = numpy.abs(field_models.extract_3d_sarray(sfield))
-    return float(numpy.median(arr)), float(numpy.std(arr))
+    arr = numpy.abs(
+        field_models.extract_3d_sarray(
+            sfield,
+        ),
+    )
+    return float(
+        numpy.median(
+            arr,
+        ),
+    ), float(
+        numpy.std(
+            arr,
+        ),
+    )
 
 
 def compute_field_fraction(
@@ -178,8 +198,16 @@ def plot_vfield_slice(
     sfield_q_magn = field_operators.compute_vfield_magnitude(vfield)
     sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn)
     sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
-    sfield_q_magn_min = float(numpy.min(sfield_q_magn_slice))
-    sfield_q_magn_max = float(numpy.max(sfield_q_magn_slice))
+    sfield_q_magn_min = float(
+        numpy.min(
+            sfield_q_magn_slice,
+        ),
+    )
+    sfield_q_magn_max = float(
+        numpy.max(
+            sfield_q_magn_slice,
+        ),
+    )
     ax.imshow(
         sfield_q_magn_slice.T,
         origin="lower",

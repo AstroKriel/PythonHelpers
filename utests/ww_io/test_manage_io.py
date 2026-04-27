@@ -76,9 +76,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             include_files=False,
         )
         self.assertTrue(
-            all(
-                path.is_dir() for path in results,
-            ),
+            all(path.is_dir() for path in results),
         )
         self.assertEqual(
             len(results),
@@ -93,9 +91,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             include_folders=False,
         )
         self.assertTrue(
-            all(
-                path.is_file() for path in results,
-            ),
+            all(path.is_file() for path in results),
         )
         self.assertEqual(
             len(results),
@@ -114,9 +110,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             2,
         )
         self.assertTrue(
-            all(
-                "Mach2" in path.name for path in results,
-            ),
+            all("Mach2" in path.name for path in results),
         )
 
     def test_req_include_words_list(
@@ -148,9 +142,7 @@ class TestFilterDirectory_IncludeExclude(unittest.TestCase):
             2,
         )
         self.assertTrue(
-            all(
-                "Re500" not in path.name for path in results,
-            ),
+            all("Re500" not in path.name for path in results),
         )
 
     def test_results_are_sorted(
@@ -193,9 +185,7 @@ class TestFilterDirectory_PrefixSuffix(unittest.TestCase):
             3,
         )
         self.assertTrue(
-            all(
-                path.name.startswith("Turb_hdf5_plt_cnt_") for path in results,
-            ),
+            all(path.name.startswith("Turb_hdf5_plt_cnt_") for path in results),
         )
 
     def test_suffix_filter(

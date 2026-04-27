@@ -162,9 +162,7 @@ class Tests(unittest.TestCase):
             True,
         )
         self.assertTrue(
-            all(
-                result.pid is not None for result in results,
-            ),
+            all(result.pid is not None for result in results),
         )
         cache_dirs_by_pid = {result.pid: (result.mpl_cache_dir, result.tex_output_dir) for result in results}
         self.assertEqual(
@@ -275,9 +273,7 @@ class Tests(unittest.TestCase):
             3,
         )
         self.assertTrue(
-            all(
-                "ValueError" in line for line in error_lines,
-            ),
+            all("ValueError" in line for line in error_lines),
         )
 
     def test_mixed_success_failure(

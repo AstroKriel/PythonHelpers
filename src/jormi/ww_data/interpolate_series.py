@@ -62,7 +62,11 @@ def interpolate_1d(
     ## clip x_interp to the data domain
     x_min_data, x_max_data = data_series.x_bounds
     in_bounds_mask = (x_min_data <= x_interp) & (x_interp <= x_max_data)
-    num_out_of_bounds = int(numpy.sum(~in_bounds_mask))
+    num_out_of_bounds = int(
+        numpy.sum(
+            ~in_bounds_mask,
+        ),
+    )
     if num_out_of_bounds == x_interp.size:
         raise ValueError(
             f"All `x_interp` points are outside the data domain [{x_min_data}, {x_max_data}].",

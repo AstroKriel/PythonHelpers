@@ -251,7 +251,17 @@ class TestFiniteDifferenceConvergence:
             lw=2,
             color=color,
         )
-        return bool(numpy.all(numpy.diff(numpy.diff(numpy.abs(residuals[1:]))) < 0.0))
+        return bool(
+            numpy.all(
+                numpy.diff(
+                    numpy.diff(
+                        numpy.abs(
+                            residuals[1:],
+                        ),
+                    ),
+                ) < 0.0,
+            ),
+        )
 
     def _annotate_figure(
         self,

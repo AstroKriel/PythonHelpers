@@ -36,7 +36,11 @@ def check_no_zero_values(
     If zeros are found, raises `ValueError` when `raise_error=True` (default),
     or alert when `raise_error=False`. Returns `True` if zeros were found, `False` otherwise.
     """
-    num_zeros = int(numpy.count_nonzero(array == 0.0))
+    num_zeros = int(
+        numpy.count_nonzero(
+            array == 0.0,
+        ),
+    )
     if num_zeros == 0:
         return False
     msg = (
@@ -68,15 +72,33 @@ def check_no_nonfinite_values(
     """
     troubled_findings: list[str] = []
     if check_nan:
-        num_nans = int(numpy.count_nonzero(numpy.isnan(array)))
+        num_nans = int(
+            numpy.count_nonzero(
+                numpy.isnan(
+                    array,
+                ),
+            ),
+        )
         if num_nans > 0:
             troubled_findings.append(f"{num_nans} nan")
     if check_posinf:
-        num_posinf = int(numpy.count_nonzero(numpy.isposinf(array)))
+        num_posinf = int(
+            numpy.count_nonzero(
+                numpy.isposinf(
+                    array,
+                ),
+            ),
+        )
         if num_posinf > 0:
             troubled_findings.append(f"{num_posinf} +inf")
     if check_neginf:
-        num_neginf = int(numpy.count_nonzero(numpy.isneginf(array)))
+        num_neginf = int(
+            numpy.count_nonzero(
+                numpy.isneginf(
+                    array,
+                ),
+            ),
+        )
         if num_neginf > 0:
             troubled_findings.append(f"{num_neginf} -inf")
     if not troubled_findings:
@@ -129,7 +151,15 @@ def compute_rms(
     array: NDArray[Any],
 ) -> float:
     """Compute the root-mean-square of a NumPy array."""
-    return float(numpy.sqrt(numpy.mean(numpy.square(array))))
+    return float(
+        numpy.sqrt(
+            numpy.mean(
+                numpy.square(
+                    array,
+                ),
+            ),
+        ),
+    )
 
 
 def compute_p_norm(
@@ -177,7 +207,11 @@ def compute_p_norm(
     ## compute p-norm value with special cases
     array_diff = numpy.abs(array_a - array_b)
     if p_norm == numpy.inf:
-        return float(numpy.max(array_diff))
+        return float(
+            numpy.max(
+                array_diff,
+            ),
+        )
     if p_norm == 1:
         value = float(
             numpy.sum(
@@ -189,9 +223,17 @@ def compute_p_norm(
             value /= len(array_a)
         return value
     if p_norm == 0:
-        return float(numpy.count_nonzero(array_diff))
+        return float(
+            numpy.count_nonzero(
+                array_diff,
+            ),
+        )
     if p_norm > 0:
-        max_diff = float(numpy.max(array_diff))
+        max_diff = float(
+            numpy.max(
+                array_diff,
+            ),
+        )
         if max_diff == 0.0:
             return 0.0
         scaled_diff = array_diff / max_diff
@@ -248,8 +290,16 @@ def _create_bins_spanning_full_value_range(
         allow_none=False,
         require_positive=True,
     )
-    start_value = float(numpy.min(values))
-    stop_value = float(numpy.max(values))
+    start_value = float(
+        numpy.min(
+            values,
+        ),
+    )
+    stop_value = float(
+        numpy.max(
+            values,
+        ),
+    )
     return numpy.linspace(start_value, stop_value, num_bins)
 
 

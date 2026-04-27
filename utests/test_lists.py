@@ -464,9 +464,7 @@ class Tests(unittest.TestCase):
         indices_to_keep = [value_index for value_index, _value in enumerate(out)]
         gaps = [b - a for a, b in zip(indices_to_keep[:-1], indices_to_keep[1:])]
         self.assertTrue(
-            all(
-                g == gaps[0] for g in gaps,
-            ),
+            all(g == gaps[0] for g in gaps),
         )  # constant gap
         self.assertGreater(
             gaps[0],

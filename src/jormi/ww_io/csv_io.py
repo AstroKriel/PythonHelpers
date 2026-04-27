@@ -41,7 +41,9 @@ def _ensure_input_dict(
     )
     if not input_dict:
         return
-    keys_as_list = list(input_dict.keys())
+    keys_as_list = list(
+        input_dict.keys(),
+    )
     validate_types.ensure_list_of_strings(
         param=keys_as_list,
         param_name="input_dict keys",
@@ -90,7 +92,11 @@ def read_csv_file_into_dict(
                         f"Missing value in column `{key}` on line {entry_index}.",
                     )
                 try:
-                    dataset[key].append(float(value))
+                    dataset[key].append(
+                        float(
+                            value,
+                        ),
+                    )
                 except ValueError as error:
                     raise ValueError(
                         f"Non-numeric value in column `{key}` on line {entry_index}: {value!r}.",
@@ -180,15 +186,21 @@ def _write_csv(
     input_dict: dict[str, Any],
 ) -> None:
     dataset_shape = [len(column) for column in input_dict.values()]
-    if len(set(dataset_shape)) != 1:
+    if len(set(dataset_shape, ), ) != 1:
         raise ValueError(
             "All dataset columns should be the same length."
             f" Provided `input_dict` shape: {dataset_shape}.",
         )
     with open(file_path, "w", newline="", encoding="utf-8") as file_pointer:
         writer = csv.writer(file_pointer, delimiter=",")
-        writer.writerow(input_dict.keys())
-        writer.writerows(zip(*input_dict.values()))
+        writer.writerow(
+            input_dict.keys(),
+        )
+        writer.writerows(
+            zip(
+                *input_dict.values(),
+            ),
+        )
 
 
 def _update_csv(
@@ -202,7 +214,11 @@ def _update_csv(
     )
     ## the following assumes each column has the same length
     existing_column_length = len(
-        next(iter(existing_dataset.values())),
+        next(
+            iter(
+                existing_dataset.values(),
+            ),
+        ),
     )
     ## for columns that already exist, check that the amount they grow by are the same
     growth_of_existing_columns = None
@@ -238,7 +254,7 @@ def _update_csv(
             existing_dataset[key] = input_dict[key]
     ## final sanity check before saving
     final_dataset_shape = [len(column) for column in existing_dataset.values()]
-    if len(set(final_dataset_shape)) != 1:
+    if len(set(final_dataset_shape, ), ) != 1:
         raise ValueError(
             f"Final dataset has inconsistent column lengths: {final_dataset_shape}",
         )

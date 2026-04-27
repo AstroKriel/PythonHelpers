@@ -63,7 +63,11 @@ class DataSeries:
         value_range = numpy.max(array) - numpy.min(array)
         ref_value = max(
             1.0,  # clamp: prevents near-zero scale from inflating the ratio
-            numpy.median(numpy.abs(array)),  # robust estimate of typical data magnitude
+            numpy.median(
+                numpy.abs(
+                    array,
+                ),
+            ),  # robust estimate of typical data magnitude
         )
         if (value_range / ref_value < rel_tol) and (value_range < abs_tol):
             raise ValueError("data values are (nearly) identical.")

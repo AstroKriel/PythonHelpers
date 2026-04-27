@@ -166,21 +166,33 @@ class UniformDomain:
     def num_cells(
         self,
     ) -> int:
-        return int(numpy.prod(self.resolution))
+        return int(
+            numpy.prod(
+                self.resolution,
+            ),
+        )
 
     @cached_property
     def _measure_per_cell(
         self,
     ) -> float:
         """Area per cell if 2D; volume per cell if 3D."""
-        return float(numpy.prod(self.cell_widths))
+        return float(
+            numpy.prod(
+                self.cell_widths,
+            ),
+        )
 
     @cached_property
     def _total_measure(
         self,
     ) -> float:
         """Total area if 2D; total volume if 3D."""
-        return float(numpy.prod(self.domain_lengths))
+        return float(
+            numpy.prod(
+                self.domain_lengths,
+            ),
+        )
 
     @cached_property
     def cell_centers(

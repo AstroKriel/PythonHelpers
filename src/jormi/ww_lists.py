@@ -80,10 +80,24 @@ def get_index_of_closest_value(
         raise ValueError("`values` must be non-empty.")
     values_array = numpy.asarray(values)
     if target == numpy.inf:
-        return int(numpy.nanargmax(values_array))
+        return int(
+            numpy.nanargmax(
+                values_array,
+            ),
+        )
     if target == -numpy.inf:
-        return int(numpy.nanargmin(values_array))
-    return int(numpy.nanargmin(numpy.abs(values_array - target)))
+        return int(
+            numpy.nanargmin(
+                values_array,
+            ),
+        )
+    return int(
+        numpy.nanargmin(
+            numpy.abs(
+                values_array - target,
+            ),
+        ),
+    )
 
 
 def get_index_of_first_crossing(
@@ -303,7 +317,14 @@ def flatten_list(
     flat_elems: list[Any] = []
     for elem in elems:
         if isinstance(elem, list):
-            flat_elems.extend(flatten_list(cast(list[Any], elem)))
+            flat_elems.extend(
+                flatten_list(
+                    cast(
+                        list[Any],
+                        elem,
+                    ),
+                ),
+            )
         else:
             flat_elems.append(elem)
     return flat_elems
