@@ -87,17 +87,15 @@ def second_order_centered_difference(
     )
     forward = -1
     backward = +1
-    sarray_3d_f = numpy.roll(
-        a=sarray_3d,
-        shift=int(1 * forward),
-        axis=grad_axis,
-    )
-    sarray_3d_b = numpy.roll(
-        a=sarray_3d,
-        shift=int(1 * backward),
-        axis=grad_axis,
-    )
-    return (sarray_3d_f - sarray_3d_b) / (2.0 * cell_width)
+    out = numpy.zeros_like(sarray_3d, dtype=numpy.result_type(sarray_3d.dtype, numpy.float64))
+    sarray_3d_f = numpy.roll(a=sarray_3d, shift=int(1 * forward), axis=grad_axis)
+    out += sarray_3d_f
+    del sarray_3d_f
+    sarray_3d_b = numpy.roll(a=sarray_3d, shift=int(1 * backward), axis=grad_axis)
+    out -= sarray_3d_b
+    del sarray_3d_b
+    out /= 2.0 * cell_width
+    return out
 
 
 def fourth_order_centered_difference(
