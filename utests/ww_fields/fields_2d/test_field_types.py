@@ -563,6 +563,98 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
         )
 
 
+class TestExtract2dSarray(unittest.TestCase):
+
+    def test_returns_ndarray(
+        self,
+    ):
+        sfield = _make_sfield_2d()
+        result = field_models.extract_2d_sarray(sfield_2d=sfield)
+        self.assertIsInstance(
+            result,
+            numpy.ndarray,
+        )
+
+    def test_shape_matches_resolution(
+        self,
+    ):
+        sfield = _make_sfield_2d(resolution=(3, 7))
+        result = field_models.extract_2d_sarray(sfield_2d=sfield)
+        self.assertEqual(
+            result.shape,
+            (3, 7),
+        )
+
+    def test_values_preserved(
+        self,
+    ):
+        sarray = numpy.arange(12, dtype=float).reshape((3, 4))
+        sfield = field_models.ScalarField_2D.from_2d_sarray(
+            sarray_2d=sarray,
+            udomain_2d=_make_2d_udomain(resolution=(3, 4)),
+            field_label="f",
+        )
+        result = field_models.extract_2d_sarray(sfield_2d=sfield)
+        self.assertTrue(
+            numpy.array_equal(
+                result,
+                sarray,
+            ),
+        )
+
+    def test_wrong_type_raises(
+        self,
+    ):
+        with self.assertRaises((TypeError, ValueError)):
+            field_models.extract_2d_sarray(sfield_2d="not_a_field")  # type: ignore
+
+
+class TestExtract2dVarray(unittest.TestCase):
+
+    def test_returns_ndarray(
+        self,
+    ):
+        vfield = _make_vfield_2d()
+        result = field_models.extract_2d_varray(vfield_2d=vfield)
+        self.assertIsInstance(
+            result,
+            numpy.ndarray,
+        )
+
+    def test_shape_matches_resolution(
+        self,
+    ):
+        vfield = _make_vfield_2d(resolution=(3, 7))
+        result = field_models.extract_2d_varray(vfield_2d=vfield)
+        self.assertEqual(
+            result.shape,
+            (2, 3, 7),
+        )
+
+    def test_values_preserved(
+        self,
+    ):
+        varray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
+        vfield = field_models.VectorField_2D.from_2d_varray(
+            varray_2d=varray,
+            udomain_2d=_make_2d_udomain(resolution=(3, 4)),
+            field_label="v",
+        )
+        result = field_models.extract_2d_varray(vfield_2d=vfield)
+        self.assertTrue(
+            numpy.array_equal(
+                result,
+                varray,
+            ),
+        )
+
+    def test_wrong_type_raises(
+        self,
+    ):
+        with self.assertRaises((TypeError, ValueError)):
+            field_models.extract_2d_varray(vfield_2d="not_a_field")  # type: ignore
+
+
 ##
 ## === ENTRY POINT
 ##
