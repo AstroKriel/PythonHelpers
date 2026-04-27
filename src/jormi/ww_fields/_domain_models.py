@@ -160,9 +160,7 @@ class UniformDomain:
     def domain_lengths(
         self,
     ) -> tuple[float, ...]:
-        return tuple(
-            axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds
-        )
+        return tuple(axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds)
 
     @cached_property
     def num_cells(
@@ -199,9 +197,9 @@ class UniformDomain:
 
         cell_centers_per_axis: list[NDArray[Any]] = []
         for (axis_min, _), cell_width, num_cells in zip(
-            self.domain_bounds,
-            self.cell_widths,
-            self.resolution,
+                self.domain_bounds,
+                self.cell_widths,
+                self.resolution,
         ):
             cell_centers = _get_cell_centers(
                 axis_min=axis_min,

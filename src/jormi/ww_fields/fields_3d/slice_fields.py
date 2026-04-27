@@ -56,11 +56,7 @@ def _slice_3d_udomain(
             f"`{param_name}.slice_index` = {slice_index} must be smaller than"
             f" resolution[{out_of_plane_axis_index}] = {resolution_3d[out_of_plane_axis_index]}.",
         )
-    in_plane_axes = [
-        axis
-        for axis in cartesian_axes.DEFAULT_3D_AXES_ORDER
-        if axis is not out_of_plane_axis
-    ]
+    in_plane_axes = [axis for axis in cartesian_axes.DEFAULT_3D_AXES_ORDER if axis is not out_of_plane_axis]
     x0_in_plane_axis, x1_in_plane_axis = in_plane_axes
     x0_in_plane_axis_index = x0_in_plane_axis.axis_index
     x1_in_plane_axis_index = x1_in_plane_axis.axis_index

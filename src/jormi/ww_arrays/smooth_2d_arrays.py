@@ -39,8 +39,8 @@ def _apply_2d_convolution(
     for index_row in range(num_data_rows):
         for index_col in range(num_data_cols):
             data_subset = padded_data[
-                index_row : index_row + num_kernel_rows,
-                index_col : index_col + num_kernel_cols,
+                index_row:index_row + num_kernel_rows,
+                index_col:index_col + num_kernel_cols,
             ]
             output[index_row, index_col] = numpy.sum(data_subset * smoothing_kernel)
     return output

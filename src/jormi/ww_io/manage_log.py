@@ -509,9 +509,7 @@ def log_items(
     show_time: bool = True,
     message_position: Literal["top", "bottom"] = "top",
 ) -> None:
-    grouped_items: dict[str, Any] = {
-        f"{item_index + 1}": item for item_index, item in enumerate(items)
-    }
+    grouped_items: dict[str, Any] = {f"{item_index + 1}": item for item_index, item in enumerate(items)}
     render_block(
         message=Message(
             message=message,

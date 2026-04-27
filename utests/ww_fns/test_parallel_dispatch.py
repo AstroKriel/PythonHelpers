@@ -120,6 +120,7 @@ def plot_task(
 
 
 class Tests(unittest.TestCase):
+
     def test_parallel_plotting(
         self,
     ):
@@ -159,10 +160,7 @@ class Tests(unittest.TestCase):
         self.assertTrue(
             all(result.pid is not None for result in results),
         )
-        cache_dirs_by_pid = {
-            result.pid: (result.mpl_cache_dir, result.tex_output_dir)
-            for result in results
-        }
+        cache_dirs_by_pid = {result.pid: (result.mpl_cache_dir, result.tex_output_dir) for result in results}
         self.assertEqual(
             len(cache_dirs_by_pid),
             2,
@@ -175,7 +173,7 @@ class Tests(unittest.TestCase):
     def test_timeout(
         self,
     ):
-        grouped_args = [(duration,) for duration in [0.5, 1, 3, 5]]
+        grouped_args = [(duration, ) for duration in [0.5, 1, 3, 5]]
         try:
             parallel_dispatch.run_in_parallel(
                 worker_fn=sleepy_task,
@@ -216,14 +214,9 @@ class Tests(unittest.TestCase):
     ):
         num_values_per_block = 10
         num_blocks = 6
-        blocks = [
-            [float(value) for value in range(num_values_per_block)]
-            for _ in range(num_blocks)
-        ]
-        grouped_args = [(block_of_values,) for block_of_values in blocks]
-        expected_results = [
-            cpu_heavy_task(block_of_values) for block_of_values in blocks
-        ]
+        blocks = [[float(value) for value in range(num_values_per_block)] for _ in range(num_blocks)]
+        grouped_args = [(block_of_values, ) for block_of_values in blocks]
+        expected_results = [cpu_heavy_task(block_of_values) for block_of_values in blocks]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=cpu_heavy_task,
             grouped_args=grouped_args,
@@ -278,7 +271,7 @@ class Tests(unittest.TestCase):
     def test_mixed_success_failure(
         self,
     ):
-        grouped_args = [(task_index,) for task_index in range(10)]
+        grouped_args = [(task_index, ) for task_index in range(10)]
         with self.assertRaises(RuntimeError) as cm:
             parallel_dispatch.run_in_parallel(
                 worker_fn=mixed_task,
@@ -316,10 +309,22 @@ class Tests(unittest.TestCase):
         self,
     ):
         grouped_args = [
-            {"duration": 0.2, "result": 3},
-            {"duration": 10.1, "result": 1},
-            {"duration": 0.3, "result": 4},
-            {"duration": 0.0, "result": 2},
+            {
+                "duration": 0.2,
+                "result": 3
+            },
+            {
+                "duration": 10.1,
+                "result": 1
+            },
+            {
+                "duration": 0.3,
+                "result": 4
+            },
+            {
+                "duration": 0.0,
+                "result": 2
+            },
         ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=delayed_return,
@@ -336,14 +341,12 @@ class Tests(unittest.TestCase):
         self,
     ):
         grouped_args = [
-            ("hello",),
-            (
-                {
-                    "key": "value",
-                },
-            ),
-            (123,),
-            (b"bytes",),
+            ("hello", ),
+            ({
+                "key": "value",
+            }, ),
+            (123, ),
+            (b"bytes", ),
         ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
@@ -377,7 +380,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## show_progress=True wraps iteration in tqdm; verify it doesn't alter results
-        grouped_args = [(task_index,) for task_index in range(4)]
+        grouped_args = [(task_index, ) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
             grouped_args=grouped_args,
@@ -393,7 +396,7 @@ class Tests(unittest.TestCase):
         self,
     ):
         ## num_workers=None should fall back to os.cpu_count() without error
-        grouped_args = [(task_index,) for task_index in range(4)]
+        grouped_args = [(task_index, ) for task_index in range(4)]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=dummy_task,
             grouped_args=grouped_args,
@@ -410,8 +413,14 @@ class Tests(unittest.TestCase):
     ):
         ## timeout_seconds=None should not raise for tasks that take some time
         grouped_args = [
-            {"duration": 0.1, "result": 2},
-            {"duration": 0.1, "result": 3},
+            {
+                "duration": 0.1,
+                "result": 2
+            },
+            {
+                "duration": 0.1,
+                "result": 3
+            },
         ]
         results = parallel_dispatch.run_in_parallel(
             worker_fn=delayed_return,

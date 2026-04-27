@@ -17,7 +17,6 @@ _N = 4
 _SSHAPE = (_N, _N, _N)
 _VSHAPE = (3, _N, _N, _N)
 
-
 ##
 ## === HELPERS
 ##

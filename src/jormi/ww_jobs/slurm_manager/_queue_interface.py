@@ -27,8 +27,8 @@ def submit_job(
     """Submit a SLURM job script via `sbatch`."""
     directory = Path(directory).resolve()
     if check_status and is_job_already_in_queue(
-        directory=directory,
-        file_name=file_name,
+            directory=directory,
+            file_name=file_name,
     ):
         manage_log.log_outcome(
             text=f"Job is already running: {file_name}",

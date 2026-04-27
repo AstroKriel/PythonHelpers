@@ -18,7 +18,6 @@ _SSHAPE = (_N, _N, _N)
 _VSHAPE = (3, _N, _N, _N)
 _R2TSHAPE = (3, 3, _N, _N, _N)
 
-
 ##
 ## === TEST SUITES
 ##
@@ -47,7 +46,7 @@ class TestEnsure3dSarray(unittest.TestCase):
         self,
     ) -> None:
         with self.assertRaises(ValueError):
-            farray_types.ensure_3d_sarray(numpy.zeros((_N,)))
+            farray_types.ensure_3d_sarray(numpy.zeros((_N, )))
 
 
 class TestEnsure3dVarray(unittest.TestCase):

@@ -9,7 +9,7 @@ from typing import Any, TypeAlias
 
 ## third-party
 import numpy
-from numpy.typing import NDArray, DTypeLike
+from numpy.typing import DTypeLike, NDArray
 
 ## local
 from jormi.ww_validation import validate_arrays

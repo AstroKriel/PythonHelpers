@@ -208,7 +208,9 @@ def sum_of_varray_comps_squared(
     numpy.add(sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out)  # out = v_x^2 + v_y^2
     numpy.multiply(varray_3d[2], varray_3d[2], out=sarray_3d_tmp)  # tmp = v_z^2
     numpy.add(
-        sarray_3d_out, sarray_3d_tmp, out=sarray_3d_out
+        sarray_3d_out,
+        sarray_3d_tmp,
+        out=sarray_3d_out,
     )  # out = v_x^2 + v_y^2 + v_z^2
     return sarray_3d_out
 

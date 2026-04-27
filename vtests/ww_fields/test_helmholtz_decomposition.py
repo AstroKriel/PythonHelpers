@@ -274,7 +274,8 @@ def main():
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
         vfield_rec = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
-                field_models.extract_3d_varray(vfield_3d_div) + field_models.extract_3d_varray(vfield_3d_sol) +
+                field_models.extract_3d_varray(vfield_3d_div) +
+                field_models.extract_3d_varray(vfield_3d_sol) +
                 field_models.extract_3d_varray(vfield_3d_bulk)
             ),
             udomain_3d=udomain_3d,

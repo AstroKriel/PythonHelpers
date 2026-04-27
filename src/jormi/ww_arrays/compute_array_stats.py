@@ -539,8 +539,7 @@ def estimate_pdf(
             dtype=numpy.float64,
         )
         densities_delta = bin_counts_delta / (
-            bin_widths_delta
-            * numpy.sum(
+            bin_widths_delta * numpy.sum(
                 bin_counts_delta,
                 dtype=numpy.float64,
             )
@@ -821,9 +820,7 @@ def estimate_jpdf(
             dtype=numpy.float64,
         ),
     )
-    estimated_jpdf = (
-        bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts
-    )
+    estimated_jpdf = (bin_counts / (total_counts * bin_areas) if total_counts > 0 else bin_counts)
     ## optional smoothing and re-normalisation
     if smoothing_length is not None:
         validate_types.ensure_finite_float(

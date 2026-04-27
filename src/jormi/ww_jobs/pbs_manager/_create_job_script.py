@@ -46,7 +46,7 @@ def _ensure_inputs(
     )
     validate_types.ensure_type(
         param=directives,
-        valid_types=(list,),
+        valid_types=(list, ),
         param_name="directives",
         allow_none=True,
     )

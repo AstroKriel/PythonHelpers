@@ -31,11 +31,24 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(
             dict1,
-            {"a": 1, "b": {"c": 2}},
+            {
+                "a": 1,
+                "b": {
+                    "c": 2
+                }
+            },
         )
         self.assertEqual(
             dict2,
-            {"b": {"d": 3}, "e": 4, "d": {"f": 10}},
+            {
+                "b": {
+                    "d": 3
+                },
+                "e": 4,
+                "d": {
+                    "f": 10
+                }
+            },
         )
         ## usual case 2: merging two dictionaries with lists in the same key
         dict_with_list = {"a": [1, 2], "b": 3}
@@ -109,7 +122,10 @@ class Tests(unittest.TestCase):
         )
         self.assertEqual(
             dict_2,
-            {"a": [3, 4], "b": 5},
+            {
+                "a": [3, 4],
+                "b": 5
+            },
         )
 
     def test_merge_dicts_complex_stringuctures(

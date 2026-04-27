@@ -50,12 +50,10 @@ class HelmholtzDecomposedFArrays_3D:
             param_name="<varray_3d_bulk>",
         )
         ## validate shared decomposition geometry
-        if any(
-            [
+        if any([
                 self.varray_3d_div.shape != self.varray_3d_sol.shape,
                 self.varray_3d_div.shape != self.varray_3d_bulk.shape,
-            ],
-        ):
+        ], ):
             raise ValueError(
                 "HelmholtzDecomposedFArrays_3D components must share the same shape:"
                 f" div={self.varray_3d_div.shape},"
@@ -121,9 +119,7 @@ def compute_helmholtz_decomposed_farrays(
     varray_3d_fft_bulk[:, 0, 0, 0] = varray_3d_fft_q[:, 0, 0, 0]
     varray_3d_fft_q[:, 0, 0, 0] = 0.0
     sarray_3d_k_dot_fft_q = (
-        kx_grid * varray_3d_fft_q[0]
-        + ky_grid * varray_3d_fft_q[1]
-        + kz_grid * varray_3d_fft_q[2]
+        kx_grid * varray_3d_fft_q[0] + ky_grid * varray_3d_fft_q[1] + kz_grid * varray_3d_fft_q[2]
     )
     with numpy.errstate(divide="ignore", invalid="ignore"):
         varray_3d_fft_div = numpy.stack(
@@ -206,12 +202,10 @@ class TNBDecomposedFArrays_3D:
             param_name="<sarray_3d_curvature>",
         )
         ## validate that the vector basis shares one grid
-        if any(
-            [
+        if any([
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_normal.shape,
                 self.uvarray_3d_tangent.shape != self.uvarray_3d_binormal.shape,
-            ],
-        ):
+        ], ):
             raise ValueError(
                 "TNBDecomposedFArrays_3D vector components must share the same shape:"
                 f" tangent={self.uvarray_3d_tangent.shape},"
@@ -306,8 +300,7 @@ def compute_tnb_farrays(
     del sarray_3d_f_magn_sq
     sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
     varray_3d_kappa = (
-        varray_3d_normal_term1 * sarray_3d_inv_magn_sq
-        - varray_3d_normal_term2 * sarray_3d_inv_magn4
+        varray_3d_normal_term1 * sarray_3d_inv_magn_sq - varray_3d_normal_term2 * sarray_3d_inv_magn4
     )
     del varray_3d_normal_term1, varray_3d_normal_term2, sarray_3d_inv_magn_sq, sarray_3d_inv_magn4
     sarray_3d_curvature = farray_operators.sum_of_varray_comps_squared(
@@ -387,8 +380,8 @@ def compute_curvature_sarray(
     del sarray_3d_f_magn_sq
     sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
     varray_3d_kappa = (
-        varray_3d_normal_term1 * sarray_3d_inv_magn_sq
-        - varray_3d * sarray_3d_normal_prefactor * sarray_3d_inv_magn4
+        varray_3d_normal_term1 * sarray_3d_inv_magn_sq -
+        varray_3d * sarray_3d_normal_prefactor * sarray_3d_inv_magn4
     )
     del (
         varray_3d_normal_term1,
@@ -435,12 +428,10 @@ class MagneticCurvatureFArrays_3D:
             param_name="<sarray_3d_compression>",
         )
         ## validate shared decomposition geometry
-        if any(
-            [
+        if any([
                 self.sarray_3d_curvature.shape != self.sarray_3d_stretching.shape,
                 self.sarray_3d_curvature.shape != self.sarray_3d_compression.shape,
-            ],
-        ):
+        ], ):
             raise ValueError(
                 "MagneticCurvatureFArrays_3D components must share the same shape:"
                 f" curvature={self.sarray_3d_curvature.shape},"
@@ -478,12 +469,10 @@ def compute_magnetic_curvature_farrays(
         varray_3d=uvarray_3d_normal,
         param_name="<uvarray_3d_normal>",
     )
-    if any(
-        [
+    if any([
             varray_3d_u.shape != uvarray_3d_tangent.shape,
             varray_3d_u.shape != uvarray_3d_normal.shape,
-        ],
-    ):
+    ], ):
         raise ValueError(
             "Velocity/tangent/normal farrays must share the same shape:"
             f" u={varray_3d_u.shape},"
@@ -564,12 +553,10 @@ class LorentzForceFArrays_3D:
             param_name="<varray_3d_grad_p_perp>",
         )
         ## validate shared decomposition geometry
-        if any(
-            [
+        if any([
                 self.varray_3d_lorentz.shape != self.varray_3d_tension.shape,
                 self.varray_3d_lorentz.shape != self.varray_3d_grad_p_perp.shape,
-            ],
-        ):
+        ], ):
             raise ValueError(
                 "LorentzForceFArrays_3D components must share the same shape:"
                 f" lorentz={self.varray_3d_lorentz.shape},"

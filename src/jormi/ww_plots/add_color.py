@@ -66,7 +66,7 @@ def ensure_sequential_config(
     """Raise TypeError if config is not a SequentialConfig."""
     if not isinstance(config, SequentialConfig):
         raise TypeError(
-            f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}."
+            f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}.",
         )
 
 
@@ -78,7 +78,7 @@ def ensure_diverging_config(
     """Raise TypeError if config is not a DivergingConfig."""
     if not isinstance(config, DivergingConfig):
         raise TypeError(
-            f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}."
+            f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}.",
         )
 
 
@@ -102,7 +102,7 @@ def ensure_discrete_config(
     """Raise TypeError if config is not a DiscreteConfig."""
     if not isinstance(config, DiscreteConfig):
         raise TypeError(
-            f"`{param_name}` must be a DiscreteConfig, got {type(config).__name__}."
+            f"`{param_name}` must be a DiscreteConfig, got {type(config).__name__}.",
         )
 
 
@@ -246,7 +246,7 @@ def add_colorbar(
             ax_bounds.y_min,
             ax_bounds.x_width,
             ax_bounds.y_width,
-        )
+        ),
     )
     cbar_mappable = mpl_cm.ScalarMappable(
         norm=palette.mpl_norm,

@@ -55,7 +55,7 @@ def _make_vfield_3d(
     sim_time: float | None = None,
 ) -> field_models.VectorField_3D:
     return field_models.VectorField_3D.from_3d_varray(
-        varray_3d=numpy.ones((3,) + resolution),
+        varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=_make_3d_udomain(resolution),
         field_label=label,
         sim_time=sim_time,
@@ -66,7 +66,7 @@ def _make_unit_varray_3d(
     resolution: tuple[int, int, int],
 ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
     """Return a (3, Nx, Ny, Nz) array with unit vectors pointing in the x0 direction."""
-    varray = numpy.zeros((3,) + resolution)
+    varray = numpy.zeros((3, ) + resolution)
     varray[0] = 1.0
     return varray
 
@@ -77,6 +77,7 @@ def _make_unit_varray_3d(
 
 
 class TestScalarField3D_Construction(unittest.TestCase):
+
     def test_valid_construction_via_from_3d_sarray(
         self,
     ):
@@ -161,13 +162,12 @@ class TestScalarField3D_Construction(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_3d()
-        with self.assertRaises(
-            (dataclasses.FrozenInstanceError, AttributeError, TypeError)
-        ):
+        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError), ):
             sfield.field_label = "modified"  # type: ignore
 
 
 class TestScalarField3D_Properties(unittest.TestCase):
+
     def test_fdata_is_scalar(
         self,
     ):
@@ -255,6 +255,7 @@ class TestScalarField3D_Properties(unittest.TestCase):
 
 
 class TestVectorField3D_Construction(unittest.TestCase):
+
     def test_valid_construction_via_from_3d_varray(
         self,
     ):
@@ -327,13 +328,12 @@ class TestVectorField3D_Construction(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_3d()
-        with self.assertRaises(
-            (dataclasses.FrozenInstanceError, AttributeError, TypeError)
-        ):
+        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError), ):
             vfield.field_label = "modified"  # type: ignore
 
 
 class TestVectorField3D_Properties(unittest.TestCase):
+
     def test_fdata_is_vector(
         self,
     ):
@@ -390,7 +390,7 @@ class TestVectorField3D_Properties(unittest.TestCase):
         vfield = _make_vfield_3d()
         self.assertEqual(
             vfield.fdata.comps_shape,
-            (3,),
+            (3, ),
         )
 
     def test_fdata_shape_includes_component_axis(
@@ -413,12 +413,13 @@ class TestVectorField3D_Properties(unittest.TestCase):
 
 
 class TestVectorField3D_GetVcomp(unittest.TestCase):
+
     def setUp(
         self,
     ):
         self._resolution = (4, 5, 6)
         rng = numpy.random.default_rng(0)
-        self._varray = rng.standard_normal((3,) + self._resolution)
+        self._varray = rng.standard_normal((3, ) + self._resolution)
         self._vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=self._varray,
             udomain_3d=_make_3d_udomain(self._resolution),
@@ -429,7 +430,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X0
+            comp_axis=cartesian_axes.CartesianAxis_3D.X0,
         )
         self.assertEqual(
             sarray.shape,
@@ -440,7 +441,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X1
+            comp_axis=cartesian_axes.CartesianAxis_3D.X1,
         )
         self.assertEqual(
             sarray.shape,
@@ -451,7 +452,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X2
+            comp_axis=cartesian_axes.CartesianAxis_3D.X2,
         )
         self.assertEqual(
             sarray.shape,
@@ -462,7 +463,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X0
+            comp_axis=cartesian_axes.CartesianAxis_3D.X0,
         )
         self.assertTrue(
             numpy.array_equal(
@@ -475,7 +476,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X1
+            comp_axis=cartesian_axes.CartesianAxis_3D.X1,
         )
         self.assertTrue(
             numpy.array_equal(
@@ -488,7 +489,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self,
     ):
         sarray = self._vfield.get_vcomp_3d_sarray(
-            comp_axis=cartesian_axes.CartesianAxis_3D.X2
+            comp_axis=cartesian_axes.CartesianAxis_3D.X2,
         )
         self.assertTrue(
             numpy.array_equal(
@@ -521,6 +522,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
 
 
 class TestUnitVectorField3D(unittest.TestCase):
+
     def _make_unit_vfield(
         self,
         *,

@@ -33,7 +33,7 @@ def _as_runtime_type(
             raise TypeError(f"non-type argument(s) in hint: {type_hint!r}.")
         return tuple(args)
     if isinstance(type_hint, type):
-        return (type_hint,)
+        return (type_hint, )
     raise TypeError(f"unsupported type-hint: {type_hint!r}.")
 
 
@@ -80,7 +80,7 @@ def as_tuple(
         return cast(tuple[Any, ...], param)
     if isinstance(param, list):
         return tuple(cast(list[Any], param))
-    return (param,)
+    return (param, )
 
 
 def _types_to_tuple(
@@ -88,14 +88,12 @@ def _types_to_tuple(
 ) -> tuple[type, ...]:
     """Canonicalize a type or sequence of types to a (type, ...) tuple."""
     if isinstance(valid_types, type):
-        return (valid_types,)
+        return (valid_types, )
     if isinstance(valid_types, (tuple, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if not valid_types:
             raise ValueError("empty type specification.")
-        if not all(
-            isinstance(valid_type, type)  # pyright: ignore[reportUnnecessaryIsInstance]
-            for valid_type in valid_types
-        ):
+        if not all(isinstance(valid_type, type)  # pyright: ignore[reportUnnecessaryIsInstance]
+                   for valid_type in valid_types):
             raise TypeError("`valid_types` entries must be valid Python types.")
         return tuple(valid_types)
     raise TypeError(
@@ -115,9 +113,7 @@ def ensure_type(
         return
     valid_types = _types_to_tuple(valid_types)
     if not isinstance(param, valid_types):
-        valid_types_string = ", ".join(
-            valid_type.__name__ for valid_type in valid_types
-        )
+        valid_types_string = ", ".join(valid_type.__name__ for valid_type in valid_types)
         raise TypeError(
             f"`{param_name}` is {type(param).__name__}; expected one of: {valid_types_string}.",
         )
@@ -320,9 +316,7 @@ def ensure_finite_numeric(
         param_name=param_name,
     )
     if not isinstance(param, valid_types):
-        valid_types_string = ", ".join(
-            valid_type.__name__ for valid_type in valid_types
-        )
+        valid_types_string = ", ".join(valid_type.__name__ for valid_type in valid_types)
         raise TypeError(
             f"`{param_name}` is {type(param).__name__}; expected: {valid_types_string}.",
         )
@@ -457,9 +451,7 @@ def ensure_sequence(
     ## enforce container type
     valid_seq_types = _types_to_tuple(valid_seq_types)
     if not isinstance(param, valid_seq_types):
-        valid_container_string = ", ".join(
-            valid_container.__name__ for valid_container in valid_seq_types
-        )
+        valid_container_string = ", ".join(valid_container.__name__ for valid_container in valid_seq_types)
         raise TypeError(f"`{param_name}` must be one of ({valid_container_string}).")
     _param_seq = cast(list[Any] | tuple[Any, ...], param)
     ## enforce number of elements
@@ -471,14 +463,11 @@ def ensure_sequence(
     if valid_elem_types is not None:
         valid_elem_types = _types_to_tuple(valid_elem_types)
         bad_indices = [
-            elem_index
-            for elem_index, elem in enumerate(_param_seq)
+            elem_index for elem_index, elem in enumerate(_param_seq)
             if not isinstance(elem, valid_elem_types)
         ]
         if bad_indices:
-            valid_elem_types_string = ", ".join(
-                valid_type.__name__ for valid_type in valid_elem_types
-            )
+            valid_elem_types_string = ", ".join(valid_type.__name__ for valid_type in valid_elem_types)
             preview_bad_indices_string = _preview_indices(indices=bad_indices)
             raise TypeError(
                 f"`{param_name}` elements must be of type(s) {valid_elem_types_string};"
@@ -547,12 +536,9 @@ def ensure_flat_tuple(
         valid_seq_types=RuntimeTypes.Sequences.TupleLike,
         valid_elem_types=valid_elem_types,
     )
-    invalid_elem_types = (
-        RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike
-    )
+    invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index
-        for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
+        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
         if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
@@ -630,8 +616,7 @@ def ensure_tuple_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index
-        for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
+        elem_index for elem_index, elem in enumerate(cast(tuple[Any, ...], param))
         if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:
@@ -750,12 +735,9 @@ def ensure_flat_list(
         valid_seq_types=RuntimeTypes.Sequences.ListLike,
         valid_elem_types=valid_elem_types,
     )
-    invalid_elem_types = (
-        RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike
-    )
+    invalid_elem_types = (RuntimeTypes.Sequences.SequenceLike + RuntimeTypes.Containers.ContainerLike)
     bad_indices = [
-        elem_index
-        for elem_index, elem in enumerate(cast(list[Any], param))
+        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
         if isinstance(elem, invalid_elem_types)
     ]
     if bad_indices:
@@ -803,8 +785,7 @@ def ensure_list_of_numbers(
         valid_elem_types=RuntimeTypes.Numerics.NumericLike,
     )
     bad_indices = [
-        elem_index
-        for elem_index, elem in enumerate(cast(list[Any], param))
+        elem_index for elem_index, elem in enumerate(cast(list[Any], param))
         if isinstance(elem, RuntimeTypes.Booleans.BooleanLike)
     ]
     if bad_indices:

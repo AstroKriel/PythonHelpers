@@ -15,7 +15,6 @@ from jormi.ww_arrays.farrays_3d.compute_spectra import IsotropicPowerSpectrum
 
 _N = 8
 
-
 ##
 ## === TEST SUITES
 ##

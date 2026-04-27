@@ -86,9 +86,7 @@ def execute_shell_command(
     - `raise_on_error`:
         Raise `RuntimeError` on non-zero exit code when `True`.
     """
-    resolved_directory = (
-        Path(working_directory) if working_directory is not None else None
-    )
+    resolved_directory = (Path(working_directory) if working_directory is not None else None)
     try:
         completed = subprocess.run(
             command if use_shell else shlex.split(command),
@@ -103,7 +101,7 @@ def execute_shell_command(
         raise RuntimeError(f"command not found: {command}.") from error
     except subprocess.TimeoutExpired as error:
         raise RuntimeError(
-            f"command timed out after {timeout_seconds}s: {command}."
+            f"command timed out after {timeout_seconds}s: {command}.",
         ) from error
     command_outcome = CommandOutcome(
         command=command,

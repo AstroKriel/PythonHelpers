@@ -121,7 +121,8 @@ def main():
             ax.tick_params(labelbottom=False)
         if max_abs_error > max_error_tol:
             manage_log.log_outcome(
-                text=f"order={spline_order}: max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
+                text=
+                f"order={spline_order}: max error {max_abs_error:.2e} > max_error_tol {max_error_tol:.2e}",
                 outcome=manage_log.ActionOutcome.FAILURE,
             )
             orders_that_failed.append(spline_order)

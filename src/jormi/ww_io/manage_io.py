@@ -77,11 +77,7 @@ def _log_file_action(
         notes["target"] = str(directory_to)
     manage_log.log_action(
         title=action,
-        outcome=(
-            manage_log.ActionOutcome.SKIPPED
-            if is_dry_run
-            else manage_log.ActionOutcome.SUCCESS
-        ),
+        outcome=(manage_log.ActionOutcome.SKIPPED if is_dry_run else manage_log.ActionOutcome.SUCCESS),
         message="",
         notes=notes,
     )

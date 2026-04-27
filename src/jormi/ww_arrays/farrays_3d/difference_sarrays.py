@@ -135,9 +135,7 @@ def fourth_order_centered_difference(
         shift=int(2 * backward),
         axis=grad_axis,
     )
-    return (-sarray_3d_f2 + 8.0 * sarray_3d_f1 - 8.0 * sarray_3d_b1 + sarray_3d_b2) / (
-        12.0 * cell_width
-    )
+    return (-sarray_3d_f2 + 8.0 * sarray_3d_f1 - 8.0 * sarray_3d_b1 + sarray_3d_b2) / (12.0 * cell_width)
 
 
 def sixth_order_centered_difference(
@@ -186,12 +184,8 @@ def sixth_order_centered_difference(
         axis=grad_axis,
     )
     return (
-        sarray_3d_f3
-        - 9.0 * sarray_3d_f2
-        + 45.0 * sarray_3d_f1
-        - 45.0 * sarray_3d_b1
-        + 9.0 * sarray_3d_b2
-        - sarray_3d_b3
+        sarray_3d_f3 - 9.0 * sarray_3d_f2 + 45.0 * sarray_3d_f1 - 45.0 * sarray_3d_b1 + 9.0 * sarray_3d_b2 -
+        sarray_3d_b3
     ) / (60.0 * cell_width)
 
 

@@ -19,13 +19,14 @@ _VSHAPE = (3, _N, _N, _N)
 _CELL_WIDTHS = (1.0 / _N, 1.0 / _N, 1.0 / _N)
 _ATOL = 1e-10
 
-
 ##
 ## === HELPERS
 ##
 
 
-def _const_sarray(value: float = 1.0) -> numpy.ndarray:
+def _const_sarray(
+    value: float = 1.0,
+) -> numpy.ndarray:
     return numpy.full(_SSHAPE, value)
 
 
