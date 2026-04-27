@@ -94,7 +94,10 @@ class Tests(unittest.TestCase):
         data2 = {"b": 2}
         save_dict_to_json_file(file_path=self.test_file_path, input_dict=data1)
         json_io.save_dict_to_json_file(
-            file_path=self.test_file_path, input_dict=data2, overwrite=True, verbose=False
+            file_path=self.test_file_path,
+            input_dict=data2,
+            overwrite=True,
+            verbose=False,
         )
         result = read_json_file_into_dict(file_path=self.test_file_path)
         self.assertEqual(

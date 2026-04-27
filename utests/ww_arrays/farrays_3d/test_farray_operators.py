@@ -99,7 +99,7 @@ class TestScalarArrayVolumeIntegral(unittest.TestCase):
     def test_integral_of_ones_equals_total_volume(
         self,
     ) -> None:
-        cell_volume = (2.0 * 3.0 * 4.0) / _N ** 3
+        cell_volume = (2.0 * 3.0 * 4.0) / _N**3
         self.assertAlmostEqual(
             farray_operators.compute_sarray_volume_integral(
                 numpy.ones(_SSHAPE),
@@ -115,7 +115,7 @@ class TestScalarArrayVolumeIntegral(unittest.TestCase):
         self.assertAlmostEqual(
             farray_operators.compute_sarray_volume_integral(
                 _const_sarray(0.0),
-                cell_volume=1.0 / _N ** 3,
+                cell_volume=1.0 / _N**3,
             ),
             0.0,
         )
@@ -126,7 +126,7 @@ class TestScalarArrayVolumeIntegral(unittest.TestCase):
         self.assertAlmostEqual(
             farray_operators.compute_sarray_volume_integral(
                 _const_sarray(5.0),
-                cell_volume=1.0 / _N ** 3,
+                cell_volume=1.0 / _N**3,
             ),
             5.0,
             places=10,
@@ -138,7 +138,7 @@ class TestScalarArrayVolumeIntegral(unittest.TestCase):
         self.assertIsInstance(
             farray_operators.compute_sarray_volume_integral(
                 _const_sarray(1.0),
-                cell_volume=1.0 / _N ** 3,
+                cell_volume=1.0 / _N**3,
             ),
             float,
         )
@@ -320,7 +320,9 @@ class TestCurl(unittest.TestCase):
             varray,
             cell_widths_3d=(1.0 / n, 0.5, 0.5),
         )
-        expected_curl2 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0)[:, None, None] * numpy.ones((n, 2, 2))
+        expected_curl2 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x0)[:, None, None] * numpy.ones(
+            (n, 2, 2)
+        )
         self.assertTrue(numpy.allclose(result[0], 0.0, atol=_ATOL))
         self.assertTrue(numpy.allclose(result[1], 0.0, atol=_ATOL))
         self.assertTrue(numpy.allclose(result[2], expected_curl2, atol=_ATOL_FD))
@@ -337,7 +339,9 @@ class TestCurl(unittest.TestCase):
             varray,
             cell_widths_3d=(0.5, 1.0 / n, 0.5),
         )
-        expected_curl0 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x1)[None, :, None] * numpy.ones((2, n, 2))
+        expected_curl0 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x1)[None, :, None] * numpy.ones(
+            (2, n, 2)
+        )
         self.assertTrue(numpy.allclose(result[0], expected_curl0, atol=_ATOL_FD))
         self.assertTrue(numpy.allclose(result[1], 0.0, atol=_ATOL))
         self.assertTrue(numpy.allclose(result[2], 0.0, atol=_ATOL))
@@ -354,7 +358,9 @@ class TestCurl(unittest.TestCase):
             varray,
             cell_widths_3d=(0.5, 0.5, 1.0 / n),
         )
-        expected_curl1 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x2)[None, None, :] * numpy.ones((2, 2, n))
+        expected_curl1 = 2.0 * numpy.pi * numpy.cos(2.0 * numpy.pi * x2)[None, None, :] * numpy.ones(
+            (2, 2, n)
+        )
         self.assertTrue(numpy.allclose(result[0], 0.0, atol=_ATOL))
         self.assertTrue(numpy.allclose(result[1], expected_curl1, atol=_ATOL_FD))
         self.assertTrue(numpy.allclose(result[2], 0.0, atol=_ATOL))

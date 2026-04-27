@@ -67,7 +67,7 @@ def _make_constant_vfield(
     ] = _DOMAIN_BOUNDS,
     label: str = "v",
 ) -> field_models.VectorField_3D:
-    varray = numpy.zeros((3,) + resolution)
+    varray = numpy.zeros((3, ) + resolution)
     varray[0] = value_in_x0
     varray[1] = value_in_x1
     varray[2] = value_in_x2
@@ -156,7 +156,7 @@ class TestScalarFieldGradient(unittest.TestCase):
         self,
     ):
         sfield = _make_constant_sfield(value=1.0)
-        array = numpy.empty((3,) + _RESOLUTION)
+        array = numpy.empty((3, ) + _RESOLUTION)
         vfield_grad = field_operators.compute_sfield_gradient(
             sfield_3d=sfield,
             varray_3d_out=array,
@@ -233,9 +233,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             resolution=(4, 4, 4),
             domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)),
         )
-        with self.assertRaises(
-            ValueError,
-        ):
+        with self.assertRaises(ValueError, ):
             field_operators.compute_vfield_dot_product(
                 vfield_3d_a=vfield_a,
                 vfield_3d_b=vfield_b,
@@ -273,7 +271,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             value_in_x1=1.0,
             value_in_x2=0.0,
         )
-        array = numpy.empty((3,) + _RESOLUTION)
+        array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_cross_product(
             vfield_3d_a=vfield_x0,
             vfield_3d_b=vfield_x1,
@@ -330,7 +328,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
         self,
     ):
         vfield = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=numpy.ones((3,) + _RESOLUTION),
+            varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
             field_label="v",
             sim_time=1.0,
@@ -406,7 +404,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         self,
     ):
         vfield = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=numpy.ones((3,) + _RESOLUTION),
+            varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
             field_label="v",
             sim_time=3.0,
@@ -426,7 +424,7 @@ class TestVectorFieldCurl(unittest.TestCase):
             value_in_x1=0.0,
             value_in_x2=0.0,
         )
-        array = numpy.empty((3,) + _RESOLUTION)
+        array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_curl(
             vfield_3d=vfield,
             varray_3d_out=array,

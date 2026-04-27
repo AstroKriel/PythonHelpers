@@ -311,19 +311,19 @@ class Tests(unittest.TestCase):
         grouped_args = [
             {
                 "duration": 0.2,
-                "result": 3
+                "result": 3,
             },
             {
                 "duration": 10.1,
-                "result": 1
+                "result": 1,
             },
             {
                 "duration": 0.3,
-                "result": 4
+                "result": 4,
             },
             {
                 "duration": 0.0,
-                "result": 2
+                "result": 2,
             },
         ]
         results = parallel_dispatch.run_in_parallel(
@@ -415,11 +415,11 @@ class Tests(unittest.TestCase):
         grouped_args = [
             {
                 "duration": 0.1,
-                "result": 2
+                "result": 2,
             },
             {
                 "duration": 0.1,
-                "result": 3
+                "result": 3,
             },
         ]
         results = parallel_dispatch.run_in_parallel(

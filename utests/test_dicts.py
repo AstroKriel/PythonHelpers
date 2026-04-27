@@ -34,20 +34,20 @@ class Tests(unittest.TestCase):
             {
                 "a": 1,
                 "b": {
-                    "c": 2
-                }
+                    "c": 2,
+                },
             },
         )
         self.assertEqual(
             dict2,
             {
                 "b": {
-                    "d": 3
+                    "d": 3,
                 },
                 "e": 4,
                 "d": {
-                    "f": 10
-                }
+                    "f": 10,
+                },
             },
         )
         ## usual case 2: merging two dictionaries with lists in the same key
@@ -124,7 +124,7 @@ class Tests(unittest.TestCase):
             dict_2,
             {
                 "a": [3, 4],
-                "b": 5
+                "b": 5,
             },
         )
 

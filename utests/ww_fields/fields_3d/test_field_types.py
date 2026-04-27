@@ -162,7 +162,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
         self,
     ):
         sfield = _make_sfield_3d()
-        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError), ):
+        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
             sfield.field_label = "modified"  # type: ignore
 
 
@@ -328,7 +328,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         self,
     ):
         vfield = _make_vfield_3d()
-        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError), ):
+        with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
             vfield.field_label = "modified"  # type: ignore
 
 
