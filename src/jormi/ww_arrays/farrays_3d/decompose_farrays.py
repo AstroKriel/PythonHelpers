@@ -95,7 +95,7 @@ def compute_helmholtz_decomposed_farrays(
             f" resolution={resolution},"
             f" varray_3d.shape[1:]={varray_3d.shape[1:]}.",
         )
-    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     num_cells_x, num_cells_y, num_cells_z = resolution
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     dtype = varray_3d.dtype
@@ -240,7 +240,7 @@ def compute_tnb_farrays(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -345,7 +345,7 @@ def compute_curvature_sarray(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -479,7 +479,7 @@ def compute_magnetic_curvature_farrays(
             f" tangent={uvarray_3d_tangent.shape},"
             f" normal={uvarray_3d_normal.shape}.",
         )
-    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -582,7 +582,7 @@ def compute_lorentz_force_farrays(
         varray_3d=varray_3d_b,
         param_name="<varray_3d_b>",
     )
-    farray_operators.ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",

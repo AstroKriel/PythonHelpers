@@ -12,7 +12,7 @@ import numpy
 from numpy.typing import DTypeLike, NDArray
 
 ## local
-from jormi.ww_validation import validate_arrays
+from jormi.ww_validation import validate_arrays, validate_types
 
 ##
 ## === TYPE ALIASES
@@ -100,6 +100,30 @@ def ensure_3d_r2tarray(
             f"`{param_name}` must have shape"
             f" (3, 3, num_cells_x, num_cells_y, num_cells_z);"
             f" got shape={r2tarray_3d.shape}.",
+        )
+
+
+def ensure_3d_cell_widths(
+    cell_widths_3d: tuple[float, float, float] | list[float],
+    *,
+    param_name: str = "<cell_widths_3d>",
+) -> None:
+    """Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats."""
+    validate_types.ensure_sequence(
+        param=cell_widths_3d,
+        param_name=param_name,
+        allow_none=False,
+        seq_length=3,
+        valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
+        valid_elem_types=validate_types.RuntimeTypes.Numerics.FloatLike,
+    )
+    for dim_index, cell_width in enumerate(cell_widths_3d):
+        validate_types.ensure_finite_float(
+            param=cell_width,
+            param_name=f"{param_name}[{dim_index}]",
+            allow_none=False,
+            allow_zero=False,
+            require_positive=True,
         )
 
 

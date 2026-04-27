@@ -34,30 +34,6 @@ def _as_float_view(
     return farray.astype(dtype, copy=False)
 
 
-def ensure_3d_cell_widths(
-    cell_widths_3d: tuple[float, float, float] | list[float],
-    *,
-    param_name: str = "<cell_widths_3d>",
-) -> None:
-    """Strictly validate `cell_widths_3d` as a length-3 sequence of finite, positive floats."""
-    validate_types.ensure_sequence(
-        param=cell_widths_3d,
-        param_name=param_name,
-        allow_none=False,
-        seq_length=3,
-        valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
-        valid_elem_types=validate_types.RuntimeTypes.Numerics.FloatLike,
-    )
-    for dim_index, cell_width in enumerate(cell_widths_3d):
-        validate_types.ensure_finite_float(
-            param=cell_width,
-            param_name=f"{param_name}[{dim_index}]",
-            allow_none=False,
-            allow_zero=False,
-            require_positive=True,
-        )
-
-
 ##
 ## === SCALAR (3D) ARRAY OPERATORS
 ##
@@ -111,7 +87,7 @@ def compute_sarray_grad(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -289,7 +265,7 @@ def compute_varray_directional_derivative(
         param_name_b="<varray_3d_target>",
         param_name_a="<varray_3d_along>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -342,7 +318,7 @@ def compute_varray_grad(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -447,7 +423,7 @@ def compute_varray_curl(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -522,7 +498,7 @@ def compute_varray_divergence(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
@@ -611,7 +587,7 @@ def compute_r2tarray_divergence(
         r2tarray_3d=r2tarray_3d,
         param_name="<r2tarray_3d>",
     )
-    ensure_3d_cell_widths(cell_widths_3d)
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
         param=grad_order,
         param_name="<grad_order>",
