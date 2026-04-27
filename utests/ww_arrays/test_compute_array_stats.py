@@ -231,8 +231,18 @@ class TestSuppressDivideWarnings(unittest.TestCase):
         self,
     ) -> None:
         ctx = compute_array_stats.suppress_divide_warnings()
-        self.assertTrue(hasattr(ctx, "__enter__"))
-        self.assertTrue(hasattr(ctx, "__exit__"))
+        self.assertTrue(
+            hasattr(
+                ctx,
+                "__enter__",
+            ),
+        )
+        self.assertTrue(
+            hasattr(
+                ctx,
+                "__exit__",
+            ),
+        )
 
 
 class TestComputeRms(unittest.TestCase):
@@ -241,7 +251,12 @@ class TestComputeRms(unittest.TestCase):
         self,
     ) -> None:
         self.assertAlmostEqual(
-            compute_array_stats.compute_rms(numpy.full(4, 3.0)),
+            compute_array_stats.compute_rms(
+                numpy.full(
+                    4,
+                    3.0,
+                ),
+            ),
             3.0,
         )
 
