@@ -263,7 +263,11 @@ def compute_safe_log10(
     """Compute log10 of `array`, returning NaN for non-positive values."""
     ## pre-fill with NaN (dtype=float ensures this works even for integer arrays)
     result = numpy.full_like(array, numpy.nan, dtype=float)
-    numpy.log10(array, out=result, where=(array > 0))
+    numpy.log10(
+        array,
+        out=result,
+        where=(array > 0),
+    )
     return result
 
 
@@ -374,7 +378,12 @@ def _ensure_correct_pdf_integral(
         require_positive=True,
         allow_zero=False,
     )
-    if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
+    if not numpy.isclose(
+            integral,
+            1.0,
+            rtol=relative_tol,
+            atol=absolute_tol,
+    ):
         raise ValueError(f"{param_name} is not normalised: integral={integral}.")
 
 
@@ -422,7 +431,12 @@ def _ensure_correct_jpdf_integral(
         require_positive=True,
         allow_zero=False,
     )
-    if not numpy.isclose(integral, 1.0, rtol=relative_tol, atol=absolute_tol):
+    if not numpy.isclose(
+            integral,
+            1.0,
+            rtol=relative_tol,
+            atol=absolute_tol,
+    ):
         raise ValueError(f"{param_name} is not normalised: integral={integral}.")
 
 

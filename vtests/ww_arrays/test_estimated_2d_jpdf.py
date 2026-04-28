@@ -81,7 +81,13 @@ def main():
         cmap="Blues",
     )
     if plot_samples:
-        ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
+        ax.scatter(
+            x_samples,
+            y_samples,
+            color="red",
+            s=3,
+            alpha=1e-2,
+        )
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$y$")
     ax.axhline(

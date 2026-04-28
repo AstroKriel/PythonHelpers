@@ -96,7 +96,15 @@ def plot_task(
         fig, ax = manage_plots.create_figure()
         x_values = numpy.linspace(0, 5 * numpy.pi, num_samples)
         y_values = numpy.sin(x_values)
-        ax.plot(x_values, y_values, color="black", ls="-", lw=1, marker="o", ms=5)
+        ax.plot(
+            x_values,
+            y_values,
+            color="black",
+            ls="-",
+            lw=1,
+            marker="o",
+            ms=5,
+        )
         ax.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
         ax.set_ylabel(r"$\sin(2\pi x + 32)$")
         annotate_axis.add_text(

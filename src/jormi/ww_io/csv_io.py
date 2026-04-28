@@ -77,7 +77,12 @@ def read_csv_file_into_dict(
         raise FileNotFoundError(f"No csv-file found: {file_path}")
     if verbose:
         manage_log.log_task(text=f"Reading csv-file: {file_path}")
-    with open(file_path, "r", newline="", encoding="utf-8") as file_pointer:
+    with open(
+            file_path,
+            "r",
+            newline="",
+            encoding="utf-8",
+    ) as file_pointer:
         csv_reader = csv.DictReader(
             file_pointer,
             delimiter=delimiter,
@@ -191,7 +196,12 @@ def _write_csv(
             "All dataset columns should be the same length."
             f" Provided `input_dict` shape: {dataset_shape}.",
         )
-    with open(file_path, "w", newline="", encoding="utf-8") as file_pointer:
+    with open(
+            file_path,
+            "w",
+            newline="",
+            encoding="utf-8",
+    ) as file_pointer:
         writer = csv.writer(file_pointer, delimiter=",")
         writer.writerow(
             input_dict.keys(),

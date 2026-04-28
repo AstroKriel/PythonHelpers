@@ -80,12 +80,25 @@ def main():
                     f"{pdf_label}: expected {num_bins} centers, got {len(bin_centers)}"
                 )
             ## normalisation check: sum(pdf * dx) should be ~1
-            ax.step(bin_centers, estimated_pdf, where="mid", lw=2, label=f"{num_bins} bins")
+            ax.step(
+                bin_centers,
+                estimated_pdf,
+                where="mid",
+                lw=2,
+                label=f"{num_bins} bins",
+            )
             bin_widths = numpy.diff(result.bin_edges)
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > integral_error_tol:
                 failed_bins.append(num_bins)
-        ax.text(0.95, 0.95, pdf_label, ha="right", va="top", transform=ax.transAxes)
+        ax.text(
+            0.95,
+            0.95,
+            pdf_label,
+            ha="right",
+            va="top",
+            transform=ax.transAxes,
+        )
         ax.set_ylabel(r"PDF$(x)$")
         if failed_bins:
             manage_log.log_outcome(

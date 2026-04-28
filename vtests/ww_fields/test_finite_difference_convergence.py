@@ -148,7 +148,13 @@ class TestFiniteDifferenceConvergence:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
         y_values = evaluate_fntion_at_points(x_values)
         dydx_values = evaluate_exact_fntion_derivative_at_points(x_values)
-        self.axs_grid[0, 0].plot(x_values, y_values, color="black", ls="-", lw=2)
+        self.axs_grid[0, 0].plot(
+            x_values,
+            y_values,
+            color="black",
+            ls="-",
+            lw=2,
+        )
         self.axs_grid[1, 0].plot(
             x_values,
             dydx_values,
@@ -290,12 +296,22 @@ class TestFiniteDifferenceConvergence:
         self.axs_grid[0, 1].set_xticklabels([])
         self.axs_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
         self.axs_grid[0, 1].legend(loc="lower left")
-        self.axs_grid[0, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.axs_grid[0, 1].grid(
+            True,
+            which="both",
+            linestyle="--",
+            linewidth=0.5,
+        )
         self.axs_grid[1, 1].set_xscale("log")
         self.axs_grid[1, 1].set_yscale("log")
         self.axs_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
         self.axs_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
-        self.axs_grid[1, 1].grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.axs_grid[1, 1].grid(
+            True,
+            which="both",
+            linestyle="--",
+            linewidth=0.5,
+        )
 
 
 ##

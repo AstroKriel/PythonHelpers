@@ -171,7 +171,12 @@ def run_in_parallel(
                     timeout=timeout_seconds,  # pyright: ignore[reportArgumentType]
                 )
             tasks.append((task_index, task))
-        iterator = tqdm(tasks, total=len(tasks), desc="Processing", unit="tasks") if show_progress else tasks
+        iterator = tqdm(
+            tasks,
+            total=len(tasks),
+            desc="Processing",
+            unit="tasks",
+        ) if show_progress else tasks
         for task_index, task in iterator:
             try:
                 task_results[task_index] = task.result()
