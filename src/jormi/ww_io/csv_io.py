@@ -78,8 +78,8 @@ def read_csv_file_into_dict(
     if verbose:
         manage_log.log_task(text=f"Reading csv-file: {file_path}")
     with open(
-            file_path,
-            "r",
+            file=file_path,
+            mode="r",
             newline="",
             encoding="utf-8",
     ) as file_pointer:
@@ -197,8 +197,8 @@ def _write_csv(
             f" Provided `input_dict` shape: {dataset_shape}.",
         )
     with open(
-            file_path,
-            "w",
+            file=file_path,
+            mode="w",
             newline="",
             encoding="utf-8",
     ) as file_pointer:

@@ -54,7 +54,11 @@ def read_json_file_into_dict(
         raise FileNotFoundError(f"No json-file found: {file_path}")
     if verbose:
         manage_log.log_task(text=f"Reading json-file: {file_path}")
-    with open(file_path, "r", encoding="utf-8") as file_pointer:
+    with open(
+            file=file_path,
+            mode="r",
+            encoding="utf-8",
+    ) as file_pointer:
         data = json.load(file_pointer)
     validate_types.ensure_dict(
         param=data,
@@ -157,7 +161,11 @@ def _dump_dict_to_json(
     input_dict: dict[str, Any],
 ) -> None:
     file_path = _ensure_path_is_valid(file_path)
-    with open(file_path, "w", encoding="utf-8") as file_pointer:
+    with open(
+            file=file_path,
+            mode="w",
+            encoding="utf-8",
+    ) as file_pointer:
         json.dump(
             obj=input_dict,
             fp=file_pointer,
