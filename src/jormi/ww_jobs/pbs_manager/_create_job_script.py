@@ -351,6 +351,7 @@ def create_pbs_job_script(
                 "file": str(file_path),
                 "tag_name": tag_name,
             },
+            add_spacing=False,
         )
     return file_path
 

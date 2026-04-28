@@ -480,6 +480,7 @@ def log_action(
     message: str = "",
     notes: Mapping[str, object] | None = None,
     show_time: bool = True,
+    add_spacing: bool = True,
     message_position: Literal["top", "bottom"] = "bottom",
 ) -> None:
     message_notes: dict[str, Any] = dict(notes) if notes else {}
@@ -492,6 +493,7 @@ def log_action(
             message_notes=message_notes,
         ),
         show_time=show_time,
+        add_spacing=add_spacing,
         message_position=message_position,
     )
 
