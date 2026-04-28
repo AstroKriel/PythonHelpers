@@ -134,7 +134,10 @@ def main():
     ## save figure always so it can be inspected on failure
     fig_name = "interpolated_series.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig=fig, fig_path=fig_path)
+    manage_plots.save_figure(
+        fig=fig,
+        fig_path=fig_path,
+    )
     assert len(orders_that_failed) == 0, (f"Test failed for spline orders: {orders_that_failed}")
     manage_log.log_action(
         title="Series interpolation",

@@ -107,7 +107,11 @@ def plot_task(
         )
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
         fig_path = fig_directory / fig_name
-        manage_plots.save_figure(fig=fig, fig_path=fig_path, verbose=False)
+        manage_plots.save_figure(
+            fig=fig,
+            fig_path=fig_path,
+            verbose=False,
+        )
         return PlotTaskResult(
             success=True,
             pid=os.getpid(),

@@ -44,7 +44,10 @@ class UniformDomain_2D(_domain_models.UniformDomain):
         Physical bounds as ((x0_min, x0_max), (x1_min, x1_max)).
     """
 
-    num_sdims: int = field(default=2, init=False)
+    num_sdims: int = field(
+        default=2,
+        init=False,
+    )
     periodicity: tuple[bool, bool]
     resolution: tuple[int, int]
     domain_bounds: tuple[

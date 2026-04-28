@@ -30,7 +30,10 @@ def main():
     if not test_scripts:
         manage_log.log_alert(text="No validation scripts found.")
         sys.exit(0)
-    manage_log.log_section(title="Validation Suite", show_time=True)
+    manage_log.log_section(
+        title="Validation Suite",
+        show_time=True,
+    )
     manage_log.log_empty_lines()
     ## run each script as a subprocess and collect results
     results: list[tuple[str, bool, float]] = []
@@ -40,7 +43,10 @@ def main():
                 validation_root,
             ),
         )
-        manage_log.log_task(text=test_label, show_time=False)
+        manage_log.log_task(
+            text=test_label,
+            show_time=False,
+        )
         start_time = time.perf_counter()
         test = subprocess.run(
             args=[sys.executable, str(script_path)],

@@ -29,10 +29,25 @@ def main():
     integral_error_tol = 1e-2
     ## distributions to test: each is a different shape to stress the estimator
     pdfs_to_test = {
-        "delta": rng.normal(loc=10, scale=1e-9, size=num_samples),
-        "uniform": rng.uniform(low=0, high=1, size=num_samples),
-        "normal": rng.normal(loc=0, scale=1, size=num_samples),
-        "exponential": rng.exponential(scale=1, size=num_samples),
+        "delta": rng.normal(
+            loc=10,
+            scale=1e-9,
+            size=num_samples,
+        ),
+        "uniform": rng.uniform(
+            low=0,
+            high=1,
+            size=num_samples,
+        ),
+        "normal": rng.normal(
+            loc=0,
+            scale=1,
+            size=num_samples,
+        ),
+        "exponential": rng.exponential(
+            scale=1,
+            size=num_samples,
+        ),
     }
     num_pdfs = len(pdfs_to_test)
     fig, axs_grid = manage_plots.create_figure(
@@ -83,12 +98,19 @@ def main():
                 text=f"{pdf_label}",
                 outcome=manage_log.ActionOutcome.SUCCESS,
             )
-    axs_grid[-1, 0].legend(loc="upper right", bbox_to_anchor=(1, 0.9), fontsize=20)
+    axs_grid[-1, 0].legend(
+        loc="upper right",
+        bbox_to_anchor=(1, 0.9),
+        fontsize=20,
+    )
     axs_grid[-1, 0].set_xlabel(r"$x$")
     ## save figure always so it can be inspected on failure
     fig_name = "estimated_1d_pdfs.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig=fig, fig_path=fig_path)
+    manage_plots.save_figure(
+        fig=fig,
+        fig_path=fig_path,
+    )
     assert len(pdfs_that_failed) == 0, (
         f"Test failed for the following distributions: {ww_lists.as_string(elems=pdfs_that_failed)}"
     )

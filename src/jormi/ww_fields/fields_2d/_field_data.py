@@ -21,7 +21,10 @@ from jormi.ww_validation import validate_arrays
 ##
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(
+    frozen=True,
+    init=False,
+)
 class ScalarFieldData_2D(_field_data.FieldData):
     """2D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells)."""
 
@@ -40,7 +43,10 @@ class ScalarFieldData_2D(_field_data.FieldData):
         )
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(
+    frozen=True,
+    init=False,
+)
 class VectorFieldData_2D(_field_data.FieldData):
     """2D vector field data: ndarray of shape (2, num_x0_cells, num_x1_cells)."""
 

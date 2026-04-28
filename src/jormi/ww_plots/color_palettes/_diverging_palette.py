@@ -27,7 +27,10 @@ from jormi.ww_validation import validate_types
 ##
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class DivergingPalette(ColorPalette):
     """
     A continuous, two-sided color palette anchored at a midpoint.

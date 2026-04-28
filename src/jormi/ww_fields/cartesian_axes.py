@@ -31,7 +31,10 @@ VALID_3D_AXIS_LABELS: tuple[AxisLabel_3D, AxisLabel_3D, AxisLabel_3D] = (
 VALID_3D_AXIS_INDICES: tuple[AxisIndex_3D, AxisIndex_3D, AxisIndex_3D] = (0, 1, 2)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(
+    frozen=True,
+    slots=True,
+)
 class AxisParams:
     """Label and integer index pair for a single Cartesian axis."""
 

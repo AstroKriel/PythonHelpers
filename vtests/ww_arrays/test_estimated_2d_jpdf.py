@@ -84,13 +84,26 @@ def main():
         ax.scatter(x_samples, y_samples, color="red", s=3, alpha=1e-2)
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$y$")
-    ax.axhline(y=0.0, color="black", ls="--", zorder=1)
-    ax.axvline(x=0.0, color="black", ls="--", zorder=1)
+    ax.axhline(
+        y=0.0,
+        color="black",
+        ls="--",
+        zorder=1,
+    )
+    ax.axvline(
+        x=0.0,
+        color="black",
+        ls="--",
+        zorder=1,
+    )
     ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
     ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
     fig_name = "estimated_2d_jpdf.png"
     fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(fig=fig, fig_path=fig_path)
+    manage_plots.save_figure(
+        fig=fig,
+        fig_path=fig_path,
+    )
     ## check
     assert abs(pdf_integral - 1.0) < integral_error_tol, (
         f"Test failed: JPDF with {num_bins} x {num_bins} bins sums to {pdf_integral:.6f}"

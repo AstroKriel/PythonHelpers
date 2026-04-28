@@ -25,7 +25,10 @@ from rich.text import Text as rich_Text
 ## enums, dataclasses, and symbols/colours used across the api
 ##
 
-_CONSOLE = rich_Console(highlight=False, soft_wrap=False)
+_CONSOLE = rich_Console(
+    highlight=False,
+    soft_wrap=False,
+)
 
 
 class BlockWidthMode(str, Enum):
@@ -227,7 +230,10 @@ class Message:
 
 
 def get_timestamp() -> str:
-    return datetime.now().isoformat(sep=" ", timespec="seconds")
+    return datetime.now().isoformat(
+        sep=" ",
+        timespec="seconds",
+    )
 
 
 def set_block_width_mode(

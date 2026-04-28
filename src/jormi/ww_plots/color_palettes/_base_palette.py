@@ -146,7 +146,10 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict(
 ##
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class ColorPalette(ABC):
     """
     Abstract base for all color palette types.

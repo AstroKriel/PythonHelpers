@@ -236,7 +236,11 @@ def plot_vfield_slice(
         va="bottom",
         ha="left",
         transform=ax.transAxes,
-        bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+        bbox=dict(
+            facecolor="white",
+            edgecolor="black",
+            boxstyle="round,pad=0.3",
+        ),
     )
     ax.set_xlim((domain_bounds[0], domain_bounds[1]))
     ax.set_ylim((domain_bounds[0], domain_bounds[1]))
@@ -397,7 +401,11 @@ def main():
             va="top",
             ha="center",
             transform=axs_grid[0, index_col].transAxes,
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
         )
         axs_grid[1, index_col].text(
             0.5,
@@ -406,7 +414,11 @@ def main():
             va="top",
             ha="center",
             transform=axs_grid[1, index_col].transAxes,
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
         )
         axs_grid[2, index_col].text(
             0.5,
@@ -415,7 +427,11 @@ def main():
             va="top",
             ha="center",
             transform=axs_grid[2, index_col].transAxes,
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
         )
         axs_grid[3, index_col].text(
             0.5,
@@ -424,7 +440,11 @@ def main():
             va="top",
             ha="center",
             transform=axs_grid[3, index_col].transAxes,
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
         )
         if failed_checks:
             for check_msg in failed_checks:
@@ -441,7 +461,10 @@ def main():
         manage_log.log_empty_lines()
     file_name = "helmholtz_decomposition.png"
     file_path = Path(__file__).parent / file_name
-    manage_plots.save_figure(fig=fig, fig_path=file_path)
+    manage_plots.save_figure(
+        fig=fig,
+        fig_path=file_path,
+    )
     assert len(failed_vfields) == 0, (
         f"Test failed for the following vector field(s): "
         f"{ww_lists.as_string(elems=failed_vfields)}"

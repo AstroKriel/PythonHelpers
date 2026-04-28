@@ -115,13 +115,20 @@ def main() -> None:
             va="top",
             ha="center",
             transform=ax.transAxes,
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
         )
         ax.set_xticks([])
         ax.set_yticks([])
 
     script_path = Path(__file__).parent
-    manage_plots.save_figure(fig=fig, fig_path=script_path / "diverging_palettes.png")
+    manage_plots.save_figure(
+        fig=fig,
+        fig_path=script_path / "diverging_palettes.png",
+    )
 
 
 ##

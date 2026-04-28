@@ -20,7 +20,10 @@ from jormi.ww_fields import _field_data
 ##
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(
+    frozen=True,
+    init=False,
+)
 class ScalarFieldData_3D(_field_data.FieldData):
     """3D scalar field data: ndarray of shape (num_x0_cells, num_x1_cells, num_x2_cells)."""
 
@@ -39,7 +42,10 @@ class ScalarFieldData_3D(_field_data.FieldData):
         )
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(
+    frozen=True,
+    init=False,
+)
 class VectorFieldData_3D(_field_data.FieldData):
     """3D vector field data: ndarray of shape (3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 
@@ -58,7 +64,10 @@ class VectorFieldData_3D(_field_data.FieldData):
         )
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(
+    frozen=True,
+    init=False,
+)
 class Rank2TensorData_3D(_field_data.FieldData):
     """3D rank-2 tensor data: ndarray of shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells)."""
 

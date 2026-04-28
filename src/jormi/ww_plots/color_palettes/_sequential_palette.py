@@ -27,7 +27,10 @@ from jormi.ww_validation import validate_types
 ##
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class SequentialPalette(ColorPalette):
     """
     A continuous, single-direction color palette.

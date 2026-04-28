@@ -122,7 +122,10 @@ def copy_file(
             directory=directory_to,
             verbose=False,
         )
-        shutil.copy2(src=file_path_from, dst=file_path_to)
+        shutil.copy2(
+            src=file_path_from,
+            dst=file_path_to,
+        )
     if verbose or dry_run:
         _log_file_action(
             action="Copy file",
@@ -172,7 +175,10 @@ def move_file(
             directory=directory_to,
             verbose=False,
         )
-        shutil.move(src=file_path_from, dst=file_path_to)
+        shutil.move(
+            src=file_path_from,
+            dst=file_path_to,
+        )
     if verbose or dry_run:
         _log_file_action(
             action="Move file",

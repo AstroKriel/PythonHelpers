@@ -28,7 +28,10 @@ from jormi.ww_validation import validate_types
 ##
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class DiscretePalette(ColorPalette):
     """
     A discrete color palette defined by explicit bin edges.

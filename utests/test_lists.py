@@ -30,19 +30,29 @@ class Tests(unittest.TestCase):
             "a, b, c",
         )
         ## with conjunction
-        result = ww_lists.as_string(elems=["a", "b", "c"], conjunction="and")
+        result = ww_lists.as_string(
+            elems=["a", "b", "c"],
+            conjunction="and",
+        )
         self.assertEqual(
             result,
             "a, b and c",
         )
         ## with conjunction and quotes
-        result = ww_lists.as_string(elems=["a", "b", "c"], wrap_in_quotes=True, conjunction="or")
+        result = ww_lists.as_string(
+            elems=["a", "b", "c"],
+            wrap_in_quotes=True,
+            conjunction="or",
+        )
         self.assertEqual(
             result,
             "`a`, `b` or `c`",
         )
         ## two elements with conjunction
-        result = ww_lists.as_string(elems=["a", "b"], conjunction="or")
+        result = ww_lists.as_string(
+            elems=["a", "b"],
+            conjunction="or",
+        )
         self.assertEqual(
             result,
             "a or b",
@@ -66,7 +76,11 @@ class Tests(unittest.TestCase):
             "",
         )
         ## no quotes, conjunction
-        result = ww_lists.as_string(elems=["x", "y"], wrap_in_quotes=False, conjunction="and")
+        result = ww_lists.as_string(
+            elems=["x", "y"],
+            wrap_in_quotes=False,
+            conjunction="and",
+        )
         self.assertEqual(
             result,
             "x and y",

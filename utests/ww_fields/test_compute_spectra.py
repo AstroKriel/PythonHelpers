@@ -130,7 +130,10 @@ class TestPureModeBinPlacement(unittest.TestCase):
         mode_k: int,
         num_cells: int,
     ) -> None:
-        sarray_3d = _cosine_mode_field(mode_k=mode_k, num_cells=num_cells)
+        sarray_3d = _cosine_mode_field(
+            mode_k=mode_k,
+            num_cells=num_cells,
+        )
         sfield = _make_sfield(sarray_3d)
         spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
         peak_index = int(
@@ -151,7 +154,10 @@ class TestPureModeBinPlacement(unittest.TestCase):
         ## regression: old code placed k=1 in bin 2 for even N
         ## because k_center used (N-1)/2 = 127.5 instead of N//2 = 128.
         for num_cells in (8, 16, 32):
-            self._assert_peak_at_mode(mode_k=1, num_cells=num_cells)
+            self._assert_peak_at_mode(
+                mode_k=1,
+                num_cells=num_cells,
+            )
 
     def test_k1_odd_N(
         self,
@@ -159,18 +165,27 @@ class TestPureModeBinPlacement(unittest.TestCase):
         ## for odd N, (N-1)/2 == N//2 (both integer), so the old code
         ## was correct. Verify correctness is preserved.
         for num_cells in (9, 15):
-            self._assert_peak_at_mode(mode_k=1, num_cells=num_cells)
+            self._assert_peak_at_mode(
+                mode_k=1,
+                num_cells=num_cells,
+            )
 
     def test_k2_mode(
         self,
     ):
         for num_cells in (8, 16):
-            self._assert_peak_at_mode(mode_k=2, num_cells=num_cells)
+            self._assert_peak_at_mode(
+                mode_k=2,
+                num_cells=num_cells,
+            )
 
     def test_k3_mode(
         self,
     ):
-        self._assert_peak_at_mode(mode_k=3, num_cells=16)
+        self._assert_peak_at_mode(
+            mode_k=3,
+            num_cells=16,
+        )
 
 
 ##

@@ -33,8 +33,8 @@ class RuntimeTypes:
     class MPL:
         """Runtime types for matplotlib anchor and alignment position enums."""
 
-        AnchorLike = validate_enums.as_runtime_type(box_positions._AnchorLike)
-        AlignLike = validate_enums.as_runtime_type(box_positions._AlignLike)
+        AnchorLike = validate_enums.as_runtime_type(type_hint=box_positions._AnchorLike)
+        AlignLike = validate_enums.as_runtime_type(type_hint=box_positions._AlignLike)
 
 
 ##

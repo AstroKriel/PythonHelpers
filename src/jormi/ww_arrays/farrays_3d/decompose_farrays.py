@@ -121,7 +121,10 @@ def compute_helmholtz_decomposed_farrays(
     sarray_3d_k_dot_fft = (
         kx_grid * varray_3d_fft[0] + ky_grid * varray_3d_fft[1] + kz_grid * varray_3d_fft[2]
     )
-    with numpy.errstate(divide="ignore", invalid="ignore"):
+    with numpy.errstate(
+            divide="ignore",
+            invalid="ignore",
+    ):
         varray_3d_fft_div = numpy.stack(
             [
                 (kx_grid / k_magn_grid) * sarray_3d_k_dot_fft,
