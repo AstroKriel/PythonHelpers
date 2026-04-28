@@ -1,6 +1,6 @@
-# jormi (Jormungandr; the World Serpent)
+# PythonHelpers (Jormi; the World Serpent)
 
-`jormi` is a utility library for computing all kinds of MHD turbulence related statistics, including:
+`jormi` (short for Jormungandr) is a utility library for computing all kinds of MHD turbulence related statistics, including:
 - vector field decompositions (e.g., Helmholtz and Frenet-Serret basis)
 - 1D and 3D power spectra
 - 1D and joint probability density functions
