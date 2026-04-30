@@ -184,9 +184,9 @@ def _get_base_rc_params(
                 True,
                 "text.latex.preamble":
                 r"""
-        \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
-        \providecommand{\mathdefault}[1]{#1}
-      """,
+                    \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
+                    \providecommand{\mathdefault}[1]{#1}
+                """,
             },
         )
     else:
