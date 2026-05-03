@@ -210,10 +210,8 @@ def ensure_2d_udomain_sliced_from_3d(
     """
     Ensure `udomain_2d` is a 2D domain sliced from 3D.
 
-    Note:
-    We accept `UniformDomain_2D` in the signature so static type annotation
-    understands `field.udomain` (which is annotated as `UniformDomain_2D`);
-    the actual subtype-check is enforced via `valid_types=UniformDomain_2D_Sliced3D`.
+    Accepts `UniformDomain_2D` in the signature for static annotation compatibility;
+    the subtype-check is enforced via `valid_types=UniformDomain_2D_Sliced3D`.
     """
     validate_types.ensure_type(
         param=udomain_2d,

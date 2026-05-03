@@ -366,9 +366,9 @@ def save_figure(
     verbose: bool = True,
 ) -> None:
     """
-    Save `fig` to `fig_path` and close it.
+    Save `fig` to `fig_path`; close it.
 
-    Accepts `.png` or `.pdf` paths. Errors are logged rather than raised.
+    Accepts `.png` or `.pdf` paths; errors are logged rather than raised.
     """
     if not str(fig_path).endswith(".png") and not str(fig_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
