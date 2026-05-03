@@ -63,12 +63,12 @@ def compute_total_magnetic_energy_value(
     energy_prefactor: float = 0.5,
 ) -> float:
     """Compute total magnetic energy as the volume integral of the energy density."""
-    sfield_3d_Emag = compute_magnetic_energy_density_sfield(
+    sfield_3d_E_mag = compute_magnetic_energy_density_sfield(
         vfield_3d_b=vfield_3d_b,
         energy_prefactor=energy_prefactor,
     )
     return field_operators.compute_sfield_volume_integral(
-        sfield_3d=sfield_3d_Emag,
+        sfield_3d=sfield_3d_E_mag,
     )
 
 
