@@ -20,7 +20,7 @@ def _ensure_inputs(
     *,
     directory: str | Path,
     file_name: str,
-    directives: list[str] | None,
+    job_headers: list[str] | None,
     main_command: str,
     tag_name: str,
     queue_name: str | None,
@@ -45,18 +45,18 @@ def _ensure_inputs(
         param_name="file_name",
     )
     validate_types.ensure_type(
-        param=directives,
+        param=job_headers,
         valid_types=(list, ),
-        param_name="directives",
+        param_name="job_headers",
         allow_none=True,
     )
-    if directives is not None:
-        if len(directives) == 0:
-            raise ValueError("`directives` must contain at least one PBS header line.")
-        for directive in directives:
+    if job_headers is not None:
+        if len(job_headers) == 0:
+            raise ValueError("`job_headers` must contain at least one PBS header line.")
+        for header in job_headers:
             validate_types.ensure_nonempty_string(
-                param=directive,
-                param_name="directives[]",
+                param=header,
+                param_name="job_headers[]",
             )
     validate_types.ensure_nonempty_string(
         param=main_command,
@@ -92,18 +92,18 @@ def _ensure_inputs(
         require_positive=True,
         allow_zero=False,
     )
-    if directives is None:
+    if job_headers is None:
         if queue_name is None:
             raise ValueError(
-                "`queue_name` is required when `directives` are not provided.",
+                "`queue_name` is required when `job_headers` are not provided.",
             )
         if num_procs is None:
             raise ValueError(
-                "`num_procs` is required when `directives` are not provided.",
+                "`num_procs` is required when `job_headers` are not provided.",
             )
         if wall_time_hours is None:
             raise ValueError(
-                "`wall_time_hours` is required when `directives` are not provided.",
+                "`wall_time_hours` is required when `job_headers` are not provided.",
             )
     validate_types.ensure_string(
         param=prep_command,
@@ -150,7 +150,7 @@ def _ensure_path_is_valid(
 
 def _build_pbs_script(
     *,
-    directives: list[str] | None,
+    job_headers: list[str] | None,
     tag_name: str,
     queue_name: str | None,
     num_procs: int | None,
@@ -165,11 +165,11 @@ def _build_pbs_script(
 ) -> list[str]:
     file_lines: list[str] = []
     ## --- pbs header
-    if directives is None:
+    if job_headers is None:
         assert queue_name is not None
         assert num_procs is not None
         assert wall_time_hours is not None
-        directives = [
+        job_headers = [
             "#!/bin/bash",
             f"#PBS -q {queue_name}",
             f"#PBS -l walltime={wall_time_hours:02}:00:00",
@@ -178,8 +178,8 @@ def _build_pbs_script(
             "#PBS -j oe",
         ]
         if memory_gb is not None:
-            directives.insert(4, f"#PBS -l mem={memory_gb}GB")
-    file_lines += directives
+            job_headers.insert(4, f"#PBS -l mem={memory_gb}GB")
+    file_lines += job_headers
     if email_address is not None:
         file_lines += [
             f"#PBS -m {mail_options}",
@@ -236,7 +236,7 @@ def create_pbs_job_script(
     *,
     directory: str | Path,
     file_name: str,
-    directives: list[str] | None = None,
+    job_headers: list[str] | None = None,
     main_command: str,
     tag_name: str,
     queue_name: str | None = None,
@@ -252,7 +252,7 @@ def create_pbs_job_script(
     verbose: bool = True,
 ) -> Path:
     """
-    Create a PBS job script with caller-provided directives or generic resources.
+    Create a PBS job script with caller-provided headers or generic resources.
 
     Parameters
     ---
@@ -262,9 +262,9 @@ def create_pbs_job_script(
     - `file_name`:
         Filename for the job script; must end with `.sh`.
 
-    - `directives`:
+    - `job_headers`:
         Ordered PBS header lines to write at the top of the script. This should
-        include the shebang and any `#PBS ...` directives required by the
+        include the shebang and any `#PBS ...` headers required by the
         target system. When omitted, a generic PBS header is built from
         `queue_name`, `num_procs`, `memory_gb`, and `wall_time_hours`.
 
@@ -276,7 +276,7 @@ def create_pbs_job_script(
         Job tag used for the local log file name.
 
     - `queue_name`, `num_procs`, `memory_gb`, `wall_time_hours`:
-        Generic PBS resource settings used when `directives` are not supplied.
+        Generic PBS resource settings used when `job_headers` are not supplied.
 
     - `prep_command`:
         Optional command that runs before `main_command` (e.g. loading modules,
@@ -305,7 +305,7 @@ def create_pbs_job_script(
     _ensure_inputs(
         directory=directory,
         file_name=file_name,
-        directives=directives,
+        job_headers=job_headers,
         main_command=main_command,
         tag_name=tag_name,
         queue_name=queue_name,
@@ -328,7 +328,7 @@ def create_pbs_job_script(
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
     file_lines = _build_pbs_script(
-        directives=directives,
+        job_headers=job_headers,
         tag_name=tag_name,
         queue_name=queue_name,
         num_procs=num_procs,

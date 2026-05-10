@@ -47,7 +47,7 @@ def _make_minimal_kwargs(
     }
 
 
-def _make_directives() -> list[str]:
+def _make_headers() -> list[str]:
     return [
         "#!/bin/bash -l",
         "#SBATCH --job-name=my_job",
@@ -115,7 +115,7 @@ class TestCreateJobScript_FileCreation(unittest.TestCase):
 
 class TestCreateJobScript_Header(unittest.TestCase):
 
-    def test_generic_slurm_directives_present(
+    def test_generic_slurm_headers_present(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -150,14 +150,14 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 content,
             )
 
-    def test_custom_directives_are_written_verbatim(
+    def test_custom_headers_are_written_verbatim(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_path = _create_job_script.create_slurm_job_script(
                 directory=tmp_dir,
                 file_name="test_job.sh",
-                directives=_make_directives(),
+                job_headers=_make_headers(),
                 main_command="python run.py",
                 tag_name="my_job",
                 verbose=False,
@@ -176,7 +176,7 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 content,
             )
 
-    def test_no_email_directives_when_none(
+    def test_no_email_headers_when_none(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -195,7 +195,7 @@ class TestCreateJobScript_Header(unittest.TestCase):
                 content,
             )
 
-    def test_email_directives_present_when_given(
+    def test_email_headers_present_when_given(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -353,7 +353,7 @@ class TestCreateJobScript_InvalidParams(unittest.TestCase):
                     verbose=False,
                 )
 
-    def test_missing_partition_raises_without_directives(
+    def test_missing_partition_raises_without_headers(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -20,7 +20,7 @@ def _ensure_inputs(
     *,
     directory: str | Path,
     file_name: str,
-    directives: list[str] | None,
+    job_headers: list[str] | None,
     main_command: str,
     tag_name: str,
     partition_name: str | None,
@@ -45,18 +45,18 @@ def _ensure_inputs(
         param_name="file_name",
     )
     validate_types.ensure_type(
-        param=directives,
+        param=job_headers,
         valid_types=(list, ),
-        param_name="directives",
+        param_name="job_headers",
         allow_none=True,
     )
-    if directives is not None:
-        if len(directives) == 0:
-            raise ValueError("`directives` must contain at least one SLURM header line.")
-        for directive in directives:
+    if job_headers is not None:
+        if len(job_headers) == 0:
+            raise ValueError("`job_headers` must contain at least one SLURM header line.")
+        for header in job_headers:
             validate_types.ensure_nonempty_string(
-                param=directive,
-                param_name="directives[]",
+                param=header,
+                param_name="job_headers[]",
             )
     validate_types.ensure_nonempty_string(
         param=main_command,
@@ -92,13 +92,13 @@ def _ensure_inputs(
         require_positive=True,
         allow_zero=False,
     )
-    if directives is None:
+    if job_headers is None:
         if partition_name is None:
-            raise ValueError("`partition_name` is required when `directives` are not provided.")
+            raise ValueError("`partition_name` is required when `job_headers` are not provided.")
         if num_cpus is None:
-            raise ValueError("`num_cpus` is required when `directives` are not provided.")
+            raise ValueError("`num_cpus` is required when `job_headers` are not provided.")
         if wall_time_hours is None:
-            raise ValueError("`wall_time_hours` is required when `directives` are not provided.")
+            raise ValueError("`wall_time_hours` is required when `job_headers` are not provided.")
     validate_types.ensure_string(
         param=prep_command,
         param_name="prep_command",
@@ -144,7 +144,7 @@ def _ensure_path_is_valid(
 
 def _build_slurm_script(
     *,
-    directives: list[str] | None,
+    job_headers: list[str] | None,
     tag_name: str,
     partition_name: str | None,
     num_cpus: int | None,
@@ -159,11 +159,11 @@ def _build_slurm_script(
 ) -> list[str]:
     file_lines: list[str] = []
     ## --- slurm header
-    if directives is None:
+    if job_headers is None:
         assert partition_name is not None
         assert num_cpus is not None
         assert wall_time_hours is not None
-        directives = [
+        job_headers = [
             "#!/bin/bash",
             f"#SBATCH --job-name={tag_name}",
             f"#SBATCH --partition={partition_name}",
@@ -174,8 +174,8 @@ def _build_slurm_script(
             "#SBATCH --error=%x_%j.err",
         ]
         if memory_gb is not None:
-            directives.insert(5, f"#SBATCH --mem={memory_gb}G")
-    file_lines += directives
+            job_headers.insert(5, f"#SBATCH --mem={memory_gb}G")
+    file_lines += job_headers
     if email_address is not None:
         file_lines += [
             f"#SBATCH --mail-user={email_address}",
@@ -230,7 +230,7 @@ def create_slurm_job_script(
     *,
     directory: str | Path,
     file_name: str,
-    directives: list[str] | None = None,
+    job_headers: list[str] | None = None,
     main_command: str,
     tag_name: str,
     partition_name: str | None = None,
@@ -246,7 +246,7 @@ def create_slurm_job_script(
     verbose: bool = True,
 ) -> Path:
     """
-    Create a SLURM job script with caller-provided directives or generic resources.
+    Create a SLURM job script with caller-provided headers or generic resources.
 
     Parameters
     ---
@@ -256,9 +256,9 @@ def create_slurm_job_script(
     - `file_name`:
         Filename for the job script; must end with `.sh`.
 
-    - `directives`:
+    - `job_headers`:
         Ordered SLURM header lines to write at the top of the script. This should
-        include the shebang and any `#SBATCH ...` directives required by the
+        include the shebang and any `#SBATCH ...` headers required by the
         target system. When omitted, a generic SLURM header is built from
         `partition_name`, `num_cpus`, `memory_gb`, and `wall_time_hours`.
 
@@ -270,12 +270,12 @@ def create_slurm_job_script(
         SLURM job name used by the generic header builder and as the prefix for log files.
 
     - `partition_name`, `num_cpus`, `memory_gb`, `wall_time_hours`:
-        Generic SLURM resource settings used when `directives` are not supplied.
+        Generic SLURM resource settings used when `job_headers` are not supplied.
     """
     _ensure_inputs(
         directory=directory,
         file_name=file_name,
-        directives=directives,
+        job_headers=job_headers,
         main_command=main_command,
         tag_name=tag_name,
         partition_name=partition_name,
@@ -299,7 +299,7 @@ def create_slurm_job_script(
     file_path = Path(directory) / file_name
     file_path = _ensure_path_is_valid(file_path=file_path)
     file_lines = _build_slurm_script(
-        directives=directives,
+        job_headers=job_headers,
         tag_name=tag_name,
         partition_name=partition_name,
         num_cpus=num_cpus,
