@@ -53,8 +53,8 @@ dev = [
 ##
 
 [tool.pytest.ini_options]
-pythonpath = ["src"] # makes src/ visible to pytest without installing the package
-testpaths = ["utests"] # vtests are run manually
+pythonpath = ["src"]  # makes src/ visible to pytest without installing the package
+testpaths = ["utests"]  # vtests are run manually
 
 ##
 ## === TYPE CHECKER (basedpyright)
@@ -74,22 +74,22 @@ include = [
 extraPaths = ["src"]
 
 ## --- rules to enforce
-reportMissingImports = true    # error on unresolvable imports
-reportMissingTypeStubs = false # suppress missing stub warnings for third-party packages (e.g. scipy)
+reportMissingImports = true  # error on unresolvable imports
+reportMissingTypeStubs = false  # suppress missing stub warnings for third-party packages (e.g. scipy)
 
 ## --- rules to suppress
 ## set to "none" to silence rules that are unavoidable or not useful in this codebase
-reportExplicitAny = "none"                   # basedpyright-specific: flags every `Any`; unavoidable in numpy/scipy code
-reportAny = "none"                           # basedpyright-specific: noisy cascade of the above
-reportUnusedCallResult = "none"              # validation functions are intentionally called for side effects
-reportImplicitStringConcatenation = "none"   # valid Python style used in long error messages
-reportUnannotatedClassAttribute = "none"     # TypeHints/RuntimeTypes classes are intentionally structured this way
-reportImplicitOverride = "none"              # too verbose to require @override on every overriding method
-reportUnknownMemberType = "none"             # third-party stubs use **kwargs: Unknown extensively; not actionable
-reportUnknownVariableType = "none"           # cascade from third-party stubs; not actionable
-reportUnknownArgumentType = "none"           # cascade from third-party stubs; not actionable
-reportPrivateUsage = "none"                  # tests legitimately access private members
-reportUninitializedInstanceVariable = "none" # false positive for unittest classes (pyright misses variables set in setUp())
-enableTypeIgnoreComments = true              # honour "# type: ignore" comments (basedpyright defaults this to false)
-reportIgnoreCommentWithoutRule = "none"      # test files use bare "# type: ignore" for intentional wrong-type calls
+reportExplicitAny = "none"  # basedpyright-specific: flags every `Any`; unavoidable in numpy/scipy code
+reportAny = "none"  # basedpyright-specific: noisy cascade of the above
+reportUnusedCallResult = "none"  # validation functions are intentionally called for side effects
+reportImplicitStringConcatenation = "none"  # valid Python style used in long error messages
+reportUnannotatedClassAttribute = "none"  # TypeHints/RuntimeTypes classes are intentionally structured this way
+reportImplicitOverride = "none"  # too verbose to require @override on every overriding method
+reportUnknownMemberType = "none"  # third-party stubs use **kwargs: Unknown extensively; not actionable
+reportUnknownVariableType = "none"  # cascade from third-party stubs; not actionable
+reportUnknownArgumentType = "none"  # cascade from third-party stubs; not actionable
+reportPrivateUsage = "none"  # tests legitimately access private members
+reportUninitializedInstanceVariable = "none"  # false positive for unittest classes (pyright misses variables set in setUp())
+enableTypeIgnoreComments = true  # honour "# type: ignore" comments (basedpyright defaults this to false)
+reportIgnoreCommentWithoutRule = "none"  # test files use bare "# type: ignore" for intentional wrong-type calls
 reportUnnecessaryTypeIgnoreComment = "none"  # suppress stale ignore comment warnings
