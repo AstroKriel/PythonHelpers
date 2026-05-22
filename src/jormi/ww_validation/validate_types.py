@@ -897,6 +897,19 @@ def ensure_dict(
     )
 
 
+def ensure_dict_has_keys(
+    param: dict,
+    *,
+    required_keys: set[str],
+    param_name: str = "<param>",
+) -> None:
+    """Ensure `param` contains all `required_keys`; raise with a descriptive message if any are missing."""
+    if missing_keys := required_keys - param.keys():
+        raise ValueError(
+            f"`{param_name}` is missing required keys: {sorted(missing_keys)}",
+        )
+
+
 ##
 ## --- ARRAY LIKE
 ##
