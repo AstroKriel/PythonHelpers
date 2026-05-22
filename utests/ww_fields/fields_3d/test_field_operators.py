@@ -250,7 +250,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
                 vfield_3d_a=vfield,
                 vfield_3d_b=vfield,
                 field_name="dot_product",
-                latex_label=r"\vec{q}\cdot\vec{q}",
+                latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             ),
             field_models.ScalarField_3D,
         )
@@ -276,7 +276,7 @@ class TestVectorFieldDotProduct(unittest.TestCase):
                 vfield_3d_a=vfield_a,
                 vfield_3d_b=vfield_b,
                 field_name="dot_product",
-                latex_label=r"\vec{q}\cdot\vec{q}",
+                latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             )
 
 
@@ -295,7 +295,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
                 vfield_3d_a=vfield,
                 vfield_3d_b=vfield,
                 field_name="cross_product",
-                latex_label=r"\vec{q}\times\vec{q}",
+                latex_label=r"\vec{q}_a\times\vec{q}_b",
             ),
             field_models.VectorField_3D,
         )
@@ -319,7 +319,7 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_b=vfield_x1,
             varray_3d_out=array,
             field_name="cross_product",
-            latex_label=r"\vec{q}\times\vec{q}",
+            latex_label=r"\vec{q}_a\times\vec{q}_b",
         )
         self.assertTrue(
             numpy.shares_memory(
