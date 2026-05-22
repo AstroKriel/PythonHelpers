@@ -156,7 +156,7 @@ def compute_curvature_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_kappa,
         udomain_3d=udomain_3d,
-        field_name="field_line_curvature_magnitude",
+        field_name="curvature_magnitude",
         latex_label=r"|\vec{\kappa}|",
         sim_time=sim_time,
     )

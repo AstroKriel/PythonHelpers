@@ -212,7 +212,7 @@ def compute_tnb_decomposed_fields(
     sfield_3d_curvature = field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=tnb_3d_farrays.sarray_3d_curvature,
         udomain_3d=udomain_3d,
-        field_name="field_line_curvature_magnitude",
+        field_name="curvature_magnitude",
         latex_label=r"|\vec{\kappa}|",
         sim_time=sim_time,
     )
@@ -453,7 +453,7 @@ def compute_lorentz_force_decomposed_fields(
         varray_3d=lf_3d_farrays.varray_3d_tension,
         udomain_3d=udomain_3d,
         field_name="magnetic_tension",
-        latex_label=r"b_k b_k \vec{\kappa}",
+        latex_label=r"b^2 \vec{\kappa}",
         sim_time=sim_time,
     )
     vfield_3d_grad_p_perp = field_models.VectorField_3D.from_3d_varray(
