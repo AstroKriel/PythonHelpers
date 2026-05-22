@@ -24,7 +24,8 @@ def compute_magnetic_energy_density_sfield(
     vfield_3d_b: field_models.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
-    field_label: str = "E_mag",
+    field_name: str,
+    latex_label: str,
 ) -> field_models.ScalarField_3D:
     """Compute magnetic energy density from a 3D magnetic field (proportional to b_i b_i)."""
     validate_types.ensure_finite_float(
@@ -52,7 +53,8 @@ def compute_magnetic_energy_density_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_b2,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -66,6 +68,8 @@ def compute_total_magnetic_energy_value(
     sfield_3d_E_mag = compute_magnetic_energy_density_sfield(
         vfield_3d_b=vfield_3d_b,
         energy_prefactor=energy_prefactor,
+        field_name="magnetic_energy",
+        latex_label=r"E_\mathrm{mag}",
     )
     return field_operators.compute_sfield_volume_integral(
         sfield_3d=sfield_3d_E_mag,
@@ -111,7 +115,8 @@ def compute_kinetic_dissipation_vfield(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_df,
         udomain_3d=udomain_3d,
-        field_label=r"d_j \mathcal{S}_{j i}",
+        field_name="kinetic_dissipation",
+        latex_label=r"\partial_j \mathcal{S}_{ji}",
         sim_time=sim_time,
     )
 
@@ -151,7 +156,8 @@ def compute_curvature_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_kappa,
         udomain_3d=udomain_3d,
-        field_label="sqrt(kappa_i kappa_i)",
+        field_name="field_line_curvature_magnitude",
+        latex_label=r"|\vec{\kappa}|",
         sim_time=sim_time,
     )
 

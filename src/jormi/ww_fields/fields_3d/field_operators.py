@@ -51,7 +51,8 @@ def compute_sfield_gradient(
     sfield_3d: field_models.ScalarField_3D,
     *,
     varray_3d_out: NDArray[Any] | None = None,
-    field_label: str = "d_i f",
+    field_name: str,
+    latex_label: str,
     grad_order: int = 2,
 ) -> field_models.VectorField_3D:
     """Compute the gradient d_i f of a 3D scalar field."""
@@ -76,7 +77,8 @@ def compute_sfield_gradient(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_grad_f,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -89,7 +91,8 @@ def compute_sfield_gradient(
 def compute_vfield_magnitude(
     vfield_3d: field_models.VectorField_3D,
     *,
-    field_label: str = "sqrt(f_i f_i)",
+    field_name: str,
+    latex_label: str,
 ) -> field_models.ScalarField_3D:
     """Compute the magnitude sqrt(f_i f_i) of a 3D vector field."""
     varray_3d = field_models.extract_3d_varray(
@@ -104,7 +107,8 @@ def compute_vfield_magnitude(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_vmagn,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -113,7 +117,8 @@ def compute_vfield_dot_product(
     *,
     vfield_3d_a: field_models.VectorField_3D,
     vfield_3d_b: field_models.VectorField_3D,
-    field_label: str = "a_i b_i",
+    field_name: str,
+    latex_label: str,
 ) -> field_models.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector field_models."""
     field_models.ensure_same_3d_field_udomains(
@@ -137,7 +142,8 @@ def compute_vfield_dot_product(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_adotb,
         udomain_3d=vfield_3d_a.udomain,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=vfield_3d_a.sim_time,
     )
 
@@ -148,7 +154,8 @@ def compute_vfield_cross_product(
     vfield_3d_b: field_models.VectorField_3D,
     varray_3d_out: NDArray[Any] | None = None,
     sarray_3d_tmp: NDArray[Any] | None = None,
-    field_label: str = "epsilon_ijk a_j b_k",
+    field_name: str,
+    latex_label: str,
 ) -> field_models.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector field_models."""
     field_models.ensure_same_3d_field_udomains(
@@ -174,7 +181,8 @@ def compute_vfield_cross_product(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_axb,
         udomain_3d=vfield_3d_a.udomain,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=vfield_3d_a.sim_time,
     )
 
@@ -183,7 +191,8 @@ def compute_vfield_curl(
     vfield_3d: field_models.VectorField_3D,
     *,
     varray_3d_out: NDArray[Any] | None = None,
-    field_label: str = "epsilon_ijk d_j f_k",
+    field_name: str,
+    latex_label: str,
     grad_order: int = 2,
 ) -> field_models.VectorField_3D:
     """Compute the curl epsilon_ijk d_j f_k of a 3D vector field."""
@@ -208,7 +217,8 @@ def compute_vfield_curl(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray_3d_curl,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -217,7 +227,8 @@ def compute_vfield_divergence(
     vfield_3d: field_models.VectorField_3D,
     *,
     sarray_3d_out: NDArray[Any] | None = None,
-    field_label: str = "d_i f_i",
+    field_name: str,
+    latex_label: str,
     grad_order: int = 2,
 ) -> field_models.ScalarField_3D:
     """Compute the divergence d_i f_i of a 3D vector field."""
@@ -242,7 +253,8 @@ def compute_vfield_divergence(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d_div,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 

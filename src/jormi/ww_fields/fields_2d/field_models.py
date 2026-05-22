@@ -46,7 +46,8 @@ class ScalarField_2D(_field_models.Field):
         *,
         sarray_2d: NDArray[Any],
         udomain_2d: domain_models.UniformDomain_2D,
-        field_label: str,
+        field_name: str,
+        latex_label: str,
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D scalar field from a (num_x0_cells, num_x1_cells) ndarray."""
@@ -57,7 +58,8 @@ class ScalarField_2D(_field_models.Field):
         return cls(
             fdata=sdata_2d,
             udomain=udomain_2d,
-            field_label=field_label,
+            field_name=field_name,
+            latex_label=latex_label,
             sim_time=sim_time,
         )
 
@@ -91,7 +93,8 @@ class VectorField_2D(_field_models.Field):
         *,
         varray_2d: NDArray[Any],
         udomain_2d: domain_models.UniformDomain_2D,
-        field_label: str,
+        field_name: str,
+        latex_label: str,
         sim_time: float | None = None,
     ) -> Self:
         """Construct a 2D vector field from a (2, num_x0_cells, num_x1_cells) ndarray."""
@@ -102,7 +105,8 @@ class VectorField_2D(_field_models.Field):
         return cls(
             fdata=vdata_2d,
             udomain=udomain_2d,
-            field_label=field_label,
+            field_name=field_name,
+            latex_label=latex_label,
             sim_time=sim_time,
         )
 

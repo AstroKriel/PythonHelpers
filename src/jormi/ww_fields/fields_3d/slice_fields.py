@@ -95,7 +95,8 @@ def slice_3d_sfield(
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
-    field_label: str | None = None,
+    field_name: str | None = None,
+    latex_label: str | None = None,
 ) -> _2d_field_model.ScalarField_2D:
     """
     Slice a 3D scalar field into a 2D scalar field.
@@ -125,12 +126,15 @@ def slice_3d_sfield(
         sarray_2d = sarray_3d[:, slice_index, :]
     else:
         sarray_2d = sarray_3d[:, :, slice_index]
-    if field_label is None:
-        field_label = sfield_3d.field_label
+    if field_name is None:
+        field_name = sfield_3d.field_name
+    if latex_label is None:
+        latex_label = sfield_3d.latex_label
     return _2d_field_model.ScalarField_2D.from_2d_sarray(
         sarray_2d=sarray_2d,
         udomain_2d=udomain_2d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -145,7 +149,8 @@ def slice_3d_vfield_inplane(
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
-    field_label: str | None = None,
+    field_name: str | None = None,
+    latex_label: str | None = None,
 ) -> _2d_field_model.VectorField_2D:
     """
     Slice a 3D vector field into a 2D vector field of in-plane components.
@@ -177,12 +182,15 @@ def slice_3d_vfield_inplane(
         varray_2d = varray_3d[comp_indices, :, slice_index, :]
     else:
         varray_2d = varray_3d[comp_indices, :, :, slice_index]
-    if field_label is None:
-        field_label = vfield_3d.field_label
+    if field_name is None:
+        field_name = vfield_3d.field_name
+    if latex_label is None:
+        latex_label = vfield_3d.latex_label
     return _2d_field_model.VectorField_2D.from_2d_varray(
         varray_2d=varray_2d,
         udomain_2d=udomain_2d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -192,7 +200,8 @@ def slice_3d_vfield_outofplane(
     *,
     out_of_plane_axis: cartesian_axes.AxisLike_3D,
     slice_index: int,
-    field_label: str | None = None,
+    field_name: str | None = None,
+    latex_label: str | None = None,
 ) -> _2d_field_model.ScalarField_2D:
     """Slice a 3D vector field into a 2D scalar field of the out-of-plane component."""
     _3d_field_model.ensure_3d_vfield(vfield_3d=vfield_3d)
@@ -217,12 +226,15 @@ def slice_3d_vfield_outofplane(
         sarray_2d = varray_3d[1, :, slice_index, :]
     else:
         sarray_2d = varray_3d[2, :, :, slice_index]
-    if field_label is None:
-        field_label = vfield_3d.field_label
+    if field_name is None:
+        field_name = vfield_3d.field_name
+    if latex_label is None:
+        latex_label = vfield_3d.latex_label
     return _2d_field_model.ScalarField_2D.from_2d_sarray(
         sarray_2d=sarray_2d,
         udomain_2d=udomain_2d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 

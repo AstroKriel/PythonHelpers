@@ -51,14 +51,16 @@ class ScalarField_3D(_field_models.Field):
         *,
         sarray_3d: NDArray[Any],
         udomain_3d: domain_models.UniformDomain_3D,
-        field_label: str,
+        field_name: str,
+        latex_label: str,
         sim_time: float | None = None,
     ) -> "ScalarField_3D":
         """Construct a 3D scalar field directly from a (num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=sarray_3d,
             udomain=udomain_3d,
-            field_label=field_label,
+            field_name=field_name,
+            latex_label=latex_label,
             sim_time=sim_time,
             fdata_fn=_field_data.ScalarFieldData_3D,
             fdata_param_name="<sarray_3d>",
@@ -109,14 +111,16 @@ class VectorField_3D(_field_models.Field):
         *,
         varray_3d: NDArray[Any],
         udomain_3d: domain_models.UniformDomain_3D,
-        field_label: str,
+        field_name: str,
+        latex_label: str,
         sim_time: float | None = None,
     ) -> "VectorField_3D":
         """Construct a 3D vector field directly from a (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=varray_3d,
             udomain=udomain_3d,
-            field_label=field_label,
+            field_name=field_name,
+            latex_label=latex_label,
             sim_time=sim_time,
             fdata_fn=_field_data.VectorFieldData_3D,
             fdata_param_name="<varray_3d>",
@@ -171,7 +175,8 @@ class UnitVectorField_3D(VectorField_3D):
         return cls(
             fdata=vfield_3d.fdata,
             udomain=vfield_3d.udomain,
-            field_label=vfield_3d.field_label,
+            field_name=vfield_3d.field_name,
+            latex_label=vfield_3d.latex_label,
             comp_axes=vfield_3d.comp_axes,
             sim_time=vfield_3d.sim_time,
             tol=tol,
@@ -390,13 +395,13 @@ def get_label(
     *,
     param_name: str = "<field>",
 ) -> str:
-    """Return the render-ready label for any field: wraps `field.field_label` in `$...$`."""
+    """Return the render-ready label for any field: wraps `field.latex_label` in `$...$`."""
     validate_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=_field_models.Field,
     )
-    return f"${field.field_label}$"
+    return f"${field.latex_label}$"
 
 
 def get_vcomp_label(
@@ -415,7 +420,7 @@ def get_vcomp_label(
         param_name=param_name,
     )
     comp_index = cartesian_axes.get_axis_index(comp_axis)
-    return f"$\\left[{vfield_3d.field_label}\\right]_{comp_index}$"
+    return f"$\\left[{vfield_3d.latex_label}\\right]_{comp_index}$"
 
 
 ## } MODULE

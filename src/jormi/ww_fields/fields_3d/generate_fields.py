@@ -21,7 +21,8 @@ def generate_gaussian_random_3d_sfield(
     *,
     udomain_3d: domain_models.UniformDomain_3D,
     correlation_length: float,
-    field_label: str = "G(x)",
+    field_name: str,
+    latex_label: str,
     sim_time: float | None = None,
 ) -> field_models.ScalarField_3D:
     """Generate a 3D scalar field with a Gaussian correlation length."""
@@ -42,7 +43,8 @@ def generate_gaussian_random_3d_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 
@@ -57,7 +59,8 @@ def generate_powerlaw_random_3d_sfield(
     udomain_3d: domain_models.UniformDomain_3D,
     alpha_perp: float,
     alpha_para: float | None = None,
-    field_label: str = "P(x)",
+    field_name: str,
+    latex_label: str,
     sim_time: float | None = None,
 ) -> field_models.ScalarField_3D:
     """Generate a 3D scalar field with a power-law power spectrum."""
@@ -86,7 +89,8 @@ def generate_powerlaw_random_3d_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=udomain_3d,
-        field_label=field_label,
+        field_name=field_name,
+        latex_label=latex_label,
         sim_time=sim_time,
     )
 

@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+import re
 from dataclasses import dataclass
 from typing import (
     Any,
@@ -30,7 +31,7 @@ from jormi.ww_validation import validate_arrays, validate_types
 @dataclass(frozen=True)
 class Field:
     """
-    Generic field: `FieldData` + `UniformDomain` + label + (optional) simulation time.
+    Generic field: `FieldData` + `UniformDomain` + identity + (optional) simulation time.
 
     Specialised field types in 2D/3D libraries build on this and
     add additional constraints on the underlying `FieldData` and metadata.
@@ -38,7 +39,8 @@ class Field:
 
     fdata: _field_data.FieldData
     udomain: _domain_models.UniformDomain
-    field_label: str
+    field_name: str
+    latex_label: str
     sim_time: float | None = None
 
     def __post_init__(
@@ -48,7 +50,8 @@ class Field:
         self._ensure_fdata()
         self._ensure_udomain()
         ## validate descriptive field metadata
-        self._ensure_label()
+        self._ensure_field_name()
+        self._ensure_latex_label()
         self._ensure_sim_time()
 
     def _ensure_fdata(
@@ -73,16 +76,29 @@ class Field:
                 f" resolution={self.udomain.resolution}.",
             )
 
-    def _ensure_label(
+    def _ensure_field_name(
         self,
     ) -> None:
         validate_types.ensure_nonempty_string(
-            param=self.field_label,
-            param_name="<field_label>",
+            param=self.field_name,
+            param_name="<field_name>",
         )
-        if "$" in self.field_label:
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", self.field_name):
             raise ValueError(
-                "`<field_label>` should not contain `$`; "
+                "`<field_name>` must be snake_case (lowercase letters, digits, underscores,"
+                f" starting with a letter), got: {self.field_name!r}",
+            )
+
+    def _ensure_latex_label(
+        self,
+    ) -> None:
+        validate_types.ensure_nonempty_string(
+            param=self.latex_label,
+            param_name="<latex_label>",
+        )
+        if "$" in self.latex_label:
+            raise ValueError(
+                "`<latex_label>` should not contain `$`; "
                 "provide the raw LaTeX math content without math-mode delimiters.",
             )
 
@@ -101,37 +117,13 @@ class Field:
         *,
         farray: NDArray[Any],
         udomain: _domain_models.UniformDomain,
-        field_label: str,
+        field_name: str,
+        latex_label: str,
         sim_time: float | None = None,
         fdata_fn: Callable[..., _field_data.FieldData],
         fdata_param_name: str = "<farray>",
         **fdata_kwargs: Any,
     ) -> Self:
-        """
-        Construct a Field (or subclass) from a raw data-array and a UniformDomain.
-
-        Parameters
-        ----------
-        farray :
-            Underlying data array to wrap in a FieldData instance.
-        udomain : UniformDomain
-            Domain describing the spatial grid.
-        field_label : str
-            Label for the field (used in plots, logs, etc.).
-        sim_time : float, optional
-            Optional simulation time.
-        fdata_fn : callable
-            Function used to construct the appropriate FieldData subclass.
-        fdata_param_name : str, optional
-            Name used in validation messages for the farray argument.
-        **fdata_kwargs :
-            Additional keyword arguments forwarded to `fdata_fn`.
-
-        Returns
-        -------
-        Field (or subclass)
-            A new field instance wrapping the constructed FieldData and domain.
-        """
         fdata = fdata_fn(
             farray=farray,
             param_name=fdata_param_name,
@@ -140,7 +132,8 @@ class Field:
         return cls(
             fdata=fdata,
             udomain=udomain,
-            field_label=field_label,
+            field_name=field_name,
+            latex_label=latex_label,
             sim_time=sim_time,
         )
 
