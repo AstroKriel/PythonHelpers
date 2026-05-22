@@ -123,8 +123,8 @@ class TestScalarField3D_Construction(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones((4, 4, 4)),
             udomain_3d=domain,
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         self.assertEqual(
             sfield.udomain,
@@ -139,7 +139,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
                 sarray_3d=numpy.ones((4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
                 field_name="",
-                latex_label="f",
+                latex_label="q",
             )
 
     def test_invalid_field_name_raises(
@@ -152,7 +152,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
                         sarray_3d=numpy.ones((4, 4, 4)),
                         udomain_3d=_make_3d_udomain(),
                         field_name=bad_name,
-                        latex_label="f",
+                        latex_label="q",
                     )
 
     def test_wrong_array_rank_raises(
@@ -263,8 +263,8 @@ class TestScalarField3D_Properties(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
             udomain_3d=domain,
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -345,7 +345,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
                 varray_3d=numpy.ones((3, 4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
                 field_name="",
-                latex_label="v",
+                latex_label=r"\vec{q}",
             )
 
     def test_frozen_immutability(
@@ -447,8 +447,8 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self._vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=self._varray,
             udomain_3d=_make_3d_udomain(self._resolution),
-            field_name="v",
-            latex_label="v",
+            field_name="q",
+            latex_label=r"\vec{q}",
         )
 
     def test_get_vcomp_x0_shape(

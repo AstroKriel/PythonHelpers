@@ -138,8 +138,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
             udomain_2d=domain,
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         self.assertEqual(
             sfield.udomain,
@@ -154,7 +154,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
                 sarray_2d=numpy.ones((4, 4)),
                 udomain_2d=_make_2d_udomain(),
                 field_name="",
-                latex_label="f",
+                latex_label="q",
             )
 
     def test_wrong_array_rank_raises(
@@ -280,8 +280,8 @@ class TestScalarField2D_Properties(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
             udomain_2d=domain,
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -320,8 +320,8 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
             udomain_2d=sliced_domain,
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         self.assertTrue(
             sfield.is_sliced_from_3d,
@@ -420,7 +420,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
                 varray_2d=numpy.ones((2, 4, 4)),
                 udomain_2d=_make_2d_udomain(),
                 field_name="",
-                latex_label="v",
+                latex_label=r"\vec{q}",
             )
 
     def test_frozen_immutability(
@@ -509,8 +509,8 @@ class TestVectorField2D_Properties(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
             udomain_2d=domain,
-            field_name="v",
-            latex_label="v",
+            field_name="q",
+            latex_label=r"\vec{q}",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -549,8 +549,8 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=numpy.ones((2, 4, 4)),
             udomain_2d=sliced_domain,
-            field_name="v",
-            latex_label="v",
+            field_name="q",
+            latex_label=r"\vec{q}",
         )
         self.assertTrue(
             vfield.is_sliced_from_3d,
@@ -607,8 +607,8 @@ class TestExtract2dSarray(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
             udomain_2d=_make_2d_udomain(resolution=(3, 4)),
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         result = field_models.extract_2d_sarray(sfield_2d=sfield)
         self.assertTrue(
@@ -654,8 +654,8 @@ class TestExtract2dVarray(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
             udomain_2d=_make_2d_udomain(resolution=(3, 4)),
-            field_name="v",
-            latex_label="v",
+            field_name="q",
+            latex_label=r"\vec{q}",
         )
         result = field_models.extract_2d_varray(vfield_2d=vfield)
         self.assertTrue(

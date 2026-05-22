@@ -40,8 +40,8 @@ def _make_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
         udomain_3d=_make_3d_udomain(resolution),
-        field_name="f",
-        latex_label="f",
+        field_name="q",
+        latex_label="q",
     )
 
 

@@ -47,8 +47,8 @@ def _make_sfield_3d(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=domain,
-        field_name="f",
-        latex_label="f",
+        field_name="q",
+        latex_label="q",
     )
 
 
@@ -62,8 +62,8 @@ def _make_vfield_3d(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=domain,
-        field_name="v",
-        latex_label="v",
+        field_name="q",
+        latex_label=r"\vec{q}",
     )
 
 
@@ -384,8 +384,8 @@ class TestExtractArrays(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
             udomain_3d=_make_3d_udomain(),
-            field_name="f",
-            latex_label="f",
+            field_name="q",
+            latex_label="q",
         )
         result = field_models.extract_3d_sarray(sfield_3d=sfield)
         self.assertEqual(
@@ -419,8 +419,8 @@ class TestExtractArrays(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
-            field_name="v",
-            latex_label="v",
+            field_name="q",
+            latex_label=r"\vec{q}",
         )
         result = field_models.extract_3d_varray(vfield_3d=vfield)
         self.assertEqual(
