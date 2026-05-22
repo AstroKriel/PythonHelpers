@@ -446,7 +446,7 @@ def compute_lorentz_force_decomposed_fields(
         varray_3d=lf_3d_farrays.varray_3d_lorentz,
         udomain_3d=udomain_3d,
         field_name="lorentz_force",
-        latex_label=r"\vec{L}",
+        latex_label=r"(\nabla\times\vec{b})\times\vec{b}",
         sim_time=sim_time,
     )
     vfield_3d_tension = field_models.VectorField_3D.from_3d_varray(
