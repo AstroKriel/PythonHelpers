@@ -47,7 +47,8 @@ def _make_sfield_3d(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=domain,
-        field_label="f",
+        field_name="f",
+        latex_label="f",
     )
 
 
@@ -61,7 +62,8 @@ def _make_vfield_3d(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=domain,
-        field_label="v",
+        field_name="v",
+        latex_label="v",
     )
 
 
@@ -73,7 +75,8 @@ def _make_unit_vfield_3d(
     vfield = field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=_make_3d_udomain(resolution=resolution),
-        field_label="uv",
+        field_name="uv",
+        latex_label="uv",
     )
     return field_models.UnitVectorField_3D.from_3d_vfield(vfield)
 
@@ -143,7 +146,8 @@ class TestEnsureFieldTypes(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
-            field_label="unit_but_not_uvfield",
+            field_name="unit_but_not_uvfield",
+            latex_label="unit_but_not_uvfield",
         )
         with self.assertRaises(TypeError):
             field_models.ensure_3d_uvfield(uvfield_3d=vfield)  # type: ignore
@@ -380,7 +384,8 @@ class TestExtractArrays(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
             udomain_3d=_make_3d_udomain(),
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         result = field_models.extract_3d_sarray(sfield_3d=sfield)
         self.assertEqual(
@@ -414,7 +419,8 @@ class TestExtractArrays(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
-            field_label="v",
+            field_name="v",
+            latex_label="v",
         )
         result = field_models.extract_3d_varray(vfield_3d=vfield)
         self.assertEqual(

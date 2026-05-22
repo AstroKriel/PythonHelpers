@@ -202,7 +202,8 @@ class TestScalarField(unittest.TestCase):
         return field_models_3d.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray_3d,
             udomain_3d=udomain_3d,
-            field_label="rho",
+            field_name="rho",
+            latex_label="rho",
             sim_time=1.25,
         )
 
@@ -232,8 +233,8 @@ class TestScalarField(unittest.TestCase):
             sfield_3d.sim_time,
         )
         self.assertEqual(
-            sfield_2d.field_label,
-            sfield_3d.field_label,
+            sfield_2d.latex_label,
+            sfield_3d.latex_label,
         )
 
     def test_slices_axis_x1(
@@ -311,7 +312,8 @@ class TestVectorField(unittest.TestCase):
         return field_models_3d.VectorField_3D.from_3d_varray(
             varray_3d=varray_3d,
             udomain_3d=udomain_3d,
-            field_label="u",
+            field_name="u",
+            latex_label="u",
             sim_time=2.0,
         )
 

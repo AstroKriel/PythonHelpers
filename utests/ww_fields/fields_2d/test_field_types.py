@@ -63,7 +63,8 @@ def _make_sfield_2d(
     return field_models.ScalarField_2D.from_2d_sarray(
         sarray_2d=numpy.ones(resolution),
         udomain_2d=udomain,
-        field_label=label,
+        field_name=label,
+        latex_label=label,
         sim_time=sim_time,
     )
 
@@ -81,7 +82,8 @@ def _make_vfield_2d(
     return field_models.VectorField_2D.from_2d_varray(
         varray_2d=numpy.ones((2, ) + resolution),
         udomain_2d=udomain,
-        field_label=label,
+        field_name=label,
+        latex_label=label,
         sim_time=sim_time,
     )
 
@@ -107,7 +109,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
     ):
         sfield = _make_sfield_2d(label="temperature")
         self.assertEqual(
-            sfield.field_label,
+            sfield.latex_label,
             "temperature",
         )
 
@@ -136,7 +138,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
             udomain_2d=domain,
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         self.assertEqual(
             sfield.udomain,
@@ -150,7 +153,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
                 udomain_2d=_make_2d_udomain(),
-                field_label="",
+                field_name="",
+                latex_label="f",
             )
 
     def test_wrong_array_rank_raises(
@@ -160,7 +164,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4,)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_3d_array_raises(
@@ -170,7 +175,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_resolution_mismatch_raises(
@@ -180,7 +186,8 @@ class TestScalarField2D_Construction(unittest.TestCase):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
                 udomain_2d=_make_2d_udomain(resolution=(8, 8)),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_frozen_immutability(
@@ -192,7 +199,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
                 AttributeError,
                 TypeError,
         )):
-            sfield.field_label = "modified"  # type: ignore
+            sfield.field_name = "modified"  # type: ignore
 
 
 class TestScalarField2D_Properties(unittest.TestCase):
@@ -273,7 +280,8 @@ class TestScalarField2D_Properties(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
             udomain_2d=domain,
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -312,7 +320,8 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
             udomain_2d=sliced_domain,
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         self.assertTrue(
             sfield.is_sliced_from_3d,
@@ -356,7 +365,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_2d(label="velocity_2d")
         self.assertEqual(
-            vfield.field_label,
+            vfield.latex_label,
             "velocity_2d",
         )
 
@@ -377,7 +386,8 @@ class TestVectorField2D_Construction(unittest.TestCase):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((3, 4, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_wrong_array_rank_raises(
@@ -387,7 +397,8 @@ class TestVectorField2D_Construction(unittest.TestCase):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4)),  # type: ignore
                 udomain_2d=_make_2d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_resolution_mismatch_raises(
@@ -397,7 +408,8 @@ class TestVectorField2D_Construction(unittest.TestCase):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
                 udomain_2d=_make_2d_udomain(resolution=(8, 8)),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_empty_label_raises(
@@ -407,7 +419,8 @@ class TestVectorField2D_Construction(unittest.TestCase):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
                 udomain_2d=_make_2d_udomain(),
-                field_label="",
+                field_name="",
+                latex_label="v",
             )
 
     def test_frozen_immutability(
@@ -415,7 +428,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_2d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_label = "modified"  # type: ignore
+            vfield.field_name = "modified"  # type: ignore
 
 
 class TestVectorField2D_Properties(unittest.TestCase):
@@ -496,7 +509,8 @@ class TestVectorField2D_Properties(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
             udomain_2d=domain,
-            field_label="v",
+            field_name="v",
+            latex_label="v",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -535,7 +549,8 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=numpy.ones((2, 4, 4)),
             udomain_2d=sliced_domain,
-            field_label="v",
+            field_name="v",
+            latex_label="v",
         )
         self.assertTrue(
             vfield.is_sliced_from_3d,
@@ -592,7 +607,8 @@ class TestExtract2dSarray(unittest.TestCase):
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
             udomain_2d=_make_2d_udomain(resolution=(3, 4)),
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         result = field_models.extract_2d_sarray(sfield_2d=sfield)
         self.assertTrue(
@@ -638,7 +654,8 @@ class TestExtract2dVarray(unittest.TestCase):
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
             udomain_2d=_make_2d_udomain(resolution=(3, 4)),
-            field_label="v",
+            field_name="v",
+            latex_label="v",
         )
         result = field_models.extract_2d_varray(vfield_2d=vfield)
         self.assertTrue(

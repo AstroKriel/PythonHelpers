@@ -50,7 +50,8 @@ def _make_constant_sfield(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.full(resolution, value),
         udomain_3d=_make_3d_udomain(resolution=resolution),
-        field_label=label,
+        field_name=label,
+        latex_label=label,
     )
 
 
@@ -77,7 +78,8 @@ def _make_constant_vfield(
             resolution=resolution,
             domain_bounds=domain_bounds,
         ),
-        field_label=label,
+        field_name=label,
+        latex_label=label,
     )
 
 
@@ -126,6 +128,8 @@ class TestScalarFieldGradient(unittest.TestCase):
                 sfield_3d=_make_constant_sfield(
                     value=1.0,
                 ),
+                field_name="grad_f",
+                latex_label=r"\nabla f",
             ),
             field_models.VectorField_3D,
         )
@@ -135,7 +139,11 @@ class TestScalarFieldGradient(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=1.0)
         self.assertEqual(
-            field_operators.compute_sfield_gradient(sfield_3d=sfield).udomain,
+            field_operators.compute_sfield_gradient(
+                sfield_3d=sfield,
+                field_name="grad_f",
+                latex_label=r"\nabla f",
+            ).udomain,
             sfield.udomain,
         )
 
@@ -144,7 +152,11 @@ class TestScalarFieldGradient(unittest.TestCase):
     ):
         sfield = _make_constant_sfield(value=1.0)
         self.assertEqual(
-            field_operators.compute_sfield_gradient(sfield_3d=sfield).fdata.sdims_shape,
+            field_operators.compute_sfield_gradient(
+                sfield_3d=sfield,
+                field_name="grad_f",
+                latex_label=r"\nabla f",
+            ).fdata.sdims_shape,
             sfield.fdata.shape,
         )
 
@@ -154,10 +166,15 @@ class TestScalarFieldGradient(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones(_RESOLUTION),
             udomain_3d=_make_3d_udomain(),
-            field_label="f",
+            field_name="f",
+            latex_label="f",
             sim_time=2.5,
         )
-        vfield_grad = field_operators.compute_sfield_gradient(sfield_3d=sfield)
+        vfield_grad = field_operators.compute_sfield_gradient(
+            sfield_3d=sfield,
+            field_name="grad_f",
+            latex_label=r"\nabla f",
+        )
         assert vfield_grad.sim_time is not None
         self.assertAlmostEqual(
             vfield_grad.sim_time,
@@ -172,6 +189,8 @@ class TestScalarFieldGradient(unittest.TestCase):
         vfield_grad = field_operators.compute_sfield_gradient(
             sfield_3d=sfield,
             varray_3d_out=array,
+            field_name="grad_f",
+            latex_label=r"\nabla f",
         )
         self.assertTrue(
             numpy.shares_memory(
@@ -193,6 +212,8 @@ class TestVectorFieldMagnitude(unittest.TestCase):
                     value_in_x1=0.0,
                     value_in_x2=0.0,
                 ),
+                field_name="v_magnitude",
+                latex_label=r"|\vec{v}|",
             ),
             field_models.ScalarField_3D,
         )
@@ -206,7 +227,11 @@ class TestVectorFieldMagnitude(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertEqual(
-            field_operators.compute_vfield_magnitude(vfield_3d=vfield).udomain,
+            field_operators.compute_vfield_magnitude(
+                vfield_3d=vfield,
+                field_name="v_magnitude",
+                latex_label=r"|\vec{v}|",
+            ).udomain,
             vfield.udomain,
         )
 
@@ -225,6 +250,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             field_operators.compute_vfield_dot_product(
                 vfield_3d_a=vfield,
                 vfield_3d_b=vfield,
+                field_name="dot_product",
+                latex_label=r"\vec{v}\cdot\vec{v}",
             ),
             field_models.ScalarField_3D,
         )
@@ -249,6 +276,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
             field_operators.compute_vfield_dot_product(
                 vfield_3d_a=vfield_a,
                 vfield_3d_b=vfield_b,
+                field_name="dot_product",
+                latex_label=r"\vec{v}\cdot\vec{v}",
             )
 
 
@@ -266,6 +295,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             field_operators.compute_vfield_cross_product(
                 vfield_3d_a=vfield,
                 vfield_3d_b=vfield,
+                field_name="cross_product",
+                latex_label=r"\vec{v}\times\vec{v}",
             ),
             field_models.VectorField_3D,
         )
@@ -288,6 +319,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
             vfield_3d_a=vfield_x0,
             vfield_3d_b=vfield_x1,
             varray_3d_out=array,
+            field_name="cross_product",
+            latex_label=r"\vec{v}\times\vec{v}",
         )
         self.assertTrue(
             numpy.shares_memory(
@@ -309,6 +342,8 @@ class TestVectorFieldDivergence(unittest.TestCase):
                     value_in_x1=0.0,
                     value_in_x2=0.0,
                 ),
+                field_name="div_v",
+                latex_label=r"\nabla\cdot\vec{v}",
             ),
             field_models.ScalarField_3D,
         )
@@ -322,7 +357,11 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertEqual(
-            field_operators.compute_vfield_divergence(vfield_3d=vfield).udomain,
+            field_operators.compute_vfield_divergence(
+                vfield_3d=vfield,
+                field_name="div_v",
+                latex_label=r"\nabla\cdot\vec{v}",
+            ).udomain,
             vfield.udomain,
         )
 
@@ -335,7 +374,11 @@ class TestVectorFieldDivergence(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertEqual(
-            field_operators.compute_vfield_divergence(vfield_3d=vfield).fdata.shape,
+            field_operators.compute_vfield_divergence(
+                vfield_3d=vfield,
+                field_name="div_v",
+                latex_label=r"\nabla\cdot\vec{v}",
+            ).fdata.shape,
             _RESOLUTION,
         )
 
@@ -345,10 +388,15 @@ class TestVectorFieldDivergence(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
-            field_label="v",
+            field_name="v",
+            latex_label="v",
             sim_time=1.0,
         )
-        sfield_div = field_operators.compute_vfield_divergence(vfield_3d=vfield)
+        sfield_div = field_operators.compute_vfield_divergence(
+            vfield_3d=vfield,
+            field_name="div_v",
+            latex_label=r"\nabla\cdot\vec{v}",
+        )
         assert sfield_div.sim_time is not None
         self.assertAlmostEqual(
             sfield_div.sim_time,
@@ -367,6 +415,8 @@ class TestVectorFieldDivergence(unittest.TestCase):
         result = field_operators.compute_vfield_divergence(
             vfield_3d=vfield,
             sarray_3d_out=array,
+            field_name="div_v",
+            latex_label=r"\nabla\cdot\vec{v}",
         )
         self.assertTrue(
             numpy.shares_memory(
@@ -388,6 +438,8 @@ class TestVectorFieldCurl(unittest.TestCase):
                     value_in_x1=0.0,
                     value_in_x2=0.0,
                 ),
+                field_name="curl_v",
+                latex_label=r"\nabla\times\vec{v}",
             ),
             field_models.VectorField_3D,
         )
@@ -401,7 +453,11 @@ class TestVectorFieldCurl(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertEqual(
-            field_operators.compute_vfield_curl(vfield_3d=vfield).udomain,
+            field_operators.compute_vfield_curl(
+                vfield_3d=vfield,
+                field_name="curl_v",
+                latex_label=r"\nabla\times\vec{v}",
+            ).udomain,
             vfield.udomain,
         )
 
@@ -414,7 +470,11 @@ class TestVectorFieldCurl(unittest.TestCase):
             value_in_x2=0.0,
         )
         self.assertEqual(
-            field_operators.compute_vfield_curl(vfield_3d=vfield).fdata.sdims_shape,
+            field_operators.compute_vfield_curl(
+                vfield_3d=vfield,
+                field_name="curl_v",
+                latex_label=r"\nabla\times\vec{v}",
+            ).fdata.sdims_shape,
             _RESOLUTION,
         )
 
@@ -424,10 +484,15 @@ class TestVectorFieldCurl(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
             udomain_3d=_make_3d_udomain(),
-            field_label="v",
+            field_name="v",
+            latex_label="v",
             sim_time=3.0,
         )
-        vfield_curl = field_operators.compute_vfield_curl(vfield_3d=vfield)
+        vfield_curl = field_operators.compute_vfield_curl(
+            vfield_3d=vfield,
+            field_name="curl_v",
+            latex_label=r"\nabla\times\vec{v}",
+        )
         assert vfield_curl.sim_time is not None
         self.assertAlmostEqual(
             vfield_curl.sim_time,
@@ -446,6 +511,8 @@ class TestVectorFieldCurl(unittest.TestCase):
         result = field_operators.compute_vfield_curl(
             vfield_3d=vfield,
             varray_3d_out=array,
+            field_name="curl_v",
+            latex_label=r"\nabla\times\vec{v}",
         )
         self.assertTrue(
             numpy.shares_memory(

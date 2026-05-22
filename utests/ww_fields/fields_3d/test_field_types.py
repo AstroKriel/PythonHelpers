@@ -43,7 +43,8 @@ def _make_sfield_3d(
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
         udomain_3d=_make_3d_udomain(resolution),
-        field_label=label,
+        field_name=label,
+        latex_label=label,
         sim_time=sim_time,
     )
 
@@ -57,7 +58,8 @@ def _make_vfield_3d(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
         udomain_3d=_make_3d_udomain(resolution),
-        field_label=label,
+        field_name=label,
+        latex_label=label,
         sim_time=sim_time,
     )
 
@@ -92,7 +94,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     ):
         sfield = _make_sfield_3d(label="pressure")
         self.assertEqual(
-            sfield.field_label,
+            sfield.latex_label,
             "pressure",
         )
 
@@ -121,7 +123,8 @@ class TestScalarField3D_Construction(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones((4, 4, 4)),
             udomain_3d=domain,
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         self.assertEqual(
             sfield.udomain,
@@ -135,8 +138,22 @@ class TestScalarField3D_Construction(unittest.TestCase):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
-                field_label="",
+                field_name="",
+                latex_label="f",
             )
+
+    def test_invalid_field_name_raises(
+        self,
+    ):
+        for bad_name in ("Velocity", r"\vec{v}", "my field", "_private", "2fast"):
+            with self.subTest(field_name=bad_name):
+                with self.assertRaises((TypeError, ValueError)):
+                    field_models.ScalarField_3D.from_3d_sarray(
+                        sarray_3d=numpy.ones((4, 4, 4)),
+                        udomain_3d=_make_3d_udomain(),
+                        field_name=bad_name,
+                        latex_label="f",
+                    )
 
     def test_wrong_array_rank_raises(
         self,
@@ -145,7 +162,8 @@ class TestScalarField3D_Construction(unittest.TestCase):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_resolution_mismatch_raises(
@@ -155,7 +173,8 @@ class TestScalarField3D_Construction(unittest.TestCase):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
                 udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_frozen_immutability(
@@ -163,7 +182,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     ):
         sfield = _make_sfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            sfield.field_label = "modified"  # type: ignore
+            sfield.field_name = "modified"  # type: ignore
 
 
 class TestScalarField3D_Properties(unittest.TestCase):
@@ -244,7 +263,8 @@ class TestScalarField3D_Properties(unittest.TestCase):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
             udomain_3d=domain,
-            field_label="f",
+            field_name="f",
+            latex_label="f",
         )
         self.assertTrue(
             numpy.array_equal(
@@ -270,7 +290,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_3d(label="velocity")
         self.assertEqual(
-            vfield.field_label,
+            vfield.latex_label,
             "velocity",
         )
 
@@ -291,7 +311,8 @@ class TestVectorField3D_Construction(unittest.TestCase):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((2, 4, 4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_wrong_array_rank_raises(
@@ -301,7 +322,8 @@ class TestVectorField3D_Construction(unittest.TestCase):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4)),  # type: ignore
                 udomain_3d=_make_3d_udomain(),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_resolution_mismatch_raises(
@@ -311,7 +333,8 @@ class TestVectorField3D_Construction(unittest.TestCase):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
                 udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
-                field_label="bad",
+                field_name="bad",
+                latex_label="bad",
             )
 
     def test_empty_label_raises(
@@ -321,7 +344,8 @@ class TestVectorField3D_Construction(unittest.TestCase):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
                 udomain_3d=_make_3d_udomain(),
-                field_label="",
+                field_name="",
+                latex_label="v",
             )
 
     def test_frozen_immutability(
@@ -329,7 +353,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_label = "modified"  # type: ignore
+            vfield.field_name = "modified"  # type: ignore
 
 
 class TestVectorField3D_Properties(unittest.TestCase):
@@ -423,7 +447,8 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self._vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=self._varray,
             udomain_3d=_make_3d_udomain(self._resolution),
-            field_label="v",
+            field_name="v",
+            latex_label="v",
         )
 
     def test_get_vcomp_x0_shape(
@@ -531,7 +556,8 @@ class TestUnitVectorField3D(unittest.TestCase):
         return field_models.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d(resolution),
             udomain_3d=_make_3d_udomain(resolution),
-            field_label="unit_v",
+            field_name="unit_v",
+            latex_label="unit_v",
         )
 
     def test_valid_unit_vectors_accepted(
@@ -577,12 +603,13 @@ class TestUnitVectorField3D(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d((4, 4, 4)),
             udomain_3d=_make_3d_udomain(),
-            field_label="my_label",
+            field_name="my_label",
+            latex_label="my_label",
             sim_time=2.5,
         )
         uvfield = field_models.UnitVectorField_3D.from_3d_vfield(vfield)
         self.assertEqual(
-            uvfield.field_label,
+            uvfield.latex_label,
             "my_label",
         )
         assert uvfield.sim_time is not None
@@ -603,7 +630,8 @@ class TestUnitVectorField3D(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
-            field_label="approx_unit",
+            field_name="approx_unit",
+            latex_label="approx_unit",
         )
         uvfield = field_models.UnitVectorField_3D.from_3d_vfield(
             vfield,
@@ -622,7 +650,8 @@ class TestUnitVectorField3D(unittest.TestCase):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
             udomain_3d=_make_3d_udomain(),
-            field_label="approx_unit",
+            field_name="approx_unit",
+            latex_label="approx_unit",
         )
         with self.assertRaises(ValueError):
             field_models.UnitVectorField_3D.from_3d_vfield(

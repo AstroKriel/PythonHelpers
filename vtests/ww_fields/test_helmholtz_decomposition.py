@@ -50,7 +50,8 @@ def generate_div_vfield(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"\vec{q}",
+        field_name="purely_div",
+        latex_label=r"\vec{q}_\mathrm{div}",
     )
 
 
@@ -74,7 +75,8 @@ def generate_sol_vfield(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"\vec{q}",
+        field_name="purely_sol",
+        latex_label=r"\vec{q}_\mathrm{sol}",
     )
 
 
@@ -102,7 +104,8 @@ def generate_uniform_vfield(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"\vec{q}",
+        field_name="purely_bulk",
+        latex_label=r"\vec{q}_\mathrm{bulk}",
     )
 
 
@@ -142,7 +145,8 @@ def generate_mixed_vfield(
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         udomain_3d=udomain_3d,
-        field_label=r"\vec{q}",
+        field_name="mixed",
+        latex_label=r"\vec{q}",
     )
 
 
@@ -195,7 +199,11 @@ def plot_vfield_slice(
         numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x1),
         indexing="xy",
     )
-    sfield_q_magn = field_operators.compute_vfield_magnitude(vfield)
+    sfield_q_magn = field_operators.compute_vfield_magnitude(
+        vfield,
+        field_name="q_magnitude",
+        latex_label=r"|\vec{q}|",
+    )
     sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn)
     sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
     sfield_q_magn_min = float(
@@ -311,28 +319,52 @@ def main():
                 field_models.extract_3d_varray(vfield_3d_bulk)
             ),
             udomain_3d=udomain_3d,
-            field_label=vfield.field_label,
+            field_name="q_sum",
+            latex_label=r"\vec{q}_\mathrm{sum}",
         )
         ## residual: q - q_rec (should be ~0)
         vfield_residual = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(field_models.extract_3d_varray(vfield) - field_models.extract_3d_varray(vfield_rec)),
             udomain_3d=udomain_3d,
-            field_label=vfield.field_label,
+            field_name="q_residual",
+            latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
         )
         ## checks
-        sfield_check_q_diff = field_operators.compute_vfield_magnitude(vfield_residual)
-        curl_div = field_operators.compute_vfield_curl(vfield_3d_div)
+        sfield_check_q_diff = field_operators.compute_vfield_magnitude(
+            vfield_residual,
+            field_name="q_residual_magnitude",
+            latex_label=r"|\vec{q} - \vec{q}_\mathrm{sum}|",
+        )
+        curl_div = field_operators.compute_vfield_curl(
+            vfield_3d_div,
+            field_name="curl_q_div",
+            latex_label=r"\nabla\times\vec{q}_\mathrm{div}",
+        )
         sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
             curl_div,
+            field_name="curl_q_div_magnitude",
+            latex_label=r"|\nabla\times\vec{q}_\mathrm{div}|",
         )
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
             vfield_3d_sol,
+            field_name="div_q_sol",
+            latex_label=r"\nabla\cdot\vec{q}_\mathrm{sol}",
         )
-        curl_bulk = field_operators.compute_vfield_curl(vfield_3d_bulk)
+        curl_bulk = field_operators.compute_vfield_curl(
+            vfield_3d_bulk,
+            field_name="curl_q_bulk",
+            latex_label=r"\nabla\times\vec{q}_\mathrm{bulk}",
+        )
         sfield_check_bulk_div = field_operators.compute_vfield_divergence(
             vfield_3d_bulk,
+            field_name="div_q_bulk",
+            latex_label=r"\nabla\cdot\vec{q}_\mathrm{bulk}",
         )
-        sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(curl_bulk)
+        sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(
+            curl_bulk,
+            field_name="curl_q_bulk_magnitude",
+            latex_label=r"|\nabla\times\vec{q}_\mathrm{bulk}|",
+        )
         ## stats and thresholds (tolerant; these can be tightened)
         check_items = [
             (
