@@ -166,7 +166,7 @@ class Tests(unittest.TestCase):
             compute_array_stats.compute_p_norm(
                 array_a=[1, 2, 3],
                 array_b=[4, 5, 6],
-                p_norm="invalid",  # type: ignore
+                p_norm="invalid",  # pyright: ignore[reportArgumentType]
             )
 
     def test_identical_arrays(

@@ -160,7 +160,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_3D.from_3d_sarray(
-                sarray_3d=numpy.ones((4, 4)),  # type: ignore
+                sarray_3d=numpy.ones((4, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_3d=_make_3d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -182,7 +182,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
     ):
         sfield = _make_sfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            sfield.field_name = "modified"  # type: ignore
+            sfield.field_name = "modified"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class TestScalarField3D_Properties(unittest.TestCase):
@@ -309,7 +309,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
-                varray_3d=numpy.ones((2, 4, 4, 4)),  # type: ignore
+                varray_3d=numpy.ones((2, 4, 4, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_3d=_make_3d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -320,7 +320,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
-                varray_3d=numpy.ones((3, 4, 4)),  # type: ignore
+                varray_3d=numpy.ones((3, 4, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_3d=_make_3d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -353,7 +353,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_3d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_name = "modified"  # type: ignore
+            vfield.field_name = "modified"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class TestVectorField3D_Properties(unittest.TestCase):

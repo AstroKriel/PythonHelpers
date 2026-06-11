@@ -180,9 +180,9 @@ class TestAsAxis(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            cartesian_axes.as_axis(axis=None)  # type: ignore
+            cartesian_axes.as_axis(axis=None)  # pyright: ignore[reportArgumentType]
         with self.assertRaises(TypeError):
-            cartesian_axes.as_axis(axis=1.0)  # type: ignore
+            cartesian_axes.as_axis(axis=1.0)  # pyright: ignore[reportArgumentType]
 
 
 class TestGetAxisIndexAndLabel(unittest.TestCase):

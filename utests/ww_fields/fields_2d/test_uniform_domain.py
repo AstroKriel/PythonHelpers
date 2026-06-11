@@ -51,7 +51,7 @@ class TestConstruction(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             domain_models.UniformDomain_2D(
-                num_sdims=2, # type: ignore
+                num_sdims=2, # pyright: ignore[reportArgumentType]
                 periodicity=(True, False),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
@@ -63,7 +63,7 @@ class TestConstruction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             domain_models.UniformDomain_2D(
                 periodicity=(True, False),
-                resolution=(8, 4, 2),  # type: ignore
+                resolution=(8, 4, 2),  # pyright: ignore[reportArgumentType]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -74,7 +74,7 @@ class TestConstruction(unittest.TestCase):
             domain_models.UniformDomain_2D(
                 periodicity=(True, False),
                 resolution=(8, 4),
-                domain_bounds=((0.0, 1.0), ),  # type: ignore
+                domain_bounds=((0.0, 1.0), ),  # pyright: ignore[reportArgumentType]
             )
 
 
@@ -267,7 +267,7 @@ class TestSliced3D(unittest.TestCase):
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
                 out_of_plane_axis=0,
                 slice_index=0,
-                slice_position="a",  # type: ignore
+                slice_position="a",  # pyright: ignore[reportArgumentType]
             )
 
 

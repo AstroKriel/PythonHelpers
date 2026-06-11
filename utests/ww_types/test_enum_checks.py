@@ -67,7 +67,7 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             validate_enums.ensure_sequence_of_enums(
-                param=Corners, # type: ignore
+                param=Corners, # pyright: ignore[reportArgumentType]
                 param_name="valid_enums",
             )
 
@@ -76,12 +76,12 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             validate_enums.ensure_sequence_of_enums(
-                param=["Corners"], # type: ignore
+                param=["Corners"], # pyright: ignore[reportArgumentType]
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
             validate_enums.ensure_sequence_of_enums(
-                param=[Corners, "Sides"], # type: ignore
+                param=[Corners, "Sides"], # pyright: ignore[reportArgumentType]
                 param_name="valid_enums",
             )
 
@@ -90,12 +90,12 @@ class TestEnsureSequenceOfEnums(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             validate_enums.ensure_sequence_of_enums(
-                param=[Corners, int], # type: ignore
+                param=[Corners, int], # pyright: ignore[reportArgumentType]
                 param_name="valid_enums",
             )
         with self.assertRaises(TypeError):
             validate_enums.ensure_sequence_of_enums(
-                param=(str,), # type: ignore
+                param=(str,), # pyright: ignore[reportArgumentType]
                 param_name="valid_enums",
             )
 
@@ -196,12 +196,12 @@ class TestResolveMember(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             validate_enums.resolve_member(
-                member=123, # type: ignore
+                member=123, # pyright: ignore[reportArgumentType]
                 valid_enums=Corners,
             )
         with self.assertRaises(TypeError):
             validate_enums.resolve_member(
-                member=None, # type: ignore
+                member=None, # pyright: ignore[reportArgumentType]
                 valid_enums=Corners,
             )
 
@@ -254,7 +254,7 @@ class TestEnsureValidMember(unittest.TestCase):
             )
         with self.assertRaises(TypeError):
             validate_enums.ensure_valid_member(
-                member=123, # type: ignore
+                member=123, # pyright: ignore[reportArgumentType]
                 valid_enums=Corners,
                 param_name="loc",
             )
@@ -300,13 +300,13 @@ class TestEnsureMemberIn(unittest.TestCase):
         with self.assertRaises(TypeError):
             validate_enums.ensure_member_in(
                 member="TopLeft",
-                valid_members=[Corners], # type: ignore
+                valid_members=[Corners], # pyright: ignore[reportArgumentType]
                 param_name="corner",
             )
         with self.assertRaises(TypeError):
             validate_enums.ensure_member_in(
                 member="TopLeft",
-                valid_members=["TopLeft"], # type: ignore
+                valid_members=["TopLeft"], # pyright: ignore[reportArgumentType]
                 param_name="corner",
             )
 

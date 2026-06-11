@@ -328,7 +328,7 @@ class TestCreateJobScript_InvalidParams(unittest.TestCase):
                     directory=tmp_dir,
                     file_name="test_job.sh",
                     main_command="python run.py",
-                    tag_name="",  # type: ignore
+                    tag_name="",  # pyright: ignore[reportArgumentType]
                     partition_name="partition_a",
                     num_cpus=4,
                     memory_gb=16,
@@ -347,7 +347,7 @@ class TestCreateJobScript_InvalidParams(unittest.TestCase):
                     main_command="python run.py",
                     tag_name="my_job",
                     partition_name="partition_a",
-                    num_cpus=0,  # type: ignore
+                    num_cpus=0,  # pyright: ignore[reportArgumentType]
                     memory_gb=16,
                     wall_time_hours=2,
                     verbose=False,

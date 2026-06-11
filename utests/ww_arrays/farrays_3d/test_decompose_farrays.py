@@ -61,7 +61,7 @@ class TestHelmholtzDecomposedFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.HelmholtzDecomposedFArrays_3D(
-                varray_3d_div=_zeros_sarray(),  # type: ignore
+                varray_3d_div=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
                 varray_3d_sol=_zeros_varray(),
                 varray_3d_bulk=_zeros_varray(),
             )
@@ -150,7 +150,7 @@ class TestLorentzForceFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.LorentzForceFArrays_3D(
-                varray_3d_lorentz=_zeros_sarray(),  # type: ignore
+                varray_3d_lorentz=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
                 varray_3d_tension=_zeros_varray(),
                 varray_3d_grad_p_perp=_zeros_varray(),
             )

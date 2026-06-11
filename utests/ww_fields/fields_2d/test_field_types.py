@@ -162,7 +162,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
-                sarray_2d=numpy.ones((4,)),  # type: ignore
+                sarray_2d=numpy.ones((4,)),  # pyright: ignore[reportArgumentType]
                 udomain_2d=_make_2d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -173,7 +173,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
-                sarray_2d=numpy.ones((4, 4, 4)),  # type: ignore
+                sarray_2d=numpy.ones((4, 4, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_2d=_make_2d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -199,7 +199,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
                 AttributeError,
                 TypeError,
         )):
-            sfield.field_name = "modified"  # type: ignore
+            sfield.field_name = "modified"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class TestScalarField2D_Properties(unittest.TestCase):
@@ -384,7 +384,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
-                varray_2d=numpy.ones((3, 4, 4)),  # type: ignore
+                varray_2d=numpy.ones((3, 4, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_2d=_make_2d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -395,7 +395,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     ):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
-                varray_2d=numpy.ones((2, 4)),  # type: ignore
+                varray_2d=numpy.ones((2, 4)),  # pyright: ignore[reportArgumentType]
                 udomain_2d=_make_2d_udomain(),
                 field_name="bad",
                 latex_label="bad",
@@ -428,7 +428,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
     ):
         vfield = _make_vfield_2d()
         with self.assertRaises((dataclasses.FrozenInstanceError, AttributeError, TypeError)):
-            vfield.field_name = "modified"  # type: ignore
+            vfield.field_name = "modified"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class TestVectorField2D_Properties(unittest.TestCase):
@@ -622,7 +622,7 @@ class TestExtract2dSarray(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            field_models.extract_2d_sarray(sfield_2d="not_a_field")  # type: ignore
+            field_models.extract_2d_sarray(sfield_2d="not_a_field")  # pyright: ignore[reportArgumentType]
 
 
 class TestExtract2dVarray(unittest.TestCase):
@@ -669,7 +669,7 @@ class TestExtract2dVarray(unittest.TestCase):
         self,
     ):
         with self.assertRaises((TypeError, ValueError)):
-            field_models.extract_2d_varray(vfield_2d="not_a_field")  # type: ignore
+            field_models.extract_2d_varray(vfield_2d="not_a_field")  # pyright: ignore[reportArgumentType]
 
 
 ##

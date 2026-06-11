@@ -107,7 +107,7 @@ class TestValidation(unittest.TestCase):
             )
         with self.assertRaises((TypeError, ValueError)):
             _domain_models.UniformDomain(
-                num_sdims=1.0, # type: ignore
+                num_sdims=1.0, # pyright: ignore[reportArgumentType]
                 periodicity=(True,),
                 resolution=(4,),
                 domain_bounds=((0.0, 1.0),),
@@ -130,7 +130,7 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             _domain_models.UniformDomain(
                 num_sdims=2,
-                periodicity=(True, 1), # type: ignore
+                periodicity=(True, 1), # pyright: ignore[reportArgumentType]
                 resolution=(4, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
@@ -153,7 +153,7 @@ class TestValidation(unittest.TestCase):
             _domain_models.UniformDomain(
                 num_sdims=2,
                 periodicity=(True, False),
-                resolution=(4.0, 4), # type: ignore
+                resolution=(4.0, 4), # pyright: ignore[reportArgumentType]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -196,7 +196,7 @@ class TestValidation(unittest.TestCase):
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # type: ignore
+                domain_bounds=((0.0, 1.0, 2.0), (0.0, 1.0)),  # pyright: ignore[reportArgumentType]
             )
 
     def test_rejects_domain_bounds_non_numeric(
@@ -207,7 +207,7 @@ class TestValidation(unittest.TestCase):
                 num_sdims=2,
                 periodicity=(True, False),
                 resolution=(4, 4),
-                domain_bounds=(("a", "b"), (0.0, 1.0)),  # type: ignore
+                domain_bounds=(("a", "b"), (0.0, 1.0)),  # pyright: ignore[reportArgumentType]
             )
 
     def test_rejects_domain_bounds_hi_not_greater_than_lo_and_mentions_axis_label(
@@ -395,7 +395,7 @@ class TestEnsureHelpers(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            _domain_models.ensure_udomain(udomain=None)  # type: ignore
+            _domain_models.ensure_udomain(udomain=None)  # pyright: ignore[reportArgumentType]
 
     def test_ensure_udomain_metadata_num_sdims(
         self,

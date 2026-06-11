@@ -50,7 +50,7 @@ class TestConstruction(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             domain_models.UniformDomain_3D(
-                num_sdims=3, # type: ignore
+                num_sdims=3, # pyright: ignore[reportArgumentType]
                 periodicity=(True, False, True),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
@@ -62,7 +62,7 @@ class TestConstruction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             domain_models.UniformDomain_3D(
                 periodicity=(True, True, True),
-                resolution=(8, 4), # type: ignore
+                resolution=(8, 4), # pyright: ignore[reportArgumentType]
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             )
 
@@ -73,7 +73,7 @@ class TestConstruction(unittest.TestCase):
             domain_models.UniformDomain_3D(
                 periodicity=(True, True, True),
                 resolution=(8, 4, 2),
-                domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # type: ignore
+                domain_bounds=((0.0, 1.0), (0.0, 1.0)),  # pyright: ignore[reportArgumentType]
             )
 
 
@@ -189,7 +189,7 @@ class TestEnsureHelpers(unittest.TestCase):
         self,
     ):
         with self.assertRaises(TypeError):
-            domain_models.ensure_3d_udomain(udomain_3d=None)  # type: ignore
+            domain_models.ensure_3d_udomain(udomain_3d=None)  # pyright: ignore[reportArgumentType]
 
     def test_ensure_3d_periodic_udomain_accepts_fully_periodic(
         self,

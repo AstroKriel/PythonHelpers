@@ -192,7 +192,7 @@ class Tests(unittest.TestCase):
         with self.assertRaises(Exception):
             ww_lists.get_index_of_closest_value(
                 values=[1, 2, 3],
-                target=None,  # type: ignore
+                target=None,  # pyright: ignore[reportArgumentType]
             )
         ## target value is infinity
         output_index = ww_lists.get_index_of_closest_value(
@@ -320,8 +320,8 @@ class Tests(unittest.TestCase):
             ww_lists.get_index_of_first_crossing(
                 values=values,
                 target=0.2,
-                direction="diagonal",  # type: ignore
-            )  # type: ignore
+                direction="diagonal",  # pyright: ignore[reportArgumentType]
+            )  # pyright: ignore[reportCallIssue]
         ## exact min value match
         values = [0.1, 0.2, 0.3]
         index = ww_lists.get_index_of_first_crossing(
