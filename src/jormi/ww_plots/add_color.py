@@ -198,7 +198,7 @@ def add_colorbar(
     cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     cbar_thickness: float = 0.1,
     cbar_length: float = 1.0,
-    cbar_pad: float = 0.02,
+    cbar_pad: float = 0.01,
     label_pad: float = 10.0,
     label_size: int | float = 20.0,
 ) -> mpl_colorbar.Colorbar:
