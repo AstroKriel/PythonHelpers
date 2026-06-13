@@ -6,9 +6,11 @@
 
 ## stdlib
 import unittest
+from typing import Any
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import farray_operators
@@ -28,7 +30,7 @@ _ATOL_FINITE_DIFF = 1e-3
 
 def _const_sarray(
     value: float = 1.0,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     return numpy.full(_SSHAPE, value)
 
 
@@ -37,7 +39,7 @@ def _const_varray(
     x0: float = 1.0,
     x1: float = 0.0,
     x2: float = 0.0,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     varray = numpy.zeros(_VSHAPE)
     varray[0] = x0
     varray[1] = x1
@@ -47,7 +49,7 @@ def _const_varray(
 
 def _cell_centers(
     n: int,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     """Cell centers on [0, 1] for n cells."""
     return (numpy.arange(n) + 0.5) / n
 

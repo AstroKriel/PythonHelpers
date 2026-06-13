@@ -6,9 +6,11 @@
 
 ## stdlib
 from pathlib import Path
+from typing import Any
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_plots import (
@@ -26,7 +28,7 @@ def _make_gradient(
     *,
     value_min: float,
     value_max: float,
-) -> numpy.ndarray:
+) -> NDArray[Any]:
     x_values = numpy.linspace(value_min, value_max, 200)
     y_values = numpy.linspace(value_min, value_max, 200)
     x_grid, y_grid = numpy.meshgrid(x_values, y_values)

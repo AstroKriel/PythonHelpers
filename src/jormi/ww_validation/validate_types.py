@@ -898,7 +898,7 @@ def ensure_dict(
 
 
 def ensure_dict_has_keys(
-    param: dict,
+    param: dict[str, Any],
     *,
     required_keys: set[str],
     param_name: str = "<param>",

@@ -45,6 +45,7 @@ sources = ["src"]
 ## to exclude them: uv sync --no-dev
 [dependency-groups]
 dev = [
+    "basedpyright>=1.0",
     "pytest>=9.0.2",
 ]
 
@@ -61,7 +62,7 @@ testpaths = ["utests"]  # vtests are run manually
 ##
 
 ## for full config reference: https://docs.basedpyright.com/v1.20.0/configuration/config-files/
-[tool.pyright]
+[tool.basedpyright]
 
 ## which directories to lint under
 include = [

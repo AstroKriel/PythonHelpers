@@ -51,7 +51,7 @@ class TestConstruction(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             domain_models.UniformDomain_2D(
-                num_sdims=2, # pyright: ignore[reportArgumentType]
+                num_sdims=2, # pyright: ignore[reportCallIssue]
                 periodicity=(True, False),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (-2.0, 2.0)),

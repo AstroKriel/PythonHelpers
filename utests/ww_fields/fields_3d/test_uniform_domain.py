@@ -50,7 +50,7 @@ class TestConstruction(unittest.TestCase):
     ):
         with self.assertRaises(TypeError):
             domain_models.UniformDomain_3D(
-                num_sdims=3, # pyright: ignore[reportArgumentType]
+                num_sdims=3, # pyright: ignore[reportCallIssue]
                 periodicity=(True, False, True),
                 resolution=(8, 4),
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),

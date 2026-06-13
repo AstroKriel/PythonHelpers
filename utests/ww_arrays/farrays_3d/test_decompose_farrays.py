@@ -6,9 +6,11 @@
 
 ## stdlib
 import unittest
+from typing import Any
 
 ## third-party
 import numpy
+from numpy.typing import NDArray
 
 ## local
 from jormi.ww_arrays.farrays_3d import decompose_farrays
@@ -22,11 +24,11 @@ _VSHAPE = (3, _N, _N, _N)
 ##
 
 
-def _zeros_varray() -> numpy.ndarray:
+def _zeros_varray() -> NDArray[Any]:
     return numpy.zeros(_VSHAPE)
 
 
-def _zeros_sarray() -> numpy.ndarray:
+def _zeros_sarray() -> NDArray[Any]:
     return numpy.zeros(_SSHAPE)
 
 
