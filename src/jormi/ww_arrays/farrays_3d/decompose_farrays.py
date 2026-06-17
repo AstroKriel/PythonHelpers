@@ -531,6 +531,55 @@ def compute_magnetic_curvature_farrays(
     )
 
 
+def compute_stretching_farray(
+    *,
+    varray_3d_u: NDArray[Any],
+    varray_3d_b: NDArray[Any],
+    cell_widths_3d: tuple[float, float, float],
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """Compute the dynamo stretching term t_i t_j d_i u_j.
+
+    Index notation (Einstein summation):
+        stretching = t_i t_j d_i u_j,  t_i = b_i / |b|
+
+    Leaner than compute_magnetic_curvature_farrays: skips the curvature and
+    compression terms and avoids computing the B-field gradient (no normal vector
+    needed), so peak memory is lower.
+    """
+    farray_types.ensure_3d_varray(varray_3d=varray_3d_u, param_name="<varray_3d_u>")
+    farray_types.ensure_3d_varray(varray_3d=varray_3d_b, param_name="<varray_3d_b>")
+    if varray_3d_u.shape != varray_3d_b.shape:
+        raise ValueError(
+            "velocity and magnetic field farrays must share the same shape:"
+            f" u={varray_3d_u.shape}, b={varray_3d_b.shape}.",
+        )
+    farray_types.ensure_3d_cell_widths(cell_widths_3d)
+    ## t_i = b_i / |b|
+    b_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=varray_3d_b)
+    b_magn    = numpy.sqrt(b_magn_sq, dtype=b_magn_sq.dtype)
+    del b_magn_sq
+    uvarray_3d_tangent = numpy.zeros_like(varray_3d_b)
+    numpy.divide(varray_3d_b, b_magn, out=uvarray_3d_tangent, where=(b_magn > 0))
+    del b_magn
+    ## d_i u_j: (j, i, x0, x1, x2)
+    r2tarray_3d_grad_u = farray_operators.compute_varray_grad(
+        varray_3d=varray_3d_u,
+        cell_widths_3d=cell_widths_3d,
+        grad_order=grad_order,
+    )
+    ## t_i t_j d_i u_j
+    sarray_3d_stretching = numpy.einsum(
+        "ixyz,jxyz,jixyz->xyz",
+        uvarray_3d_tangent,
+        uvarray_3d_tangent,
+        r2tarray_3d_grad_u,
+        optimize=True,
+    )
+    del r2tarray_3d_grad_u, uvarray_3d_tangent
+    return sarray_3d_stretching
+
+
 ##
 ## === LORENTZ FORCE
 ##
