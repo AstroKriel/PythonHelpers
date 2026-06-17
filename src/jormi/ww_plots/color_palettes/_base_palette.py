@@ -14,7 +14,7 @@ from abc import (
 from dataclasses import dataclass
 
 ## third-party
-import matplotlib.cm as mpl_cm
+import matplotlib
 import matplotlib.colors as mpl_colors
 import numpy
 
@@ -62,7 +62,7 @@ def resolve_palette(
     )
     if palette_name in _BUILTIN_PALETTES:
         return _BUILTIN_PALETTES[palette_name]
-    return mpl_cm.get_cmap(palette_name)
+    return matplotlib.colormaps[palette_name]
 
 
 def subset_palette(
