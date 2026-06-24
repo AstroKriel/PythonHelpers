@@ -82,7 +82,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
+    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotAxis]:
     ...
 
@@ -99,7 +99,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
+    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotAxesGrid]:
     ...
 
@@ -115,7 +115,7 @@ def create_figure(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
+    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotAxis | PlotAxesGrid]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
@@ -132,7 +132,7 @@ def create_figure(
       axes is created and a 2D object-dtype array of Axes is returned.
     - Mixed None/int specifications are not allowed.
     """
-    if auto_style:
+    if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_rows is None) and (num_cols is None):
         fig_width, fig_height = _get_fig_shape(
@@ -203,7 +203,7 @@ def create_figure_grid(
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
-    theme: style_plots.Theme | str = style_plots.Theme.LIGHT,
+    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotAxesGrid]:
     """
     Like `create_figure`, but always returns a 2D axes grid of shape (num_rows, num_cols), so
