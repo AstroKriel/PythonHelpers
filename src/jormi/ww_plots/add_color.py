@@ -196,7 +196,7 @@ def add_colorbar(
     palette: ColorPalette,
     label: str | None = None,
     cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-    cbar_thickness: float = 0.1,
+    cbar_thickness: float = 0.075,
     cbar_length: float = 1.0,
     cbar_pad: float = 0.01,
     label_pad: float = 10.0,

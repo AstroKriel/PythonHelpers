@@ -100,7 +100,7 @@ def _get_value_range(
 ) -> tuple[float, float]:
     """
     Calculate the (min, max) value range for colorbar scaling.
-    
+
     If `cbar_bounds` is provided, validate and use it directly. Otherwise, infer from the finite
     values in `array_2d`, with a small pad applied.
     """
@@ -312,6 +312,44 @@ def plot_2d_streamlines(
     ax.set_xlim((min_x_value, max_x_value))
     ax.set_ylim((min_y_value, max_y_value))
     return stream_obj
+
+
+def plot_2d_contours(
+    *,
+    ax: manage_plots.PlotAxis,
+    array_2d: NDArray[Any],
+    data_format: DataFormat,
+    axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
+    levels: int | NDArray[Any] = 10,
+    color: str = "white",
+    linewidth: float = 0.8,
+    linestyle: str = "-",
+):
+    validate_arrays.ensure_dims(
+        array=array_2d,
+        num_dims=2,
+    )
+    axis_extent = _as_axis_extent(axis_bounds)
+    if axis_extent is None:
+        raise ValueError("`axis_bounds` must not be None.")
+    array_view = as_plot_view(data_array=array_2d, data_format=data_format)
+    grid_x, grid_y = _generate_grid(
+        field_shape=cast(tuple[int, int], array_view.shape),
+        axis_extent=axis_extent,
+    )
+    contour_obj = ax.contour(
+        grid_x,
+        grid_y,
+        array_view,
+        levels=levels,
+        colors=color,
+        linewidths=linewidth,
+        linestyles=linestyle,
+    )
+    min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
+    ax.set_xlim((min_x_value, max_x_value))
+    ax.set_ylim((min_y_value, max_y_value))
+    return contour_obj
 
 
 ## } MODULE
