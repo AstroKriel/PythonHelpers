@@ -647,14 +647,14 @@ def compute_lorentz_force_farrays(
         require_positive=True,
     )
     ## TNB + curvature for b
-    tnb_farrays = compute_tnb_farrays(
+    tnb_farrays_3d = compute_tnb_farrays(
         varray_3d=b_varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
-    tangent_uvarray_3d = tnb_farrays.tangent_uvarray_3d
-    normal_uvarray_3d = tnb_farrays.normal_uvarray_3d
-    curvature_sarray_3d = tnb_farrays.curvature_sarray_3d
+    tangent_uvarray_3d = tnb_farrays_3d.tangent_uvarray_3d
+    normal_uvarray_3d = tnb_farrays_3d.normal_uvarray_3d
+    curvature_sarray_3d = tnb_farrays_3d.curvature_sarray_3d
     ## |b|^2
     b_magn_sq_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=b_varray_3d,
