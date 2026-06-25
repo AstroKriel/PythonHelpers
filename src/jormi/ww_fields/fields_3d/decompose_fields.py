@@ -22,38 +22,38 @@ from jormi.ww_validation import validate_types
 
 @dataclass(frozen=True)
 class HelmholtzDecomposedFields_3D:
-    vfield_3d_div: field_models.VectorField_3D
-    vfield_3d_sol: field_models.VectorField_3D
-    vfield_3d_bulk: field_models.VectorField_3D
+    div_vfield_3d: field_models.VectorField_3D
+    sol_vfield_3d: field_models.VectorField_3D
+    bulk_vfield_3d: field_models.VectorField_3D
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each field independently
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_div,
-            param_name="<vfield_3d_div>",
+            vfield_3d=self.div_vfield_3d,
+            param_name="<div_vfield_3d>",
         )
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_sol,
-            param_name="<vfield_3d_sol>",
+            vfield_3d=self.sol_vfield_3d,
+            param_name="<sol_vfield_3d>",
         )
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_bulk,
-            param_name="<vfield_3d_bulk>",
+            vfield_3d=self.bulk_vfield_3d,
+            param_name="<bulk_vfield_3d>",
         )
         ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.vfield_3d_div,
-            field_3d_b=self.vfield_3d_sol,
-            field_name_a="<vfield_3d_div>",
-            field_name_b="<vfield_3d_sol>",
+            field_3d_a=self.div_vfield_3d,
+            field_3d_b=self.sol_vfield_3d,
+            field_name_a="<div_vfield_3d>",
+            field_name_b="<sol_vfield_3d>",
         )
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.vfield_3d_div,
-            field_3d_b=self.vfield_3d_bulk,
-            field_name_a="<vfield_3d_div>",
-            field_name_b="<vfield_3d_bulk>",
+            field_3d_a=self.div_vfield_3d,
+            field_3d_b=self.bulk_vfield_3d,
+            field_name_a="<div_vfield_3d>",
+            field_name_b="<bulk_vfield_3d>",
         )
 
 
@@ -80,31 +80,31 @@ def compute_helmholtz_decomposed_fields(
         resolution=udomain_3d.resolution,
         cell_widths_3d=udomain_3d.cell_widths,
     )
-    vfield_3d_div = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.varray_3d_div,
+    div_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=hd_3d_farrays.div_varray_3d,
         udomain_3d=udomain_3d,
         field_name="div_component",
         latex_label=r"\vec{f}_\mathrm{div}",
         sim_time=sim_time,
     )
-    vfield_3d_sol = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.varray_3d_sol,
+    sol_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=hd_3d_farrays.sol_varray_3d,
         udomain_3d=udomain_3d,
         field_name="sol_component",
         latex_label=r"\vec{f}_\mathrm{sol}",
         sim_time=sim_time,
     )
-    vfield_3d_bulk = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.varray_3d_bulk,
+    bulk_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=hd_3d_farrays.bulk_varray_3d,
         udomain_3d=udomain_3d,
         field_name="bulk_component",
         latex_label=r"\vec{f}_\mathrm{bulk}",
         sim_time=sim_time,
     )
     return HelmholtzDecomposedFields_3D(
-        vfield_3d_div=vfield_3d_div,
-        vfield_3d_sol=vfield_3d_sol,
-        vfield_3d_bulk=vfield_3d_bulk,
+        div_vfield_3d=div_vfield_3d,
+        sol_vfield_3d=sol_vfield_3d,
+        bulk_vfield_3d=bulk_vfield_3d,
     )
 
 
@@ -115,49 +115,49 @@ def compute_helmholtz_decomposed_fields(
 
 @dataclass(frozen=True)
 class TNBDecomposedFields_3D:
-    uvfield_3d_tangent: field_models.UnitVectorField_3D
-    uvfield_3d_normal: field_models.UnitVectorField_3D
-    uvfield_3d_binormal: field_models.UnitVectorField_3D
-    sfield_3d_curvature: field_models.ScalarField_3D
+    tangent_uvfield_3d: field_models.UnitVectorField_3D
+    normal_uvfield_3d: field_models.UnitVectorField_3D
+    binormal_uvfield_3d: field_models.UnitVectorField_3D
+    curvature_sfield_3d: field_models.ScalarField_3D
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each TNB field independently
         field_models.ensure_3d_uvfield(
-            uvfield_3d=self.uvfield_3d_tangent,
-            param_name="<uvfield_3d_tangent>",
+            uvfield_3d=self.tangent_uvfield_3d,
+            param_name="<tangent_uvfield_3d>",
         )
         field_models.ensure_3d_uvfield(
-            uvfield_3d=self.uvfield_3d_normal,
-            param_name="<uvfield_3d_normal>",
+            uvfield_3d=self.normal_uvfield_3d,
+            param_name="<normal_uvfield_3d>",
         )
         field_models.ensure_3d_uvfield(
-            uvfield_3d=self.uvfield_3d_binormal,
-            param_name="<uvfield_3d_binormal>",
+            uvfield_3d=self.binormal_uvfield_3d,
+            param_name="<binormal_uvfield_3d>",
         )
         field_models.ensure_3d_sfield(
-            sfield_3d=self.sfield_3d_curvature,
-            param_name="<sfield_3d_curvature>",
+            sfield_3d=self.curvature_sfield_3d,
+            param_name="<curvature_sfield_3d>",
         )
         ## validate shared field geometry within the decomposition
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.uvfield_3d_tangent,
-            field_3d_b=self.uvfield_3d_normal,
-            field_name_a="<uvfield_3d_tangent>",
-            field_name_b="<uvfield_3d_normal>",
+            field_3d_a=self.tangent_uvfield_3d,
+            field_3d_b=self.normal_uvfield_3d,
+            field_name_a="<tangent_uvfield_3d>",
+            field_name_b="<normal_uvfield_3d>",
         )
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.uvfield_3d_tangent,
-            field_3d_b=self.uvfield_3d_binormal,
-            field_name_a="<uvfield_3d_tangent>",
-            field_name_b="<uvfield_3d_binormal>",
+            field_3d_a=self.tangent_uvfield_3d,
+            field_3d_b=self.binormal_uvfield_3d,
+            field_name_a="<tangent_uvfield_3d>",
+            field_name_b="<binormal_uvfield_3d>",
         )
         field_models.ensure_same_3d_field_udomains(
-            field_3d_a=self.uvfield_3d_tangent,
-            field_3d_b=self.sfield_3d_curvature,
-            field_name_a="<uvfield_3d_tangent>",
-            field_name_b="<sfield_3d_curvature>",
+            field_3d_a=self.tangent_uvfield_3d,
+            field_3d_b=self.curvature_sfield_3d,
+            field_name_a="<tangent_uvfield_3d>",
+            field_name_b="<curvature_sfield_3d>",
         )
 
 
@@ -188,48 +188,48 @@ def compute_tnb_decomposed_fields(
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    vfield_3d_tangent = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.uvarray_3d_tangent,
+    tangent_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=tnb_3d_farrays.tangent_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="tangent",
         latex_label=r"\vec{t}",
         sim_time=sim_time,
     )
-    vfield_3d_normal = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.uvarray_3d_normal,
+    normal_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=tnb_3d_farrays.normal_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="normal",
         latex_label=r"\vec{n}",
         sim_time=sim_time,
     )
-    vfield_3d_binormal = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.uvarray_3d_binormal,
+    binormal_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=tnb_3d_farrays.binormal_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="binormal",
         latex_label=r"\hat{b}",
         sim_time=sim_time,
     )
-    sfield_3d_curvature = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=tnb_3d_farrays.sarray_3d_curvature,
+    curvature_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
+        sarray_3d=tnb_3d_farrays.curvature_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="curvature_magnitude",
         latex_label=r"|\vec{\kappa}|",
         sim_time=sim_time,
     )
-    uvfield_3d_tangent = field_models.as_3d_uvfield(
-        vfield_3d=vfield_3d_tangent,
+    tangent_uvfield_3d = field_models.as_3d_uvfield(
+        vfield_3d=tangent_vfield_3d,
     )
-    uvfield_3d_normal = field_models.as_3d_uvfield(
-        vfield_3d=vfield_3d_normal,
+    normal_uvfield_3d = field_models.as_3d_uvfield(
+        vfield_3d=normal_vfield_3d,
     )
-    uvfield_3d_binormal = field_models.as_3d_uvfield(
-        vfield_3d=vfield_3d_binormal,
+    binormal_uvfield_3d = field_models.as_3d_uvfield(
+        vfield_3d=binormal_vfield_3d,
     )
     return TNBDecomposedFields_3D(
-        uvfield_3d_tangent=uvfield_3d_tangent,
-        uvfield_3d_normal=uvfield_3d_normal,
-        uvfield_3d_binormal=uvfield_3d_binormal,
-        sfield_3d_curvature=sfield_3d_curvature,
+        tangent_uvfield_3d=tangent_uvfield_3d,
+        normal_uvfield_3d=normal_uvfield_3d,
+        binormal_uvfield_3d=binormal_uvfield_3d,
+        curvature_sfield_3d=curvature_sfield_3d,
     )
 
 
@@ -240,46 +240,46 @@ def compute_tnb_decomposed_fields(
 
 @dataclass(frozen=True)
 class MagneticCurvatureFields_3D:
-    sfield_3d_curvature: field_models.ScalarField_3D
-    sfield_3d_stretching: field_models.ScalarField_3D
-    sfield_3d_compression: field_models.ScalarField_3D
+    curvature_sfield_3d: field_models.ScalarField_3D
+    stretching_sfield_3d: field_models.ScalarField_3D
+    compression_sfield_3d: field_models.ScalarField_3D
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each scalar field independently
         field_models.ensure_3d_sfield(
-            sfield_3d=self.sfield_3d_curvature,
-            param_name="<sfield_3d_curvature>",
+            sfield_3d=self.curvature_sfield_3d,
+            param_name="<curvature_sfield_3d>",
         )
         field_models.ensure_3d_sfield(
-            sfield_3d=self.sfield_3d_stretching,
-            param_name="<sfield_3d_stretching>",
+            sfield_3d=self.stretching_sfield_3d,
+            param_name="<stretching_sfield_3d>",
         )
         field_models.ensure_3d_sfield(
-            sfield_3d=self.sfield_3d_compression,
-            param_name="<sfield_3d_compression>",
+            sfield_3d=self.compression_sfield_3d,
+            param_name="<compression_sfield_3d>",
         )
         ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.sfield_3d_curvature,
-            field_3d_b=self.sfield_3d_stretching,
-            field_name_a="<sfield_3d_curvature>",
-            field_name_b="<sfield_3d_stretching>",
+            field_3d_a=self.curvature_sfield_3d,
+            field_3d_b=self.stretching_sfield_3d,
+            field_name_a="<curvature_sfield_3d>",
+            field_name_b="<stretching_sfield_3d>",
         )
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.sfield_3d_curvature,
-            field_3d_b=self.sfield_3d_compression,
-            field_name_a="<sfield_3d_curvature>",
-            field_name_b="<sfield_3d_compression>",
+            field_3d_a=self.curvature_sfield_3d,
+            field_3d_b=self.compression_sfield_3d,
+            field_name_a="<curvature_sfield_3d>",
+            field_name_b="<compression_sfield_3d>",
         )
 
 
 def compute_magnetic_curvature_decomposed_fields(
     *,
-    vfield_3d_u: field_models.VectorField_3D,
-    uvfield_3d_tangent: field_models.UnitVectorField_3D,
-    uvfield_3d_normal: field_models.UnitVectorField_3D,
+    v_vfield_3d: field_models.VectorField_3D,
+    tangent_uvfield_3d: field_models.UnitVectorField_3D,
+    normal_uvfield_3d: field_models.UnitVectorField_3D,
     grad_order: int = 2,
 ) -> MagneticCurvatureFields_3D:
     """
@@ -291,28 +291,28 @@ def compute_magnetic_curvature_decomposed_fields(
         compression = d_i u_i
     """
     field_models.ensure_3d_vfield(
-        vfield_3d=vfield_3d_u,
-        param_name="<vfield_3d_u>",
+        vfield_3d=v_vfield_3d,
+        param_name="<v_vfield_3d>",
     )
     field_models.ensure_3d_uvfield(
-        uvfield_3d=uvfield_3d_tangent,
-        param_name="<uvfield_3d_tangent>",
+        uvfield_3d=tangent_uvfield_3d,
+        param_name="<tangent_uvfield_3d>",
     )
     field_models.ensure_3d_uvfield(
-        uvfield_3d=uvfield_3d_normal,
-        param_name="<uvfield_3d_normal>",
+        uvfield_3d=normal_uvfield_3d,
+        param_name="<normal_uvfield_3d>",
     )
     field_models.ensure_same_3d_field_udomains(
-        field_3d_a=vfield_3d_u,
-        field_3d_b=uvfield_3d_tangent,
-        field_name_a="<vfield_3d_u>",
-        field_name_b="<uvfield_3d_tangent>",
+        field_3d_a=v_vfield_3d,
+        field_3d_b=tangent_uvfield_3d,
+        field_name_a="<v_vfield_3d>",
+        field_name_b="<tangent_uvfield_3d>",
     )
     field_models.ensure_same_3d_field_udomains(
-        field_3d_a=vfield_3d_u,
-        field_3d_b=uvfield_3d_normal,
-        field_name_a="<vfield_3d_u>",
-        field_name_b="<uvfield_3d_normal>",
+        field_3d_a=v_vfield_3d,
+        field_3d_b=normal_uvfield_3d,
+        field_name_a="<v_vfield_3d>",
+        field_name_b="<normal_uvfield_3d>",
     )
     validate_types.ensure_finite_int(
         param=grad_order,
@@ -320,52 +320,52 @@ def compute_magnetic_curvature_decomposed_fields(
         allow_none=False,
         require_positive=True,
     )
-    varray_3d_u = field_models.extract_3d_varray(
-        vfield_3d=vfield_3d_u,
-        param_name="<vfield_3d_u>",
+    v_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=v_vfield_3d,
+        param_name="<v_vfield_3d>",
     )
-    uvarray_3d_tangent = field_models.extract_3d_varray(
-        vfield_3d=uvfield_3d_tangent,
-        param_name="<uvfield_3d_tangent>",
+    tangent_uvarray_3d = field_models.extract_3d_varray(
+        vfield_3d=tangent_uvfield_3d,
+        param_name="<tangent_uvfield_3d>",
     )
-    uvarray_3d_normal = field_models.extract_3d_varray(
-        vfield_3d=uvfield_3d_normal,
-        param_name="<uvfield_3d_normal>",
+    normal_uvarray_3d = field_models.extract_3d_varray(
+        vfield_3d=normal_uvfield_3d,
+        param_name="<normal_uvfield_3d>",
     )
-    udomain_3d = vfield_3d_u.udomain
-    sim_time = vfield_3d_u.sim_time
+    udomain_3d = v_vfield_3d.udomain
+    sim_time = v_vfield_3d.sim_time
     mc_3d_farrays = _decompose_farrays.compute_magnetic_curvature_farrays(
-        varray_3d_u=varray_3d_u,
-        uvarray_3d_tangent=uvarray_3d_tangent,
-        uvarray_3d_normal=uvarray_3d_normal,
+        v_varray_3d=v_varray_3d,
+        tangent_uvarray_3d=tangent_uvarray_3d,
+        normal_uvarray_3d=normal_uvarray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    sfield_3d_curvature = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.sarray_3d_curvature,
+    curvature_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
+        sarray_3d=mc_3d_farrays.curvature_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_curvature",
         latex_label=r"n_i n_j \partial_i u_j",
         sim_time=sim_time,
     )
-    sfield_3d_stretching = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.sarray_3d_stretching,
+    stretching_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
+        sarray_3d=mc_3d_farrays.stretching_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_stretching",
         latex_label=r"t_i t_j \partial_i u_j",
         sim_time=sim_time,
     )
-    sfield_3d_compression = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.sarray_3d_compression,
+    compression_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
+        sarray_3d=mc_3d_farrays.compression_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_compression",
         latex_label=r"\partial_i u_i",
         sim_time=sim_time,
     )
     return MagneticCurvatureFields_3D(
-        sfield_3d_curvature=sfield_3d_curvature,
-        sfield_3d_stretching=sfield_3d_stretching,
-        sfield_3d_compression=sfield_3d_compression,
+        curvature_sfield_3d=curvature_sfield_3d,
+        stretching_sfield_3d=stretching_sfield_3d,
+        compression_sfield_3d=compression_sfield_3d,
     )
 
 
@@ -376,50 +376,50 @@ def compute_magnetic_curvature_decomposed_fields(
 
 @dataclass(frozen=True)
 class LorentzForceFields_3D:
-    vfield_3d_lorentz: field_models.VectorField_3D
-    vfield_3d_tension: field_models.VectorField_3D
-    vfield_3d_grad_p_perp: field_models.VectorField_3D
+    lorentz_vfield_3d: field_models.VectorField_3D
+    tension_vfield_3d: field_models.VectorField_3D
+    grad_p_perp_vfield_3d: field_models.VectorField_3D
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each force field independently
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_lorentz,
-            param_name="<vfield_3d_lorentz>",
+            vfield_3d=self.lorentz_vfield_3d,
+            param_name="<lorentz_vfield_3d>",
         )
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_tension,
-            param_name="<vfield_3d_tension>",
+            vfield_3d=self.tension_vfield_3d,
+            param_name="<tension_vfield_3d>",
         )
         field_models.ensure_3d_vfield(
-            vfield_3d=self.vfield_3d_grad_p_perp,
-            param_name="<vfield_3d_grad_p_perp>",
+            vfield_3d=self.grad_p_perp_vfield_3d,
+            param_name="<grad_p_perp_vfield_3d>",
         )
         ## validate shared field geometry and domains
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.vfield_3d_lorentz,
-            field_3d_b=self.vfield_3d_tension,
-            field_name_a="<vfield_3d_lorentz>",
-            field_name_b="<vfield_3d_tension>",
+            field_3d_a=self.lorentz_vfield_3d,
+            field_3d_b=self.tension_vfield_3d,
+            field_name_a="<lorentz_vfield_3d>",
+            field_name_b="<tension_vfield_3d>",
         )
         field_models.ensure_same_3d_field_shape_and_udomains(
-            field_3d_a=self.vfield_3d_lorentz,
-            field_3d_b=self.vfield_3d_grad_p_perp,
-            field_name_a="<vfield_3d_lorentz>",
-            field_name_b="<vfield_3d_grad_p_perp>",
+            field_3d_a=self.lorentz_vfield_3d,
+            field_3d_b=self.grad_p_perp_vfield_3d,
+            field_name_a="<lorentz_vfield_3d>",
+            field_name_b="<grad_p_perp_vfield_3d>",
         )
 
 
 def compute_lorentz_force_decomposed_fields(
-    vfield_3d_b: field_models.VectorField_3D,
+    b_vfield_3d: field_models.VectorField_3D,
     *,
     grad_order: int = 2,
 ) -> LorentzForceFields_3D:
     """Field-level Lorentz force decomposition wrapper."""
     field_models.ensure_3d_vfield(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
+        vfield_3d=b_vfield_3d,
+        param_name="<b_vfield_3d>",
     )
     validate_types.ensure_finite_int(
         param=grad_order,
@@ -427,46 +427,46 @@ def compute_lorentz_force_decomposed_fields(
         allow_none=False,
         require_positive=True,
     )
-    udomain_3d = vfield_3d_b.udomain
+    udomain_3d = b_vfield_3d.udomain
     domain_models.ensure_3d_udomain(
         udomain_3d=udomain_3d,
         param_name="<udomain_3d>",
     )
-    varray_3d_b = field_models.extract_3d_varray(
-        vfield_3d=vfield_3d_b,
-        param_name="<vfield_3d_b>",
+    b_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=b_vfield_3d,
+        param_name="<b_vfield_3d>",
     )
-    sim_time = vfield_3d_b.sim_time
+    sim_time = b_vfield_3d.sim_time
     lf_3d_farrays = _decompose_farrays.compute_lorentz_force_farrays(
-        varray_3d_b=varray_3d_b,
+        b_varray_3d=b_varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
-    vfield_3d_lorentz = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.varray_3d_lorentz,
+    lorentz_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=lf_3d_farrays.lorentz_varray_3d,
         udomain_3d=udomain_3d,
         field_name="lorentz_force",
         latex_label=r"(\nabla\times\vec{b})\times\vec{b}",
         sim_time=sim_time,
     )
-    vfield_3d_tension = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.varray_3d_tension,
+    tension_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=lf_3d_farrays.tension_varray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_tension",
         latex_label=r"b^2 \vec{\kappa}",
         sim_time=sim_time,
     )
-    vfield_3d_grad_p_perp = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.varray_3d_grad_p_perp,
+    grad_p_perp_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        varray_3d=lf_3d_farrays.grad_p_perp_varray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_pressure_gradient",
         latex_label=r"[\partial_i (b_k b_k / 2)]_\perp",
         sim_time=sim_time,
     )
     return LorentzForceFields_3D(
-        vfield_3d_lorentz=vfield_3d_lorentz,
-        vfield_3d_tension=vfield_3d_tension,
-        vfield_3d_grad_p_perp=vfield_3d_grad_p_perp,
+        lorentz_vfield_3d=lorentz_vfield_3d,
+        tension_vfield_3d=tension_vfield_3d,
+        grad_p_perp_vfield_3d=grad_p_perp_vfield_3d,
     )
 
 

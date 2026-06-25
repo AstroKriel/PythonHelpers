@@ -92,29 +92,29 @@ def second_order_centered_difference(
         grad_axis=grad_axis,
         sarray_name="<sarray_3d>",
     )
-    sarray_3d_out = numpy.zeros_like(
+    out_sarray_3d = numpy.zeros_like(
         sarray_3d,
         dtype=numpy.result_type(
             sarray_3d.dtype,
             numpy.float64,
         ),
     )
-    sarray_3d_f = numpy.roll(
+    f_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += sarray_3d_f
-    del sarray_3d_f
-    sarray_3d_b = numpy.roll(
+    out_sarray_3d += f_sarray_3d
+    del f_sarray_3d
+    b_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= sarray_3d_b
-    del sarray_3d_b
-    sarray_3d_out /= 2.0 * cell_width
-    return sarray_3d_out
+    out_sarray_3d -= b_sarray_3d
+    del b_sarray_3d
+    out_sarray_3d /= 2.0 * cell_width
+    return out_sarray_3d
 
 
 def fourth_order_centered_difference(
@@ -130,43 +130,43 @@ def fourth_order_centered_difference(
         grad_axis=grad_axis,
         sarray_name="<sarray_3d>",
     )
-    sarray_3d_out = numpy.zeros_like(
+    out_sarray_3d = numpy.zeros_like(
         sarray_3d,
         dtype=numpy.result_type(
             sarray_3d.dtype,
             numpy.float64,
         ),
     )
-    sarray_3d_f2 = numpy.roll(
+    f2_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(2 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= sarray_3d_f2
-    del sarray_3d_f2
-    sarray_3d_f1 = numpy.roll(
+    out_sarray_3d -= f2_sarray_3d
+    del f2_sarray_3d
+    f1_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += 8.0 * sarray_3d_f1
-    del sarray_3d_f1
-    sarray_3d_b1 = numpy.roll(
+    out_sarray_3d += 8.0 * f1_sarray_3d
+    del f1_sarray_3d
+    b1_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= 8.0 * sarray_3d_b1
-    del sarray_3d_b1
-    sarray_3d_b2 = numpy.roll(
+    out_sarray_3d -= 8.0 * b1_sarray_3d
+    del b1_sarray_3d
+    b2_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(2 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += sarray_3d_b2
-    del sarray_3d_b2
-    sarray_3d_out /= 12.0 * cell_width
-    return sarray_3d_out
+    out_sarray_3d += b2_sarray_3d
+    del b2_sarray_3d
+    out_sarray_3d /= 12.0 * cell_width
+    return out_sarray_3d
 
 
 def sixth_order_centered_difference(
@@ -182,57 +182,57 @@ def sixth_order_centered_difference(
         grad_axis=grad_axis,
         sarray_name="<sarray_3d>",
     )
-    sarray_3d_out = numpy.zeros_like(
+    out_sarray_3d = numpy.zeros_like(
         sarray_3d,
         dtype=numpy.result_type(
             sarray_3d.dtype,
             numpy.float64,
         ),
     )
-    sarray_3d_f3 = numpy.roll(
+    f3_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(3 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += sarray_3d_f3
-    del sarray_3d_f3
-    sarray_3d_f2 = numpy.roll(
+    out_sarray_3d += f3_sarray_3d
+    del f3_sarray_3d
+    f2_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(2 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= 9.0 * sarray_3d_f2
-    del sarray_3d_f2
-    sarray_3d_f1 = numpy.roll(
+    out_sarray_3d -= 9.0 * f2_sarray_3d
+    del f2_sarray_3d
+    f1_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * FORWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += 45.0 * sarray_3d_f1
-    del sarray_3d_f1
-    sarray_3d_b1 = numpy.roll(
+    out_sarray_3d += 45.0 * f1_sarray_3d
+    del f1_sarray_3d
+    b1_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(1 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= 45.0 * sarray_3d_b1
-    del sarray_3d_b1
-    sarray_3d_b2 = numpy.roll(
+    out_sarray_3d -= 45.0 * b1_sarray_3d
+    del b1_sarray_3d
+    b2_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(2 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out += 9.0 * sarray_3d_b2
-    del sarray_3d_b2
-    sarray_3d_b3 = numpy.roll(
+    out_sarray_3d += 9.0 * b2_sarray_3d
+    del b2_sarray_3d
+    b3_sarray_3d = numpy.roll(
         a=sarray_3d,
         shift=int(3 * BACKWARD),
         axis=grad_axis,
     )
-    sarray_3d_out -= sarray_3d_b3
-    del sarray_3d_b3
-    sarray_3d_out /= 60.0 * cell_width
-    return sarray_3d_out
+    out_sarray_3d -= b3_sarray_3d
+    del b3_sarray_3d
+    out_sarray_3d /= 60.0 * cell_width
+    return out_sarray_3d
 
 
 ## } MODULE
