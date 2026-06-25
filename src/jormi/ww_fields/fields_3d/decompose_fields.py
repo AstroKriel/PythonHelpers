@@ -75,27 +75,27 @@ def compute_helmholtz_decomposed_fields(
         param_name="<vfield_3d>",
     )
     sim_time = vfield_3d.sim_time
-    hd_3d_farrays = _decompose_farrays.compute_helmholtz_decomposed_farrays(
+    helmholtz_farrays = _decompose_farrays.compute_helmholtz_decomposed_farrays(
         varray_3d=varray_3d,
         resolution=udomain_3d.resolution,
         cell_widths_3d=udomain_3d.cell_widths,
     )
     div_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.div_varray_3d,
+        varray_3d=helmholtz_farrays.div_varray_3d,
         udomain_3d=udomain_3d,
         field_name="div_component",
         latex_label=r"\vec{f}_\mathrm{div}",
         sim_time=sim_time,
     )
     sol_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.sol_varray_3d,
+        varray_3d=helmholtz_farrays.sol_varray_3d,
         udomain_3d=udomain_3d,
         field_name="sol_component",
         latex_label=r"\vec{f}_\mathrm{sol}",
         sim_time=sim_time,
     )
     bulk_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=hd_3d_farrays.bulk_varray_3d,
+        varray_3d=helmholtz_farrays.bulk_varray_3d,
         udomain_3d=udomain_3d,
         field_name="bulk_component",
         latex_label=r"\vec{f}_\mathrm{bulk}",
@@ -183,34 +183,34 @@ def compute_tnb_decomposed_fields(
         param_name="<vfield_3d>",
     )
     sim_time = vfield_3d.sim_time
-    tnb_3d_farrays = _decompose_farrays.compute_tnb_farrays(
+    tnb_farrays = _decompose_farrays.compute_tnb_farrays(
         varray_3d=varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
     tangent_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.tangent_uvarray_3d,
+        varray_3d=tnb_farrays.tangent_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="tangent",
         latex_label=r"\vec{t}",
         sim_time=sim_time,
     )
     normal_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.normal_uvarray_3d,
+        varray_3d=tnb_farrays.normal_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="normal",
         latex_label=r"\vec{n}",
         sim_time=sim_time,
     )
     binormal_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=tnb_3d_farrays.binormal_uvarray_3d,
+        varray_3d=tnb_farrays.binormal_uvarray_3d,
         udomain_3d=udomain_3d,
         field_name="binormal",
         latex_label=r"\hat{b}",
         sim_time=sim_time,
     )
     curvature_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=tnb_3d_farrays.curvature_sarray_3d,
+        sarray_3d=tnb_farrays.curvature_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="curvature_magnitude",
         latex_label=r"|\vec{\kappa}|",
@@ -286,9 +286,9 @@ def compute_magnetic_curvature_decomposed_fields(
     Field-level wrapper for magnetic curvature, stretching, compression.
 
     Uses:
-        curvature   = n_i n_j d_i u_j
-        stretching  = t_i t_j d_i u_j
-        compression = d_i u_i
+        curvature   = n_i n_j d_i v_j
+        stretching  = t_i t_j d_i v_j
+        compression = d_i v_i
     """
     field_models.ensure_3d_vfield(
         vfield_3d=v_vfield_3d,
@@ -334,7 +334,7 @@ def compute_magnetic_curvature_decomposed_fields(
     )
     udomain_3d = v_vfield_3d.udomain
     sim_time = v_vfield_3d.sim_time
-    mc_3d_farrays = _decompose_farrays.compute_magnetic_curvature_farrays(
+    magnetic_curvature_farrays = _decompose_farrays.compute_magnetic_curvature_farrays(
         v_varray_3d=v_varray_3d,
         tangent_uvarray_3d=tangent_uvarray_3d,
         normal_uvarray_3d=normal_uvarray_3d,
@@ -342,24 +342,24 @@ def compute_magnetic_curvature_decomposed_fields(
         grad_order=grad_order,
     )
     curvature_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.curvature_sarray_3d,
+        sarray_3d=magnetic_curvature_farrays.curvature_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_curvature",
-        latex_label=r"n_i n_j \partial_i u_j",
+        latex_label=r"n_i n_j \partial_i v_j",
         sim_time=sim_time,
     )
     stretching_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.stretching_sarray_3d,
+        sarray_3d=magnetic_curvature_farrays.stretching_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_stretching",
-        latex_label=r"t_i t_j \partial_i u_j",
+        latex_label=r"t_i t_j \partial_i v_j",
         sim_time=sim_time,
     )
     compression_sfield_3d = field_models.ScalarField_3D.from_3d_sarray(
-        sarray_3d=mc_3d_farrays.compression_sarray_3d,
+        sarray_3d=magnetic_curvature_farrays.compression_sarray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_compression",
-        latex_label=r"\partial_i u_i",
+        latex_label=r"\partial_i v_i",
         sim_time=sim_time,
     )
     return MagneticCurvatureFields_3D(
@@ -437,27 +437,27 @@ def compute_lorentz_force_decomposed_fields(
         param_name="<b_vfield_3d>",
     )
     sim_time = b_vfield_3d.sim_time
-    lf_3d_farrays = _decompose_farrays.compute_lorentz_force_farrays(
+    lorentz_force_farrays = _decompose_farrays.compute_lorentz_force_farrays(
         b_varray_3d=b_varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
         grad_order=grad_order,
     )
     lorentz_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.lorentz_varray_3d,
+        varray_3d=lorentz_force_farrays.lorentz_varray_3d,
         udomain_3d=udomain_3d,
         field_name="lorentz_force",
         latex_label=r"(\nabla\times\vec{b})\times\vec{b}",
         sim_time=sim_time,
     )
     tension_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.tension_varray_3d,
+        varray_3d=lorentz_force_farrays.tension_varray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_tension",
         latex_label=r"b^2 \vec{\kappa}",
         sim_time=sim_time,
     )
     grad_p_perp_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-        varray_3d=lf_3d_farrays.grad_p_perp_varray_3d,
+        varray_3d=lorentz_force_farrays.grad_p_perp_varray_3d,
         udomain_3d=udomain_3d,
         field_name="magnetic_pressure_gradient",
         latex_label=r"[\partial_i (b_k b_k / 2)]_\perp",
