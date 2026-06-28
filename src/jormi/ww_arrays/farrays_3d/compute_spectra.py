@@ -116,7 +116,7 @@ def _compute_3d_power_spectrum_sarray(
             "_compute_3d_power_spectrum_sarray assumes a cubic grid:"
             f" got resolution_3d={resolution_3d} (expected num_x0_cells=num_x1_cells=num_x2_cells).",
         )
-    sarray_3d_shifted_fft = numpy.fft.fftshift(
+    shifted_fft_sarray_3d = numpy.fft.fftshift(
         numpy.fft.fftn(
             sarray_3d,
             axes=(0, 1, 2),
@@ -126,7 +126,7 @@ def _compute_3d_power_spectrum_sarray(
     )
     centered_3d_spectrum = numpy.square(
         numpy.abs(
-            sarray_3d_shifted_fft,
+            shifted_fft_sarray_3d,
         ),
     )
     return centered_3d_spectrum

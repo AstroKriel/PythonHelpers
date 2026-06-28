@@ -29,36 +29,36 @@ from jormi.ww_validation import validate_types
 class HelmholtzDecomposedFArrays_3D:
     """Helmholtz decomposition of a 3D varray into div/sol/bulk components."""
 
-    varray_3d_div: NDArray[Any]
-    varray_3d_sol: NDArray[Any]
-    varray_3d_bulk: NDArray[Any]
+    div_varray_3d: NDArray[Any]
+    sol_varray_3d: NDArray[Any]
+    bulk_varray_3d: NDArray[Any]
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each decomposed vector field
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_div,
-            param_name="<varray_3d_div>",
+            varray_3d=self.div_varray_3d,
+            param_name="<div_varray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_sol,
-            param_name="<varray_3d_sol>",
+            varray_3d=self.sol_varray_3d,
+            param_name="<sol_varray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_bulk,
-            param_name="<varray_3d_bulk>",
+            varray_3d=self.bulk_varray_3d,
+            param_name="<bulk_varray_3d>",
         )
         ## validate shared decomposition geometry
         if any([
-                self.varray_3d_div.shape != self.varray_3d_sol.shape,
-                self.varray_3d_div.shape != self.varray_3d_bulk.shape,
+                self.div_varray_3d.shape != self.sol_varray_3d.shape,
+                self.div_varray_3d.shape != self.bulk_varray_3d.shape,
         ]):
             raise ValueError(
                 "HelmholtzDecomposedFArrays_3D components must share the same shape:"
-                f" div={self.varray_3d_div.shape},"
-                f" sol={self.varray_3d_sol.shape},"
-                f" bulk={self.varray_3d_bulk.shape}.",
+                f" div={self.div_varray_3d.shape},"
+                f" sol={self.sol_varray_3d.shape},"
+                f" bulk={self.bulk_varray_3d.shape}.",
             )
 
 
@@ -110,63 +110,63 @@ def compute_helmholtz_decomposed_farrays(
     )
     k_magn_grid = kx_grid**2 + ky_grid**2 + kz_grid**2
     k_magn_grid[0, 0, 0] = 1.0  ## avoid division by zero at k=0
-    varray_3d_fft = numpy.fft.fftn(
+    fft_varray_3d = numpy.fft.fftn(
         varray_3d,
         axes=(1, 2, 3),
         norm="forward",
     )
-    varray_3d_fft_bulk = numpy.zeros_like(varray_3d_fft)
-    varray_3d_fft_bulk[:, 0, 0, 0] = varray_3d_fft[:, 0, 0, 0]
-    varray_3d_fft[:, 0, 0, 0] = 0.0
-    sarray_3d_k_dot_fft = (
-        kx_grid * varray_3d_fft[0] + ky_grid * varray_3d_fft[1] + kz_grid * varray_3d_fft[2]
+    fft_bulk_varray_3d = numpy.zeros_like(fft_varray_3d)
+    fft_bulk_varray_3d[:, 0, 0, 0] = fft_varray_3d[:, 0, 0, 0]
+    fft_varray_3d[:, 0, 0, 0] = 0.0
+    k_dot_fft_sarray_3d = (
+        kx_grid * fft_varray_3d[0] + ky_grid * fft_varray_3d[1] + kz_grid * fft_varray_3d[2]
     )
     with numpy.errstate(
             divide="ignore",
             invalid="ignore",
     ):
-        varray_3d_fft_div = numpy.stack(
+        fft_div_varray_3d = numpy.stack(
             [
-                (kx_grid / k_magn_grid) * sarray_3d_k_dot_fft,
-                (ky_grid / k_magn_grid) * sarray_3d_k_dot_fft,
-                (kz_grid / k_magn_grid) * sarray_3d_k_dot_fft,
+                (kx_grid / k_magn_grid) * k_dot_fft_sarray_3d,
+                (ky_grid / k_magn_grid) * k_dot_fft_sarray_3d,
+                (kz_grid / k_magn_grid) * k_dot_fft_sarray_3d,
             ],
             axis=0,
         )
-    del kx_grid, ky_grid, kz_grid, k_magn_grid, sarray_3d_k_dot_fft
-    varray_3d_fft_sol = varray_3d_fft - varray_3d_fft_div
-    del varray_3d_fft
-    varray_3d_div = numpy.fft.ifftn(
-        varray_3d_fft_div,
+    del kx_grid, ky_grid, kz_grid, k_magn_grid, k_dot_fft_sarray_3d
+    fft_sol_varray_3d = fft_varray_3d - fft_div_varray_3d
+    del fft_varray_3d
+    div_varray_3d = numpy.fft.ifftn(
+        fft_div_varray_3d,
         axes=(1, 2, 3),
         norm="forward",
     ).real.astype(
         dtype,
         copy=False,
     )
-    del varray_3d_fft_div
-    varray_3d_sol = numpy.fft.ifftn(
-        varray_3d_fft_sol,
+    del fft_div_varray_3d
+    sol_varray_3d = numpy.fft.ifftn(
+        fft_sol_varray_3d,
         axes=(1, 2, 3),
         norm="forward",
     ).real.astype(
         dtype,
         copy=False,
     )
-    del varray_3d_fft_sol
-    varray_3d_bulk = numpy.fft.ifftn(
-        varray_3d_fft_bulk,
+    del fft_sol_varray_3d
+    bulk_varray_3d = numpy.fft.ifftn(
+        fft_bulk_varray_3d,
         axes=(1, 2, 3),
         norm="forward",
     ).real.astype(
         dtype,
         copy=False,
     )
-    del varray_3d_fft_bulk
+    del fft_bulk_varray_3d
     return HelmholtzDecomposedFArrays_3D(
-        varray_3d_div=varray_3d_div,
-        varray_3d_sol=varray_3d_sol,
-        varray_3d_bulk=varray_3d_bulk,
+        div_varray_3d=div_varray_3d,
+        sol_varray_3d=sol_varray_3d,
+        bulk_varray_3d=bulk_varray_3d,
     )
 
 
@@ -179,48 +179,48 @@ def compute_helmholtz_decomposed_farrays(
 class TNBDecomposedFArrays_3D:
     """TNB decomposition of a 3D varray into unit bases and curvature."""
 
-    uvarray_3d_tangent: NDArray[Any]
-    uvarray_3d_normal: NDArray[Any]
-    uvarray_3d_binormal: NDArray[Any]
-    sarray_3d_curvature: NDArray[Any]
+    tangent_uvarray_3d: NDArray[Any]
+    normal_uvarray_3d: NDArray[Any]
+    binormal_uvarray_3d: NDArray[Any]
+    curvature_sarray_3d: NDArray[Any]
 
     def __post_init__(
         self,
     ) -> None:
         ## validate the TNB basis arrays individually
         farray_types.ensure_3d_varray(
-            varray_3d=self.uvarray_3d_tangent,
-            param_name="<uvarray_3d_tangent>",
+            varray_3d=self.tangent_uvarray_3d,
+            param_name="<tangent_uvarray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.uvarray_3d_normal,
-            param_name="<uvarray_3d_normal>",
+            varray_3d=self.normal_uvarray_3d,
+            param_name="<normal_uvarray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.uvarray_3d_binormal,
-            param_name="<uvarray_3d_binormal>",
+            varray_3d=self.binormal_uvarray_3d,
+            param_name="<binormal_uvarray_3d>",
         )
         farray_types.ensure_3d_sarray(
-            sarray_3d=self.sarray_3d_curvature,
-            param_name="<sarray_3d_curvature>",
+            sarray_3d=self.curvature_sarray_3d,
+            param_name="<curvature_sarray_3d>",
         )
         ## validate that the vector basis shares one grid
         if any([
-                self.uvarray_3d_tangent.shape != self.uvarray_3d_normal.shape,
-                self.uvarray_3d_tangent.shape != self.uvarray_3d_binormal.shape,
+                self.tangent_uvarray_3d.shape != self.normal_uvarray_3d.shape,
+                self.tangent_uvarray_3d.shape != self.binormal_uvarray_3d.shape,
         ]):
             raise ValueError(
                 "TNBDecomposedFArrays_3D vector components must share the same shape:"
-                f" tangent={self.uvarray_3d_tangent.shape},"
-                f" normal={self.uvarray_3d_normal.shape},"
-                f" binormal={self.uvarray_3d_binormal.shape}.",
+                f" tangent={self.tangent_uvarray_3d.shape},"
+                f" normal={self.normal_uvarray_3d.shape},"
+                f" binormal={self.binormal_uvarray_3d.shape}.",
             )
         ## validate curvature against the vector spatial grid
-        if self.uvarray_3d_tangent.shape[1:] != self.sarray_3d_curvature.shape:
+        if self.tangent_uvarray_3d.shape[1:] != self.curvature_sarray_3d.shape:
             raise ValueError(
                 "TNBDecomposedFArrays_3D curvature shape must match spatial shape of"
-                f" vectors: curvature={self.sarray_3d_curvature.shape},"
-                f" vectors={self.uvarray_3d_tangent.shape[1:]}.",
+                f" vectors: curvature={self.curvature_sarray_3d.shape},"
+                f" vectors={self.tangent_uvarray_3d.shape[1:]}.",
             )
 
 
@@ -234,10 +234,10 @@ def compute_tnb_farrays(
     Compute t_i, n_i, b_i and curvature sqrt(kappa_i kappa_i) from a 3D varray.
 
     Returns:
-      - uvarray_3d_tangent   (3, num_x0_cells, num_x1_cells, num_x2_cells)
-      - uvarray_3d_normal    (3, num_x0_cells, num_x1_cells, num_x2_cells)
-      - uvarray_3d_binormal  (3, num_x0_cells, num_x1_cells, num_x2_cells)
-      - sarray_3d_curvature  (num_x0_cells, num_x1_cells, num_x2_cells)
+      - tangent_uvarray_3d   (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - normal_uvarray_3d    (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - binormal_uvarray_3d  (3, num_x0_cells, num_x1_cells, num_x2_cells)
+      - curvature_sarray_3d  (num_x0_cells, num_x1_cells, num_x2_cells)
     """
     farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -251,89 +251,89 @@ def compute_tnb_farrays(
         require_positive=True,
     )
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
+    f_magn_sq_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## |f| = sqrt(f_i f_i)
-    sarray_3d_f_magn = numpy.sqrt(
-        sarray_3d_f_magn_sq,
-        dtype=sarray_3d_f_magn_sq.dtype,
+    f_magn_sarray_3d = numpy.sqrt(
+        f_magn_sq_sarray_3d,
+        dtype=f_magn_sq_sarray_3d.dtype,
     )
     ## t_i = f_i / |f|
-    uvarray_3d_tangent = numpy.zeros_like(varray_3d)
+    tangent_uvarray_3d = numpy.zeros_like(varray_3d)
     numpy.divide(
         varray_3d,
-        sarray_3d_f_magn,
-        out=uvarray_3d_tangent,
-        where=(sarray_3d_f_magn > 0),
+        f_magn_sarray_3d,
+        out=tangent_uvarray_3d,
+        where=(f_magn_sarray_3d > 0),
     )
-    del sarray_3d_f_magn
+    del f_magn_sarray_3d
     ## grad f: d_i f_j, layout (j, i, x0, x1, x2)
-    r2tarray_3d_grad_f = farray_operators.compute_varray_grad(
+    grad_f_r2tarray_3d = farray_operators.compute_varray_grad(
         varray_3d=varray_3d,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_grad_f=None,
+        grad_f_r2tarray_3d=None,
         grad_order=grad_order,
     )
     ## term1_j = f_i * (d_i f_j)
-    varray_3d_normal_term1 = numpy.einsum(
+    normal_term1_varray_3d = numpy.einsum(
         "ixyz,jixyz->jxyz",
         varray_3d,
-        r2tarray_3d_grad_f,
+        grad_f_r2tarray_3d,
         optimize=True,
     )
     ## term2_j = f_i f_j f_m (d_i f_m)
-    varray_3d_normal_term2 = numpy.einsum(
+    normal_term2_varray_3d = numpy.einsum(
         "ixyz,jxyz,mxyz,mixyz->jxyz",
         varray_3d,
         varray_3d,
         varray_3d,
-        r2tarray_3d_grad_f,
+        grad_f_r2tarray_3d,
         optimize=True,
     )
-    del r2tarray_3d_grad_f
+    del grad_f_r2tarray_3d
     ## curvature vector kappa_j and magnitude |kappa|
-    sarray_3d_inv_magn_sq = numpy.zeros_like(sarray_3d_f_magn_sq)
+    inv_magn_sq_sarray_3d = numpy.zeros_like(f_magn_sq_sarray_3d)
     numpy.divide(
         1.0,
-        sarray_3d_f_magn_sq,
-        out=sarray_3d_inv_magn_sq,
-        where=(sarray_3d_f_magn_sq > 0),
+        f_magn_sq_sarray_3d,
+        out=inv_magn_sq_sarray_3d,
+        where=(f_magn_sq_sarray_3d > 0),
     )
-    del sarray_3d_f_magn_sq
-    sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
-    varray_3d_kappa = (
-        varray_3d_normal_term1 * sarray_3d_inv_magn_sq - varray_3d_normal_term2 * sarray_3d_inv_magn4
+    del f_magn_sq_sarray_3d
+    inv_magn4_sarray_3d = inv_magn_sq_sarray_3d**2
+    kappa_varray_3d = (
+        normal_term1_varray_3d * inv_magn_sq_sarray_3d - normal_term2_varray_3d * inv_magn4_sarray_3d
     )
     del (
-        varray_3d_normal_term1,
-        varray_3d_normal_term2,
-        sarray_3d_inv_magn_sq,
-        sarray_3d_inv_magn4,
+        normal_term1_varray_3d,
+        normal_term2_varray_3d,
+        inv_magn_sq_sarray_3d,
+        inv_magn4_sarray_3d,
     )
-    sarray_3d_curvature = farray_operators.compute_sum_of_varray_comps_squared(
-        varray_3d=varray_3d_kappa,
+    curvature_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
+        varray_3d=kappa_varray_3d,
     )
-    numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
+    numpy.sqrt(curvature_sarray_3d, out=curvature_sarray_3d)
     ## n_i = kappa_i / |kappa|
-    uvarray_3d_normal = numpy.zeros_like(varray_3d_kappa)
+    normal_uvarray_3d = numpy.zeros_like(kappa_varray_3d)
     numpy.divide(
-        varray_3d_kappa,
-        sarray_3d_curvature,
-        out=uvarray_3d_normal,
-        where=(sarray_3d_curvature > 0.0),
+        kappa_varray_3d,
+        curvature_sarray_3d,
+        out=normal_uvarray_3d,
+        where=(curvature_sarray_3d > 0.0),
     )
-    del varray_3d_kappa
+    del kappa_varray_3d
     ## b_i = (t x n)_i
-    uvarray_3d_binormal = farray_operators.compute_varray_cross_product(
-        varray_3d_a=uvarray_3d_tangent,
-        varray_3d_b=uvarray_3d_normal,
+    binormal_uvarray_3d = farray_operators.compute_varray_cross_product(
+        f_varray_3d=tangent_uvarray_3d,
+        g_varray_3d=normal_uvarray_3d,
     )
     return TNBDecomposedFArrays_3D(
-        uvarray_3d_tangent=uvarray_3d_tangent,
-        uvarray_3d_normal=uvarray_3d_normal,
-        uvarray_3d_binormal=uvarray_3d_binormal,
-        sarray_3d_curvature=sarray_3d_curvature,
+        tangent_uvarray_3d=tangent_uvarray_3d,
+        normal_uvarray_3d=normal_uvarray_3d,
+        binormal_uvarray_3d=binormal_uvarray_3d,
+        curvature_sarray_3d=curvature_sarray_3d,
     )
 
 
@@ -363,47 +363,47 @@ def compute_curvature_sarray(
     ## promote low-precision inputs so gradient and curvature algebra run in float64
     varray_3d = farray_operators._as_float_view(varray_3d)
     ## |f|^2 = f_i f_i
-    sarray_3d_f_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
+    f_magn_sq_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
     )
     ## term1_j = f_i * (d_i f_j) = ((f . grad) f)_j
-    varray_3d_normal_term1 = farray_operators.compute_varray_directional_derivative(
-        varray_3d_target=varray_3d,
-        varray_3d_along=varray_3d,
+    normal_term1_varray_3d = farray_operators.compute_varray_directional_derivative(
+        target_varray_3d=varray_3d,
+        along_varray_3d=varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
     ## term2_j = f_j * [f_m * term1_m]
-    sarray_3d_normal_prefactor = farray_operators.compute_dot_over_varray_comps(
-        varray_3d_a=varray_3d,
-        varray_3d_b=varray_3d_normal_term1,
+    normal_prefactor_sarray_3d = farray_operators.compute_dot_over_varray_comps(
+        f_varray_3d=varray_3d,
+        g_varray_3d=normal_term1_varray_3d,
     )
-    sarray_3d_inv_magn_sq = numpy.zeros_like(sarray_3d_f_magn_sq)
+    inv_magn_sq_sarray_3d = numpy.zeros_like(f_magn_sq_sarray_3d)
     numpy.divide(
         1.0,
-        sarray_3d_f_magn_sq,
-        out=sarray_3d_inv_magn_sq,
-        where=(sarray_3d_f_magn_sq > 0),
+        f_magn_sq_sarray_3d,
+        out=inv_magn_sq_sarray_3d,
+        where=(f_magn_sq_sarray_3d > 0),
     )
-    del sarray_3d_f_magn_sq
-    sarray_3d_inv_magn4 = sarray_3d_inv_magn_sq**2
-    varray_3d_kappa = (
-        varray_3d_normal_term1 * sarray_3d_inv_magn_sq -
-        varray_3d * sarray_3d_normal_prefactor * sarray_3d_inv_magn4
+    del f_magn_sq_sarray_3d
+    inv_magn4_sarray_3d = inv_magn_sq_sarray_3d**2
+    kappa_varray_3d = (
+        normal_term1_varray_3d * inv_magn_sq_sarray_3d -
+        varray_3d * normal_prefactor_sarray_3d * inv_magn4_sarray_3d
     )
     del (
-        varray_3d_normal_term1,
-        sarray_3d_normal_prefactor,
-        sarray_3d_inv_magn_sq,
-        sarray_3d_inv_magn4,
+        normal_term1_varray_3d,
+        normal_prefactor_sarray_3d,
+        inv_magn_sq_sarray_3d,
+        inv_magn4_sarray_3d,
     )
     ## |kappa| = sqrt(kappa_i kappa_i)
-    sarray_3d_curvature = farray_operators.compute_sum_of_varray_comps_squared(
-        varray_3d=varray_3d_kappa,
+    curvature_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
+        varray_3d=kappa_varray_3d,
     )
-    del varray_3d_kappa
-    numpy.sqrt(sarray_3d_curvature, out=sarray_3d_curvature)
-    return sarray_3d_curvature
+    del kappa_varray_3d
+    numpy.sqrt(curvature_sarray_3d, out=curvature_sarray_3d)
+    return curvature_sarray_3d
 
 
 ##
@@ -415,46 +415,46 @@ def compute_curvature_sarray(
 class MagneticCurvatureFArrays_3D:
     """Curvature, stretching, and compression sarrays derived from a 3D varray."""
 
-    sarray_3d_curvature: NDArray[Any]
-    sarray_3d_stretching: NDArray[Any]
-    sarray_3d_compression: NDArray[Any]
+    curvature_sarray_3d: NDArray[Any]
+    stretching_sarray_3d: NDArray[Any]
+    compression_sarray_3d: NDArray[Any]
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each scalar decomposition output
         farray_types.ensure_3d_sarray(
-            sarray_3d=self.sarray_3d_curvature,
-            param_name="<sarray_3d_curvature>",
+            sarray_3d=self.curvature_sarray_3d,
+            param_name="<curvature_sarray_3d>",
         )
         farray_types.ensure_3d_sarray(
-            sarray_3d=self.sarray_3d_stretching,
-            param_name="<sarray_3d_stretching>",
+            sarray_3d=self.stretching_sarray_3d,
+            param_name="<stretching_sarray_3d>",
         )
         farray_types.ensure_3d_sarray(
-            sarray_3d=self.sarray_3d_compression,
-            param_name="<sarray_3d_compression>",
+            sarray_3d=self.compression_sarray_3d,
+            param_name="<compression_sarray_3d>",
         )
         ## validate shared decomposition geometry
         if any([
-                self.sarray_3d_curvature.shape != self.sarray_3d_stretching.shape,
-                self.sarray_3d_curvature.shape != self.sarray_3d_compression.shape,
+                self.curvature_sarray_3d.shape != self.stretching_sarray_3d.shape,
+                self.curvature_sarray_3d.shape != self.compression_sarray_3d.shape,
         ]):
             raise ValueError(
                 "MagneticCurvatureFArrays_3D components must share the same shape:"
-                f" curvature={self.sarray_3d_curvature.shape},"
-                f" stretching={self.sarray_3d_stretching.shape},"
-                f" compression={self.sarray_3d_compression.shape}.",
+                f" curvature={self.curvature_sarray_3d.shape},"
+                f" stretching={self.stretching_sarray_3d.shape},"
+                f" compression={self.compression_sarray_3d.shape}.",
             )
 
 
 def compute_magnetic_curvature_farrays(
     *,
-    varray_3d_u: NDArray[Any],
-    uvarray_3d_tangent: NDArray[Any],
-    uvarray_3d_normal: NDArray[Any],
+    v_varray_3d: NDArray[Any],
+    tangent_uvarray_3d: NDArray[Any],
+    normal_uvarray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_grad_u: NDArray[Any] | None = None,
+    grad_v_r2tarray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> MagneticCurvatureFArrays_3D:
     """
@@ -466,26 +466,26 @@ def compute_magnetic_curvature_farrays(
         compression = d_i u_i
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_u,
-        param_name="<varray_3d_u>",
+        varray_3d=v_varray_3d,
+        param_name="<v_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=uvarray_3d_tangent,
-        param_name="<uvarray_3d_tangent>",
+        varray_3d=tangent_uvarray_3d,
+        param_name="<tangent_uvarray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=uvarray_3d_normal,
-        param_name="<uvarray_3d_normal>",
+        varray_3d=normal_uvarray_3d,
+        param_name="<normal_uvarray_3d>",
     )
     if any([
-            varray_3d_u.shape != uvarray_3d_tangent.shape,
-            varray_3d_u.shape != uvarray_3d_normal.shape,
+            v_varray_3d.shape != tangent_uvarray_3d.shape,
+            v_varray_3d.shape != normal_uvarray_3d.shape,
     ]):
         raise ValueError(
             "the input velocity field and tangent/normal magnetic field farrays must share the same shape:"
-            f" u={varray_3d_u.shape},"
-            f" tangent={uvarray_3d_tangent.shape},"
-            f" normal={uvarray_3d_normal.shape}.",
+            f" u={v_varray_3d.shape},"
+            f" tangent={tangent_uvarray_3d.shape},"
+            f" normal={normal_uvarray_3d.shape}.",
         )
     farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
@@ -495,46 +495,46 @@ def compute_magnetic_curvature_farrays(
         require_positive=True,
     )
     ## d_i u_j: (j, i, x0, x1, x2)
-    r2tarray_3d_grad_u = farray_operators.compute_varray_grad(
-        varray_3d=varray_3d_u,
+    grad_v_r2tarray_3d = farray_operators.compute_varray_grad(
+        varray_3d=v_varray_3d,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_grad_f=r2tarray_3d_grad_u,
+        grad_f_r2tarray_3d=grad_v_r2tarray_3d,
         grad_order=grad_order,
     )
     ## curvature = n_i n_j d_i u_j
-    sarray_3d_curvature = numpy.einsum(
+    curvature_sarray_3d = numpy.einsum(
         "ixyz,jxyz,jixyz->xyz",
-        uvarray_3d_normal,
-        uvarray_3d_normal,
-        r2tarray_3d_grad_u,
+        normal_uvarray_3d,
+        normal_uvarray_3d,
+        grad_v_r2tarray_3d,
         optimize=True,
     )
     ## stretching = t_i t_j d_i u_j
-    sarray_3d_stretching = numpy.einsum(
+    stretching_sarray_3d = numpy.einsum(
         "ixyz,jxyz,jixyz->xyz",
-        uvarray_3d_tangent,
-        uvarray_3d_tangent,
-        r2tarray_3d_grad_u,
+        tangent_uvarray_3d,
+        tangent_uvarray_3d,
+        grad_v_r2tarray_3d,
         optimize=True,
     )
     ## compression = d_i u_i = trace over (i,j)
-    sarray_3d_compression = numpy.trace(
-        r2tarray_3d_grad_u,
+    compression_sarray_3d = numpy.trace(
+        grad_v_r2tarray_3d,
         axis1=0,  # grad-dir i
         axis2=1,  # comp j
     )
-    del r2tarray_3d_grad_u
+    del grad_v_r2tarray_3d
     return MagneticCurvatureFArrays_3D(
-        sarray_3d_curvature=sarray_3d_curvature,
-        sarray_3d_stretching=sarray_3d_stretching,
-        sarray_3d_compression=sarray_3d_compression,
+        curvature_sarray_3d=curvature_sarray_3d,
+        stretching_sarray_3d=stretching_sarray_3d,
+        compression_sarray_3d=compression_sarray_3d,
     )
 
 
 def compute_stretching_farray(
     *,
-    varray_3d_u: NDArray[Any],
-    varray_3d_b: NDArray[Any],
+    v_varray_3d: NDArray[Any],
+    b_varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> NDArray[Any]:
@@ -547,37 +547,37 @@ def compute_stretching_farray(
     compression terms and avoids computing the B-field gradient (no normal vector
     needed), so peak memory is lower.
     """
-    farray_types.ensure_3d_varray(varray_3d=varray_3d_u, param_name="<varray_3d_u>")
-    farray_types.ensure_3d_varray(varray_3d=varray_3d_b, param_name="<varray_3d_b>")
-    if varray_3d_u.shape != varray_3d_b.shape:
+    farray_types.ensure_3d_varray(varray_3d=v_varray_3d, param_name="<v_varray_3d>")
+    farray_types.ensure_3d_varray(varray_3d=b_varray_3d, param_name="<b_varray_3d>")
+    if v_varray_3d.shape != b_varray_3d.shape:
         raise ValueError(
             "velocity and magnetic field farrays must share the same shape:"
-            f" u={varray_3d_u.shape}, b={varray_3d_b.shape}.",
+            f" u={v_varray_3d.shape}, b={b_varray_3d.shape}.",
         )
     farray_types.ensure_3d_cell_widths(cell_widths_3d)
     ## t_i = b_i / |b|
-    b_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=varray_3d_b)
+    b_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=b_varray_3d)
     b_magn    = numpy.sqrt(b_magn_sq, dtype=b_magn_sq.dtype)
     del b_magn_sq
-    uvarray_3d_tangent = numpy.zeros_like(varray_3d_b)
-    numpy.divide(varray_3d_b, b_magn, out=uvarray_3d_tangent, where=(b_magn > 0))
+    tangent_uvarray_3d = numpy.zeros_like(b_varray_3d)
+    numpy.divide(b_varray_3d, b_magn, out=tangent_uvarray_3d, where=(b_magn > 0))
     del b_magn
     ## d_i u_j: (j, i, x0, x1, x2)
-    r2tarray_3d_grad_u = farray_operators.compute_varray_grad(
-        varray_3d=varray_3d_u,
+    grad_v_r2tarray_3d = farray_operators.compute_varray_grad(
+        varray_3d=v_varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
     ## t_i t_j d_i u_j
-    sarray_3d_stretching = numpy.einsum(
+    stretching_sarray_3d = numpy.einsum(
         "ixyz,jxyz,jixyz->xyz",
-        uvarray_3d_tangent,
-        uvarray_3d_tangent,
-        r2tarray_3d_grad_u,
+        tangent_uvarray_3d,
+        tangent_uvarray_3d,
+        grad_v_r2tarray_3d,
         optimize=True,
     )
-    del r2tarray_3d_grad_u, uvarray_3d_tangent
-    return sarray_3d_stretching
+    del grad_v_r2tarray_3d, tangent_uvarray_3d
+    return stretching_sarray_3d
 
 
 ##
@@ -589,42 +589,42 @@ def compute_stretching_farray(
 class LorentzForceFArrays_3D:
     """Lorentz force decomposition: total force, magnetic tension, and perpendicular pressure gradient farrays."""
 
-    varray_3d_lorentz: NDArray[Any]
-    varray_3d_tension: NDArray[Any]
-    varray_3d_grad_p_perp: NDArray[Any]
+    lorentz_varray_3d: NDArray[Any]
+    tension_varray_3d: NDArray[Any]
+    grad_p_perp_varray_3d: NDArray[Any]
 
     def __post_init__(
         self,
     ) -> None:
         ## validate each force component individually
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_lorentz,
-            param_name="<varray_3d_lorentz>",
+            varray_3d=self.lorentz_varray_3d,
+            param_name="<lorentz_varray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_tension,
-            param_name="<varray_3d_tension>",
+            varray_3d=self.tension_varray_3d,
+            param_name="<tension_varray_3d>",
         )
         farray_types.ensure_3d_varray(
-            varray_3d=self.varray_3d_grad_p_perp,
-            param_name="<varray_3d_grad_p_perp>",
+            varray_3d=self.grad_p_perp_varray_3d,
+            param_name="<grad_p_perp_varray_3d>",
         )
         ## validate shared decomposition geometry
         if any([
-                self.varray_3d_lorentz.shape != self.varray_3d_tension.shape,
-                self.varray_3d_lorentz.shape != self.varray_3d_grad_p_perp.shape,
+                self.lorentz_varray_3d.shape != self.tension_varray_3d.shape,
+                self.lorentz_varray_3d.shape != self.grad_p_perp_varray_3d.shape,
         ]):
             raise ValueError(
                 "LorentzForceFArrays_3D components must share the same shape:"
-                f" lorentz={self.varray_3d_lorentz.shape},"
-                f" tension={self.varray_3d_tension.shape},"
-                f" grad_p_perp={self.varray_3d_grad_p_perp.shape}.",
+                f" lorentz={self.lorentz_varray_3d.shape},"
+                f" tension={self.tension_varray_3d.shape},"
+                f" grad_p_perp={self.grad_p_perp_varray_3d.shape}.",
             )
 
 
 def compute_lorentz_force_farrays(
     *,
-    varray_3d_b: NDArray[Any],
+    b_varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> LorentzForceFArrays_3D:
@@ -636,8 +636,8 @@ def compute_lorentz_force_farrays(
         lorentz_i     = tension_i - grad_p_perp_i
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_b,
-        param_name="<varray_3d_b>",
+        varray_3d=b_varray_3d,
+        param_name="<b_varray_3d>",
     )
     farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
@@ -647,66 +647,66 @@ def compute_lorentz_force_farrays(
         require_positive=True,
     )
     ## TNB + curvature for b
-    tnb_farrays = compute_tnb_farrays(
-        varray_3d=varray_3d_b,
+    tnb_farrays_3d = compute_tnb_farrays(
+        varray_3d=b_varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
-    uvarray_3d_tangent = tnb_farrays.uvarray_3d_tangent
-    uvarray_3d_normal = tnb_farrays.uvarray_3d_normal
-    sarray_3d_curvature = tnb_farrays.sarray_3d_curvature
+    tangent_uvarray_3d = tnb_farrays_3d.tangent_uvarray_3d
+    normal_uvarray_3d = tnb_farrays_3d.normal_uvarray_3d
+    curvature_sarray_3d = tnb_farrays_3d.curvature_sarray_3d
     ## |b|^2
-    sarray_3d_b_magn_sq = farray_operators.compute_sum_of_varray_comps_squared(
-        varray_3d=varray_3d_b,
+    b_magn_sq_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
+        varray_3d=b_varray_3d,
     )
     ## d_i p where p = 0.5 * |b|^2
     nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    num_cells_x, num_cells_y, num_cells_z = sarray_3d_b_magn_sq.shape
-    varray_3d_grad_p = farray_types.ensure_farray_metadata(
+    num_cells_x, num_cells_y, num_cells_z = b_magn_sq_sarray_3d.shape
+    grad_p_varray_3d = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
         farray=None,
-        dtype=sarray_3d_b_magn_sq.dtype,
+        dtype=b_magn_sq_sarray_3d.dtype,
     )
-    varray_3d_grad_p[0, ...] = nabla(
-        sarray_3d=sarray_3d_b_magn_sq,
+    grad_p_varray_3d[0, ...] = nabla(
+        sarray_3d=b_magn_sq_sarray_3d,
         cell_width=cell_width_x,
         grad_axis=0,
     )
-    varray_3d_grad_p[1, ...] = nabla(
-        sarray_3d=sarray_3d_b_magn_sq,
+    grad_p_varray_3d[1, ...] = nabla(
+        sarray_3d=b_magn_sq_sarray_3d,
         cell_width=cell_width_y,
         grad_axis=1,
     )
-    varray_3d_grad_p[2, ...] = nabla(
-        sarray_3d=sarray_3d_b_magn_sq,
+    grad_p_varray_3d[2, ...] = nabla(
+        sarray_3d=b_magn_sq_sarray_3d,
         cell_width=cell_width_z,
         grad_axis=2,
     )
-    varray_3d_grad_p *= 0.5
+    grad_p_varray_3d *= 0.5
     ## pressure aligned with b: t_i t_j d_j p
-    varray_3d_grad_p_aligned = numpy.einsum(
+    grad_p_aligned_varray_3d = numpy.einsum(
         "ixyz,jxyz,jxyz->ixyz",
-        uvarray_3d_tangent,
-        uvarray_3d_tangent,
-        varray_3d_grad_p,
+        tangent_uvarray_3d,
+        tangent_uvarray_3d,
+        grad_p_varray_3d,
         optimize=True,
     )
-    del uvarray_3d_tangent
+    del tangent_uvarray_3d
     ## tension_i = |b|^2 kappa_i
-    sarray_3d_tension_scalar = sarray_3d_b_magn_sq * sarray_3d_curvature
-    del sarray_3d_b_magn_sq, sarray_3d_curvature
-    varray_3d_tension = sarray_3d_tension_scalar[numpy.newaxis, ...] * uvarray_3d_normal
-    del sarray_3d_tension_scalar, uvarray_3d_normal
+    tension_scalar_sarray_3d = b_magn_sq_sarray_3d * curvature_sarray_3d
+    del b_magn_sq_sarray_3d, curvature_sarray_3d
+    tension_varray_3d = tension_scalar_sarray_3d[numpy.newaxis, ...] * normal_uvarray_3d
+    del tension_scalar_sarray_3d, normal_uvarray_3d
     ## grad_p_perp_i = d_i p - t_i t_j d_j p
-    varray_3d_grad_p_perp = varray_3d_grad_p - varray_3d_grad_p_aligned
-    del varray_3d_grad_p, varray_3d_grad_p_aligned
+    grad_p_perp_varray_3d = grad_p_varray_3d - grad_p_aligned_varray_3d
+    del grad_p_varray_3d, grad_p_aligned_varray_3d
     ## lorentz_i = tension_i - grad_p_perp_i
-    varray_3d_lorentz = varray_3d_tension - varray_3d_grad_p_perp
+    lorentz_varray_3d = tension_varray_3d - grad_p_perp_varray_3d
     return LorentzForceFArrays_3D(
-        varray_3d_lorentz=varray_3d_lorentz,
-        varray_3d_tension=varray_3d_tension,
-        varray_3d_grad_p_perp=varray_3d_grad_p_perp,
+        lorentz_varray_3d=lorentz_varray_3d,
+        tension_varray_3d=tension_varray_3d,
+        grad_p_perp_varray_3d=grad_p_perp_varray_3d,
     )
 
 

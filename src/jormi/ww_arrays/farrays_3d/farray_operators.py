@@ -47,12 +47,12 @@ def compute_sarray_rms(
         sarray_3d=sarray_3d,
         param_name="<sarray_3d>",
     )
-    sarray_3d_float = _as_float_view(sarray_3d)
+    float_sarray_3d = _as_float_view(sarray_3d)
     return float(
         numpy.sqrt(
             numpy.mean(
                 numpy.square(
-                    sarray_3d_float,
+                    float_sarray_3d,
                 ),
             ),
         ),
@@ -75,15 +75,15 @@ def compute_sarray_volume_integral(
         allow_none=False,
         require_positive=True,
     )
-    sarray_3d_float = _as_float_view(sarray_3d)
-    return float(cell_volume * numpy.sum(sarray_3d_float))
+    float_sarray_3d = _as_float_view(sarray_3d)
+    return float(cell_volume * numpy.sum(float_sarray_3d))
 
 
 def compute_sarray_grad(
     sarray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    varray_3d_out: NDArray[Any] | None = None,
+    out_varray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
@@ -105,29 +105,29 @@ def compute_sarray_grad(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = sarray_3d.shape
     dtype = numpy.result_type(sarray_3d.dtype, numpy.float64)
-    varray_3d_grad_f = farray_types.ensure_farray_metadata(
+    grad_f_varray_3d = farray_types.ensure_farray_metadata(
         farray_shape=(3, num_cells_x, num_cells_y, num_cells_z),
-        farray=varray_3d_out,
+        farray=out_varray_3d,
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     ## fill d_i f vector: (gradient-dir-i, x0, x1, x2)
-    varray_3d_grad_f[0, ...] = nabla(
+    grad_f_varray_3d[0, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_x,
         grad_axis=0,
     )
-    varray_3d_grad_f[1, ...] = nabla(
+    grad_f_varray_3d[1, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_y,
         grad_axis=1,
     )
-    varray_3d_grad_f[2, ...] = nabla(
+    grad_f_varray_3d[2, ...] = nabla(
         sarray_3d=sarray_3d,
         cell_width=cell_width_z,
         grad_axis=2,
     )
-    return varray_3d_grad_f
+    return grad_f_varray_3d
 
 
 def scale_sarray_inplace(
@@ -162,8 +162,8 @@ def sqrt_sarray_inplace(
 def compute_sum_of_varray_comps_squared(
     varray_3d: NDArray[Any],
     *,
-    sarray_3d_out: NDArray[Any] | None = None,
-    sarray_3d_tmp: NDArray[Any] | None = None,
+    out_sarray_3d: NDArray[Any] | None = None,
+    tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
     """
     Compute sum_i (v_i v_i) per cell for a 3D vector field.
@@ -177,55 +177,55 @@ def compute_sum_of_varray_comps_squared(
     )
     domain_shape = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
-    sarray_3d_out = farray_types.ensure_farray_metadata(
+    out_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
-        farray=sarray_3d_out,
+        farray=out_sarray_3d,
         dtype=dtype,
     )
-    sarray_3d_tmp = farray_types.ensure_farray_metadata(
+    tmp_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
-        farray=sarray_3d_tmp,
+        farray=tmp_sarray_3d,
         dtype=dtype,
     )
     ## out = v_x^2
     numpy.multiply(
         varray_3d[0],
         varray_3d[0],
-        out=sarray_3d_out,
+        out=out_sarray_3d,
     )
     ## tmp = v_y^2
     numpy.multiply(
         varray_3d[1],
         varray_3d[1],
-        out=sarray_3d_tmp,
+        out=tmp_sarray_3d,
     )
     ## out = v_x^2 + v_y^2
     numpy.add(
-        sarray_3d_out,
-        sarray_3d_tmp,
-        out=sarray_3d_out,
+        out_sarray_3d,
+        tmp_sarray_3d,
+        out=out_sarray_3d,
     )
     ## tmp = v_z^2
     numpy.multiply(
         varray_3d[2],
         varray_3d[2],
-        out=sarray_3d_tmp,
+        out=tmp_sarray_3d,
     )
     ## out = v_x^2 + v_y^2 + v_z^2
     numpy.add(
-        sarray_3d_out,
-        sarray_3d_tmp,
-        out=sarray_3d_out,
+        out_sarray_3d,
+        tmp_sarray_3d,
+        out=out_sarray_3d,
     )
-    return sarray_3d_out
+    return out_sarray_3d
 
 
 def compute_dot_over_varray_comps(
     *,
-    varray_3d_a: NDArray[Any],
-    varray_3d_b: NDArray[Any],
-    sarray_3d_out: NDArray[Any] | None = None,
-    sarray_3d_tmp: NDArray[Any] | None = None,
+    f_varray_3d: NDArray[Any],
+    g_varray_3d: NDArray[Any],
+    out_sarray_3d: NDArray[Any] | None = None,
+    tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
     """
     Compute vec(a) dot vec(b) per cell for 3D vector fields.
@@ -234,68 +234,68 @@ def compute_dot_over_varray_comps(
     Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_a,
-        param_name="<varray_3d_a>",
+        varray_3d=f_varray_3d,
+        param_name="<f_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_b,
-        param_name="<varray_3d_b>",
+        varray_3d=g_varray_3d,
+        param_name="<g_varray_3d>",
     )
     validate_arrays.ensure_same_shape(
-        array_a=varray_3d_a,
-        array_b=varray_3d_b,
-        param_name_a="<varray_3d_a>",
-        param_name_b="<varray_3d_b>",
+        array_a=f_varray_3d,
+        array_b=g_varray_3d,
+        param_name_a="<f_varray_3d>",
+        param_name_b="<g_varray_3d>",
     )
-    domain_shape = varray_3d_a.shape[1:]
-    dtype = numpy.result_type(varray_3d_a.dtype, varray_3d_b.dtype)
-    sarray_3d_out = farray_types.ensure_farray_metadata(
+    domain_shape = f_varray_3d.shape[1:]
+    dtype = numpy.result_type(f_varray_3d.dtype, g_varray_3d.dtype)
+    out_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
-        farray=sarray_3d_out,
+        farray=out_sarray_3d,
         dtype=dtype,
     )
-    sarray_3d_tmp = farray_types.ensure_farray_metadata(
+    tmp_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
-        farray=sarray_3d_tmp,
+        farray=tmp_sarray_3d,
         dtype=dtype,
     )
     ## out = a_x b_x
     numpy.multiply(
-        varray_3d_a[0],
-        varray_3d_b[0],
-        out=sarray_3d_out,
+        f_varray_3d[0],
+        g_varray_3d[0],
+        out=out_sarray_3d,
     )
     ## tmp = a_y b_y
     numpy.multiply(
-        varray_3d_a[1],
-        varray_3d_b[1],
-        out=sarray_3d_tmp,
+        f_varray_3d[1],
+        g_varray_3d[1],
+        out=tmp_sarray_3d,
     )
     ## out += a_y b_y
     numpy.add(
-        sarray_3d_out,
-        sarray_3d_tmp,
-        out=sarray_3d_out,
+        out_sarray_3d,
+        tmp_sarray_3d,
+        out=out_sarray_3d,
     )
     ## tmp = a_z b_z
     numpy.multiply(
-        varray_3d_a[2],
-        varray_3d_b[2],
-        out=sarray_3d_tmp,
+        f_varray_3d[2],
+        g_varray_3d[2],
+        out=tmp_sarray_3d,
     )
     ## out += a_z b_z
     numpy.add(
-        sarray_3d_out,
-        sarray_3d_tmp,
-        out=sarray_3d_out,
+        out_sarray_3d,
+        tmp_sarray_3d,
+        out=out_sarray_3d,
     )
-    return sarray_3d_out
+    return out_sarray_3d
 
 
 def compute_varray_directional_derivative(
     *,
-    varray_3d_target: NDArray[Any],
-    varray_3d_along: NDArray[Any],
+    target_varray_3d: NDArray[Any],
+    along_varray_3d: NDArray[Any],
     cell_widths_3d: tuple[float, float, float],
     out_varray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
@@ -306,18 +306,18 @@ def compute_varray_directional_derivative(
     All vector arrays have shape `(3, num_x0_cells, num_x1_cells, num_x2_cells)`.
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_target,
-        param_name="<varray_3d_target>",
+        varray_3d=target_varray_3d,
+        param_name="<target_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_along,
-        param_name="<varray_3d_along>",
+        varray_3d=along_varray_3d,
+        param_name="<along_varray_3d>",
     )
     validate_arrays.ensure_same_shape(
-        array_b=varray_3d_target,
-        array_a=varray_3d_along,
-        param_name_b="<varray_3d_target>",
-        param_name_a="<varray_3d_along>",
+        array_b=target_varray_3d,
+        array_a=along_varray_3d,
+        param_name_b="<target_varray_3d>",
+        param_name_a="<along_varray_3d>",
     )
     farray_types.ensure_3d_cell_widths(cell_widths_3d)
     validate_types.ensure_finite_int(
@@ -327,10 +327,10 @@ def compute_varray_directional_derivative(
         require_positive=True,
     )
     nabla = difference_sarrays.get_grad_fn(grad_order)
-    domain_shape = varray_3d_along.shape[1:]
+    domain_shape = along_varray_3d.shape[1:]
     dtype = numpy.result_type(
-        varray_3d_target.dtype,
-        varray_3d_along.dtype,
+        target_varray_3d.dtype,
+        along_varray_3d.dtype,
         numpy.float64,
     )
     out_varray_3d = farray_types.ensure_farray_metadata(
@@ -341,14 +341,14 @@ def compute_varray_directional_derivative(
     out_varray_3d.fill(0.0)
     ## accumulate the directional contraction directly so we never materialise the full d_i target_j tensor
     for grad_axis, cell_width in enumerate(cell_widths_3d):
-        sarray_3d_direction_comp = varray_3d_along[grad_axis]
+        direction_comp_sarray_3d = along_varray_3d[grad_axis]
         for comp_index in range(3):
-            sarray_3d_grad_comp = nabla(
-                sarray_3d=varray_3d_target[comp_index],
+            grad_comp_sarray_3d = nabla(
+                sarray_3d=target_varray_3d[comp_index],
                 cell_width=cell_width,
                 grad_axis=grad_axis,
             )
-            out_varray_3d[comp_index] += sarray_3d_direction_comp * sarray_3d_grad_comp
+            out_varray_3d[comp_index] += direction_comp_sarray_3d * grad_comp_sarray_3d
     return out_varray_3d
 
 
@@ -356,7 +356,7 @@ def compute_varray_grad(
     varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    r2tarray_3d_grad_f: NDArray[Any] | None = None,
+    grad_f_r2tarray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
@@ -382,38 +382,38 @@ def compute_varray_grad(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     num_cells_x, num_cells_y, num_cells_z = varray_3d.shape[1:]
     dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
-    r2tarray_3d_grad_f = farray_types.ensure_farray_metadata(
+    grad_f_r2tarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=(3, 3, num_cells_x, num_cells_y, num_cells_z),
-        farray=r2tarray_3d_grad_f,
+        farray=grad_f_r2tarray_3d,
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     ## fill d_i f_j tensor: (component-j, gradient-dir-i, x0, x1, x2)
     for comp_j in range(3):
-        r2tarray_3d_grad_f[comp_j, 0, ...] = nabla(
+        grad_f_r2tarray_3d[comp_j, 0, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_x,
             grad_axis=0,
         )
-        r2tarray_3d_grad_f[comp_j, 1, ...] = nabla(
+        grad_f_r2tarray_3d[comp_j, 1, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_y,
             grad_axis=1,
         )
-        r2tarray_3d_grad_f[comp_j, 2, ...] = nabla(
+        grad_f_r2tarray_3d[comp_j, 2, ...] = nabla(
             sarray_3d=varray_3d[comp_j],
             cell_width=cell_width_z,
             grad_axis=2,
         )
-    return r2tarray_3d_grad_f
+    return grad_f_r2tarray_3d
 
 
 def compute_varray_cross_product(
     *,
-    varray_3d_a: NDArray[Any],
-    varray_3d_b: NDArray[Any],
-    varray_3d_out: NDArray[Any] | None = None,
-    sarray_3d_tmp: NDArray[Any] | None = None,
+    f_varray_3d: NDArray[Any],
+    g_varray_3d: NDArray[Any],
+    out_varray_3d: NDArray[Any] | None = None,
+    tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
     """
     Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector fields.
@@ -421,93 +421,93 @@ def compute_varray_cross_product(
     All arrays have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_a,
-        param_name="<varray_3d_a>",
+        varray_3d=f_varray_3d,
+        param_name="<f_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_b,
-        param_name="<varray_3d_b>",
+        varray_3d=g_varray_3d,
+        param_name="<g_varray_3d>",
     )
     validate_arrays.ensure_same_shape(
-        array_a=varray_3d_a,
-        array_b=varray_3d_b,
-        param_name_a="<varray_3d_a>",
-        param_name_b="<varray_3d_b>",
+        array_a=f_varray_3d,
+        array_b=g_varray_3d,
+        param_name_a="<f_varray_3d>",
+        param_name_b="<g_varray_3d>",
     )
-    domain_shape = varray_3d_a.shape[1:]
-    dtype = numpy.result_type(varray_3d_a.dtype, varray_3d_b.dtype)
-    varray_3d_axb = farray_types.ensure_farray_metadata(
-        farray_shape=varray_3d_a.shape,
+    domain_shape = f_varray_3d.shape[1:]
+    dtype = numpy.result_type(f_varray_3d.dtype, g_varray_3d.dtype)
+    axb_varray_3d = farray_types.ensure_farray_metadata(
+        farray_shape=f_varray_3d.shape,
         dtype=dtype,
-        farray=varray_3d_out,
+        farray=out_varray_3d,
     )
-    sarray_3d_tmp = farray_types.ensure_farray_metadata(
+    tmp_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
         dtype=dtype,
-        farray=sarray_3d_tmp,
+        farray=tmp_sarray_3d,
     )
     ## cross_x = a_y * b_z - a_z * b_y
     numpy.multiply(
-        varray_3d_a[1],
-        varray_3d_b[2],
-        out=varray_3d_axb[0],
+        f_varray_3d[1],
+        g_varray_3d[2],
+        out=axb_varray_3d[0],
     )
     numpy.multiply(
-        varray_3d_a[2],
-        varray_3d_b[1],
-        out=sarray_3d_tmp,
+        f_varray_3d[2],
+        g_varray_3d[1],
+        out=tmp_sarray_3d,
     )
     numpy.subtract(
-        varray_3d_axb[0],
-        sarray_3d_tmp,
-        out=varray_3d_axb[0],
+        axb_varray_3d[0],
+        tmp_sarray_3d,
+        out=axb_varray_3d[0],
     )
     ## cross_y = -a_x * b_z + a_z * b_x
     numpy.multiply(
-        varray_3d_a[2],
-        varray_3d_b[0],
-        out=varray_3d_axb[1],
+        f_varray_3d[2],
+        g_varray_3d[0],
+        out=axb_varray_3d[1],
     )
     numpy.multiply(
-        varray_3d_a[0],
-        varray_3d_b[2],
-        out=sarray_3d_tmp,
+        f_varray_3d[0],
+        g_varray_3d[2],
+        out=tmp_sarray_3d,
     )
     numpy.subtract(
-        varray_3d_axb[1],
-        sarray_3d_tmp,
-        out=varray_3d_axb[1],
+        axb_varray_3d[1],
+        tmp_sarray_3d,
+        out=axb_varray_3d[1],
     )
     ## cross_z = a_x * b_y - a_y * b_x
     numpy.multiply(
-        varray_3d_a[0],
-        varray_3d_b[1],
-        out=varray_3d_axb[2],
+        f_varray_3d[0],
+        g_varray_3d[1],
+        out=axb_varray_3d[2],
     )
     numpy.multiply(
-        varray_3d_a[1],
-        varray_3d_b[0],
-        out=sarray_3d_tmp,
+        f_varray_3d[1],
+        g_varray_3d[0],
+        out=tmp_sarray_3d,
     )
     numpy.subtract(
-        varray_3d_axb[2],
-        sarray_3d_tmp,
-        out=varray_3d_axb[2],
+        axb_varray_3d[2],
+        tmp_sarray_3d,
+        out=axb_varray_3d[2],
     )
-    return varray_3d_axb
+    return axb_varray_3d
 
 
 def compute_varray_curl(
     varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    varray_3d_out: NDArray[Any] | None = None,
+    out_varray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
     Compute the curl epsilon_ijk d_j f_k of a 3D vector field.
 
-    varray_3d and varray_3d_out have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
+    varray_3d and out_varray_3d have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     farray_types.ensure_3d_varray(
         varray_3d=varray_3d,
@@ -522,10 +522,10 @@ def compute_varray_curl(
     )
     nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
-    varray_3d_curl = farray_types.ensure_farray_metadata(
+    curl_varray_3d = farray_types.ensure_farray_metadata(
         farray_shape=varray_3d.shape,
         dtype=varray_3d.dtype,
-        farray=varray_3d_out,
+        farray=out_varray_3d,
     )
     ## curl_x = d_y v_z - d_z v_y
     numpy.subtract(
@@ -539,7 +539,7 @@ def compute_varray_curl(
             cell_width=cell_width_z,
             grad_axis=2,
         ),
-        out=varray_3d_curl[0],
+        out=curl_varray_3d[0],
     )
     ## curl_y = d_z v_x - d_x v_z
     numpy.subtract(
@@ -553,7 +553,7 @@ def compute_varray_curl(
             cell_width=cell_width_x,
             grad_axis=0,
         ),
-        out=varray_3d_curl[1],
+        out=curl_varray_3d[1],
     )
     ## curl_z = d_x v_y - d_y v_x
     numpy.subtract(
@@ -567,16 +567,16 @@ def compute_varray_curl(
             cell_width=cell_width_y,
             grad_axis=1,
         ),
-        out=varray_3d_curl[2],
+        out=curl_varray_3d[2],
     )
-    return varray_3d_curl
+    return curl_varray_3d
 
 
 def compute_varray_divergence(
     varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    sarray_3d_out: NDArray[Any] | None = None,
+    out_sarray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
@@ -598,43 +598,43 @@ def compute_varray_divergence(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     domain_shape = varray_3d.shape[1:]
-    sarray_3d_div = farray_types.ensure_farray_metadata(
+    div_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
         dtype=varray_3d.dtype,
-        farray=sarray_3d_out,
+        farray=out_sarray_3d,
     )
     ## start with d_i f_i for i=1, then add i=2 and i=3 in-place
-    sarray_3d_div[...] = nabla(
+    div_sarray_3d[...] = nabla(
         sarray_3d=varray_3d[0],
         cell_width=cell_width_x,
         grad_axis=0,
     )
     numpy.add(
-        sarray_3d_div,
+        div_sarray_3d,
         nabla(
             sarray_3d=varray_3d[1],
             cell_width=cell_width_y,
             grad_axis=1,
         ),
-        out=sarray_3d_div,
+        out=div_sarray_3d,
     )
     numpy.add(
-        sarray_3d_div,
+        div_sarray_3d,
         nabla(
             sarray_3d=varray_3d[2],
             cell_width=cell_width_z,
             grad_axis=2,
         ),
-        out=sarray_3d_div,
+        out=div_sarray_3d,
     )
-    return sarray_3d_div
+    return div_sarray_3d
 
 
 def compute_varray_magnitude(
     varray_3d: NDArray[Any],
     *,
-    sarray_3d_out: NDArray[Any] | None = None,
-    sarray_3d_tmp: NDArray[Any] | None = None,
+    out_sarray_3d: NDArray[Any] | None = None,
+    tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
     """
     Compute |v| = sqrt(v_i v_i) per cell for a 3D vector field.
@@ -645,13 +645,13 @@ def compute_varray_magnitude(
         varray_3d=varray_3d,
         param_name="<varray_3d>",
     )
-    sarray_3d_vmagn_sq = compute_sum_of_varray_comps_squared(
+    v_magn_sq_sarray_3d = compute_sum_of_varray_comps_squared(
         varray_3d=varray_3d,
-        sarray_3d_out=sarray_3d_out,
-        sarray_3d_tmp=sarray_3d_tmp,
+        out_sarray_3d=out_sarray_3d,
+        tmp_sarray_3d=tmp_sarray_3d,
     )
-    sqrt_sarray_inplace(sarray_3d_vmagn_sq)
-    return sarray_3d_vmagn_sq
+    sqrt_sarray_inplace(v_magn_sq_sarray_3d)
+    return v_magn_sq_sarray_3d
 
 
 ##
@@ -663,7 +663,7 @@ def compute_r2tarray_divergence(
     r2tarray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
-    varray_3d_out: NDArray[Any] | None = None,
+    out_varray_3d: NDArray[Any] | None = None,
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
@@ -687,37 +687,37 @@ def compute_r2tarray_divergence(
     nabla = difference_sarrays.get_grad_fn(grad_order)
     domain_shape = r2tarray_3d.shape[2:]
     dtype = numpy.result_type(r2tarray_3d.dtype, numpy.float64)
-    varray_3d_out = farray_types.ensure_farray_metadata(
+    out_varray_3d = farray_types.ensure_farray_metadata(
         farray_shape=(3, *domain_shape),
-        farray=varray_3d_out,
+        farray=out_varray_3d,
         dtype=dtype,
     )
     cell_width_x, cell_width_y, cell_width_z = cell_widths_3d
     for comp_i in range(3):
-        varray_3d_out[comp_i, ...] = nabla(
+        out_varray_3d[comp_i, ...] = nabla(
             sarray_3d=r2tarray_3d[0, comp_i],
             cell_width=cell_width_x,
             grad_axis=0,
         )
         numpy.add(
-            varray_3d_out[comp_i, ...],
+            out_varray_3d[comp_i, ...],
             nabla(
                 sarray_3d=r2tarray_3d[1, comp_i],
                 cell_width=cell_width_y,
                 grad_axis=1,
             ),
-            out=varray_3d_out[comp_i, ...],
+            out=out_varray_3d[comp_i, ...],
         )
         numpy.add(
-            varray_3d_out[comp_i, ...],
+            out_varray_3d[comp_i, ...],
             nabla(
                 sarray_3d=r2tarray_3d[2, comp_i],
                 cell_width=cell_width_z,
                 grad_axis=2,
             ),
-            out=varray_3d_out[comp_i, ...],
+            out=out_varray_3d[comp_i, ...],
         )
-    return varray_3d_out
+    return out_varray_3d
 
 
 ##
@@ -726,7 +726,7 @@ def compute_r2tarray_divergence(
 
 
 def compute_varray_kinetic_dissipation(
-    varray_3d_u: NDArray[Any],
+    v_varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
@@ -737,38 +737,38 @@ def compute_varray_kinetic_dissipation(
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
     """
     farray_types.ensure_3d_varray(
-        varray_3d=varray_3d_u,
-        param_name="<varray_3d_u>",
+        varray_3d=v_varray_3d,
+        param_name="<v_varray_3d>",
     )
-    dtype = varray_3d_u.dtype
-    r2tarray_3d_grad_u = compute_varray_grad(
-        varray_3d=varray_3d_u,
+    dtype = v_varray_3d.dtype
+    grad_v_r2tarray_3d = compute_varray_grad(
+        varray_3d=v_varray_3d,
         cell_widths_3d=cell_widths_3d,
-        r2tarray_3d_grad_f=None,
+        grad_f_r2tarray_3d=None,
         grad_order=grad_order,
     )
-    sarray_3d_div_u = numpy.trace(
-        r2tarray_3d_grad_u,
+    div_v_sarray_3d = numpy.trace(
+        grad_v_r2tarray_3d,
         axis1=0,
         axis2=1,
     )
-    r2tarray_3d_sym = 0.5 * r2tarray_3d_grad_u + numpy.transpose(
-        r2tarray_3d_grad_u,
+    sym_r2tarray_3d = 0.5 * grad_v_r2tarray_3d + numpy.transpose(
+        grad_v_r2tarray_3d,
         axes=(1, 0, 2, 3, 4),
     )
-    del r2tarray_3d_grad_u
+    del grad_v_r2tarray_3d
     identity_matrix = numpy.eye(3, dtype=dtype)
-    r2tarray_3d_bulk = numpy.einsum(
+    bulk_r2tarray_3d = numpy.einsum(
         "ij,xyz->jixyz",
         identity_matrix,
-        sarray_3d_div_u,
+        div_v_sarray_3d,
         optimize=True,
     )
-    del sarray_3d_div_u
-    r2tarray_3d_S = r2tarray_3d_sym - (1.0 / 3.0) * r2tarray_3d_bulk
-    del r2tarray_3d_sym, r2tarray_3d_bulk
+    del div_v_sarray_3d
+    S_r2tarray_3d = sym_r2tarray_3d - (1.0 / 3.0) * bulk_r2tarray_3d
+    del sym_r2tarray_3d, bulk_r2tarray_3d
     return compute_r2tarray_divergence(
-        r2tarray_3d=r2tarray_3d_S,
+        r2tarray_3d=S_r2tarray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )

@@ -108,7 +108,7 @@ def slice_3d_sfield(
     sarray_3d = _3d_field_model.extract_3d_sarray(sfield_3d=sfield_3d)
     udomain_3d = sfield_3d.udomain
     sim_time = sfield_3d.sim_time
-    slice_param_name = "<sfield_3d_slice>"
+    slice_param_name = "<slice_sfield_3d>"
     udomain_2d = _slice_3d_udomain(
         udomain_3d=udomain_3d,
         out_of_plane_axis=out_of_plane_axis,
@@ -162,7 +162,7 @@ def slice_3d_vfield_inplane(
     varray_3d = _3d_field_model.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    slice_param_name = "<vfield_3d_slice_inplane>"
+    slice_param_name = "<slice_inplane_vfield_3d>"
     udomain_2d = _slice_3d_udomain(
         udomain_3d=udomain_3d,
         out_of_plane_axis=out_of_plane_axis,
@@ -208,7 +208,7 @@ def slice_3d_vfield_outofplane(
     varray_3d = _3d_field_model.extract_3d_varray(vfield_3d=vfield_3d)
     udomain_3d = vfield_3d.udomain
     sim_time = vfield_3d.sim_time
-    slice_param_name = "<vfield_3d_slice_outofplane>"
+    slice_param_name = "<slice_outofplane_vfield_3d>"
     udomain_2d = _slice_3d_udomain(
         udomain_3d=udomain_3d,
         out_of_plane_axis=out_of_plane_axis,

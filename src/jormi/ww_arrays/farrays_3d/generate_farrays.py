@@ -21,7 +21,7 @@ def generate_gaussian_random_3d_sarray(
 ) -> NDArray[Any]:
     """Generate a 3D random scalar array with a Gaussian correlation length."""
     num_cells_x, num_cells_y, num_cells_z = resolution
-    sarray_3d_white_noise = numpy.random.normal(
+    white_noise_sarray_3d = numpy.random.normal(
         loc=0.0,
         scale=1.0,
         size=(num_cells_x, num_cells_y, num_cells_z),
@@ -40,11 +40,11 @@ def generate_gaussian_random_3d_sarray(
         kx_grid * kx_grid + ky_grid * ky_grid + kz_grid * kz_grid,
     )
     ## Gaussian filter in k-space with lengthscale `correlation_length`
-    sarray_3d_fft_filter = numpy.exp(
+    fft_filter_sarray_3d = numpy.exp(
         -0.5 * numpy.square(k_magn_grid * correlation_length),
     )
-    sarray_3d_fft = sarray_3d_fft_filter * numpy.fft.fftn(sarray_3d_white_noise)
-    sarray_3d = numpy.fft.ifftn(sarray_3d_fft).real
+    fft_sarray_3d = fft_filter_sarray_3d * numpy.fft.fftn(white_noise_sarray_3d)
+    sarray_3d = numpy.fft.ifftn(fft_sarray_3d).real
     return sarray_3d
 
 
@@ -84,7 +84,7 @@ def generate_powerlaw_random_3d_sarray(
             numpy.square(kx_grid) + numpy.square(ky_grid) + numpy.square(kz_grid),
         )
         k_magn_grid[0, 0, 0] = 1
-        sarray_3d_amplitude = numpy.power(
+        amplitude_sarray_3d = numpy.power(
             k_magn_grid,
             -(alpha_perp + 2.0) / 2.0,
         )
@@ -94,16 +94,16 @@ def generate_powerlaw_random_3d_sarray(
         k_para_magn_grid = numpy.abs(kz_grid)
         k_perp_magn_grid[k_perp_magn_grid == 0] = 1
         k_para_magn_grid[k_para_magn_grid == 0] = 1
-        sarray_3d_amplitude = (
+        amplitude_sarray_3d = (
             numpy.power(k_perp_magn_grid, -alpha_perp / 2.0) *
             numpy.power(k_para_magn_grid, -alpha_para / 2.0)
         )
-    sarray_3d_random_complex = (
+    random_complex_sarray_3d = (
         numpy.random.randn(num_cells_x, num_cells_y, num_cells_z) +
         1j * numpy.random.randn(num_cells_x, num_cells_y, num_cells_z)
     )
-    sarray_3d_fft = sarray_3d_random_complex * sarray_3d_amplitude
-    sarray_3d = numpy.fft.ifftn(sarray_3d_fft).real
+    fft_sarray_3d = random_complex_sarray_3d * amplitude_sarray_3d
+    sarray_3d = numpy.fft.ifftn(fft_sarray_3d).real
     return sarray_3d
 
 
