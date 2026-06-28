@@ -21,7 +21,7 @@ from jormi.ww_validation import validate_types
 
 
 def compute_magnetic_energy_density_sfield(
-    b_vfield_3d: field_models.VectorField_3D,
+    magnetic_vfield_3d: field_models.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
     field_name: str,
@@ -34,15 +34,15 @@ def compute_magnetic_energy_density_sfield(
         allow_none=False,
     )
     field_models.ensure_3d_vfield(
-        vfield_3d=b_vfield_3d,
-        param_name="<b_vfield_3d>",
+        vfield_3d=magnetic_vfield_3d,
+        param_name="<magnetic_vfield_3d>",
     )
     b_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=b_vfield_3d,
-        param_name="<b_vfield_3d>",
+        vfield_3d=magnetic_vfield_3d,
+        param_name="<magnetic_vfield_3d>",
     )
-    udomain_3d = b_vfield_3d.udomain
-    sim_time = b_vfield_3d.sim_time
+    udomain_3d = magnetic_vfield_3d.udomain
+    sim_time = magnetic_vfield_3d.sim_time
     b2_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=b_varray_3d,
     )
@@ -60,13 +60,13 @@ def compute_magnetic_energy_density_sfield(
 
 
 def compute_total_magnetic_energy_value(
-    b_vfield_3d: field_models.VectorField_3D,
+    magnetic_vfield_3d: field_models.VectorField_3D,
     *,
     energy_prefactor: float = 0.5,
 ) -> float:
     """Compute total magnetic energy as the volume integral of the energy density."""
     e_mag_sfield_3d = compute_magnetic_energy_density_sfield(
-        b_vfield_3d=b_vfield_3d,
+        magnetic_vfield_3d=magnetic_vfield_3d,
         energy_prefactor=energy_prefactor,
         field_name="magnetic_energy",
         latex_label=r"E_\mathrm{mag}",
@@ -82,7 +82,7 @@ def compute_total_magnetic_energy_value(
 
 
 def compute_kinetic_dissipation_vfield(
-    v_vfield_3d: field_models.VectorField_3D,
+    velocity_vfield_3d: field_models.VectorField_3D,
     *,
     grad_order: int = 2,
 ) -> field_models.VectorField_3D:
@@ -92,8 +92,8 @@ def compute_kinetic_dissipation_vfield(
         S_ij = 0.5 * (d_i v_j + d_j v_i) - (1/3) delta_ij (d_k v_k)
     """
     field_models.ensure_3d_vfield(
-        vfield_3d=v_vfield_3d,
-        param_name="<v_vfield_3d>",
+        vfield_3d=velocity_vfield_3d,
+        param_name="<velocity_vfield_3d>",
     )
     validate_types.ensure_finite_int(
         param=grad_order,
@@ -102,11 +102,11 @@ def compute_kinetic_dissipation_vfield(
         require_positive=True,
     )
     v_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=v_vfield_3d,
-        param_name="<v_vfield_3d>",
+        vfield_3d=velocity_vfield_3d,
+        param_name="<velocity_vfield_3d>",
     )
-    udomain_3d = v_vfield_3d.udomain
-    sim_time = v_vfield_3d.sim_time
+    udomain_3d = velocity_vfield_3d.udomain
+    sim_time = velocity_vfield_3d.sim_time
     kinetic_dissipation_varray_3d = farray_operators.compute_varray_kinetic_dissipation(
         v_varray_3d=v_varray_3d,
         cell_widths_3d=udomain_3d.cell_widths,
