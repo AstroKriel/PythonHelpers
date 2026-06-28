@@ -187,7 +187,7 @@ class TestScalarFieldGradient(unittest.TestCase):
         array = numpy.empty((3, ) + _RESOLUTION)
         vfield_grad = field_operators.compute_sfield_gradient(
             sfield_3d=sfield,
-            varray_3d_out=array,
+            out_varray_3d=array,
             field_name="grad_q",
             latex_label=r"\nabla q",
         )
@@ -247,8 +247,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertIsInstance(
             field_operators.compute_vfield_dot_product(
-                vfield_3d_a=vfield,
-                vfield_3d_b=vfield,
+                a_vfield_3d=vfield,
+                b_vfield_3d=vfield,
                 field_name="dot_product",
                 latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             ),
@@ -273,8 +273,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             field_operators.compute_vfield_dot_product(
-                vfield_3d_a=vfield_a,
-                vfield_3d_b=vfield_b,
+                a_vfield_3d=vfield_a,
+                b_vfield_3d=vfield_b,
                 field_name="dot_product",
                 latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             )
@@ -292,8 +292,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         self.assertIsInstance(
             field_operators.compute_vfield_cross_product(
-                vfield_3d_a=vfield,
-                vfield_3d_b=vfield,
+                a_vfield_3d=vfield,
+                b_vfield_3d=vfield,
                 field_name="cross_product",
                 latex_label=r"\vec{q}_a\times\vec{q}_b",
             ),
@@ -315,9 +315,9 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_cross_product(
-            vfield_3d_a=vfield_x0,
-            vfield_3d_b=vfield_x1,
-            varray_3d_out=array,
+            a_vfield_3d=vfield_x0,
+            b_vfield_3d=vfield_x1,
+            out_varray_3d=array,
             field_name="cross_product",
             latex_label=r"\vec{q}_a\times\vec{q}_b",
         )
@@ -413,7 +413,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
         array = numpy.empty(_RESOLUTION)
         result = field_operators.compute_vfield_divergence(
             vfield_3d=vfield,
-            sarray_3d_out=array,
+            out_sarray_3d=array,
             field_name="div_q",
             latex_label=r"\nabla\cdot\vec{q}",
         )
@@ -509,7 +509,7 @@ class TestVectorFieldCurl(unittest.TestCase):
         array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_curl(
             vfield_3d=vfield,
-            varray_3d_out=array,
+            out_varray_3d=array,
             field_name="curl_q",
             latex_label=r"\nabla\times\vec{q}",
         )

@@ -308,15 +308,15 @@ def main():
         dfields = decompose_fields.compute_helmholtz_decomposed_fields(
             vfield_3d=vfield,
         )
-        vfield_3d_div = dfields.vfield_3d_div
-        vfield_3d_sol = dfields.vfield_3d_sol
-        vfield_3d_bulk = dfields.vfield_3d_bulk
+        div_vfield_3d = dfields.div_vfield_3d
+        sol_vfield_3d = dfields.sol_vfield_3d
+        bulk_vfield_3d = dfields.bulk_vfield_3d
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
         vfield_rec = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
-                field_models.extract_3d_varray(vfield_3d_div) +
-                field_models.extract_3d_varray(vfield_3d_sol) +
-                field_models.extract_3d_varray(vfield_3d_bulk)
+                field_models.extract_3d_varray(div_vfield_3d) +
+                field_models.extract_3d_varray(sol_vfield_3d) +
+                field_models.extract_3d_varray(bulk_vfield_3d)
             ),
             udomain_3d=udomain_3d,
             field_name="q_sum",
@@ -336,7 +336,7 @@ def main():
             latex_label=r"|\vec{q} - \vec{q}_\mathrm{sum}|",
         )
         curl_div = field_operators.compute_vfield_curl(
-            vfield_3d_div,
+            div_vfield_3d,
             field_name="curl_q_div",
             latex_label=r"\nabla\times\vec{q}_\mathrm{div}",
         )
@@ -346,17 +346,17 @@ def main():
             latex_label=r"|\nabla\times\vec{q}_\mathrm{div}|",
         )
         sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
-            vfield_3d_sol,
+            sol_vfield_3d,
             field_name="div_q_sol",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{sol}",
         )
         curl_bulk = field_operators.compute_vfield_curl(
-            vfield_3d_bulk,
+            bulk_vfield_3d,
             field_name="curl_q_bulk",
             latex_label=r"\nabla\times\vec{q}_\mathrm{bulk}",
         )
         sfield_check_bulk_div = field_operators.compute_vfield_divergence(
-            vfield_3d_bulk,
+            bulk_vfield_3d,
             field_name="div_q_bulk",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{bulk}",
         )
@@ -413,17 +413,17 @@ def main():
         )
         plot_vfield_slice(
             ax=axs_grid[1, index_col],
-            vfield=vfield_3d_div,
+            vfield=div_vfield_3d,
             domain_bounds=domain_bounds,
         )
         plot_vfield_slice(
             ax=axs_grid[2, index_col],
-            vfield=vfield_3d_sol,
+            vfield=sol_vfield_3d,
             domain_bounds=domain_bounds,
         )
         plot_vfield_slice(
             ax=axs_grid[3, index_col],
-            vfield=vfield_3d_bulk,
+            vfield=bulk_vfield_3d,
             domain_bounds=domain_bounds,
         )
         axs_grid[0, index_col].text(

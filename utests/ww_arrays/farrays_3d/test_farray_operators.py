@@ -537,8 +537,8 @@ class TestCrossProduct(unittest.TestCase):
             x2=3.0,
         )
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=varray,
-            varray_3d_b=varray,
+            a_varray_3d=varray,
+            b_varray_3d=varray,
         )
         self.assertTrue(
             numpy.allclose(
@@ -552,12 +552,12 @@ class TestCrossProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=1.0,
                 x1=0.0,
                 x2=0.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=0.0,
                 x1=1.0,
                 x2=0.0,
@@ -572,12 +572,12 @@ class TestCrossProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=1.0,
                 x1=0.0,
                 x2=0.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=0.0,
                 x1=1.0,
                 x2=0.0,
@@ -609,12 +609,12 @@ class TestCrossProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=0.0,
                 x1=1.0,
                 x2=0.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=0.0,
                 x1=0.0,
                 x2=1.0,
@@ -646,12 +646,12 @@ class TestCrossProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_varray_cross_product(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=0.0,
                 x1=0.0,
                 x2=1.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=1.0,
                 x1=0.0,
                 x2=0.0,
@@ -693,12 +693,12 @@ class TestCrossProduct(unittest.TestCase):
             x2=6.0,
         )
         result_ab = farray_operators.compute_varray_cross_product(
-            varray_3d_a=varray_a,
-            varray_3d_b=varray_b,
+            a_varray_3d=varray_a,
+            b_varray_3d=varray_b,
         )
         result_ba = farray_operators.compute_varray_cross_product(
-            varray_3d_a=varray_b,
-            varray_3d_b=varray_a,
+            a_varray_3d=varray_b,
+            b_varray_3d=varray_a,
         )
         self.assertTrue(
             numpy.allclose(
@@ -715,12 +715,12 @@ class TestDotProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=1.0,
                 x1=0.0,
                 x2=0.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=0.0,
                 x1=1.0,
                 x2=0.0,
@@ -743,8 +743,8 @@ class TestDotProduct(unittest.TestCase):
             x2=0.0,
         )
         result = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=varray,
-            varray_3d_b=varray,
+            a_varray_3d=varray,
+            b_varray_3d=varray,
         )
         self.assertTrue(
             numpy.allclose(
@@ -758,12 +758,12 @@ class TestDotProduct(unittest.TestCase):
         self,
     ) -> None:
         result = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=_const_varray(
+            a_varray_3d=_const_varray(
                 x0=1.0,
                 x1=2.0,
                 x2=3.0,
             ),
-            varray_3d_b=_const_varray(
+            b_varray_3d=_const_varray(
                 x0=4.0,
                 x1=5.0,
                 x2=6.0,
@@ -791,12 +791,12 @@ class TestDotProduct(unittest.TestCase):
             x2=6.0,
         )
         result_ab = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=varray_a,
-            varray_3d_b=varray_b,
+            a_varray_3d=varray_a,
+            b_varray_3d=varray_b,
         )
         result_ba = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=varray_b,
-            varray_3d_b=varray_a,
+            a_varray_3d=varray_b,
+            b_varray_3d=varray_a,
         )
         self.assertTrue(
             numpy.allclose(
@@ -819,8 +819,8 @@ class TestSumOfVarrayCompsSquared(unittest.TestCase):
         )
         sum_sq = farray_operators.compute_sum_of_varray_comps_squared(varray_3d=varray)
         dot = farray_operators.compute_dot_over_varray_comps(
-            varray_3d_a=varray,
-            varray_3d_b=varray,
+            a_varray_3d=varray,
+            b_varray_3d=varray,
         )
         self.assertTrue(
             numpy.allclose(

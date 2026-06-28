@@ -43,9 +43,9 @@ class TestHelmholtzDecomposedFArrays3D(unittest.TestCase):
         self,
     ) -> None:
         decompose_farrays.HelmholtzDecomposedFArrays_3D(
-            varray_3d_div=_zeros_varray(),
-            varray_3d_sol=_zeros_varray(),
-            varray_3d_bulk=_zeros_varray(),
+            div_varray_3d=_zeros_varray(),
+            sol_varray_3d=_zeros_varray(),
+            bulk_varray_3d=_zeros_varray(),
         )
 
     def test_rejects_mismatched_shapes(
@@ -53,9 +53,9 @@ class TestHelmholtzDecomposedFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.HelmholtzDecomposedFArrays_3D(
-                varray_3d_div=numpy.zeros((3, _N, _N, _N)),
-                varray_3d_sol=numpy.zeros((3, _N + 1, _N, _N)),
-                varray_3d_bulk=_zeros_varray(),
+                div_varray_3d=numpy.zeros((3, _N, _N, _N)),
+                sol_varray_3d=numpy.zeros((3, _N + 1, _N, _N)),
+                bulk_varray_3d=_zeros_varray(),
             )
 
     def test_rejects_non_varray(
@@ -63,9 +63,9 @@ class TestHelmholtzDecomposedFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.HelmholtzDecomposedFArrays_3D(
-                varray_3d_div=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
-                varray_3d_sol=_zeros_varray(),
-                varray_3d_bulk=_zeros_varray(),
+                div_varray_3d=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
+                sol_varray_3d=_zeros_varray(),
+                bulk_varray_3d=_zeros_varray(),
             )
 
 
@@ -75,10 +75,10 @@ class TestTNBDecomposedFArrays3D(unittest.TestCase):
         self,
     ) -> None:
         decompose_farrays.TNBDecomposedFArrays_3D(
-            uvarray_3d_tangent=_zeros_varray(),
-            uvarray_3d_normal=_zeros_varray(),
-            uvarray_3d_binormal=_zeros_varray(),
-            sarray_3d_curvature=_zeros_sarray(),
+            tangent_uvarray_3d=_zeros_varray(),
+            normal_uvarray_3d=_zeros_varray(),
+            binormal_uvarray_3d=_zeros_varray(),
+            curvature_sarray_3d=_zeros_sarray(),
         )
 
     def test_rejects_mismatched_vector_shapes(
@@ -86,10 +86,10 @@ class TestTNBDecomposedFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.TNBDecomposedFArrays_3D(
-                uvarray_3d_tangent=numpy.zeros((3, _N, _N, _N)),
-                uvarray_3d_normal=numpy.zeros((3, _N + 1, _N, _N)),
-                uvarray_3d_binormal=_zeros_varray(),
-                sarray_3d_curvature=_zeros_sarray(),
+                tangent_uvarray_3d=numpy.zeros((3, _N, _N, _N)),
+                normal_uvarray_3d=numpy.zeros((3, _N + 1, _N, _N)),
+                binormal_uvarray_3d=_zeros_varray(),
+                curvature_sarray_3d=_zeros_sarray(),
             )
 
     def test_rejects_mismatched_curvature_shape(
@@ -97,10 +97,10 @@ class TestTNBDecomposedFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.TNBDecomposedFArrays_3D(
-                uvarray_3d_tangent=_zeros_varray(),
-                uvarray_3d_normal=_zeros_varray(),
-                uvarray_3d_binormal=_zeros_varray(),
-                sarray_3d_curvature=numpy.zeros((_N + 1, _N, _N)),
+                tangent_uvarray_3d=_zeros_varray(),
+                normal_uvarray_3d=_zeros_varray(),
+                binormal_uvarray_3d=_zeros_varray(),
+                curvature_sarray_3d=numpy.zeros((_N + 1, _N, _N)),
             )
 
 
@@ -110,9 +110,9 @@ class TestMagneticCurvatureFArrays3D(unittest.TestCase):
         self,
     ) -> None:
         decompose_farrays.MagneticCurvatureFArrays_3D(
-            sarray_3d_curvature=_zeros_sarray(),
-            sarray_3d_stretching=_zeros_sarray(),
-            sarray_3d_compression=_zeros_sarray(),
+            curvature_sarray_3d=_zeros_sarray(),
+            stretching_sarray_3d=_zeros_sarray(),
+            compression_sarray_3d=_zeros_sarray(),
         )
 
     def test_rejects_mismatched_shapes(
@@ -120,9 +120,9 @@ class TestMagneticCurvatureFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.MagneticCurvatureFArrays_3D(
-                sarray_3d_curvature=_zeros_sarray(),
-                sarray_3d_stretching=numpy.zeros((_N + 1, _N, _N)),
-                sarray_3d_compression=_zeros_sarray(),
+                curvature_sarray_3d=_zeros_sarray(),
+                stretching_sarray_3d=numpy.zeros((_N + 1, _N, _N)),
+                compression_sarray_3d=_zeros_sarray(),
             )
 
 
@@ -132,9 +132,9 @@ class TestLorentzForceFArrays3D(unittest.TestCase):
         self,
     ) -> None:
         decompose_farrays.LorentzForceFArrays_3D(
-            varray_3d_lorentz=_zeros_varray(),
-            varray_3d_tension=_zeros_varray(),
-            varray_3d_grad_p_perp=_zeros_varray(),
+            lorentz_varray_3d=_zeros_varray(),
+            tension_varray_3d=_zeros_varray(),
+            grad_p_perp_varray_3d=_zeros_varray(),
         )
 
     def test_rejects_mismatched_shapes(
@@ -142,9 +142,9 @@ class TestLorentzForceFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.LorentzForceFArrays_3D(
-                varray_3d_lorentz=_zeros_varray(),
-                varray_3d_tension=numpy.zeros((3, _N + 1, _N, _N)),
-                varray_3d_grad_p_perp=_zeros_varray(),
+                lorentz_varray_3d=_zeros_varray(),
+                tension_varray_3d=numpy.zeros((3, _N + 1, _N, _N)),
+                grad_p_perp_varray_3d=_zeros_varray(),
             )
 
     def test_rejects_non_varray(
@@ -152,9 +152,9 @@ class TestLorentzForceFArrays3D(unittest.TestCase):
     ) -> None:
         with self.assertRaises(ValueError):
             decompose_farrays.LorentzForceFArrays_3D(
-                varray_3d_lorentz=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
-                varray_3d_tension=_zeros_varray(),
-                varray_3d_grad_p_perp=_zeros_varray(),
+                lorentz_varray_3d=_zeros_sarray(),  # pyright: ignore[reportArgumentType]
+                tension_varray_3d=_zeros_varray(),
+                grad_p_perp_varray_3d=_zeros_varray(),
             )
 
 
