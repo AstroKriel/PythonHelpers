@@ -222,8 +222,8 @@ def compute_sum_of_varray_comps_squared(
 
 def compute_dot_over_varray_comps(
     *,
-    a_varray_3d: NDArray[Any],
-    b_varray_3d: NDArray[Any],
+    f_varray_3d: NDArray[Any],
+    g_varray_3d: NDArray[Any],
     out_sarray_3d: NDArray[Any] | None = None,
     tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
@@ -234,21 +234,21 @@ def compute_dot_over_varray_comps(
     Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
     """
     farray_types.ensure_3d_varray(
-        varray_3d=a_varray_3d,
-        param_name="<a_varray_3d>",
+        varray_3d=f_varray_3d,
+        param_name="<f_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=b_varray_3d,
-        param_name="<b_varray_3d>",
+        varray_3d=g_varray_3d,
+        param_name="<g_varray_3d>",
     )
     validate_arrays.ensure_same_shape(
-        array_a=a_varray_3d,
-        array_b=b_varray_3d,
-        param_name_a="<a_varray_3d>",
-        param_name_b="<b_varray_3d>",
+        array_a=f_varray_3d,
+        array_b=g_varray_3d,
+        param_name_a="<f_varray_3d>",
+        param_name_b="<g_varray_3d>",
     )
-    domain_shape = a_varray_3d.shape[1:]
-    dtype = numpy.result_type(a_varray_3d.dtype, b_varray_3d.dtype)
+    domain_shape = f_varray_3d.shape[1:]
+    dtype = numpy.result_type(f_varray_3d.dtype, g_varray_3d.dtype)
     out_sarray_3d = farray_types.ensure_farray_metadata(
         farray_shape=domain_shape,
         farray=out_sarray_3d,
@@ -261,14 +261,14 @@ def compute_dot_over_varray_comps(
     )
     ## out = a_x b_x
     numpy.multiply(
-        a_varray_3d[0],
-        b_varray_3d[0],
+        f_varray_3d[0],
+        g_varray_3d[0],
         out=out_sarray_3d,
     )
     ## tmp = a_y b_y
     numpy.multiply(
-        a_varray_3d[1],
-        b_varray_3d[1],
+        f_varray_3d[1],
+        g_varray_3d[1],
         out=tmp_sarray_3d,
     )
     ## out += a_y b_y
@@ -279,8 +279,8 @@ def compute_dot_over_varray_comps(
     )
     ## tmp = a_z b_z
     numpy.multiply(
-        a_varray_3d[2],
-        b_varray_3d[2],
+        f_varray_3d[2],
+        g_varray_3d[2],
         out=tmp_sarray_3d,
     )
     ## out += a_z b_z
@@ -410,8 +410,8 @@ def compute_varray_grad(
 
 def compute_varray_cross_product(
     *,
-    a_varray_3d: NDArray[Any],
-    b_varray_3d: NDArray[Any],
+    f_varray_3d: NDArray[Any],
+    g_varray_3d: NDArray[Any],
     out_varray_3d: NDArray[Any] | None = None,
     tmp_sarray_3d: NDArray[Any] | None = None,
 ) -> NDArray[Any]:
@@ -421,23 +421,23 @@ def compute_varray_cross_product(
     All arrays have shape (3, num_x0_cells, num_x1_cells, num_x2_cells).
     """
     farray_types.ensure_3d_varray(
-        varray_3d=a_varray_3d,
-        param_name="<a_varray_3d>",
+        varray_3d=f_varray_3d,
+        param_name="<f_varray_3d>",
     )
     farray_types.ensure_3d_varray(
-        varray_3d=b_varray_3d,
-        param_name="<b_varray_3d>",
+        varray_3d=g_varray_3d,
+        param_name="<g_varray_3d>",
     )
     validate_arrays.ensure_same_shape(
-        array_a=a_varray_3d,
-        array_b=b_varray_3d,
-        param_name_a="<a_varray_3d>",
-        param_name_b="<b_varray_3d>",
+        array_a=f_varray_3d,
+        array_b=g_varray_3d,
+        param_name_a="<f_varray_3d>",
+        param_name_b="<g_varray_3d>",
     )
-    domain_shape = a_varray_3d.shape[1:]
-    dtype = numpy.result_type(a_varray_3d.dtype, b_varray_3d.dtype)
+    domain_shape = f_varray_3d.shape[1:]
+    dtype = numpy.result_type(f_varray_3d.dtype, g_varray_3d.dtype)
     axb_varray_3d = farray_types.ensure_farray_metadata(
-        farray_shape=a_varray_3d.shape,
+        farray_shape=f_varray_3d.shape,
         dtype=dtype,
         farray=out_varray_3d,
     )
@@ -448,13 +448,13 @@ def compute_varray_cross_product(
     )
     ## cross_x = a_y * b_z - a_z * b_y
     numpy.multiply(
-        a_varray_3d[1],
-        b_varray_3d[2],
+        f_varray_3d[1],
+        g_varray_3d[2],
         out=axb_varray_3d[0],
     )
     numpy.multiply(
-        a_varray_3d[2],
-        b_varray_3d[1],
+        f_varray_3d[2],
+        g_varray_3d[1],
         out=tmp_sarray_3d,
     )
     numpy.subtract(
@@ -464,13 +464,13 @@ def compute_varray_cross_product(
     )
     ## cross_y = -a_x * b_z + a_z * b_x
     numpy.multiply(
-        a_varray_3d[2],
-        b_varray_3d[0],
+        f_varray_3d[2],
+        g_varray_3d[0],
         out=axb_varray_3d[1],
     )
     numpy.multiply(
-        a_varray_3d[0],
-        b_varray_3d[2],
+        f_varray_3d[0],
+        g_varray_3d[2],
         out=tmp_sarray_3d,
     )
     numpy.subtract(
@@ -480,13 +480,13 @@ def compute_varray_cross_product(
     )
     ## cross_z = a_x * b_y - a_y * b_x
     numpy.multiply(
-        a_varray_3d[0],
-        b_varray_3d[1],
+        f_varray_3d[0],
+        g_varray_3d[1],
         out=axb_varray_3d[2],
     )
     numpy.multiply(
-        a_varray_3d[1],
-        b_varray_3d[0],
+        f_varray_3d[1],
+        g_varray_3d[0],
         out=tmp_sarray_3d,
     )
     numpy.subtract(

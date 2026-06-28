@@ -326,8 +326,8 @@ def compute_tnb_farrays(
     del kappa_varray_3d
     ## b_i = (t x n)_i
     binormal_uvarray_3d = farray_operators.compute_varray_cross_product(
-        a_varray_3d=tangent_uvarray_3d,
-        b_varray_3d=normal_uvarray_3d,
+        f_varray_3d=tangent_uvarray_3d,
+        g_varray_3d=normal_uvarray_3d,
     )
     return TNBDecomposedFArrays_3D(
         tangent_uvarray_3d=tangent_uvarray_3d,
@@ -375,8 +375,8 @@ def compute_curvature_sarray(
     )
     ## term2_j = f_j * [f_m * term1_m]
     normal_prefactor_sarray_3d = farray_operators.compute_dot_over_varray_comps(
-        a_varray_3d=varray_3d,
-        b_varray_3d=normal_term1_varray_3d,
+        f_varray_3d=varray_3d,
+        g_varray_3d=normal_term1_varray_3d,
     )
     inv_magn_sq_sarray_3d = numpy.zeros_like(f_magn_sq_sarray_3d)
     numpy.divide(

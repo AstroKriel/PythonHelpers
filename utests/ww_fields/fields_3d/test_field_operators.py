@@ -247,8 +247,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         self.assertIsInstance(
             field_operators.compute_vfield_dot_product(
-                a_vfield_3d=vfield,
-                b_vfield_3d=vfield,
+                f_vfield_3d=vfield,
+                g_vfield_3d=vfield,
                 field_name="dot_product",
                 latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             ),
@@ -273,8 +273,8 @@ class TestVectorFieldDotProduct(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             field_operators.compute_vfield_dot_product(
-                a_vfield_3d=vfield_a,
-                b_vfield_3d=vfield_b,
+                f_vfield_3d=vfield_a,
+                g_vfield_3d=vfield_b,
                 field_name="dot_product",
                 latex_label=r"\vec{q}_a\cdot\vec{q}_b",
             )
@@ -292,8 +292,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         self.assertIsInstance(
             field_operators.compute_vfield_cross_product(
-                a_vfield_3d=vfield,
-                b_vfield_3d=vfield,
+                f_vfield_3d=vfield,
+                g_vfield_3d=vfield,
                 field_name="cross_product",
                 latex_label=r"\vec{q}_a\times\vec{q}_b",
             ),
@@ -315,8 +315,8 @@ class TestVectorFieldCrossProduct(unittest.TestCase):
         )
         array = numpy.empty((3, ) + _RESOLUTION)
         result = field_operators.compute_vfield_cross_product(
-            a_vfield_3d=vfield_x0,
-            b_vfield_3d=vfield_x1,
+            f_vfield_3d=vfield_x0,
+            g_vfield_3d=vfield_x1,
             out_varray_3d=array,
             field_name="cross_product",
             latex_label=r"\vec{q}_a\times\vec{q}_b",

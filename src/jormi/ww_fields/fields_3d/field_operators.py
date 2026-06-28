@@ -115,43 +115,43 @@ def compute_vfield_magnitude(
 
 def compute_vfield_dot_product(
     *,
-    a_vfield_3d: field_models.VectorField_3D,
-    b_vfield_3d: field_models.VectorField_3D,
+    f_vfield_3d: field_models.VectorField_3D,
+    g_vfield_3d: field_models.VectorField_3D,
     field_name: str,
     latex_label: str,
 ) -> field_models.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector field_models."""
     field_models.ensure_same_3d_field_udomains(
-        field_3d_a=a_vfield_3d,
-        field_3d_b=b_vfield_3d,
-        field_name_a="<a_vfield_3d>",
-        field_name_b="<b_vfield_3d>",
+        field_3d_a=f_vfield_3d,
+        field_3d_b=g_vfield_3d,
+        field_name_a="<f_vfield_3d>",
+        field_name_b="<g_vfield_3d>",
     )
-    a_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=a_vfield_3d,
-        param_name="<a_vfield_3d>",
+    f_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=f_vfield_3d,
+        param_name="<f_vfield_3d>",
     )
-    b_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=b_vfield_3d,
-        param_name="<b_vfield_3d>",
+    g_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=g_vfield_3d,
+        param_name="<g_vfield_3d>",
     )
     adotb_sarray_3d = farray_operators.compute_dot_over_varray_comps(
-        a_varray_3d=a_varray_3d,
-        b_varray_3d=b_varray_3d,
+        f_varray_3d=f_varray_3d,
+        g_varray_3d=g_varray_3d,
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=adotb_sarray_3d,
-        udomain_3d=a_vfield_3d.udomain,
+        udomain_3d=f_vfield_3d.udomain,
         field_name=field_name,
         latex_label=latex_label,
-        sim_time=a_vfield_3d.sim_time,
+        sim_time=f_vfield_3d.sim_time,
     )
 
 
 def compute_vfield_cross_product(
     *,
-    a_vfield_3d: field_models.VectorField_3D,
-    b_vfield_3d: field_models.VectorField_3D,
+    f_vfield_3d: field_models.VectorField_3D,
+    g_vfield_3d: field_models.VectorField_3D,
     out_varray_3d: NDArray[Any] | None = None,
     tmp_sarray_3d: NDArray[Any] | None = None,
     field_name: str,
@@ -159,31 +159,31 @@ def compute_vfield_cross_product(
 ) -> field_models.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector field_models."""
     field_models.ensure_same_3d_field_udomains(
-        field_3d_a=a_vfield_3d,
-        field_3d_b=b_vfield_3d,
-        field_name_a="<a_vfield_3d>",
-        field_name_b="<b_vfield_3d>",
+        field_3d_a=f_vfield_3d,
+        field_3d_b=g_vfield_3d,
+        field_name_a="<f_vfield_3d>",
+        field_name_b="<g_vfield_3d>",
     )
-    a_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=a_vfield_3d,
-        param_name="<a_vfield_3d>",
+    f_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=f_vfield_3d,
+        param_name="<f_vfield_3d>",
     )
-    b_varray_3d = field_models.extract_3d_varray(
-        vfield_3d=b_vfield_3d,
-        param_name="<b_vfield_3d>",
+    g_varray_3d = field_models.extract_3d_varray(
+        vfield_3d=g_vfield_3d,
+        param_name="<g_vfield_3d>",
     )
     axb_varray_3d = farray_operators.compute_varray_cross_product(
-        a_varray_3d=a_varray_3d,
-        b_varray_3d=b_varray_3d,
+        f_varray_3d=f_varray_3d,
+        g_varray_3d=g_varray_3d,
         out_varray_3d=out_varray_3d,
         tmp_sarray_3d=tmp_sarray_3d,
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=axb_varray_3d,
-        udomain_3d=a_vfield_3d.udomain,
+        udomain_3d=f_vfield_3d.udomain,
         field_name=field_name,
         latex_label=latex_label,
-        sim_time=a_vfield_3d.sim_time,
+        sim_time=f_vfield_3d.sim_time,
     )
 
 
