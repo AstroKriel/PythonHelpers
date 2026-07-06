@@ -5,6 +5,10 @@
 ##
 
 ## stdlib
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
@@ -12,20 +16,25 @@ from typing import Any
 ## third-party
 import numpy
 from numpy.typing import NDArray
+from scipy.spatial import KDTree as scipy_KDTree
 
 ## local
 from jormi.ww_fields import cartesian_axes
 from jormi.ww_validation import validate_types
 
 ##
-## === DATA STRUCTURES
+## === ABSTRACT BASE
 ##
 
 
 @dataclass(frozen=True)
-class UniformDomain:
+class Domain(ABC):
     """
-    Base class for a uniform Cartesian domain.
+    Abstract base for a spatial domain: dimensionality, periodicity, and physical extent.
+
+    Concrete domains describe cells differently (a fixed per-axis grid vs. an
+    unstructured point cloud), so `resolution`, `cell_widths`, and similar
+    grid-specific concepts live on `UniformDomain`, not here.
 
     Fields
     ---
@@ -35,16 +44,12 @@ class UniformDomain:
     - `periodicity`:
         Per-axis periodicity flags; length must equal `num_sdims`.
 
-    - `resolution`:
-        Number of cells along each axis; length must equal `num_sdims`.
-
     - `domain_bounds`:
         Physical (min, max) bounds for each axis; length must equal `num_sdims`.
     """
 
     num_sdims: int
     periodicity: tuple[bool, ...]
-    resolution: tuple[int, ...]
     domain_bounds: tuple[tuple[float, float], ...]
 
     def __post_init__(
@@ -53,7 +58,6 @@ class UniformDomain:
         ## validate the per-axis domain metadata
         self._ensure_num_sdims()
         self._ensure_periodicity()
-        self._ensure_resolution()
         self._ensure_domain_bounds()
 
     def _axis_label_from_index(
@@ -84,25 +88,6 @@ class UniformDomain:
             valid_seq_types=validate_types.RuntimeTypes.Sequences.TupleLike,
             valid_elem_types=validate_types.RuntimeTypes.Booleans.BooleanLike,
         )
-
-    def _ensure_resolution(
-        self,
-    ) -> None:
-        validate_types.ensure_sequence(
-            param=self.resolution,
-            param_name="<resolution>",
-            seq_length=self.num_sdims,
-            valid_seq_types=validate_types.RuntimeTypes.Sequences.TupleLike,
-            valid_elem_types=validate_types.RuntimeTypes.Numerics.IntLike,
-        )
-        for axis_index, num_cells in enumerate(self.resolution):
-            axis_label = self._axis_label_from_index(
-                axis_index=axis_index,
-            )
-            if num_cells <= 0:
-                raise ValueError(
-                    f"`<resolution>[{axis_label}]` must be a positive integer.",
-                )
 
     def _ensure_domain_bounds(
         self,
@@ -148,6 +133,72 @@ class UniformDomain:
                 )
 
     @cached_property
+    def domain_lengths(
+        self,
+    ) -> tuple[float, ...]:
+        return tuple(axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds)
+
+    @property
+    @abstractmethod
+    def num_cells(
+        self,
+    ) -> int:
+        """Total number of cells or points described by this domain."""
+        ...
+
+    @property
+    @abstractmethod
+    def expected_sdims_shape(
+        self,
+    ) -> tuple[int, ...]:
+        """Spatial shape a `FieldData` must have to be sampled on this domain."""
+        ...
+
+
+##
+## === UNIFORM GRID DOMAIN
+##
+
+
+@dataclass(frozen=True)
+class UniformDomain(Domain):
+    """
+    A uniform Cartesian domain: a fixed number of equal-sized cells per axis.
+
+    Fields
+    ---
+    - `resolution`:
+        Number of cells along each axis; length must equal `num_sdims`.
+    """
+
+    resolution: tuple[int, ...]
+
+    def __post_init__(
+        self,
+    ) -> None:
+        super().__post_init__()
+        self._ensure_resolution()
+
+    def _ensure_resolution(
+        self,
+    ) -> None:
+        validate_types.ensure_sequence(
+            param=self.resolution,
+            param_name="<resolution>",
+            seq_length=self.num_sdims,
+            valid_seq_types=validate_types.RuntimeTypes.Sequences.TupleLike,
+            valid_elem_types=validate_types.RuntimeTypes.Numerics.IntLike,
+        )
+        for axis_index, num_cells in enumerate(self.resolution):
+            axis_label = self._axis_label_from_index(
+                axis_index=axis_index,
+            )
+            if num_cells <= 0:
+                raise ValueError(
+                    f"`<resolution>[{axis_label}]` must be a positive integer.",
+                )
+
+    @cached_property
     def cell_widths(
         self,
     ) -> tuple[float, ...]:
@@ -156,13 +207,7 @@ class UniformDomain:
             for axis_bounds, num_cells in zip(self.domain_bounds, self.resolution)
         )
 
-    @cached_property
-    def domain_lengths(
-        self,
-    ) -> tuple[float, ...]:
-        return tuple(axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds)
-
-    @cached_property
+    @property
     def num_cells(
         self,
     ) -> int:
@@ -171,6 +216,12 @@ class UniformDomain:
                 self.resolution,
             ),
         )
+
+    @property
+    def expected_sdims_shape(
+        self,
+    ) -> tuple[int, ...]:
+        return self.resolution
 
     @cached_property
     def _measure_per_cell(
@@ -223,29 +274,127 @@ class UniformDomain:
 
 
 ##
+## === POINT-CLOUD DOMAIN
+##
+
+
+@dataclass(frozen=True)
+class PointCloudDomain(Domain):
+    """
+    An unstructured domain: cells or particles at arbitrary positions, e.g. a Voronoi
+    mesh (Arepo) or SPH particles. Cell size is not fixed, so there is no `resolution`
+    or `cell_widths`; `positions` is the data that cannot be derived from smaller
+    parameters, the same role `resolution` plays for `UniformDomain`.
+
+    Fields
+    ---
+    - `positions`:
+        Cell or particle centroids; shape (num_cells, num_sdims).
+
+    - `volumes`:
+        Per-cell volume (area in 2D); shape (num_cells,); `None` if not available.
+        This is domain geometry (how much space each cell occupies, shared by every
+        field sampled on this domain), not a physical field like mass or density.
+    """
+
+    positions: NDArray[Any]
+    volumes: NDArray[Any] | None = None
+
+    def __post_init__(
+        self,
+    ) -> None:
+        super().__post_init__()
+        self._ensure_positions()
+        self._ensure_volumes()
+
+    def _ensure_positions(
+        self,
+    ) -> None:
+        validate_types.ensure_type(
+            param=self.positions,
+            param_name="<positions>",
+            valid_types=numpy.ndarray,
+        )
+        if self.positions.ndim != 2:
+            raise ValueError(
+                f"`<positions>` must have shape (num_cells, {self.num_sdims});"
+                f" got ndim={self.positions.ndim}.",
+            )
+        if self.positions.shape[1] != self.num_sdims:
+            raise ValueError(
+                f"`<positions>` must have shape (num_cells, {self.num_sdims});"
+                f" got shape={self.positions.shape}.",
+            )
+
+    def _ensure_volumes(
+        self,
+    ) -> None:
+        if self.volumes is None:
+            return
+        validate_types.ensure_type(
+            param=self.volumes,
+            param_name="<volumes>",
+            valid_types=numpy.ndarray,
+        )
+        if self.volumes.shape != (self.positions.shape[0], ):
+            raise ValueError(
+                f"`<volumes>` must have shape ({self.positions.shape[0]},);"
+                f" got shape={self.volumes.shape}.",
+            )
+
+    @property
+    def num_cells(
+        self,
+    ) -> int:
+        return int(self.positions.shape[0])
+
+    @property
+    def expected_sdims_shape(
+        self,
+    ) -> tuple[int, ...]:
+        return (self.num_cells, )
+
+    @cached_property
+    def total_cell_volume(
+        self,
+    ) -> float:
+        """Sum of per-cell volumes; requires `volumes`, not derived from `domain_bounds`."""
+        if self.volumes is None:
+            raise ValueError("`<volumes>` is None; cannot compute `total_cell_volume`.")
+        return float(self.volumes.sum())
+
+    @cached_property
+    def kdtree(
+        self,
+    ) -> scipy_KDTree:
+        """Spatial index on `positions`, built once and reused by point-cloud operators."""
+        return scipy_KDTree(self.positions)
+
+
+##
 ## === TYPE VALIDATION
 ##
 
 
 def ensure_udomain(
-    udomain: UniformDomain,
+    udomain: Domain,
     *,
     param_name: str = "<udomain>",
 ) -> None:
     validate_types.ensure_type(
         param=udomain,
         param_name=param_name,
-        valid_types=UniformDomain,
+        valid_types=Domain,
     )
 
 
 def ensure_udomain_metadata(
-    udomain: UniformDomain,
+    udomain: Domain,
     *,
     num_sdims: int | None = None,
     param_name: str = "<udomain>",
 ) -> None:
-    """Check metadata for `UniformDomain`."""
+    """Check metadata for a `Domain`."""
     ensure_udomain(
         udomain=udomain,
         param_name=param_name,

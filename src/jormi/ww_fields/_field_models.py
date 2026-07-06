@@ -31,14 +31,14 @@ from jormi.ww_validation import validate_arrays, validate_types
 @dataclass(frozen=True)
 class Field:
     """
-    Generic field: `FieldData` + `UniformDomain` + identity + (optional) simulation time.
+    Generic field: `FieldData` + `Domain` + identity + (optional) simulation time.
 
-    Specialised field types in 2D/3D libraries build on this and
+    Specialised field types in 2D/3D/unstructured libraries build on this and
     add additional constraints on the underlying `FieldData` and metadata.
     """
 
     fdata: _field_data.FieldData
-    udomain: _domain_models.UniformDomain
+    udomain: _domain_models.Domain
     field_name: str
     latex_label: str
     sim_time: float | None = None
@@ -69,11 +69,11 @@ class Field:
             udomain=self.udomain,
             param_name="<field.udomain>",
         )
-        if self.fdata.sdims_shape != self.udomain.resolution:
+        if self.fdata.sdims_shape != self.udomain.expected_sdims_shape:
             raise ValueError(
-                "`Field` data-array shape does not match domain resolution:"
+                "`Field` data-array shape does not match the domain's expected shape:"
                 f" sdims_shape={self.fdata.sdims_shape},"
-                f" resolution={self.udomain.resolution}.",
+                f" expected_sdims_shape={self.udomain.expected_sdims_shape}.",
             )
 
     def _ensure_field_name(
@@ -116,7 +116,7 @@ class Field:
         cls,
         *,
         farray: NDArray[Any],
-        udomain: _domain_models.UniformDomain,
+        udomain: _domain_models.Domain,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -185,11 +185,11 @@ def ensure_field_metadata(
 def ensure_udomain_matches_field(
     *,
     field: Field,
-    udomain: _domain_models.UniformDomain,
+    udomain: _domain_models.Domain,
     domain_name: str = "<udomain>",
     field_name: str = "<field>",
 ) -> None:
-    """Ensure UniformDomain matches Field."""
+    """Ensure a `Domain` matches a `Field`."""
     _domain_models.ensure_udomain(
         udomain=udomain,
         param_name=domain_name,
@@ -202,10 +202,10 @@ def ensure_udomain_matches_field(
         raise ValueError(
             f"{field_name}.udomain does not match {domain_name}.",
         )
-    if field.fdata.sdims_shape != udomain.resolution:
+    if field.fdata.sdims_shape != udomain.expected_sdims_shape:
         raise ValueError(
             f"{field_name}.fdata.sdims_shape={field.fdata.sdims_shape}"
-            f" does not match {domain_name}.resolution={udomain.resolution}.",
+            f" does not match {domain_name}.expected_sdims_shape={udomain.expected_sdims_shape}.",
         )
 
 
