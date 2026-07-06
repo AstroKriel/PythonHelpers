@@ -118,6 +118,67 @@ class VectorField_2D(_field_models.Field):
         return isinstance(self.udomain, domain_models.UniformDomain_2D_Sliced3D)
 
 
+@dataclass(frozen=True)
+class SlicedVectorFields_2D:
+    """
+    In-plane `VectorField_2D` (2 comps) paired with an out-of-plane `ScalarField_2D`
+    (1 comp); jormi has no single 2D field type for a 3-component vector, so this
+    bundle covers the case instead.
+    """
+
+    inplane_vfield_2d: VectorField_2D
+    outofplane_sfield_2d: ScalarField_2D
+
+    def __post_init__(
+        self,
+    ) -> None:
+        ensure_2d_vfield(
+            vfield_2d=self.inplane_vfield_2d,
+            param_name="<inplane_vfield_2d>",
+        )
+        ensure_2d_sfield(
+            sfield_2d=self.outofplane_sfield_2d,
+            param_name="<outofplane_sfield_2d>",
+        )
+        if self.inplane_vfield_2d.udomain != self.outofplane_sfield_2d.udomain:
+            raise ValueError(
+                "<inplane_vfield_2d>.udomain does not match <outofplane_sfield_2d>.udomain.",
+            )
+
+    @classmethod
+    def from_2d_varray(
+        cls,
+        *,
+        varray_2d: NDArray[Any],
+        udomain_2d: domain_models.UniformDomain_2D,
+        field_name: str,
+        latex_label: str,
+        sim_time: float | None = None,
+    ) -> Self:
+        """
+        Construct from a (3, num_x0_cells, num_x1_cells) ndarray.
+
+        Components [0, 1] become the in-plane vector; component [2] becomes
+        the out-of-plane scalar.
+        """
+        return cls(
+            inplane_vfield_2d=VectorField_2D.from_2d_varray(
+                varray_2d=varray_2d[:2],
+                udomain_2d=udomain_2d,
+                field_name=f"{field_name}_inplane",
+                latex_label=latex_label,
+                sim_time=sim_time,
+            ),
+            outofplane_sfield_2d=ScalarField_2D.from_2d_sarray(
+                sarray_2d=varray_2d[2],
+                udomain_2d=udomain_2d,
+                field_name=f"{field_name}_outofplane",
+                latex_label=latex_label,
+                sim_time=sim_time,
+            ),
+        )
+
+
 ##
 ## === 2D FIELD VALIDATION
 ##

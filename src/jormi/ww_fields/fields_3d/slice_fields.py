@@ -239,4 +239,36 @@ def slice_3d_vfield_outofplane(
     )
 
 
+def slice_3d_vfield(
+    vfield_3d: _3d_field_model.VectorField_3D,
+    *,
+    out_of_plane_axis: cartesian_axes.AxisLike_3D,
+    slice_index: int,
+    field_name: str | None = None,
+    latex_label: str | None = None,
+) -> _2d_field_model.SlicedVectorFields_2D:
+    """
+    Slice a 3D vector field into a `SlicedVectorFields_2D` bundle.
+
+    Combines `slice_3d_vfield_inplane` and `slice_3d_vfield_outofplane` so
+    callers get both halves of the sliced vector from one call.
+    """
+    return _2d_field_model.SlicedVectorFields_2D(
+        inplane_vfield_2d=slice_3d_vfield_inplane(
+            vfield_3d=vfield_3d,
+            out_of_plane_axis=out_of_plane_axis,
+            slice_index=slice_index,
+            field_name=field_name,
+            latex_label=latex_label,
+        ),
+        outofplane_sfield_2d=slice_3d_vfield_outofplane(
+            vfield_3d=vfield_3d,
+            out_of_plane_axis=out_of_plane_axis,
+            slice_index=slice_index,
+            field_name=field_name,
+            latex_label=latex_label,
+        ),
+    )
+
+
 ## } MODULE
