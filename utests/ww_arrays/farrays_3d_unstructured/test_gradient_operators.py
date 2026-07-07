@@ -202,6 +202,123 @@ class TestGradientWLS_LinearVectorField(unittest.TestCase):
         )
 
 
+class TestGradientWLS_DistanceFloor(unittest.TestCase):
+    """
+    Two (near-)coincident points make `1/d^weight_power` blow up: a modest value
+    difference over a near-zero separation reads as an enormous gradient. This
+    mirrors real Arepo cells found at essentially coincident centroids with
+    genuinely different velocities (see `<project-notes>/research/lead-author/
+    kriel-whittingham-galactic-dynamos/threads/dynamo-gradients/README.md`).
+    """
+
+    def _generate_field_with_coincident_pair(
+        self,
+    ) -> tuple[NDArray[numpy.float64], NDArray[numpy.float64], NDArray[numpy.float64]]:
+        rng = numpy.random.default_rng(seed=42)
+        positions = _generate_scattered_positions(
+            num_points=200,
+            rng=rng,
+        )
+        coeffs = numpy.array([2.0, -3.0, 0.5])
+        values = _evaluate_linear_sarray(
+            positions=positions,
+            coeffs=coeffs,
+            offset=7.0,
+        )
+        ## a near-duplicate of point 5 with a value inconsistent with the smooth field,
+        ## mimicking two distinct Arepo cells that happen to sit at the same position
+        duplicate_position = positions[5] + 1e-10
+        duplicate_value = values[5] + 500.0
+        positions_with_duplicate = numpy.concatenate(
+            [positions, duplicate_position[numpy.newaxis, :]],
+            axis=0,
+        )
+        values_with_duplicate = numpy.concatenate(
+            [values, [duplicate_value]],
+        )
+        return positions_with_duplicate, values_with_duplicate, coeffs
+
+    def test_coincident_pair_explodes_without_floor(
+        self,
+    ):
+        positions, values, _coeffs = self._generate_field_with_coincident_pair()
+        gradient = gradient_operators.compute_gradient_wls(
+            positions,
+            values,
+            k_neighbors=20,
+        )
+        self.assertGreater(
+            numpy.linalg.norm(gradient[5]),
+            1e6,
+        )
+
+    def test_floor_recovers_clean_neighbours_gradient(
+        self,
+    ):
+        """The floor should let cell 5, whose own data is clean, recover its true gradient."""
+        positions, values, coeffs = self._generate_field_with_coincident_pair()
+        min_distances = numpy.full(positions.shape[0], 0.01)
+        gradient = gradient_operators.compute_gradient_wls(
+            positions,
+            values,
+            k_neighbors=20,
+            min_distances=min_distances,
+        )
+        numpy.testing.assert_allclose(
+            gradient[5],
+            coeffs,
+            atol=1e-2,
+        )
+        ## the duplicate's own gradient is not required to recover `coeffs` (its own value
+        ## really is anomalous relative to its neighbours), but must stay bounded, not explode
+        self.assertLess(
+            numpy.linalg.norm(gradient[-1]),
+            1e4,
+        )
+
+    def test_floor_mask_flags_only_the_coincident_pair(
+        self,
+    ):
+        positions, values, _coeffs = self._generate_field_with_coincident_pair()
+        min_distances = numpy.full(positions.shape[0], 0.01)
+        _gradient, floor_mask = gradient_operators.compute_gradient_wls(
+            positions,
+            values,
+            k_neighbors=20,
+            min_distances=min_distances,
+            return_floor_mask=True,
+        )
+        self.assertEqual(
+            floor_mask.shape,
+            (positions.shape[0],),
+        )
+        numpy.testing.assert_array_equal(
+            numpy.where(floor_mask)[0],
+            numpy.array([5, positions.shape[0] - 1]),
+        )
+
+    def test_none_min_distances_matches_no_floor_argument(
+        self,
+    ):
+        """Passing `min_distances=None` explicitly must be identical to omitting it."""
+        positions, values, _coeffs = self._generate_field_with_coincident_pair()
+        gradient_omitted = gradient_operators.compute_gradient_wls(
+            positions,
+            values,
+            k_neighbors=20,
+        )
+        gradient_explicit_none = gradient_operators.compute_gradient_wls(
+            positions,
+            values,
+            k_neighbors=20,
+            min_distances=None,
+        )
+        numpy.testing.assert_array_equal(
+            gradient_omitted,
+            gradient_explicit_none,
+        )
+
+
 class TestGradientWLS_Parameters(unittest.TestCase):
 
     def test_default_k_neighbors_and_weight_power(

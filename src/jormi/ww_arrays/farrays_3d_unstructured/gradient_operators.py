@@ -5,7 +5,7 @@
 ##
 
 ## stdlib
-from typing import Any
+from typing import Any, Literal, overload
 
 ## third-party
 import numpy
@@ -23,13 +23,39 @@ _DISTANCE_EPS: float = 1e-30
 ##
 
 
+@overload
 def compute_gradient_wls(
     positions: NDArray[Any],
     values: NDArray[Any],
     *,
     k_neighbors: int = 20,
     weight_power: float = 2,
-) -> NDArray[numpy.float64]:
+    min_distances: NDArray[Any] | None = None,
+    return_floor_mask: Literal[False] = False,
+) -> NDArray[numpy.float64]: ...
+
+
+@overload
+def compute_gradient_wls(
+    positions: NDArray[Any],
+    values: NDArray[Any],
+    *,
+    k_neighbors: int = 20,
+    weight_power: float = 2,
+    min_distances: NDArray[Any] | None = None,
+    return_floor_mask: Literal[True],
+) -> tuple[NDArray[numpy.float64], NDArray[numpy.bool_]]: ...
+
+
+def compute_gradient_wls(
+    positions: NDArray[Any],
+    values: NDArray[Any],
+    *,
+    k_neighbors: int = 20,
+    weight_power: float = 2,
+    min_distances: NDArray[Any] | None = None,
+    return_floor_mask: bool = False,
+) -> NDArray[numpy.float64] | tuple[NDArray[numpy.float64], NDArray[numpy.bool_]]:
     """
     Compute the gradient of a scalar or vector field on an unstructured point cloud.
 
@@ -37,6 +63,11 @@ def compute_gradient_wls(
     gradient is estimated from the `k_neighbors` nearest neighbours by fitting a
     linear model to the displaced values. Works for any particle or cell data,
     including Voronoi mesh outputs from Arepo or SPH particle data.
+
+    Two (near-)coincident points make the `1/d^weight_power` weighting blow up: a
+    modest value difference over a near-zero separation is read as an enormous
+    gradient. `min_distances` guards against this by refusing to trust a neighbour
+    separation below each cell's own resolvable scale.
 
     Parameters
     ---
@@ -52,11 +83,26 @@ def compute_gradient_wls(
     - `weight_power`:
         Exponent for inverse-distance weighting: `w = 1 / d^weight_power`.
 
+    - `min_distances`:
+        Per-cell floor on neighbour distance used for weighting; shape (N,). A
+        neighbour closer than `min_distances[n]` is weighted as if it were exactly
+        that far away. `None` (default) applies no floor, matching prior behaviour
+        exactly. A natural choice is each cell's own size, e.g. `volumes ** (1 / 3)`
+        for a `PointCloudDomain`: a gradient can't be resolved below a cell's own scale.
+
+    - `return_floor_mask`:
+        If `True`, also return a boolean mask of shape (N,) marking cells whose
+        nearest neighbour was closer than `min_distances` and therefore floored, so
+        callers can audit how often the guard actually engages.
+
     Returns
     ---
     - `gradient`:
         Shape (N, 3) for a scalar input or (N, M, 3) for a vector input.
         `gradient[n, d]` is `d_d f` at cell n; `gradient[n, m, d]` is `d_d f_m`.
+
+    - `floor_mask` (only if `return_floor_mask` is `True`):
+        Shape (N,); `True` where the nearest neighbour distance was floored.
     """
     positions_64 = numpy.asarray(positions, dtype=numpy.float64)
     values_64 = numpy.asarray(values, dtype=numpy.float64)
@@ -69,6 +115,12 @@ def compute_gradient_wls(
     ## drop the first column (self, distance = 0) and keep only k_neighbors neighbours
     neighbor_distances = neighbor_distances[:, 1:]
     neighbor_indices = neighbor_indices[:, 1:]
+    if min_distances is not None:
+        min_distances_64 = numpy.asarray(min_distances, dtype=numpy.float64)
+        floor_mask = neighbor_distances[:, 0] < min_distances_64
+        neighbor_distances = numpy.maximum(neighbor_distances, min_distances_64[:, numpy.newaxis])
+    else:
+        floor_mask = numpy.zeros(n_cells, dtype=numpy.bool_)
     ## displacements from each cell to its neighbours; shape (N, k, 3)
     displacements = positions_64[neighbor_indices] - positions_64[:, numpy.newaxis, :]
     ## inverse-distance weights; shape (N, k)
@@ -82,9 +134,13 @@ def compute_gradient_wls(
     ## batch linear solve: M g = rhs; result shape (N, 3, M)
     gradient_components = numpy.linalg.solve(normal_matrix, rhs)
     if is_scalar:
-        return gradient_components[:, :, 0]
-    ## reorder from (N, 3, M) to (N, M, 3)
-    return gradient_components.transpose(0, 2, 1)
+        gradient = gradient_components[:, :, 0]
+    else:
+        ## reorder from (N, 3, M) to (N, M, 3)
+        gradient = gradient_components.transpose(0, 2, 1)
+    if return_floor_mask:
+        return gradient, floor_mask
+    return gradient
 
 
 ## } MODULE
