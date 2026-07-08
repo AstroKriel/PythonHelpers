@@ -41,7 +41,7 @@ def compute_magnetic_energy_density_sfield(
         vfield_3d=magnetic_vfield_3d,
         param_name="<magnetic_vfield_3d>",
     )
-    udomain_3d = magnetic_vfield_3d.udomain
+    uniform_domain_3d = magnetic_vfield_3d.uniform_domain
     sim_time = magnetic_vfield_3d.sim_time
     b2_sarray_3d = farray_operators.compute_sum_of_varray_comps_squared(
         varray_3d=b_varray_3d,
@@ -52,7 +52,7 @@ def compute_magnetic_energy_density_sfield(
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=b2_sarray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sim_time,
@@ -105,16 +105,16 @@ def compute_kinetic_dissipation_vfield(
         vfield_3d=velocity_vfield_3d,
         param_name="<velocity_vfield_3d>",
     )
-    udomain_3d = velocity_vfield_3d.udomain
+    uniform_domain_3d = velocity_vfield_3d.uniform_domain
     sim_time = velocity_vfield_3d.sim_time
     kinetic_dissipation_varray_3d = farray_operators.compute_varray_kinetic_dissipation(
         v_varray_3d=v_varray_3d,
-        cell_widths_3d=udomain_3d.cell_widths,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
         grad_order=grad_order,
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=kinetic_dissipation_varray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="kinetic_dissipation",
         latex_label=r"\partial_j \mathcal{S}_{ji}",
         sim_time=sim_time,
@@ -146,16 +146,16 @@ def compute_curvature_sfield(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    udomain_3d = vfield_3d.udomain
+    uniform_domain_3d = vfield_3d.uniform_domain
     sim_time = vfield_3d.sim_time
     kappa_sarray_3d = decompose_farrays.compute_curvature_sarray(
         varray_3d=varray_3d,
-        cell_widths_3d=udomain_3d.cell_widths,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
         grad_order=grad_order,
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=kappa_sarray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="curvature_magnitude",
         latex_label=r"|\vec{\kappa}|",
         sim_time=sim_time,

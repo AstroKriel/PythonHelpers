@@ -24,7 +24,7 @@ from jormi.ww_fields.fields_3d import (
 ##
 
 
-def _make_3d_udomain(
+def _make_3d_uniform_domain(
     resolution: tuple[int, int, int] = (4, 4, 4),
 ) -> domain_models.UniformDomain_3D:
     return domain_models.UniformDomain_3D(
@@ -42,7 +42,7 @@ def _make_sfield_3d(
 ) -> field_models.ScalarField_3D:
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
-        udomain_3d=_make_3d_udomain(resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
         field_name=label,
         latex_label=label,
         sim_time=sim_time,
@@ -57,7 +57,7 @@ def _make_vfield_3d(
 ) -> field_models.VectorField_3D:
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
-        udomain_3d=_make_3d_udomain(resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
         field_name=label,
         latex_label=label,
         sim_time=sim_time,
@@ -116,18 +116,18 @@ class TestScalarField3D_Construction(unittest.TestCase):
             sfield.sim_time,
         )
 
-    def test_udomain_is_stored(
+    def test_uniform_domain_is_stored(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones((4, 4, 4)),
-            udomain_3d=domain,
+            uniform_domain_3d=domain,
             field_name="q",
             latex_label="q",
         )
         self.assertEqual(
-            sfield.udomain,
+            sfield.uniform_domain,
             domain,
         )
 
@@ -137,7 +137,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
-                udomain_3d=_make_3d_udomain(),
+                uniform_domain_3d=_make_3d_uniform_domain(),
                 field_name="",
                 latex_label="q",
             )
@@ -150,7 +150,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
                 with self.assertRaises((TypeError, ValueError)):
                     field_models.ScalarField_3D.from_3d_sarray(
                         sarray_3d=numpy.ones((4, 4, 4)),
-                        udomain_3d=_make_3d_udomain(),
+                        uniform_domain_3d=_make_3d_uniform_domain(),
                         field_name=bad_name,
                         latex_label="q",
                     )
@@ -161,7 +161,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_3d=_make_3d_udomain(),
+                uniform_domain_3d=_make_3d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -172,7 +172,7 @@ class TestScalarField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_3D.from_3d_sarray(
                 sarray_3d=numpy.ones((4, 4, 4)),
-                udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
+                uniform_domain_3d=_make_3d_uniform_domain(resolution=(8, 8, 8)),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -259,10 +259,10 @@ class TestScalarField3D_Properties(unittest.TestCase):
         self,
     ):
         sarray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
-        domain = _make_3d_udomain(resolution=(2, 3, 4))
+        domain = _make_3d_uniform_domain(resolution=(2, 3, 4))
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
-            udomain_3d=domain,
+            uniform_domain_3d=domain,
             field_name="q",
             latex_label="q",
         )
@@ -310,7 +310,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((2, 4, 4, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_3d=_make_3d_udomain(),
+                uniform_domain_3d=_make_3d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -321,7 +321,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_3d=_make_3d_udomain(),
+                uniform_domain_3d=_make_3d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -332,7 +332,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
-                udomain_3d=_make_3d_udomain(resolution=(8, 8, 8)),
+                uniform_domain_3d=_make_3d_uniform_domain(resolution=(8, 8, 8)),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -343,7 +343,7 @@ class TestVectorField3D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_3D.from_3d_varray(
                 varray_3d=numpy.ones((3, 4, 4, 4)),
-                udomain_3d=_make_3d_udomain(),
+                uniform_domain_3d=_make_3d_uniform_domain(),
                 field_name="",
                 latex_label=r"\vec{q}",
             )
@@ -446,7 +446,7 @@ class TestVectorField3D_GetVcomp(unittest.TestCase):
         self._varray = rng.standard_normal((3, ) + self._resolution)
         self._vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=self._varray,
-            udomain_3d=_make_3d_udomain(self._resolution),
+            uniform_domain_3d=_make_3d_uniform_domain(self._resolution),
             field_name="q",
             latex_label=r"\vec{q}",
         )
@@ -555,7 +555,7 @@ class TestUnitVectorField3D(unittest.TestCase):
     ) -> field_models.VectorField_3D:
         return field_models.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d(resolution),
-            udomain_3d=_make_3d_udomain(resolution),
+            uniform_domain_3d=_make_3d_uniform_domain(resolution),
             field_name="unit_v",
             latex_label="unit_v",
         )
@@ -602,7 +602,7 @@ class TestUnitVectorField3D(unittest.TestCase):
     ):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=_make_unit_varray_3d((4, 4, 4)),
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="my_label",
             latex_label="my_label",
             sim_time=2.5,
@@ -618,8 +618,8 @@ class TestUnitVectorField3D(unittest.TestCase):
             2.5,
         )
         self.assertEqual(
-            uvfield.udomain,
-            vfield.udomain,
+            uvfield.uniform_domain,
+            vfield.uniform_domain,
         )
 
     def test_custom_tolerance_accepts_slightly_off_unit(
@@ -629,7 +629,7 @@ class TestUnitVectorField3D(unittest.TestCase):
         varray[0] *= 1.0001  # 0.01 percent deviation
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="approx_unit",
             latex_label="approx_unit",
         )
@@ -649,7 +649,7 @@ class TestUnitVectorField3D(unittest.TestCase):
         varray[0] *= 1.01  # 1 percent deviation
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="approx_unit",
             latex_label="approx_unit",
         )

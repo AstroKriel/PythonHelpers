@@ -103,37 +103,37 @@ class UniformDomain_3D(_domain_models.UniformDomain):
 ##
 
 
-def ensure_3d_udomain(
-    udomain_3d: UniformDomain_3D,
+def ensure_3d_uniform_domain(
+    uniform_domain_3d: UniformDomain_3D,
     *,
-    param_name: str = "<udomain_3d>",
+    param_name: str = "<uniform_domain_3d>",
 ) -> None:
     validate_types.ensure_type(
-        param=udomain_3d,
+        param=uniform_domain_3d,
         param_name=param_name,
         valid_types=UniformDomain_3D,
     )
 
 
-def ensure_3d_periodic_udomain(
-    udomain_3d: UniformDomain_3D,
+def ensure_3d_periodic_uniform_domain(
+    uniform_domain_3d: UniformDomain_3D,
     *,
-    param_name: str = "<udomain_3d>",
+    param_name: str = "<uniform_domain_3d>",
 ) -> None:
     """
-    Ensure `udomain_3d` is a UniformDomain_3D that is periodic in all directions.
+    Ensure `uniform_domain_3d` is a UniformDomain_3D that is periodic in all directions.
 
     Intended for FFT-based operations (e.g. Helmholtz decomposition) that assume
     fully periodic boundary conditions.
     """
-    ensure_3d_udomain(
-        udomain_3d=udomain_3d,
+    ensure_3d_uniform_domain(
+        uniform_domain_3d=uniform_domain_3d,
         param_name=param_name,
     )
-    if not all(udomain_3d.periodicity):
+    if not all(uniform_domain_3d.periodicity):
         raise ValueError(
             f"{param_name} must be periodic in all directions for this operation;"
-            f" periodicity={udomain_3d.periodicity}.",
+            f" periodicity={uniform_domain_3d.periodicity}.",
         )
 
 

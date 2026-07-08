@@ -23,7 +23,7 @@ from jormi.ww_fields.fields_2d import (
 ##
 
 
-def _make_2d_udomain(
+def _make_2d_uniform_domain(
     resolution: tuple[int, int] = (4, 4),
 ) -> domain_models.UniformDomain_2D:
     return domain_models.UniformDomain_2D(
@@ -57,12 +57,12 @@ def _make_sfield_2d(
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_models.ScalarField_2D:
-    udomain = (
-        _make_sliced_domain_2d(resolution=resolution) if use_sliced_domain else _make_2d_udomain(resolution)
+    uniform_domain = (
+        _make_sliced_domain_2d(resolution=resolution) if use_sliced_domain else _make_2d_uniform_domain(resolution)
     )
     return field_models.ScalarField_2D.from_2d_sarray(
         sarray_2d=numpy.ones(resolution),
-        udomain_2d=udomain,
+        uniform_domain_2d=uniform_domain,
         field_name=label,
         latex_label=label,
         sim_time=sim_time,
@@ -76,12 +76,12 @@ def _make_vfield_2d(
     sim_time: float | None = None,
     use_sliced_domain: bool = False,
 ) -> field_models.VectorField_2D:
-    udomain = (
-        _make_sliced_domain_2d(resolution=resolution) if use_sliced_domain else _make_2d_udomain(resolution)
+    uniform_domain = (
+        _make_sliced_domain_2d(resolution=resolution) if use_sliced_domain else _make_2d_uniform_domain(resolution)
     )
     return field_models.VectorField_2D.from_2d_varray(
         varray_2d=numpy.ones((2, ) + resolution),
-        udomain_2d=udomain,
+        uniform_domain_2d=uniform_domain,
         field_name=label,
         latex_label=label,
         sim_time=sim_time,
@@ -131,18 +131,18 @@ class TestScalarField2D_Construction(unittest.TestCase):
             sfield.sim_time,
         )
 
-    def test_udomain_is_stored(
+    def test_uniform_domain_is_stored(
         self,
     ):
-        domain = _make_2d_udomain()
+        domain = _make_2d_uniform_domain()
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
-            udomain_2d=domain,
+            uniform_domain_2d=domain,
             field_name="q",
             latex_label="q",
         )
         self.assertEqual(
-            sfield.udomain,
+            sfield.uniform_domain,
             domain,
         )
 
@@ -152,7 +152,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="",
                 latex_label="q",
             )
@@ -163,7 +163,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4,)),  # pyright: ignore[reportArgumentType]
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -174,7 +174,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -185,7 +185,7 @@ class TestScalarField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.ScalarField_2D.from_2d_sarray(
                 sarray_2d=numpy.ones((4, 4)),
-                udomain_2d=_make_2d_udomain(resolution=(8, 8)),
+                uniform_domain_2d=_make_2d_uniform_domain(resolution=(8, 8)),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -276,10 +276,10 @@ class TestScalarField2D_Properties(unittest.TestCase):
         self,
     ):
         sarray = numpy.arange(12, dtype=float).reshape((3, 4))
-        domain = _make_2d_udomain(resolution=(3, 4))
+        domain = _make_2d_uniform_domain(resolution=(3, 4))
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
-            udomain_2d=domain,
+            uniform_domain_2d=domain,
             field_name="q",
             latex_label="q",
         )
@@ -319,7 +319,7 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
         )
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=numpy.ones((4, 4)),
-            udomain_2d=sliced_domain,
+            uniform_domain_2d=sliced_domain,
             field_name="q",
             latex_label="q",
         )
@@ -327,10 +327,10 @@ class TestScalarField2D_IsSlicedFrom3D(unittest.TestCase):
             sfield.is_sliced_from_3d,
         )
         self.assertIsInstance(
-            sfield.udomain,
+            sfield.uniform_domain,
             domain_models.UniformDomain_2D_Sliced3D,
         )
-        sliced_3d_domain = sfield.udomain
+        sliced_3d_domain = sfield.uniform_domain
         assert isinstance(
             sliced_3d_domain,
             domain_models.UniformDomain_2D_Sliced3D,
@@ -385,7 +385,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((3, 4, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -396,7 +396,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4)),  # pyright: ignore[reportArgumentType]
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -407,7 +407,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
-                udomain_2d=_make_2d_udomain(resolution=(8, 8)),
+                uniform_domain_2d=_make_2d_uniform_domain(resolution=(8, 8)),
                 field_name="bad",
                 latex_label="bad",
             )
@@ -418,7 +418,7 @@ class TestVectorField2D_Construction(unittest.TestCase):
         with self.assertRaises((TypeError, ValueError)):
             field_models.VectorField_2D.from_2d_varray(
                 varray_2d=numpy.ones((2, 4, 4)),
-                udomain_2d=_make_2d_udomain(),
+                uniform_domain_2d=_make_2d_uniform_domain(),
                 field_name="",
                 latex_label=r"\vec{q}",
             )
@@ -505,10 +505,10 @@ class TestVectorField2D_Properties(unittest.TestCase):
         self,
     ):
         varray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
-        domain = _make_2d_udomain(resolution=(3, 4))
+        domain = _make_2d_uniform_domain(resolution=(3, 4))
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
-            udomain_2d=domain,
+            uniform_domain_2d=domain,
             field_name="q",
             latex_label=r"\vec{q}",
         )
@@ -548,7 +548,7 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
         )
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=numpy.ones((2, 4, 4)),
-            udomain_2d=sliced_domain,
+            uniform_domain_2d=sliced_domain,
             field_name="q",
             latex_label=r"\vec{q}",
         )
@@ -556,10 +556,10 @@ class TestVectorField2D_IsSlicedFrom3D(unittest.TestCase):
             vfield.is_sliced_from_3d,
         )
         self.assertIsInstance(
-            vfield.udomain,
+            vfield.uniform_domain,
             domain_models.UniformDomain_2D_Sliced3D,
         )
-        sliced_3d_domain = vfield.udomain
+        sliced_3d_domain = vfield.uniform_domain
         assert isinstance(
             sliced_3d_domain,
             domain_models.UniformDomain_2D_Sliced3D,
@@ -606,7 +606,7 @@ class TestExtract2dSarray(unittest.TestCase):
         sarray = numpy.arange(12, dtype=float).reshape((3, 4))
         sfield = field_models.ScalarField_2D.from_2d_sarray(
             sarray_2d=sarray,
-            udomain_2d=_make_2d_udomain(resolution=(3, 4)),
+            uniform_domain_2d=_make_2d_uniform_domain(resolution=(3, 4)),
             field_name="q",
             latex_label="q",
         )
@@ -653,7 +653,7 @@ class TestExtract2dVarray(unittest.TestCase):
         varray = numpy.arange(24, dtype=float).reshape((2, 3, 4))
         vfield = field_models.VectorField_2D.from_2d_varray(
             varray_2d=varray,
-            udomain_2d=_make_2d_udomain(resolution=(3, 4)),
+            uniform_domain_2d=_make_2d_uniform_domain(resolution=(3, 4)),
             field_name="q",
             latex_label=r"\vec{q}",
         )

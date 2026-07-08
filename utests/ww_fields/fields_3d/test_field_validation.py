@@ -21,7 +21,7 @@ from jormi.ww_fields.fields_3d import (
 ##
 
 
-def _make_3d_udomain(
+def _make_3d_uniform_domain(
     *,
     resolution: tuple[int, int, int] = (4, 4, 4),
     domain_bounds: tuple[
@@ -43,10 +43,10 @@ def _make_sfield_3d(
     domain: domain_models.UniformDomain_3D | None = None,
 ) -> field_models.ScalarField_3D:
     if domain is None:
-        domain = _make_3d_udomain(resolution=resolution)
+        domain = _make_3d_uniform_domain(resolution=resolution)
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.ones(resolution),
-        udomain_3d=domain,
+        uniform_domain_3d=domain,
         field_name="q",
         latex_label="q",
     )
@@ -58,10 +58,10 @@ def _make_vfield_3d(
     domain: domain_models.UniformDomain_3D | None = None,
 ) -> field_models.VectorField_3D:
     if domain is None:
-        domain = _make_3d_udomain(resolution=resolution)
+        domain = _make_3d_uniform_domain(resolution=resolution)
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=numpy.ones((3, ) + resolution),
-        udomain_3d=domain,
+        uniform_domain_3d=domain,
         field_name="q",
         latex_label=r"\vec{q}",
     )
@@ -74,7 +74,7 @@ def _make_unit_vfield_3d(
     varray[0] = 1.0
     vfield = field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=_make_3d_udomain(resolution=resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution=resolution),
         field_name="uv",
         latex_label="uv",
     )
@@ -145,7 +145,7 @@ class TestEnsureFieldTypes(unittest.TestCase):
         varray[0] = 1.0
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="unit_but_not_uvfield",
             latex_label="unit_but_not_uvfield",
         )
@@ -159,72 +159,72 @@ class TestEnsureFieldTypes(unittest.TestCase):
             field_models.ensure_3d_uvfield(uvfield_3d=None)  # pyright: ignore[reportArgumentType]
 
 
-class TestEnsureUdomainMatchesField(unittest.TestCase):
+class TestEnsureUniformDomainMatchesField(unittest.TestCase):
 
-    def test_udomain_matches_sfield_passes(
+    def test_uniform_domain_matches_sfield_passes(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         sfield = _make_sfield_3d(domain=domain)
-        field_models.ensure_3d_udomain_matches_sfield(
+        field_models.ensure_3d_uniform_domain_matches_sfield(
             sfield_3d=sfield,
-            udomain_3d=domain,
+            uniform_domain_3d=domain,
         )
 
-    def test_udomain_matches_sfield_fails_with_different_domain(
+    def test_uniform_domain_matches_sfield_fails_with_different_domain(
         self,
     ):
-        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_uniform_domain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_uniform_domain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield = _make_sfield_3d(domain=domain_a)
         with self.assertRaises(ValueError):
-            field_models.ensure_3d_udomain_matches_sfield(
+            field_models.ensure_3d_uniform_domain_matches_sfield(
                 sfield_3d=sfield,
-                udomain_3d=domain_b,
+                uniform_domain_3d=domain_b,
             )
 
-    def test_udomain_matches_sfield_rejects_wrong_field_type(
+    def test_uniform_domain_matches_sfield_rejects_wrong_field_type(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         vfield = _make_vfield_3d(domain=domain)
         with self.assertRaises(TypeError):
-            field_models.ensure_3d_udomain_matches_sfield(
+            field_models.ensure_3d_uniform_domain_matches_sfield(
                 sfield_3d=vfield,  # pyright: ignore[reportArgumentType]
-                udomain_3d=domain,
+                uniform_domain_3d=domain,
             )
 
-    def test_udomain_matches_vfield_passes(
+    def test_uniform_domain_matches_vfield_passes(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         vfield = _make_vfield_3d(domain=domain)
-        field_models.ensure_3d_udomain_matches_vfield(
+        field_models.ensure_3d_uniform_domain_matches_vfield(
             vfield_3d=vfield,
-            udomain_3d=domain,
+            uniform_domain_3d=domain,
         )
 
-    def test_udomain_matches_vfield_fails_with_different_domain(
+    def test_uniform_domain_matches_vfield_fails_with_different_domain(
         self,
     ):
-        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_uniform_domain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_uniform_domain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         vfield = _make_vfield_3d(domain=domain_a)
         with self.assertRaises(ValueError):
-            field_models.ensure_3d_udomain_matches_vfield(
+            field_models.ensure_3d_uniform_domain_matches_vfield(
                 vfield_3d=vfield,
-                udomain_3d=domain_b,
+                uniform_domain_3d=domain_b,
             )
 
-    def test_udomain_matches_vfield_rejects_wrong_field_type(
+    def test_uniform_domain_matches_vfield_rejects_wrong_field_type(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         sfield = _make_sfield_3d(domain=domain)
         with self.assertRaises(TypeError):
-            field_models.ensure_3d_udomain_matches_vfield(
+            field_models.ensure_3d_uniform_domain_matches_vfield(
                 vfield_3d=sfield,  # pyright: ignore[reportArgumentType]
-                udomain_3d=domain,
+                uniform_domain_3d=domain,
             )
 
 
@@ -273,15 +273,15 @@ class TestEnsureSameShape(unittest.TestCase):
             )
 
 
-class TestEnsureSameUdomains(unittest.TestCase):
+class TestEnsureSameUniformDomains(unittest.TestCase):
 
     def test_same_domain_passes(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
-        field_models.ensure_same_3d_field_udomains(
+        field_models.ensure_same_3d_field_uniform_domains(
             field_3d_a=sfield_a,
             field_3d_b=sfield_b,
         )
@@ -291,7 +291,7 @@ class TestEnsureSameUdomains(unittest.TestCase):
     ):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(4, 4, 4))
-        field_models.ensure_same_3d_field_udomains(
+        field_models.ensure_same_3d_field_uniform_domains(
             field_3d_a=sfield_a,
             field_3d_b=sfield_b,
         )
@@ -299,12 +299,12 @@ class TestEnsureSameUdomains(unittest.TestCase):
     def test_different_bounds_raises(
         self,
     ):
-        domain_a = _make_3d_udomain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
-        domain_b = _make_3d_udomain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
+        domain_a = _make_3d_uniform_domain(domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)))
+        domain_b = _make_3d_uniform_domain(domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)))
         sfield_a = _make_sfield_3d(domain=domain_a)
         sfield_b = _make_sfield_3d(domain=domain_b)
         with self.assertRaises(ValueError):
-            field_models.ensure_same_3d_field_udomains(
+            field_models.ensure_same_3d_field_uniform_domains(
                 field_3d_a=sfield_a,
                 field_3d_b=sfield_b,
             )
@@ -325,21 +325,21 @@ class TestEnsureSameUdomains(unittest.TestCase):
         sfield_a = _make_sfield_3d(domain=domain_a)
         sfield_b = _make_sfield_3d(domain=domain_b)
         with self.assertRaises(ValueError):
-            field_models.ensure_same_3d_field_udomains(
+            field_models.ensure_same_3d_field_uniform_domains(
                 field_3d_a=sfield_a,
                 field_3d_b=sfield_b,
             )
 
 
-class TestEnsureSameShapeAndUdomains(unittest.TestCase):
+class TestEnsureSameShapeAndUniformDomains(unittest.TestCase):
 
     def test_identical_fields_pass(
         self,
     ):
-        domain = _make_3d_udomain()
+        domain = _make_3d_uniform_domain()
         sfield_a = _make_sfield_3d(domain=domain)
         sfield_b = _make_sfield_3d(domain=domain)
-        field_models.ensure_same_3d_field_shape_and_udomains(
+        field_models.ensure_same_3d_field_shape_and_uniform_domains(
             field_3d_a=sfield_a,
             field_3d_b=sfield_b,
         )
@@ -350,7 +350,7 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
         sfield_a = _make_sfield_3d(resolution=(4, 4, 4))
         sfield_b = _make_sfield_3d(resolution=(8, 8, 8))
         with self.assertRaises(ValueError):
-            field_models.ensure_same_3d_field_shape_and_udomains(
+            field_models.ensure_same_3d_field_shape_and_uniform_domains(
                 field_3d_a=sfield_a,
                 field_3d_b=sfield_b,
             )
@@ -359,17 +359,17 @@ class TestEnsureSameShapeAndUdomains(unittest.TestCase):
         self,
     ):
         sfield_a = _make_sfield_3d(
-            domain=_make_3d_udomain(
+            domain=_make_3d_uniform_domain(
                 domain_bounds=((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
             ),
         )
         sfield_b = _make_sfield_3d(
-            domain=_make_3d_udomain(
+            domain=_make_3d_uniform_domain(
                 domain_bounds=((0.0, 2.0), (0.0, 2.0), (0.0, 2.0)),
             ),
         )
         with self.assertRaises(ValueError):
-            field_models.ensure_same_3d_field_shape_and_udomains(
+            field_models.ensure_same_3d_field_shape_and_uniform_domains(
                 field_3d_a=sfield_a,
                 field_3d_b=sfield_b,
             )
@@ -383,7 +383,7 @@ class TestExtractArrays(unittest.TestCase):
         sarray = numpy.arange(64, dtype=float).reshape((4, 4, 4))
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=sarray,
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="q",
             latex_label="q",
         )
@@ -418,7 +418,7 @@ class TestExtractArrays(unittest.TestCase):
         varray = numpy.arange(192, dtype=float).reshape((3, 4, 4, 4))
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=varray,
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="q",
             latex_label=r"\vec{q}",
         )

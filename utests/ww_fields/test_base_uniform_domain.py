@@ -26,62 +26,62 @@ class TestConstruction(unittest.TestCase):
     def test_constructs_valid_1d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=1,
             periodicity=(True, ),
             resolution=(4, ),
             domain_bounds=((0.0, 1.0), ),
         )
         self.assertEqual(
-            udomain.num_sdims,
+            uniform_domain.num_sdims,
             1,
         )
         self.assertEqual(
-            udomain.periodicity,
+            uniform_domain.periodicity,
             (True, ),
         )
         self.assertEqual(
-            udomain.resolution,
+            uniform_domain.resolution,
             (4, ),
         )
         self.assertEqual(
-            udomain.domain_bounds,
+            uniform_domain.domain_bounds,
             ((0.0, 1.0), ),
         )
 
     def test_constructs_valid_2d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
             resolution=(8, 4),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
         )
         self.assertEqual(
-            udomain.num_sdims,
+            uniform_domain.num_sdims,
             2,
         )
         self.assertEqual(
-            udomain.num_cells,
+            uniform_domain.num_cells,
             8 * 4,
         )
 
     def test_constructs_valid_3d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
             resolution=(4, 5, 6),
             domain_bounds=((0.0, 1.0), (0.0, 2.0), (-3.0, 3.0)),
         )
         self.assertEqual(
-            udomain.num_sdims,
+            uniform_domain.num_sdims,
             3,
         )
         self.assertEqual(
-            udomain.num_cells,
+            uniform_domain.num_cells,
             4 * 5 * 6,
         )
 
@@ -247,73 +247,73 @@ class TestProperties(unittest.TestCase):
     def test_lengths_widths_measures_num_cells_2d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
             resolution=(10, 4),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0)),
         )
         self.assertEqual(
-            udomain.domain_lengths,
+            uniform_domain.domain_lengths,
             (2.0, 4.0),
         )
         self.assertEqual(
-            udomain.cell_widths,
+            uniform_domain.cell_widths,
             (0.2, 1.0),
         )
         self.assertAlmostEqual(
-            udomain._measure_per_cell,
+            uniform_domain._measure_per_cell,
             0.2 * 1.0,
         )
         self.assertAlmostEqual(
-            udomain._total_measure,
+            uniform_domain._total_measure,
             2.0 * 4.0,
         )
         self.assertEqual(
-            udomain.num_cells,
+            uniform_domain.num_cells,
             40,
         )
 
     def test_lengths_widths_measures_num_cells_3d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
             resolution=(2, 3, 4),
             domain_bounds=((0.0, 1.0), (0.0, 3.0), (-2.0, 2.0)),
         )
         self.assertEqual(
-            udomain.domain_lengths,
+            uniform_domain.domain_lengths,
             (1.0, 3.0, 4.0),
         )
         self.assertEqual(
-            udomain.cell_widths,
+            uniform_domain.cell_widths,
             (0.5, 1.0, 1.0),
         )
         self.assertAlmostEqual(
-            udomain._measure_per_cell,
+            uniform_domain._measure_per_cell,
             0.5 * 1.0 * 1.0,
         )
         self.assertAlmostEqual(
-            udomain._total_measure,
+            uniform_domain._total_measure,
             1.0 * 3.0 * 4.0,
         )
         self.assertEqual(
-            udomain.num_cells,
+            uniform_domain.num_cells,
             2 * 3 * 4,
         )
 
     def test_cell_centers_values_1d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=1,
             periodicity=(True, ),
             resolution=(4, ),
             domain_bounds=((0.0, 1.0), ),
         )
-        cell_centers = udomain.cell_centers
+        cell_centers = uniform_domain.cell_centers
         self.assertEqual(
             len(cell_centers),
             1,
@@ -329,13 +329,13 @@ class TestProperties(unittest.TestCase):
     def test_cell_centers_shapes_3d(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=3,
             periodicity=(True, True, True),
             resolution=(3, 5, 7),
             domain_bounds=((0.0, 3.0), (10.0, 20.0), (-7.0, 0.0)),
         )
-        x0_centers, x1_centers, x2_centers = udomain.cell_centers
+        x0_centers, x1_centers, x2_centers = uniform_domain.cell_centers
         self.assertEqual(
             x0_centers.shape,
             (3, ),
@@ -358,61 +358,61 @@ class TestProperties(unittest.TestCase):
     def test_cached_properties_return_same_object(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=2,
             periodicity=(True, True),
             resolution=(3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         self.assertIs(
-            udomain.cell_widths,
-            udomain.cell_widths,
+            uniform_domain.cell_widths,
+            uniform_domain.cell_widths,
         )
         self.assertIs(
-            udomain.domain_lengths,
-            udomain.domain_lengths,
+            uniform_domain.domain_lengths,
+            uniform_domain.domain_lengths,
         )
         self.assertIs(
-            udomain.cell_centers,
-            udomain.cell_centers,
+            uniform_domain.cell_centers,
+            uniform_domain.cell_centers,
         )
 
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_ensure_udomain_accepts(
+    def test_ensure_uniform_domain_accepts(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        _domain_models.ensure_udomain(udomain=udomain)
+        _domain_models.ensure_uniform_domain(uniform_domain=uniform_domain)
 
-    def test_ensure_udomain_rejects_wrong_type(
+    def test_ensure_uniform_domain_rejects_wrong_type(
         self,
     ):
         with self.assertRaises(TypeError):
-            _domain_models.ensure_udomain(udomain=None)  # pyright: ignore[reportArgumentType]
+            _domain_models.ensure_uniform_domain(uniform_domain=None)  # pyright: ignore[reportArgumentType]
 
-    def test_ensure_udomain_metadata_num_sdims(
+    def test_ensure_uniform_domain_metadata_num_sdims(
         self,
     ):
-        udomain = _domain_models.UniformDomain(
+        uniform_domain = _domain_models.UniformDomain(
             num_sdims=2,
             periodicity=(True, False),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
-        _domain_models.ensure_udomain_metadata(
-            udomain=udomain,
+        _domain_models.ensure_uniform_domain_metadata(
+            uniform_domain=uniform_domain,
             num_sdims=2,
         )
         with self.assertRaises(ValueError):
-            _domain_models.ensure_udomain_metadata(
-                udomain=udomain,
+            _domain_models.ensure_uniform_domain_metadata(
+                uniform_domain=uniform_domain,
                 num_sdims=3,
             )
 

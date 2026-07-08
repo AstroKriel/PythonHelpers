@@ -34,7 +34,7 @@ class ScalarField_3D(_field_models.Field):
     """3D scalar field: num_ranks=0, num_comps=1, num_sdims=3."""
 
     fdata: _field_data.ScalarFieldData_3D
-    udomain: domain_models.UniformDomain_3D
+    uniform_domain: domain_models.UniformDomain_3D
 
     def __post_init__(
         self,
@@ -50,7 +50,7 @@ class ScalarField_3D(_field_models.Field):
         cls,
         *,
         sarray_3d: NDArray[Any],
-        udomain_3d: domain_models.UniformDomain_3D,
+        uniform_domain_3d: domain_models.UniformDomain_3D,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -58,7 +58,7 @@ class ScalarField_3D(_field_models.Field):
         """Construct a 3D scalar field directly from a (num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=sarray_3d,
-            udomain=udomain_3d,
+            uniform_domain=uniform_domain_3d,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -72,7 +72,7 @@ class VectorField_3D(_field_models.Field):
     """3D vector field: num_ranks=1, num_comps=3, num_sdims=3."""
 
     fdata: _field_data.VectorFieldData_3D
-    udomain: domain_models.UniformDomain_3D
+    uniform_domain: domain_models.UniformDomain_3D
     comp_axes: cartesian_axes.AxisTuple_3D = cartesian_axes.DEFAULT_3D_AXES_ORDER
 
     def __post_init__(
@@ -110,7 +110,7 @@ class VectorField_3D(_field_models.Field):
         cls,
         *,
         varray_3d: NDArray[Any],
-        udomain_3d: domain_models.UniformDomain_3D,
+        uniform_domain_3d: domain_models.UniformDomain_3D,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -118,7 +118,7 @@ class VectorField_3D(_field_models.Field):
         """Construct a 3D vector field directly from a (3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
         return cls._from_farray(
             farray=varray_3d,
-            udomain=udomain_3d,
+            uniform_domain=uniform_domain_3d,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -174,7 +174,7 @@ class UnitVectorField_3D(VectorField_3D):
     ) -> Self:
         return cls(
             fdata=vfield_3d.fdata,
-            udomain=vfield_3d.udomain,
+            uniform_domain=vfield_3d.uniform_domain,
             field_name=vfield_3d.field_name,
             latex_label=vfield_3d.latex_label,
             comp_axes=vfield_3d.comp_axes,
@@ -236,11 +236,11 @@ def ensure_3d_uvfield(
     )
 
 
-def ensure_3d_udomain_matches_sfield(
+def ensure_3d_uniform_domain_matches_sfield(
     *,
     sfield_3d: ScalarField_3D,
-    udomain_3d: domain_models.UniformDomain_3D,
-    domain_name: str = "<udomain_3d>",
+    uniform_domain_3d: domain_models.UniformDomain_3D,
+    domain_name: str = "<uniform_domain_3d>",
     sfield_name: str = "<sfield_3d>",
 ) -> None:
     """Ensure UniformDomain matches a 3D ScalarField_3D."""
@@ -248,19 +248,19 @@ def ensure_3d_udomain_matches_sfield(
         sfield_3d=sfield_3d,
         param_name=sfield_name,
     )
-    _field_models.ensure_udomain_matches_field(
-        udomain=udomain_3d,
+    _field_models.ensure_uniform_domain_matches_field(
+        uniform_domain=uniform_domain_3d,
         field=sfield_3d,
         domain_name=domain_name,
         field_name=sfield_name,
     )
 
 
-def ensure_3d_udomain_matches_vfield(
+def ensure_3d_uniform_domain_matches_vfield(
     *,
-    udomain_3d: domain_models.UniformDomain_3D,
+    uniform_domain_3d: domain_models.UniformDomain_3D,
     vfield_3d: VectorField_3D,
-    domain_name: str = "<udomain_3d>",
+    domain_name: str = "<uniform_domain_3d>",
     vfield_name: str = "<vfield_3d>",
 ) -> None:
     """Ensure UniformDomain matches a 3D VectorField_3D."""
@@ -268,8 +268,8 @@ def ensure_3d_udomain_matches_vfield(
         vfield_3d=vfield_3d,
         param_name=vfield_name,
     )
-    _field_models.ensure_udomain_matches_field(
-        udomain=udomain_3d,
+    _field_models.ensure_uniform_domain_matches_field(
+        uniform_domain=uniform_domain_3d,
         field=vfield_3d,
         domain_name=domain_name,
         field_name=vfield_name,
@@ -302,7 +302,7 @@ def ensure_same_3d_field_shape(
     )
 
 
-def ensure_same_3d_field_udomains(
+def ensure_same_3d_field_uniform_domains(
     *,
     field_3d_a: _field_models.Field,
     field_3d_b: _field_models.Field,
@@ -320,13 +320,13 @@ def ensure_same_3d_field_udomains(
         param_name=field_name_b,
         num_sdims=3,
     )
-    if field_3d_a.udomain != field_3d_b.udomain:
+    if field_3d_a.uniform_domain != field_3d_b.uniform_domain:
         raise ValueError(
-            f"`{field_name_a}.udomain` must match `{field_name_b}.udomain`.",
+            f"`{field_name_a}.uniform_domain` must match `{field_name_b}.uniform_domain`.",
         )
 
 
-def ensure_same_3d_field_shape_and_udomains(
+def ensure_same_3d_field_shape_and_uniform_domains(
     *,
     field_3d_a: _field_models.Field,
     field_3d_b: _field_models.Field,
@@ -340,7 +340,7 @@ def ensure_same_3d_field_shape_and_udomains(
         field_name_a=field_name_a,
         field_name_b=field_name_b,
     )
-    ensure_same_3d_field_udomains(
+    ensure_same_3d_field_uniform_domains(
         field_3d_a=field_3d_a,
         field_3d_b=field_3d_b,
         field_name_a=field_name_a,

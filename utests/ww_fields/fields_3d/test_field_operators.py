@@ -25,7 +25,7 @@ _RESOLUTION = (8, 8, 8)
 _DOMAIN_BOUNDS = ((0.0, 1.0), (0.0, 1.0), (0.0, 1.0))
 
 
-def _make_3d_udomain(
+def _make_3d_uniform_domain(
     *,
     resolution: tuple[int, int, int] = _RESOLUTION,
     domain_bounds: tuple[
@@ -49,7 +49,7 @@ def _make_constant_sfield(
 ) -> field_models.ScalarField_3D:
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=numpy.full(resolution, value),
-        udomain_3d=_make_3d_udomain(resolution=resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution=resolution),
         field_name=label,
         latex_label=label,
     )
@@ -73,7 +73,7 @@ def _make_constant_vfield(
     varray[2] = value_in_x2
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=_make_3d_udomain(
+        uniform_domain_3d=_make_3d_uniform_domain(
             resolution=resolution,
             domain_bounds=domain_bounds,
         ),
@@ -142,8 +142,8 @@ class TestScalarFieldGradient(unittest.TestCase):
                 sfield_3d=sfield,
                 field_name="grad_q",
                 latex_label=r"\nabla q",
-            ).udomain,
-            sfield.udomain,
+            ).uniform_domain,
+            sfield.uniform_domain,
         )
 
     def test_gradient_result_has_same_resolution(
@@ -164,7 +164,7 @@ class TestScalarFieldGradient(unittest.TestCase):
     ):
         sfield = field_models.ScalarField_3D.from_3d_sarray(
             sarray_3d=numpy.ones(_RESOLUTION),
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="q",
             latex_label="q",
             sim_time=2.5,
@@ -230,8 +230,8 @@ class TestVectorFieldMagnitude(unittest.TestCase):
                 vfield_3d=vfield,
                 field_name="q_magnitude",
                 latex_label=r"|\vec{q}|",
-            ).udomain,
-            vfield.udomain,
+            ).uniform_domain,
+            vfield.uniform_domain,
         )
 
 
@@ -360,8 +360,8 @@ class TestVectorFieldDivergence(unittest.TestCase):
                 vfield_3d=vfield,
                 field_name="div_q",
                 latex_label=r"\nabla\cdot\vec{q}",
-            ).udomain,
-            vfield.udomain,
+            ).uniform_domain,
+            vfield.uniform_domain,
         )
 
     def test_divergence_result_has_same_resolution(
@@ -386,7 +386,7 @@ class TestVectorFieldDivergence(unittest.TestCase):
     ):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="q",
             latex_label=r"\vec{q}",
             sim_time=1.0,
@@ -456,8 +456,8 @@ class TestVectorFieldCurl(unittest.TestCase):
                 vfield_3d=vfield,
                 field_name="curl_q",
                 latex_label=r"\nabla\times\vec{q}",
-            ).udomain,
-            vfield.udomain,
+            ).uniform_domain,
+            vfield.uniform_domain,
         )
 
     def test_curl_result_has_same_resolution(
@@ -482,7 +482,7 @@ class TestVectorFieldCurl(unittest.TestCase):
     ):
         vfield = field_models.VectorField_3D.from_3d_varray(
             varray_3d=numpy.ones((3, ) + _RESOLUTION),
-            udomain_3d=_make_3d_udomain(),
+            uniform_domain_3d=_make_3d_uniform_domain(),
             field_name="q",
             latex_label=r"\vec{q}",
             sim_time=3.0,

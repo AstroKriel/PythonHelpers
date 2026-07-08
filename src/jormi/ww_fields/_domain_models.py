@@ -376,33 +376,33 @@ class PointCloudDomain(Domain):
 ##
 
 
-def ensure_udomain(
-    udomain: Domain,
+def ensure_uniform_domain(
+    uniform_domain: Domain,
     *,
-    param_name: str = "<udomain>",
+    param_name: str = "<uniform_domain>",
 ) -> None:
     validate_types.ensure_type(
-        param=udomain,
+        param=uniform_domain,
         param_name=param_name,
         valid_types=Domain,
     )
 
 
-def ensure_udomain_metadata(
-    udomain: Domain,
+def ensure_uniform_domain_metadata(
+    uniform_domain: Domain,
     *,
     num_sdims: int | None = None,
-    param_name: str = "<udomain>",
+    param_name: str = "<uniform_domain>",
 ) -> None:
     """Check metadata for a `Domain`."""
-    ensure_udomain(
-        udomain=udomain,
+    ensure_uniform_domain(
+        uniform_domain=uniform_domain,
         param_name=param_name,
     )
-    if (num_sdims is not None) and (udomain.num_sdims != num_sdims):
+    if (num_sdims is not None) and (uniform_domain.num_sdims != num_sdims):
         raise ValueError(
             f"`{param_name}` must have num_sdims={num_sdims},"
-            f" but got num_sdims={udomain.num_sdims}.",
+            f" but got num_sdims={uniform_domain.num_sdims}.",
         )
 
 

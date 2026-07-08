@@ -190,31 +190,31 @@ class UniformDomain_2D_Sliced3D(UniformDomain_2D):
 ##
 
 
-def ensure_2d_udomain(
-    udomain_2d: UniformDomain_2D,
+def ensure_2d_uniform_domain(
+    uniform_domain_2d: UniformDomain_2D,
     *,
-    param_name: str = "<udomain_2d>",
+    param_name: str = "<uniform_domain_2d>",
 ) -> None:
     validate_types.ensure_type(
-        param=udomain_2d,
+        param=uniform_domain_2d,
         param_name=param_name,
         valid_types=UniformDomain_2D,
     )
 
 
-def ensure_2d_udomain_sliced_from_3d(
-    udomain_2d: UniformDomain_2D,
+def ensure_2d_uniform_domain_sliced_from_3d(
+    uniform_domain_2d: UniformDomain_2D,
     *,
-    param_name: str = "<udomain_2d>",
+    param_name: str = "<uniform_domain_2d>",
 ) -> None:
     """
-    Ensure `udomain_2d` is a 2D domain sliced from 3D.
+    Ensure `uniform_domain_2d` is a 2D domain sliced from 3D.
 
     Accepts `UniformDomain_2D` in the signature for static annotation compatibility;
     the subtype-check is enforced via `valid_types=UniformDomain_2D_Sliced3D`.
     """
     validate_types.ensure_type(
-        param=udomain_2d,
+        param=uniform_domain_2d,
         param_name=param_name,
         valid_types=UniformDomain_2D_Sliced3D,
     )

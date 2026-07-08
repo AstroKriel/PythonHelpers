@@ -23,7 +23,7 @@ from jormi.ww_fields.fields_3d import (
 ##
 
 
-def _make_3d_udomain(
+def _make_3d_uniform_domain(
     resolution: tuple[int, int, int],
 ) -> domain_models.UniformDomain_3D:
     return domain_models.UniformDomain_3D(
@@ -39,7 +39,7 @@ def _make_sfield(
     resolution = sarray_3d.shape
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=sarray_3d,
-        udomain_3d=_make_3d_udomain(resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
         field_name="q",
         latex_label="q",
     )

@@ -24,25 +24,25 @@ class TestConstruction(unittest.TestCase):
     def test_constructs_valid_2d_domain(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D(
+        uniform_domain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, False),
             resolution=(8, 4),
             domain_bounds=((0.0, 1.0), (-2.0, 2.0)),
         )
         self.assertEqual(
-            udomain_2d.num_sdims,
+            uniform_domain_2d.num_sdims,
             2,
         )
         self.assertEqual(
-            udomain_2d.periodicity,
+            uniform_domain_2d.periodicity,
             (True, False),
         )
         self.assertEqual(
-            udomain_2d.resolution,
+            uniform_domain_2d.resolution,
             (8, 4),
         )
         self.assertEqual(
-            udomain_2d.domain_bounds,
+            uniform_domain_2d.domain_bounds,
             ((0.0, 1.0), (-2.0, 2.0)),
         )
 
@@ -83,37 +83,37 @@ class TestProperties(unittest.TestCase):
     def test_lengths_widths_area_total_area(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D(
+        uniform_domain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(10, 4),
             domain_bounds=((0.0, 2.0), (-1.0, 3.0)),
         )
         self.assertEqual(
-            udomain_2d.domain_lengths,
+            uniform_domain_2d.domain_lengths,
             (2.0, 4.0),
         )
         self.assertEqual(
-            udomain_2d.cell_widths,
+            uniform_domain_2d.cell_widths,
             (0.2, 1.0),
         )
         self.assertAlmostEqual(
-            udomain_2d.cell_area,
+            uniform_domain_2d.cell_area,
             0.2 * 1.0,
         )
         self.assertAlmostEqual(
-            udomain_2d.total_area,
+            uniform_domain_2d.total_area,
             2.0 * 4.0,
         )
 
     def test_cell_centers_shapes_and_values(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D(
+        uniform_domain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(4, 2),
             domain_bounds=((0.0, 1.0), (0.0, 2.0)),
         )
-        x0_centers, x1_centers = udomain_2d.cell_centers
+        x0_centers, x1_centers = uniform_domain_2d.cell_centers
         self.assertEqual(
             x0_centers.shape,
             (4, ),
@@ -140,22 +140,22 @@ class TestProperties(unittest.TestCase):
     def test_cached_properties_return_same_object(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D(
+        uniform_domain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(3, 3),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         self.assertIs(
-            udomain_2d.cell_widths,
-            udomain_2d.cell_widths,
+            uniform_domain_2d.cell_widths,
+            uniform_domain_2d.cell_widths,
         )
         self.assertIs(
-            udomain_2d.domain_lengths,
-            udomain_2d.domain_lengths,
+            uniform_domain_2d.domain_lengths,
+            uniform_domain_2d.domain_lengths,
         )
         self.assertIs(
-            udomain_2d.cell_centers,
-            udomain_2d.cell_centers,
+            uniform_domain_2d.cell_centers,
+            uniform_domain_2d.cell_centers,
         )
 
 
@@ -164,7 +164,7 @@ class TestSliced3D(unittest.TestCase):
     def test_constructs_and_normalises_axis_enum(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
+        uniform_domain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(8, 8),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -173,18 +173,18 @@ class TestSliced3D(unittest.TestCase):
             slice_position=0.5,
         )
         self.assertIs(
-            udomain_2d.out_of_plane_axis,
+            uniform_domain_2d.out_of_plane_axis,
             cartesian_axes.CartesianAxis_3D.X1,
         )
         self.assertEqual(
-            udomain_2d.sliced_axis_index,
+            uniform_domain_2d.sliced_axis_index,
             1,
         )
 
     def test_accepts_int_and_enum_axis_inputs(
         self,
     ):
-        udomain_from_int = domain_models.UniformDomain_2D_Sliced3D.from_slice(
+        uniform_domain_from_int = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -193,15 +193,15 @@ class TestSliced3D(unittest.TestCase):
             slice_position=0.0,
         )
         self.assertIs(
-            udomain_from_int.out_of_plane_axis,
+            uniform_domain_from_int.out_of_plane_axis,
             cartesian_axes.CartesianAxis_3D.X2,
         )
         self.assertEqual(
-            udomain_from_int.sliced_axis_index,
+            uniform_domain_from_int.sliced_axis_index,
             2,
         )
 
-        udomain_from_enum = domain_models.UniformDomain_2D_Sliced3D.from_slice(
+        uniform_domain_from_enum = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -210,11 +210,11 @@ class TestSliced3D(unittest.TestCase):
             slice_position=0.25,
         )
         self.assertIs(
-            udomain_from_enum.out_of_plane_axis,
+            uniform_domain_from_enum.out_of_plane_axis,
             cartesian_axes.CartesianAxis_3D.X0,
         )
         self.assertEqual(
-            udomain_from_enum.sliced_axis_index,
+            uniform_domain_from_enum.sliced_axis_index,
             0,
         )
 
@@ -273,10 +273,10 @@ class TestSliced3D(unittest.TestCase):
 
 class TestEnsureHelpers(unittest.TestCase):
 
-    def test_ensure_2d_udomain_accepts_subtype(
+    def test_ensure_2d_uniform_domain_accepts_subtype(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
+        uniform_domain_2d = domain_models.UniformDomain_2D_Sliced3D.from_slice(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
@@ -284,18 +284,18 @@ class TestEnsureHelpers(unittest.TestCase):
             slice_index=0,
             slice_position=0.0,
         )
-        domain_models.ensure_2d_udomain(udomain_2d=udomain_2d)
+        domain_models.ensure_2d_uniform_domain(uniform_domain_2d=uniform_domain_2d)
 
-    def test_ensure_2d_udomain_sliced_from_3d_rejects_plain_2d(
+    def test_ensure_2d_uniform_domain_sliced_from_3d_rejects_plain_2d(
         self,
     ):
-        udomain_2d = domain_models.UniformDomain_2D(
+        uniform_domain_2d = domain_models.UniformDomain_2D(
             periodicity=(True, True),
             resolution=(4, 4),
             domain_bounds=((0.0, 1.0), (0.0, 1.0)),
         )
         with self.assertRaises(TypeError):
-            domain_models.ensure_2d_udomain_sliced_from_3d(udomain_2d=udomain_2d)
+            domain_models.ensure_2d_uniform_domain_sliced_from_3d(uniform_domain_2d=uniform_domain_2d)
 
 
 ##

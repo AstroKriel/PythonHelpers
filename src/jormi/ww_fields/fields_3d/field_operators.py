@@ -40,10 +40,10 @@ def compute_sfield_volume_integral(
         sfield_3d=sfield_3d,
         param_name="<sfield_3d>",
     )
-    udomain_3d = sfield_3d.udomain
+    uniform_domain_3d = sfield_3d.uniform_domain
     return farray_operators.compute_sarray_volume_integral(
         sarray_3d=sarray_3d,
-        cell_volume=udomain_3d.cell_volume,
+        cell_volume=uniform_domain_3d.cell_volume,
     )
 
 
@@ -66,17 +66,17 @@ def compute_sfield_gradient(
         sfield_3d=sfield_3d,
         param_name="<sfield_3d>",
     )
-    udomain_3d = sfield_3d.udomain
+    uniform_domain_3d = sfield_3d.uniform_domain
     sim_time = sfield_3d.sim_time
     grad_f_varray_3d = farray_operators.compute_sarray_grad(
         sarray_3d=sarray_3d,
-        cell_widths_3d=udomain_3d.cell_widths,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
         out_varray_3d=out_varray_3d,
         grad_order=grad_order,
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=grad_f_varray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sim_time,
@@ -99,14 +99,14 @@ def compute_vfield_magnitude(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    udomain_3d = vfield_3d.udomain
+    uniform_domain_3d = vfield_3d.uniform_domain
     sim_time = vfield_3d.sim_time
     v_magn_sarray_3d = farray_operators.compute_varray_magnitude(
         varray_3d=varray_3d,
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=v_magn_sarray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sim_time,
@@ -121,7 +121,7 @@ def compute_vfield_dot_product(
     latex_label: str,
 ) -> field_models.ScalarField_3D:
     """Compute the dot product a_i b_i cellwise for two 3D vector field_models."""
-    field_models.ensure_same_3d_field_udomains(
+    field_models.ensure_same_3d_field_uniform_domains(
         field_3d_a=f_vfield_3d,
         field_3d_b=g_vfield_3d,
         field_name_a="<f_vfield_3d>",
@@ -141,7 +141,7 @@ def compute_vfield_dot_product(
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=adotb_sarray_3d,
-        udomain_3d=f_vfield_3d.udomain,
+        uniform_domain_3d=f_vfield_3d.uniform_domain,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=f_vfield_3d.sim_time,
@@ -158,7 +158,7 @@ def compute_vfield_cross_product(
     latex_label: str,
 ) -> field_models.VectorField_3D:
     """Compute the cross product epsilon_ijk a_j b_k cellwise for two 3D vector field_models."""
-    field_models.ensure_same_3d_field_udomains(
+    field_models.ensure_same_3d_field_uniform_domains(
         field_3d_a=f_vfield_3d,
         field_3d_b=g_vfield_3d,
         field_name_a="<f_vfield_3d>",
@@ -180,7 +180,7 @@ def compute_vfield_cross_product(
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=axb_varray_3d,
-        udomain_3d=f_vfield_3d.udomain,
+        uniform_domain_3d=f_vfield_3d.uniform_domain,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=f_vfield_3d.sim_time,
@@ -206,17 +206,17 @@ def compute_vfield_curl(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    udomain_3d = vfield_3d.udomain
+    uniform_domain_3d = vfield_3d.uniform_domain
     sim_time = vfield_3d.sim_time
     curl_varray_3d = farray_operators.compute_varray_curl(
         varray_3d=varray_3d,
-        cell_widths_3d=udomain_3d.cell_widths,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
         out_varray_3d=out_varray_3d,
         grad_order=grad_order,
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=curl_varray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sim_time,
@@ -242,17 +242,17 @@ def compute_vfield_divergence(
         vfield_3d=vfield_3d,
         param_name="<vfield_3d>",
     )
-    udomain_3d = vfield_3d.udomain
+    uniform_domain_3d = vfield_3d.uniform_domain
     sim_time = vfield_3d.sim_time
     div_sarray_3d = farray_operators.compute_varray_divergence(
         varray_3d=varray_3d,
-        cell_widths_3d=udomain_3d.cell_widths,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
         out_sarray_3d=out_sarray_3d,
         grad_order=grad_order,
     )
     return field_models.ScalarField_3D.from_3d_sarray(
         sarray_3d=div_sarray_3d,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sim_time,

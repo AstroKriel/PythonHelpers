@@ -29,7 +29,7 @@ class ScalarField_2D(_field_models.Field):
     """2D scalar field: `num_ranks == 0`, `num_comps == 1`, `num_sdims == 2`."""
 
     fdata: _field_data.ScalarFieldData_2D
-    udomain: domain_models.UniformDomain_2D
+    uniform_domain: domain_models.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -45,7 +45,7 @@ class ScalarField_2D(_field_models.Field):
         cls,
         *,
         sarray_2d: NDArray[Any],
-        udomain_2d: domain_models.UniformDomain_2D,
+        uniform_domain_2d: domain_models.UniformDomain_2D,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -57,7 +57,7 @@ class ScalarField_2D(_field_models.Field):
         )
         return cls(
             fdata=sdata_2d,
-            udomain=udomain_2d,
+            uniform_domain=uniform_domain_2d,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -68,7 +68,7 @@ class ScalarField_2D(_field_models.Field):
         self,
     ) -> bool:
         """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain_models.UniformDomain_2D_Sliced3D)
+        return isinstance(self.uniform_domain, domain_models.UniformDomain_2D_Sliced3D)
 
 
 @dataclass(frozen=True)
@@ -76,7 +76,7 @@ class VectorField_2D(_field_models.Field):
     """2D vector field: `num_ranks == 1`, `num_comps == 2`, `num_sdims == 2`."""
 
     fdata: _field_data.VectorFieldData_2D
-    udomain: domain_models.UniformDomain_2D
+    uniform_domain: domain_models.UniformDomain_2D
 
     def __post_init__(
         self,
@@ -92,7 +92,7 @@ class VectorField_2D(_field_models.Field):
         cls,
         *,
         varray_2d: NDArray[Any],
-        udomain_2d: domain_models.UniformDomain_2D,
+        uniform_domain_2d: domain_models.UniformDomain_2D,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -104,7 +104,7 @@ class VectorField_2D(_field_models.Field):
         )
         return cls(
             fdata=vdata_2d,
-            udomain=udomain_2d,
+            uniform_domain=uniform_domain_2d,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -115,7 +115,7 @@ class VectorField_2D(_field_models.Field):
         self,
     ) -> bool:
         """Return True if the underlying domain is a 3D-sliced 2D domain."""
-        return isinstance(self.udomain, domain_models.UniformDomain_2D_Sliced3D)
+        return isinstance(self.uniform_domain, domain_models.UniformDomain_2D_Sliced3D)
 
 
 @dataclass(frozen=True)
@@ -140,9 +140,9 @@ class SlicedVectorFields_2D:
             sfield_2d=self.outofplane_sfield_2d,
             param_name="<outofplane_sfield_2d>",
         )
-        if self.inplane_vfield_2d.udomain != self.outofplane_sfield_2d.udomain:
+        if self.inplane_vfield_2d.uniform_domain != self.outofplane_sfield_2d.uniform_domain:
             raise ValueError(
-                "<inplane_vfield_2d>.udomain does not match <outofplane_sfield_2d>.udomain.",
+                "<inplane_vfield_2d>.uniform_domain does not match <outofplane_sfield_2d>.uniform_domain.",
             )
 
     @classmethod
@@ -150,7 +150,7 @@ class SlicedVectorFields_2D:
         cls,
         *,
         varray_2d: NDArray[Any],
-        udomain_2d: domain_models.UniformDomain_2D,
+        uniform_domain_2d: domain_models.UniformDomain_2D,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -164,14 +164,14 @@ class SlicedVectorFields_2D:
         return cls(
             inplane_vfield_2d=VectorField_2D.from_2d_varray(
                 varray_2d=varray_2d[:2],
-                udomain_2d=udomain_2d,
+                uniform_domain_2d=uniform_domain_2d,
                 field_name=f"{field_name}_inplane",
                 latex_label=latex_label,
                 sim_time=sim_time,
             ),
             outofplane_sfield_2d=ScalarField_2D.from_2d_sarray(
                 sarray_2d=varray_2d[2],
-                udomain_2d=udomain_2d,
+                uniform_domain_2d=uniform_domain_2d,
                 field_name=f"{field_name}_outofplane",
                 latex_label=latex_label,
                 sim_time=sim_time,
@@ -218,9 +218,9 @@ def ensure_2d_sfield_sliced_from_3d(
         sfield_2d=sfield_2d,
         param_name=param_name,
     )
-    domain_models.ensure_2d_udomain_sliced_from_3d(
-        udomain_2d=sfield_2d.udomain,
-        param_name=f"{param_name}.udomain",
+    domain_models.ensure_2d_uniform_domain_sliced_from_3d(
+        uniform_domain_2d=sfield_2d.uniform_domain,
+        param_name=f"{param_name}.uniform_domain",
     )
 
 
@@ -234,9 +234,9 @@ def ensure_2d_vfield_sliced_from_3d(
         vfield_2d=vfield_2d,
         param_name=param_name,
     )
-    domain_models.ensure_2d_udomain_sliced_from_3d(
-        udomain_2d=vfield_2d.udomain,
-        param_name=f"{param_name}.udomain",
+    domain_models.ensure_2d_uniform_domain_sliced_from_3d(
+        uniform_domain_2d=vfield_2d.uniform_domain,
+        param_name=f"{param_name}.uniform_domain",
     )
 
 

@@ -29,7 +29,7 @@ class ScalarField_PointCloud(_field_models.Field):
     """Point-cloud scalar field: `num_ranks == 0`, `num_comps == 1`, `num_sdims == 1`."""
 
     fdata: _field_data.ScalarFieldData_PointCloud
-    udomain: _domain_models.PointCloudDomain
+    uniform_domain: _domain_models.PointCloudDomain
 
     def __post_init__(
         self,
@@ -57,7 +57,7 @@ class ScalarField_PointCloud(_field_models.Field):
         )
         return cls(
             fdata=sdata_pointcloud,
-            udomain=pointcloud_domain,
+            uniform_domain=pointcloud_domain,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -69,7 +69,7 @@ class VectorField_PointCloud(_field_models.Field):
     """Point-cloud vector field: `num_ranks == 1`, `num_comps == 3`, `num_sdims == 1`."""
 
     fdata: _field_data.VectorFieldData_PointCloud
-    udomain: _domain_models.PointCloudDomain
+    uniform_domain: _domain_models.PointCloudDomain
 
     def __post_init__(
         self,
@@ -97,7 +97,7 @@ class VectorField_PointCloud(_field_models.Field):
         )
         return cls(
             fdata=vdata_pointcloud,
-            udomain=pointcloud_domain,
+            uniform_domain=pointcloud_domain,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,

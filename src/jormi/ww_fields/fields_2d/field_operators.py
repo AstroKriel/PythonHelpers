@@ -34,7 +34,7 @@ def compute_sliced_vfield_magnitude(
     magnitude_sarray_2d = numpy.sqrt(magnitude_sq_sarray_2d)
     return field_models.ScalarField_2D.from_2d_sarray(
         sarray_2d=magnitude_sarray_2d,
-        udomain_2d=sliced_vfield_2d.inplane_vfield_2d.udomain,
+        uniform_domain_2d=sliced_vfield_2d.inplane_vfield_2d.uniform_domain,
         field_name=field_name,
         latex_label=latex_label,
         sim_time=sliced_vfield_2d.inplane_vfield_2d.sim_time,

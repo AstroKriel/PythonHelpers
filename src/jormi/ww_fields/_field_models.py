@@ -38,7 +38,7 @@ class Field:
     """
 
     fdata: _field_data.FieldData
-    udomain: _domain_models.Domain
+    uniform_domain: _domain_models.Domain
     field_name: str
     latex_label: str
     sim_time: float | None = None
@@ -48,7 +48,7 @@ class Field:
     ) -> None:
         ## validate the wrapped data and its domain alignment
         self._ensure_fdata()
-        self._ensure_udomain()
+        self._ensure_uniform_domain()
         ## validate descriptive field metadata
         self._ensure_field_name()
         self._ensure_latex_label()
@@ -62,18 +62,18 @@ class Field:
             param_name="<field.fdata>",
         )
 
-    def _ensure_udomain(
+    def _ensure_uniform_domain(
         self,
     ) -> None:
-        _domain_models.ensure_udomain(
-            udomain=self.udomain,
-            param_name="<field.udomain>",
+        _domain_models.ensure_uniform_domain(
+            uniform_domain=self.uniform_domain,
+            param_name="<field.uniform_domain>",
         )
-        if self.fdata.sdims_shape != self.udomain.expected_sdims_shape:
+        if self.fdata.sdims_shape != self.uniform_domain.expected_sdims_shape:
             raise ValueError(
                 "`Field` data-array shape does not match the domain's expected shape:"
                 f" sdims_shape={self.fdata.sdims_shape},"
-                f" expected_sdims_shape={self.udomain.expected_sdims_shape}.",
+                f" expected_sdims_shape={self.uniform_domain.expected_sdims_shape}.",
             )
 
     def _ensure_field_name(
@@ -116,7 +116,7 @@ class Field:
         cls,
         *,
         farray: NDArray[Any],
-        udomain: _domain_models.Domain,
+        uniform_domain: _domain_models.Domain,
         field_name: str,
         latex_label: str,
         sim_time: float | None = None,
@@ -131,7 +131,7 @@ class Field:
         )
         return cls(
             fdata=fdata,
-            udomain=udomain,
+            uniform_domain=uniform_domain,
             field_name=field_name,
             latex_label=latex_label,
             sim_time=sim_time,
@@ -182,30 +182,30 @@ def ensure_field_metadata(
     )
 
 
-def ensure_udomain_matches_field(
+def ensure_uniform_domain_matches_field(
     *,
     field: Field,
-    udomain: _domain_models.Domain,
-    domain_name: str = "<udomain>",
+    uniform_domain: _domain_models.Domain,
+    domain_name: str = "<uniform_domain>",
     field_name: str = "<field>",
 ) -> None:
     """Ensure a `Domain` matches a `Field`."""
-    _domain_models.ensure_udomain(
-        udomain=udomain,
+    _domain_models.ensure_uniform_domain(
+        uniform_domain=uniform_domain,
         param_name=domain_name,
     )
     _ensure_field(
         field=field,
         param_name=field_name,
     )
-    if field.udomain != udomain:
+    if field.uniform_domain != uniform_domain:
         raise ValueError(
-            f"{field_name}.udomain does not match {domain_name}.",
+            f"{field_name}.uniform_domain does not match {domain_name}.",
         )
-    if field.fdata.sdims_shape != udomain.expected_sdims_shape:
+    if field.fdata.sdims_shape != uniform_domain.expected_sdims_shape:
         raise ValueError(
             f"{field_name}.fdata.sdims_shape={field.fdata.sdims_shape}"
-            f" does not match {domain_name}.expected_sdims_shape={udomain.expected_sdims_shape}.",
+            f" does not match {domain_name}.expected_sdims_shape={uniform_domain.expected_sdims_shape}.",
         )
 
 

@@ -36,10 +36,10 @@ class _VFieldEntry(TypedDict):
 
 
 def generate_div_vfield(
-    udomain_3d: domain_models.UniformDomain_3D,
+    uniform_domain_3d: domain_models.UniformDomain_3D,
 ) -> field_models.VectorField_3D:
     """Generate a curl-free (irrotational) vector field."""
-    x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
+    x0_centers, x1_centers, x2_centers = uniform_domain_3d.cell_centers
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
         x0_centers,
         x1_centers,
@@ -49,18 +49,18 @@ def generate_div_vfield(
     varray = numpy.stack([2 * grid_x0, 2 * grid_x1, 2 * grid_x2])
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="purely_div",
         latex_label=r"\vec{q}_\mathrm{div}",
     )
 
 
 def generate_sol_vfield(
-    udomain_3d: domain_models.UniformDomain_3D,
+    uniform_domain_3d: domain_models.UniformDomain_3D,
 ) -> field_models.VectorField_3D:
     """Generate a solenoidal (divergence-free) vector field."""
-    x0_centers, x1_centers, x2_centers = udomain_3d.cell_centers
-    domain_length = udomain_3d.domain_lengths[0]
+    x0_centers, x1_centers, x2_centers = uniform_domain_3d.cell_centers
+    domain_length = uniform_domain_3d.domain_lengths[0]
     k = 2 * numpy.pi / domain_length
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
         x0_centers,
@@ -74,7 +74,7 @@ def generate_sol_vfield(
     varray = numpy.stack([vcomp_x0, vcomp_x1, vcomp_x2])
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="purely_sol",
         latex_label=r"\vec{q}_\mathrm{sol}",
     )
@@ -82,7 +82,7 @@ def generate_sol_vfield(
 
 def generate_uniform_vfield(
     const_vector: tuple[float, float, float],
-    udomain_3d: domain_models.UniformDomain_3D,
+    uniform_domain_3d: domain_models.UniformDomain_3D,
 ) -> field_models.VectorField_3D:
     """Generate a uniform (bulk-only) vector field with constant components."""
     validate_types.ensure_sequence(
@@ -93,7 +93,7 @@ def generate_uniform_vfield(
         valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
         valid_elem_types=validate_types.RuntimeTypes.Numerics.FloatLike,
     )
-    resolution = udomain_3d.resolution
+    resolution = uniform_domain_3d.resolution
     varray = numpy.stack(
         [
             numpy.full(resolution, float(const_vector[0])),
@@ -103,14 +103,14 @@ def generate_uniform_vfield(
     )
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="purely_bulk",
         latex_label=r"\vec{q}_\mathrm{bulk}",
     )
 
 
 def generate_mixed_vfield(
-    udomain_3d: domain_models.UniformDomain_3D,
+    uniform_domain_3d: domain_models.UniformDomain_3D,
     bulk_vector: tuple[float, float, float] | None = None,
 ) -> field_models.VectorField_3D:
     """Generate a mixed field: div + sol (+ optional uniform bulk)."""
@@ -124,19 +124,19 @@ def generate_mixed_vfield(
     )
     varray_div = field_models.extract_3d_varray(
         generate_div_vfield(
-            udomain_3d,
+            uniform_domain_3d,
         ),
     )
     varray_sol = field_models.extract_3d_varray(
         generate_sol_vfield(
-            udomain_3d,
+            uniform_domain_3d,
         ),
     )
     if bulk_vector is not None:
         varray_bulk = field_models.extract_3d_varray(
             vfield_3d=generate_uniform_vfield(
                 const_vector=bulk_vector,
-                udomain_3d=udomain_3d,
+                uniform_domain_3d=uniform_domain_3d,
             ),
         )
         varray = varray_div + varray_sol + varray_bulk
@@ -144,7 +144,7 @@ def generate_mixed_vfield(
         varray = varray_div + varray_sol
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
-        udomain_3d=udomain_3d,
+        uniform_domain_3d=uniform_domain_3d,
         field_name="mixed",
         latex_label=r"\vec{q}",
     )
@@ -265,7 +265,7 @@ def main():
     num_cells = 50
     domain_bounds = (-1.0, 1.0)
     resolution = (num_cells, num_cells, num_cells)
-    udomain_3d = domain_models.UniformDomain_3D(
+    uniform_domain_3d = domain_models.UniformDomain_3D(
         periodicity=(True, True, True),
         resolution=resolution,
         domain_bounds=(domain_bounds, domain_bounds, domain_bounds),
@@ -276,21 +276,21 @@ def main():
         {
             "label": "div. + sol. + bulk",
             "vfield": generate_mixed_vfield(
-                udomain_3d=udomain_3d,
+                uniform_domain_3d=uniform_domain_3d,
                 bulk_vector=bulk_vector,
             ),
         },
         {
             "label": "purely div.",
-            "vfield": generate_div_vfield(udomain_3d),
+            "vfield": generate_div_vfield(uniform_domain_3d),
         },
         {
             "label": "purely sol.",
-            "vfield": generate_sol_vfield(udomain_3d),
+            "vfield": generate_sol_vfield(uniform_domain_3d),
         },
         {
             "label": "purely bulk",
-            "vfield": generate_uniform_vfield(bulk_vector, udomain_3d),
+            "vfield": generate_uniform_vfield(bulk_vector, uniform_domain_3d),
         },
     ]
     ## 4 rows (input + 3 meaured) x 4 cols (scenarios: combined, div-only, sol-only, bulk-only)
@@ -318,14 +318,14 @@ def main():
                 field_models.extract_3d_varray(sol_vfield_3d) +
                 field_models.extract_3d_varray(bulk_vfield_3d)
             ),
-            udomain_3d=udomain_3d,
+            uniform_domain_3d=uniform_domain_3d,
             field_name="q_sum",
             latex_label=r"\vec{q}_\mathrm{sum}",
         )
         ## residual: q - q_rec (should be ~0)
         vfield_residual = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(field_models.extract_3d_varray(vfield) - field_models.extract_3d_varray(vfield_rec)),
-            udomain_3d=udomain_3d,
+            uniform_domain_3d=uniform_domain_3d,
             field_name="q_residual",
             latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
         )
