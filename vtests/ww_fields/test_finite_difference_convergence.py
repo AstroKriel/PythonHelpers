@@ -51,7 +51,7 @@ def sample_domain(
     )  # to ensure periodicity
 
 
-def evaluate_y(
+def evaluate_model(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
@@ -75,6 +75,13 @@ def evaluate_approx_dydx(
         cell_width=cell_width,
         grad_axis=0,
     )[:, 0, 0]
+
+
+def residual_is_plateauing(
+    residuals: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> bool:
+    residual_magnitudes = numpy.abs(residuals[1:])
+    return bool(numpy.all(numpy.diff(numpy.diff(residual_magnitudes)) < 0.0))
 
 
 ##
@@ -149,7 +156,7 @@ class TestFiniteDifferenceConvergence:
             domain_bounds=self.domain_bounds,
             num_points=self.num_samples_for_exact_soln,
         )
-        y_values = evaluate_y(x_values)
+        y_values = evaluate_model(x_values)
         dydx_values = evaluate_exact_dydx(x_values)
         axs_grid[0, 0].plot(
             x_values,
@@ -179,7 +186,7 @@ class TestFiniteDifferenceConvergence:
             domain_bounds=self.domain_bounds,
             num_points=self.num_samples_for_approx_soln,
         )
-        y_values = evaluate_y(x_values)
+        y_values = evaluate_model(x_values)
         dydx_values = evaluate_approx_dydx(
             x_values=x_values,
             y_values=y_values,
@@ -218,7 +225,7 @@ class TestFiniteDifferenceConvergence:
                     domain_bounds=self.domain_bounds,
                     num_points=num_points,
                 )
-                y_values = evaluate_y(x_values)
+                y_values = evaluate_model(x_values)
                 dydx_exact = evaluate_exact_dydx(x_values)
                 dydx_approx = evaluate_approx_dydx(
                     x_values=x_values,
@@ -293,17 +300,7 @@ class TestFiniteDifferenceConvergence:
             lw=2,
             color=color,
         )
-        return bool(
-            numpy.all(
-                numpy.diff(
-                    numpy.diff(
-                        numpy.abs(
-                            residuals[1:],
-                        ),
-                    ),
-                ) < 0.0,
-            ),
-        )
+        return residual_is_plateauing(residuals)
 
     def _annotate_figure(
         self,
