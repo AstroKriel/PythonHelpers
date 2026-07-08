@@ -51,6 +51,48 @@ def compute_typical_spacing(
     return float((domain_volume / num_points)**(1.0 / 3.0))
 
 
+def plot_convergence(
+    *,
+    ax: manage_plots.PlotAxis,
+    typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
+    rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> fit_series.FitStatistic:
+    ## resolution increases rightward, matching `test_finite_difference_convergence.py`'s
+    ## `inverse_dx_values` convention, rather than plotting spacing directly
+    inverse_spacings = 1.0 / typical_spacings
+    ## fit log(e) = slope * log(dx_tilde) + const; slope > 0 means error shrinks as dx_tilde shrinks
+    log_series = GaussianSeries(
+        x_values=numpy.log(typical_spacings),
+        y_values=numpy.log(rms_errors),
+    )
+    fit = fit_series.fit_linear_model(log_series)
+    fitted_slope = fit.slope
+    fitted_errors = numpy.exp(fit.evaluate_fit(log_series.x_values))
+    ax.plot(
+        inverse_spacings,
+        rms_errors,
+        marker="o",
+        ms=10,
+        ls="",
+        color="royalblue",
+        label="measured",
+    )
+    ax.plot(
+        inverse_spacings,
+        fitted_errors,
+        ls="--",
+        lw=2,
+        color="royalblue",
+        label=rf"$e \sim O(\tilde{{\Delta x}}^{{{fitted_slope.value:.2f} \pm {fitted_slope.sigma:.2f}}})$",
+    )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
+    ax.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
+    ax.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
+    return fitted_slope
+
+
 ##
 ## === NUMERICAL CONVERGENCE TEST
 ##
@@ -83,7 +125,7 @@ class TestGradientWLSConvergence:
     ) -> None:
         fig, ax = manage_plots.create_figure(fig_scale=1.25)
         typical_spacings, rms_errors = self._measure_convergence()
-        fitted_slope = self._plot_convergence(
+        fitted_slope = plot_convergence(
             ax=ax,
             typical_spacings=typical_spacings,
             rms_errors=rms_errors,
@@ -150,48 +192,6 @@ class TestGradientWLSConvergence:
             )
             rms_errors.append(rms_error)
         return numpy.array(typical_spacings), numpy.array(rms_errors)
-
-    def _plot_convergence(
-        self,
-        *,
-        ax: manage_plots.PlotAxis,
-        typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
-        rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
-    ) -> fit_series.FitStatistic:
-        ## resolution increases rightward, matching `test_finite_difference_convergence.py`'s
-        ## `inverse_dx_values` convention, rather than plotting spacing directly
-        inverse_spacings = 1.0 / typical_spacings
-        ## fit log(e) = slope * log(dx_tilde) + const; slope > 0 means error shrinks as dx_tilde shrinks
-        log_series = GaussianSeries(
-            x_values=numpy.log(typical_spacings),
-            y_values=numpy.log(rms_errors),
-        )
-        fit = fit_series.fit_linear_model(log_series)
-        fitted_slope = fit.slope
-        fitted_errors = numpy.exp(fit.evaluate_fit(log_series.x_values))
-        ax.plot(
-            inverse_spacings,
-            rms_errors,
-            marker="o",
-            ms=10,
-            ls="",
-            color="royalblue",
-            label="measured",
-        )
-        ax.plot(
-            inverse_spacings,
-            fitted_errors,
-            ls="--",
-            lw=2,
-            color="royalblue",
-            label=rf"$e \sim O(\tilde{{\Delta x}}^{{{fitted_slope.value:.2f} \pm {fitted_slope.sigma:.2f}}})$",
-        )
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        ax.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
-        ax.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
-        ax.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
-        return fitted_slope
 
 
 ##
