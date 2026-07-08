@@ -23,11 +23,60 @@ from jormi.ww_plots import manage_plots, style_plots
 ##
 
 
-def evaluate_function(
+def evaluate_model(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     """Evaluate the test function: sin(2x) + cos(x)."""
     return numpy.sin(2.0 * x_values) + numpy.cos(x_values)
+
+
+def measure_max_error(
+    result: series_types.DataSeries,
+) -> float:
+    true_y_values = evaluate_model(result.x_values)
+    return float(numpy.max(numpy.abs(result.y_values - true_y_values)))
+
+
+def plot_order(
+    *,
+    ax: manage_plots.PlotAxis,
+    data_series: series_types.DataSeries,
+    result: series_types.DataSeries,
+    spline_order: int,
+    order_index: int,
+    num_orders: int,
+) -> None:
+    is_top_ax = order_index == 0
+    is_bottom_ax = order_index == num_orders - 1
+    ax.plot(
+        result.x_values,
+        result.y_values,
+        color="red",
+        label=f"spline order = {spline_order}",
+    )
+    ax.scatter(
+        data_series.x_values,
+        data_series.y_values,
+        color="black",
+        zorder=3,
+        label="input data" if is_top_ax else None,
+    )
+    ax.plot(
+        result.x_values,
+        evaluate_model(result.x_values),
+        color="black",
+        ls="--",
+        label="true f(x)" if is_top_ax else None,
+    )
+    ax.set_ylabel("y")
+    ax.legend(
+        fontsize=20,
+        loc="upper right",
+    )
+    if is_bottom_ax:
+        ax.set_xlabel("x")
+    else:
+        ax.tick_params(labelbottom=False)
 
 
 ##
@@ -74,7 +123,7 @@ class TestSeriesInterpolation:
                 x_interp=x_interp_values,
                 spline_order=spline_order,
             )
-            self._plot_order(
+            plot_order(
                 ax=axs_grid[order_index, 0],
                 data_series=data_series,
                 result=result,
@@ -82,7 +131,7 @@ class TestSeriesInterpolation:
                 order_index=order_index,
                 num_orders=num_orders,
             )
-            max_abs_error = self._measure_max_error(result)
+            max_abs_error = measure_max_error(result)
             max_error_tol = self.max_error_tols[spline_order]
             if max_abs_error > max_error_tol:
                 manage_log.log_outcome(
@@ -114,60 +163,11 @@ class TestSeriesInterpolation:
         self,
     ) -> series_types.DataSeries:
         x_input_values = numpy.linspace(0.0, 2.0 * numpy.pi, self.num_input_points)
-        y_input_values = evaluate_function(x_input_values)
+        y_input_values = evaluate_model(x_input_values)
         return series_types.DataSeries(
             x_values=x_input_values,
             y_values=y_input_values,
         )
-
-    def _measure_max_error(
-        self,
-        result: series_types.DataSeries,
-    ) -> float:
-        true_y_values = evaluate_function(result.x_values)
-        return float(numpy.max(numpy.abs(result.y_values - true_y_values)))
-
-    def _plot_order(
-        self,
-        *,
-        ax: manage_plots.PlotAxis,
-        data_series: series_types.DataSeries,
-        result: series_types.DataSeries,
-        spline_order: int,
-        order_index: int,
-        num_orders: int,
-    ) -> None:
-        is_top_ax = order_index == 0
-        is_bottom_ax = order_index == num_orders - 1
-        ax.plot(
-            result.x_values,
-            result.y_values,
-            color="red",
-            label=f"spline order = {spline_order}",
-        )
-        ax.scatter(
-            data_series.x_values,
-            data_series.y_values,
-            color="black",
-            zorder=3,
-            label="input data" if is_top_ax else None,
-        )
-        ax.plot(
-            result.x_values,
-            evaluate_function(result.x_values),
-            color="black",
-            ls="--",
-            label="true f(x)" if is_top_ax else None,
-        )
-        ax.set_ylabel("y")
-        ax.legend(
-            fontsize=20,
-            loc="upper right",
-        )
-        if is_bottom_ax:
-            ax.set_xlabel("x")
-        else:
-            ax.tick_params(labelbottom=False)
 
 
 ##
