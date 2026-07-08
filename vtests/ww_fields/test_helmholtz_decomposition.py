@@ -38,7 +38,7 @@ class VFieldEntry:
 
 @dataclass(frozen=True)
 class DecomposedVFields:
-    combined_vfield_3d: field_models.VectorField_3D
+    sum_vfield_3d: field_models.VectorField_3D
     div_vfield_3d: field_models.VectorField_3D
     sol_vfield_3d: field_models.VectorField_3D
     bulk_vfield_3d: field_models.VectorField_3D
@@ -75,15 +75,15 @@ def generate_sol_vfield(
     """Generate a solenoidal (divergence-free) vector field."""
     x0_centers, x1_centers, x2_centers = uniform_domain_3d.cell_centers
     domain_length = uniform_domain_3d.domain_lengths[0]
-    k = 2 * numpy.pi / domain_length
+    wavenumber = 2 * numpy.pi / domain_length
     grid_x0, grid_x1, grid_x2 = numpy.meshgrid(
         x0_centers,
         x1_centers,
         x2_centers,
         indexing="ij",
     )
-    vcomp_x0 = -k * grid_x0 * numpy.sin(k * grid_x0 * grid_x1)
-    vcomp_x1 = k * grid_x1 * numpy.sin(k * grid_x0 * grid_x1)
+    vcomp_x0 = -wavenumber * grid_x0 * numpy.sin(wavenumber * grid_x0 * grid_x1)
+    vcomp_x1 = wavenumber * grid_x1 * numpy.sin(wavenumber * grid_x0 * grid_x1)
     vcomp_x2 = numpy.zeros_like(grid_x2)
     varray = numpy.stack([vcomp_x0, vcomp_x1, vcomp_x2])
     return field_models.VectorField_3D.from_3d_varray(
@@ -172,18 +172,18 @@ def generate_mixed_vfield(
 def _sfield_abs_median_std(
     sfield_3d: field_models.ScalarField_3D,
 ) -> tuple[float, float]:
-    arr = numpy.abs(
+    sarray_3d = numpy.abs(
         field_models.extract_3d_sarray(
             sfield_3d,
         ),
     )
     return float(
         numpy.median(
-            arr,
+            sarray_3d,
         ),
     ), float(
         numpy.std(
-            arr,
+            sarray_3d,
         ),
     )
 
@@ -268,6 +268,26 @@ def plot_vfield_slice(
     ax.set_ylim((domain_bounds[0], domain_bounds[1]))
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+def annotate_ax(
+    *,
+    ax: manage_plots.PlotAxis,
+    text: str,
+) -> None:
+    ax.text(
+        0.5,
+        0.95,
+        text,
+        va="top",
+        ha="center",
+        transform=ax.transAxes,
+        bbox=dict(
+            facecolor="white",
+            edgecolor="black",
+            boxstyle="round,pad=0.3",
+        ),
+    )
 
 
 ##
@@ -406,7 +426,7 @@ class TestHelmholtzDecomposition:
         sol_vfield_3d = decomposed_fields.sol_vfield_3d
         bulk_vfield_3d = decomposed_fields.bulk_vfield_3d
         ## q_sum = q_div + q_sol + q_bulk
-        combined_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        sum_vfield_3d = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
                 field_models.extract_3d_varray(div_vfield_3d) +
                 field_models.extract_3d_varray(sol_vfield_3d) +
@@ -418,12 +438,12 @@ class TestHelmholtzDecomposition:
         )
         ## residual: q - q_sum (should be ~0)
         residual_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(combined_vfield_3d)),
+            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(sum_vfield_3d)),
             uniform_domain_3d=uniform_domain_3d,
             field_name="q_residual",
             latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
         )
-        check_q_diff_sfield_3d = field_operators.compute_vfield_magnitude(
+        check_residual_sfield_3d = field_operators.compute_vfield_magnitude(
             residual_vfield_3d,
             field_name="q_residual_magnitude",
             latex_label=r"|\vec{q} - \vec{q}_\mathrm{sum}|",
@@ -433,12 +453,12 @@ class TestHelmholtzDecomposition:
             field_name="curl_q_div",
             latex_label=r"\nabla\times\vec{q}_\mathrm{div}",
         )
-        check_div_is_sol_free_sfield_3d = field_operators.compute_vfield_magnitude(
+        check_curl_div_sfield_3d = field_operators.compute_vfield_magnitude(
             curl_div_vfield_3d,
             field_name="curl_q_div_magnitude",
             latex_label=r"|\nabla\times\vec{q}_\mathrm{div}|",
         )
-        check_sol_is_div_free_sfield_3d = field_operators.compute_vfield_divergence(
+        check_div_sol_sfield_3d = field_operators.compute_vfield_divergence(
             sol_vfield_3d,
             field_name="div_q_sol",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{sol}",
@@ -448,22 +468,22 @@ class TestHelmholtzDecomposition:
             field_name="curl_q_bulk",
             latex_label=r"\nabla\times\vec{q}_\mathrm{bulk}",
         )
-        check_bulk_div_sfield_3d = field_operators.compute_vfield_divergence(
+        check_div_bulk_sfield_3d = field_operators.compute_vfield_divergence(
             bulk_vfield_3d,
             field_name="div_q_bulk",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{bulk}",
         )
-        check_bulk_curl_sfield_3d = field_operators.compute_vfield_magnitude(
+        check_curl_bulk_sfield_3d = field_operators.compute_vfield_magnitude(
             curl_bulk_vfield_3d,
             field_name="curl_q_bulk_magnitude",
             latex_label=r"|\nabla\times\vec{q}_\mathrm{bulk}|",
         )
         check_items: list[tuple[str, field_models.ScalarField_3D]] = [
-            ("|q - (q_div + q_sol + q_bulk)|", check_q_diff_sfield_3d),
-            ("|curl(q_div)|", check_div_is_sol_free_sfield_3d),
-            ("|div(q_sol)|", check_sol_is_div_free_sfield_3d),
-            ("|curl(q_bulk)|", check_bulk_curl_sfield_3d),
-            ("|div(q_bulk)|", check_bulk_div_sfield_3d),
+            ("|q - (q_div + q_sol + q_bulk)|", check_residual_sfield_3d),
+            ("|curl(q_div)|", check_curl_div_sfield_3d),
+            ("|div(q_sol)|", check_div_sol_sfield_3d),
+            ("|curl(q_bulk)|", check_curl_bulk_sfield_3d),
+            ("|div(q_bulk)|", check_div_bulk_sfield_3d),
         ]
         failed_checks: list[str] = []
         for check_label, check_sfield_error_3d in check_items:
@@ -473,7 +493,7 @@ class TestHelmholtzDecomposition:
             if error_median >= error_threshold:
                 failed_checks.append(f"{check_label}: median {error_median:.2e} >= threshold {error_threshold:.2e}")
         decomposed_vfields = DecomposedVFields(
-            combined_vfield_3d=combined_vfield_3d,
+            sum_vfield_3d=sum_vfield_3d,
             div_vfield_3d=div_vfield_3d,
             sol_vfield_3d=sol_vfield_3d,
             bulk_vfield_3d=bulk_vfield_3d,
@@ -489,7 +509,7 @@ class TestHelmholtzDecomposition:
         decomposed_vfields: DecomposedVFields,
     ) -> None:
         plot_vfields = [
-            (decomposed_vfields.combined_vfield_3d, f"input: {vfield_name}"),
+            (decomposed_vfields.sum_vfield_3d, f"input: {vfield_name}"),
             (decomposed_vfields.div_vfield_3d, "measured: div. comp."),
             (decomposed_vfields.sol_vfield_3d, "measured: sol. comp."),
             (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
@@ -501,30 +521,10 @@ class TestHelmholtzDecomposition:
                 vfield_3d=plot_vfield_3d,
                 domain_bounds=self.domain_bounds,
             )
-            self._annotate_ax(
+            annotate_ax(
                 ax=ax,
                 text=plot_annotation,
             )
-
-    def _annotate_ax(
-        self,
-        *,
-        ax: manage_plots.PlotAxis,
-        text: str,
-    ) -> None:
-        ax.text(
-            0.5,
-            0.95,
-            text,
-            va="top",
-            ha="center",
-            transform=ax.transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
-        )
 
 
 ##
