@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+from dataclasses import dataclass
 from pathlib import Path
 
 ## third-party
@@ -16,6 +17,59 @@ from jormi.ww_data import fit_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
+
+##
+## === TYPE ALIASES
+##
+
+
+@dataclass(frozen=True)
+class FitScenario:
+    label: str
+    fit: fit_series.LinearFitSummary
+
+
+##
+## === HELPER FUNCTIONS
+##
+
+
+def plot_fit(
+    *,
+    ax: manage_plots.PlotAxis,
+    gaussian_series: series_types.GaussianSeries,
+    fit: fit_series.LinearFitSummary,
+    fit_label: str,
+    fit_index: int,
+    num_fits: int,
+) -> None:
+    is_top_ax = fit_index == 0
+    is_bottom_ax = fit_index == num_fits - 1
+    x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
+    ax.errorbar(
+        gaussian_series.x_values,
+        gaussian_series.y_values,
+        yerr=gaussian_series.y_sigmas,
+        fmt="o",
+        color="black",
+        label="data" if is_top_ax else None,
+    )
+    ax.plot(
+        x_fit_values,
+        fit.evaluate_fit(x_fit_values),
+        color="red",
+        label=fit_label,
+    )
+    ax.set_ylabel("y")
+    ax.legend(
+        fontsize=20,
+        loc="upper left",
+    )
+    if is_bottom_ax:
+        ax.set_xlabel("x")
+    else:
+        ax.tick_params(labelbottom=False)
+
 
 ##
 ## === FIT ACCURACY TEST
@@ -53,29 +107,29 @@ class TestLinearFit:
             share_x=True,
         )
         failed_fits: list[str] = []
-        for fit_index, (fit_label, fit) in enumerate(fits_to_test.items()):
+        for fit_index, fit_scenario in enumerate(fits_to_test):
             ax = axs_grid[fit_index, 0]
-            self._plot_fit(
+            plot_fit(
                 ax=ax,
                 gaussian_series=gaussian_series,
-                fit=fit,
-                fit_label=fit_label,
+                fit=fit_scenario.fit,
+                fit_label=fit_scenario.label,
                 fit_index=fit_index,
                 num_fits=num_fits,
             )
-            failed_checks = self._find_failed_checks(fit)
+            failed_checks = self._find_failed_checks(fit_scenario.fit)
             if failed_checks:
                 for check_msg in failed_checks:
                     manage_log.log_outcome(
-                        text=f"{fit_label}: {check_msg}",
+                        text=f"{fit_scenario.label}: {check_msg}",
                         outcome=manage_log.ActionOutcome.FAILURE,
                     )
-                failed_fits.append(fit_label)
+                failed_fits.append(fit_scenario.label)
             else:
                 manage_log.log_outcome(
                     text=(
-                        f"{fit_label} (slope={fit.slope.value:.4f}, "
-                        f"intercept={fit.intercept.value:.4f})"
+                        f"{fit_scenario.label} (slope={fit_scenario.fit.slope.value:.4f}, "
+                        f"intercept={fit_scenario.fit.intercept.value:.4f})"
                     ),
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
@@ -110,14 +164,20 @@ class TestLinearFit:
     def _compute_fits(
         self,
         gaussian_series: series_types.GaussianSeries,
-    ) -> dict[str, fit_series.LinearFitSummary]:
-        return {
-            "linear model": fit_series.fit_linear_model(gaussian_series),
-            "fixed slope": fit_series.fit_line_with_fixed_slope(
-                gaussian_series=gaussian_series,
-                fixed_slope=self.true_slope,
+    ) -> list[FitScenario]:
+        return [
+            FitScenario(
+                label="linear model",
+                fit=fit_series.fit_linear_model(gaussian_series),
             ),
-        }
+            FitScenario(
+                label="fixed slope",
+                fit=fit_series.fit_line_with_fixed_slope(
+                    gaussian_series=gaussian_series,
+                    fixed_slope=self.true_slope,
+                ),
+            ),
+        ]
 
     def _find_failed_checks(
         self,
@@ -141,43 +201,6 @@ class TestLinearFit:
                 f" ({fitted_intercept.sigma:.4f})",
             )
         return failed_checks
-
-    def _plot_fit(
-        self,
-        *,
-        ax: manage_plots.PlotAxis,
-        gaussian_series: series_types.GaussianSeries,
-        fit: fit_series.LinearFitSummary,
-        fit_label: str,
-        fit_index: int,
-        num_fits: int,
-    ) -> None:
-        is_top_ax = fit_index == 0
-        is_bottom_ax = fit_index == num_fits - 1
-        x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
-        ax.errorbar(
-            gaussian_series.x_values,
-            gaussian_series.y_values,
-            yerr=gaussian_series.y_sigmas,
-            fmt="o",
-            color="black",
-            label="data" if is_top_ax else None,
-        )
-        ax.plot(
-            x_fit_values,
-            fit.evaluate_fit(x_fit_values),
-            color="red",
-            label=fit_label,
-        )
-        ax.set_ylabel("y")
-        ax.legend(
-            fontsize=20,
-            loc="upper left",
-        )
-        if is_bottom_ax:
-            ax.set_xlabel("x")
-        else:
-            ax.tick_params(labelbottom=False)
 
 
 ##
