@@ -5,7 +5,6 @@
 ##
 
 ## stdlib
-import sys
 from pathlib import Path
 from typing import Any, Callable, TypedDict
 
@@ -17,6 +16,10 @@ from jormi import ww_lists
 from jormi.ww_arrays.farrays_3d import difference_sarrays
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
+
+##
+## === TYPE ALIASES
+##
 
 
 class _GradMethod(TypedDict):
@@ -43,19 +46,19 @@ def sample_domain(
     )  # to ensure periodicity
 
 
-def evaluate_fntion_at_points(
+def evaluate_function(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
 
 
-def evaluate_exact_fntion_derivative_at_points(
+def evaluate_exact_function_derivative(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 
-def estimate_fntion_derivative(
+def estimate_function_derivative(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
     y_values: numpy.ndarray[Any, numpy.dtype[Any]],
     func_dydx: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
@@ -89,11 +92,12 @@ class TestFiniteDifferenceConvergence:
     def __init__(
         self,
     ):
-        self.domain_bounds = [0, 2 * numpy.pi]
-        self.num_samples_for_exact_soln = 100
-        self.num_samples_for_approx_soln = 15
-        self.num_points_to_test = [10, 20, 50, 1e2, 2e2, 5e2]
-        self.axs_grid: numpy.ndarray[Any, numpy.dtype[Any]] = numpy.empty((2, 2), dtype=object)
+        ## sample parameters
+        self.domain_bounds: list[float] = [0, 2 * numpy.pi]
+        self.num_samples_for_exact_soln: int = 100
+        self.num_samples_for_approx_soln: int = 15
+        self.num_points_to_test: list[float] = [10, 20, 50, 1e2, 2e2, 5e2]
+        ## scenario config: the finite-difference methods to test and their expected scalings
         self.grad_methods: list[_GradMethod] = [
             {
                 "worker_fn": difference_sarrays.second_order_centered_difference,
@@ -117,16 +121,16 @@ class TestFiniteDifferenceConvergence:
 
     def run(
         self,
-    ):
-        fig, self.axs_grid = manage_plots.create_figure(
+    ) -> None:
+        fig, axs_grid = manage_plots.create_figure(
             num_rows=2,
             num_cols=2,
             fig_scale=2.0,
             x_spacing=0.35,
         )
-        self._plot_exact_soln()
-        failed_methods = self._test_method_scaling()
-        self._annotate_figure()
+        self._plot_exact_soln(axs_grid)
+        failed_methods = self._test_method_scaling(axs_grid)
+        self._annotate_figure(axs_grid)
         file_name = "finite_difference_convergence.png"
         file_path = Path(__file__).parent / file_name
         manage_plots.save_figure(
@@ -139,23 +143,24 @@ class TestFiniteDifferenceConvergence:
         manage_log.log_action(
             title="Finite difference convergence",
             outcome=manage_log.ActionOutcome.SUCCESS,
-            message="Test passed successfully.",
+            message="All checks passed.",
         )
 
     def _plot_exact_soln(
         self,
-    ):
+        axs_grid: manage_plots.PlotAxesGrid,
+    ) -> None:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
-        y_values = evaluate_fntion_at_points(x_values)
-        dydx_values = evaluate_exact_fntion_derivative_at_points(x_values)
-        self.axs_grid[0, 0].plot(
+        y_values = evaluate_function(x_values)
+        dydx_values = evaluate_exact_function_derivative(x_values)
+        axs_grid[0, 0].plot(
             x_values,
             y_values,
             color="black",
             ls="-",
             lw=2,
         )
-        self.axs_grid[1, 0].plot(
+        axs_grid[1, 0].plot(
             x_values,
             dydx_values,
             color="black",
@@ -166,14 +171,16 @@ class TestFiniteDifferenceConvergence:
 
     def _plot_approx_soln(
         self,
+        *,
+        axs_grid: manage_plots.PlotAxesGrid,
         nabla: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
         color: str,
         label: str,
     ) -> None:
         x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
-        y_values = evaluate_fntion_at_points(x_values)
-        dydx_values = estimate_fntion_derivative(x_values, y_values, nabla)
-        self.axs_grid[1, 0].plot(
+        y_values = evaluate_function(x_values)
+        dydx_values = estimate_function_derivative(x_values, y_values, nabla)
+        axs_grid[1, 0].plot(
             x_values,
             dydx_values,
             marker="o",
@@ -186,19 +193,25 @@ class TestFiniteDifferenceConvergence:
 
     def _test_method_scaling(
         self,
+        axs_grid: manage_plots.PlotAxesGrid,
     ) -> list[str]:
-        failed_methods = []
+        failed_methods: list[str] = []
         for grad_method in self.grad_methods:
             expected_scaling = grad_method["expected_scaling"]
             nabla = grad_method["worker_fn"]
             color = grad_method["color"]
             label = grad_method["label"]
-            self._plot_approx_soln(nabla, color, label)
-            rms_errors = []
+            self._plot_approx_soln(
+                axs_grid=axs_grid,
+                nabla=nabla,
+                color=color,
+                label=label,
+            )
+            rms_errors: list[float] = []
             for num_points in self.num_points_to_test:
                 x_values = sample_domain(self.domain_bounds, num_points)
-                y_values = evaluate_fntion_at_points(x_values)
-                dydx_exact = evaluate_exact_fntion_derivative_at_points(x_values)
+                y_values = evaluate_function(x_values)
+                dydx_exact = evaluate_exact_function_derivative(x_values)
                 cell_width = x_values[1] - x_values[0]  # assumes uniform samples
                 dydx_approx = nabla(
                     sarray_3d=y_values[:, None, None],
@@ -215,12 +228,29 @@ class TestFiniteDifferenceConvergence:
                     ),
                 )
                 rms_errors.append(rms_error)
-            if not self._check_convergence(rms_errors, expected_scaling, color, label):
+            has_converged = self._check_convergence(
+                axs_grid=axs_grid,
+                rms_errors=rms_errors,
+                expected_scaling=expected_scaling,
+                color=color,
+                label=label,
+            )
+            if not has_converged:
                 failed_methods.append(label)
+            manage_log.log_outcome(
+                text=f"{label} (expected scaling O(h^{expected_scaling}))",
+                outcome=(
+                    manage_log.ActionOutcome.SUCCESS
+                    if has_converged
+                    else manage_log.ActionOutcome.FAILURE
+                ),
+            )
         return failed_methods
 
     def _check_convergence(
         self,
+        *,
+        axs_grid: manage_plots.PlotAxesGrid,
         rms_errors: list[float],
         expected_scaling: int,
         color: str,
@@ -232,7 +262,7 @@ class TestFiniteDifferenceConvergence:
         amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], rms_errors[0], expected_scaling)
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
         residuals = (numpy.array(rms_errors) - expected_errors) / expected_errors
-        self.axs_grid[0, 1].plot(
+        axs_grid[0, 1].plot(
             inverse_dx_values,
             rms_errors,
             marker="o",
@@ -241,7 +271,7 @@ class TestFiniteDifferenceConvergence:
             color=color,
             label=label,
         )
-        self.axs_grid[0, 1].plot(
+        axs_grid[0, 1].plot(
             inverse_dx_values,
             expected_errors,
             ls="--",
@@ -251,7 +281,7 @@ class TestFiniteDifferenceConvergence:
             scalex=False,
             scaley=False,
         )
-        self.axs_grid[1, 1].plot(
+        axs_grid[1, 1].plot(
             inverse_dx_values[1:],
             numpy.abs(residuals[1:]),
             marker="o",
@@ -274,39 +304,40 @@ class TestFiniteDifferenceConvergence:
 
     def _annotate_figure(
         self,
-    ):
-        y_min, y_max = self.axs_grid[1, 0].get_ylim()
+        axs_grid: manage_plots.PlotAxesGrid,
+    ) -> None:
+        y_min, y_max = axs_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)
-        self.axs_grid[1, 0].set_ylim([y_min, y_max_new])
-        self.axs_grid[1, 0].text(
+        axs_grid[1, 0].set_ylim([y_min, y_max_new])
+        axs_grid[1, 0].text(
             0.5,
             0.95,
             f"example with {self.num_samples_for_exact_soln} sampled points",
             ha="center",
             va="top",
-            transform=self.axs_grid[1, 0].transAxes,
+            transform=axs_grid[1, 0].transAxes,
         )
-        self.axs_grid[0, 0].set_xticklabels([])
-        self.axs_grid[0, 0].set_ylabel(r"$y^*$")
-        self.axs_grid[1, 0].set_xlabel(r"$x$")
-        self.axs_grid[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
-        self.axs_grid[1, 0].legend(loc="lower right")
-        self.axs_grid[0, 1].set_xscale("log")
-        self.axs_grid[0, 1].set_yscale("log")
-        self.axs_grid[0, 1].set_xticklabels([])
-        self.axs_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
-        self.axs_grid[0, 1].legend(loc="lower left")
-        self.axs_grid[0, 1].grid(
+        axs_grid[0, 0].set_xticklabels([])
+        axs_grid[0, 0].set_ylabel(r"$y^*$")
+        axs_grid[1, 0].set_xlabel(r"$x$")
+        axs_grid[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
+        axs_grid[1, 0].legend(loc="lower right")
+        axs_grid[0, 1].set_xscale("log")
+        axs_grid[0, 1].set_yscale("log")
+        axs_grid[0, 1].set_xticklabels([])
+        axs_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
+        axs_grid[0, 1].legend(loc="lower left")
+        axs_grid[0, 1].grid(
             True,
             which="both",
             linestyle="--",
             linewidth=0.5,
         )
-        self.axs_grid[1, 1].set_xscale("log")
-        self.axs_grid[1, 1].set_yscale("log")
-        self.axs_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
-        self.axs_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
-        self.axs_grid[1, 1].grid(
+        axs_grid[1, 1].set_xscale("log")
+        axs_grid[1, 1].set_yscale("log")
+        axs_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
+        axs_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
+        axs_grid[1, 1].grid(
             True,
             which="both",
             linestyle="--",
@@ -323,6 +354,5 @@ if __name__ == "__main__":
     style_plots.set_theme()
     test = TestFiniteDifferenceConvergence()
     test.run()
-    sys.exit(0)
 
 ## } V-TEST

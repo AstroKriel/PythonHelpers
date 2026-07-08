@@ -6,7 +6,7 @@
 
 ## stdlib
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, NamedTuple, TypedDict
 
 ## third-party
 import numpy
@@ -17,17 +17,28 @@ from jormi import ww_lists
 from jormi.ww_fields.fields_3d import (
     decompose_fields,
     domain_models,
-    field_operators,
     field_models,
+    field_operators,
 )
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
 from jormi.ww_validation import validate_types
 
+##
+## === TYPE ALIASES
+##
 
-class _VFieldEntry(TypedDict):
+
+class VFieldEntry(TypedDict):
     label: str
-    vfield: field_models.VectorField_3D
+    vfield_3d: field_models.VectorField_3D
+
+
+class _DecomposedVFields(NamedTuple):
+    reconstructed_vfield_3d: field_models.VectorField_3D
+    div_vfield_3d: field_models.VectorField_3D
+    sol_vfield_3d: field_models.VectorField_3D
+    bulk_vfield_3d: field_models.VectorField_3D
 
 
 ##
@@ -81,13 +92,13 @@ def generate_sol_vfield(
 
 
 def generate_uniform_vfield(
-    const_vector: tuple[float, float, float],
+    bulk_vector: tuple[float, float, float],
     uniform_domain_3d: domain_models.UniformDomain_3D,
 ) -> field_models.VectorField_3D:
     """Generate a uniform (bulk-only) vector field with constant components."""
     validate_types.ensure_sequence(
-        param=const_vector,
-        param_name="const_vector",
+        param=bulk_vector,
+        param_name="bulk_vector",
         allow_none=False,
         seq_length=3,
         valid_seq_types=validate_types.RuntimeTypes.Sequences.SequenceLike,
@@ -96,9 +107,9 @@ def generate_uniform_vfield(
     resolution = uniform_domain_3d.resolution
     varray = numpy.stack(
         [
-            numpy.full(resolution, float(const_vector[0])),
-            numpy.full(resolution, float(const_vector[1])),
-            numpy.full(resolution, float(const_vector[2])),
+            numpy.full(resolution, float(bulk_vector[0])),
+            numpy.full(resolution, float(bulk_vector[1])),
+            numpy.full(resolution, float(bulk_vector[2])),
         ],
     )
     return field_models.VectorField_3D.from_3d_varray(
@@ -135,7 +146,7 @@ def generate_mixed_vfield(
     if bulk_vector is not None:
         varray_bulk = field_models.extract_3d_varray(
             vfield_3d=generate_uniform_vfield(
-                const_vector=bulk_vector,
+                bulk_vector=bulk_vector,
                 uniform_domain_3d=uniform_domain_3d,
             ),
         )
@@ -156,11 +167,11 @@ def generate_mixed_vfield(
 
 
 def _sfield_abs_median_std(
-    sfield: field_models.ScalarField_3D,
+    sfield_3d: field_models.ScalarField_3D,
 ) -> tuple[float, float]:
     arr = numpy.abs(
         field_models.extract_3d_sarray(
-            sfield,
+            sfield_3d,
         ),
     )
     return float(
@@ -188,10 +199,10 @@ def compute_field_fraction(
 
 def plot_vfield_slice(
     ax: mpl_Axes,
-    vfield: field_models.VectorField_3D,
+    vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
-    varray = field_models.extract_3d_varray(vfield)
+    varray = field_models.extract_3d_varray(vfield_3d)
     num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
     index_x2 = num_cells_x2 // 2  # middle slice in the z-direction
     grid_x0, grid_x1 = numpy.meshgrid(
@@ -199,12 +210,12 @@ def plot_vfield_slice(
         numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x1),
         indexing="xy",
     )
-    sfield_q_magn = field_operators.compute_vfield_magnitude(
-        vfield,
+    sfield_q_magn_3d = field_operators.compute_vfield_magnitude(
+        vfield_3d,
         field_name="q_magnitude",
         latex_label=r"|\vec{q}|",
     )
-    sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn)
+    sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn_3d)
     sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
     sfield_q_magn_min = float(
         numpy.min(
@@ -261,60 +272,138 @@ def plot_vfield_slice(
 ##
 
 
-def main():
-    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
-    num_cells = 50
-    domain_bounds = (-1.0, 1.0)
-    resolution = (num_cells, num_cells, num_cells)
-    uniform_domain_3d = domain_models.UniformDomain_3D(
-        periodicity=(True, True, True),
-        resolution=resolution,
-        domain_bounds=(domain_bounds, domain_bounds, domain_bounds),
-    )
-    ## include a pure-bulk test: should recover bulk in bulk_vfield, and near-zero div/sol
-    bulk_vector = (0.3, -0.1, 0.2)
-    list_vfields: list[_VFieldEntry] = [
-        {
-            "label": "div. + sol. + bulk",
-            "vfield": generate_mixed_vfield(
-                uniform_domain_3d=uniform_domain_3d,
-                bulk_vector=bulk_vector,
-            ),
-        },
-        {
-            "label": "purely div.",
-            "vfield": generate_div_vfield(uniform_domain_3d),
-        },
-        {
-            "label": "purely sol.",
-            "vfield": generate_sol_vfield(uniform_domain_3d),
-        },
-        {
-            "label": "purely bulk",
-            "vfield": generate_uniform_vfield(bulk_vector, uniform_domain_3d),
-        },
-    ]
-    ## 4 rows (input + 3 meaured) x 4 cols (scenarios: combined, div-only, sol-only, bulk-only)
-    fig, axs_grid = manage_plots.create_figure(
-        num_rows=4,
-        num_cols=4,
-        axis_shape=(7, 8),
-    )
-    failed_vfields = []
-    for vfield_index, vfield_entry in enumerate(list_vfields):
-        vfield_name = vfield_entry["label"]
-        vfield = vfield_entry["vfield"]
-        manage_log.log_task(text=f"Input: {vfield_name} field")
-        ## decompose
-        dfields = decompose_fields.compute_helmholtz_decomposed_fields(
-            vfield_3d=vfield,
+class TestHelmholtzDecomposition:
+    """
+    Helmholtz-decompose a set of input vector fields and check that each
+    reconstructs to its input and that the div/sol/bulk components carry the
+    expected curl-free, divergence-free, and constant-field properties.
+    """
+
+    def __init__(
+        self,
+    ):
+        ## domain parameters
+        self.num_cells: int = 50
+        self.domain_bounds: tuple[float, float] = (-1.0, 1.0)
+        ## bulk component included in the mixed and pure-bulk inputs
+        self.bulk_vector: tuple[float, float, float] = (0.3, -0.1, 0.2)
+        ## pass criteria: per-check thresholds on the abs-median of each diagnostic
+        self.check_thresholds: dict[str, float] = {
+            "|q - (q_div + q_sol + q_bulk)|": 0.5,
+            "|curl(q_div)|": 0.5,
+            "|div(q_sol)|": 0.5,
+            "|curl(q_bulk)|": 1e-12,
+            "|div(q_bulk)|": 1e-12,
+        }
+
+    def run(
+        self,
+    ) -> None:
+        uniform_domain_3d = self._build_domain()
+        input_vfields = self._build_input_vfields(uniform_domain_3d)
+        ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
+        fig, axs_grid = manage_plots.create_figure(
+            num_rows=4,
+            num_cols=4,
+            axis_shape=(7, 8),
         )
-        div_vfield_3d = dfields.div_vfield_3d
-        sol_vfield_3d = dfields.sol_vfield_3d
-        bulk_vfield_3d = dfields.bulk_vfield_3d
+        failed_vfields: list[str] = []
+        for vfield_index, vfield_entry in enumerate(input_vfields):
+            vfield_name = vfield_entry["label"]
+            vfield_3d = vfield_entry["vfield_3d"]
+            manage_log.log_task(text=f"Input: {vfield_name} field")
+            decomposed_vfields, failed_checks = self._decompose_and_check(
+                vfield_3d=vfield_3d,
+                uniform_domain_3d=uniform_domain_3d,
+            )
+            self._plot_vfield_column(
+                axs_grid=axs_grid,
+                index_col=vfield_index,
+                vfield_name=vfield_name,
+                decomposed_vfields=decomposed_vfields,
+            )
+            if failed_checks:
+                for check_msg in failed_checks:
+                    manage_log.log_outcome(
+                        text=check_msg,
+                        outcome=manage_log.ActionOutcome.FAILURE,
+                    )
+                failed_vfields.append(vfield_name)
+            else:
+                manage_log.log_outcome(
+                    text=vfield_name,
+                    outcome=manage_log.ActionOutcome.SUCCESS,
+                )
+            manage_log.log_empty_lines()
+        ## always save even on failure, so a fail stays inspectable
+        fig_path = Path(__file__).parent / "helmholtz_decomposition.png"
+        manage_plots.save_figure(
+            fig=fig,
+            fig_path=fig_path,
+        )
+        assert not failed_vfields, (
+            f"Test failed for the following vector field(s): "
+            f"{ww_lists.as_string(elems=failed_vfields)}"
+        )
+        manage_log.log_action(
+            title="Helmholtz decomposition",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="All checks passed.",
+        )
+
+    def _build_domain(
+        self,
+    ) -> domain_models.UniformDomain_3D:
+        resolution = (self.num_cells, self.num_cells, self.num_cells)
+        return domain_models.UniformDomain_3D(
+            periodicity=(True, True, True),
+            resolution=resolution,
+            domain_bounds=(self.domain_bounds, self.domain_bounds, self.domain_bounds),
+        )
+
+    def _build_input_vfields(
+        self,
+        uniform_domain_3d: domain_models.UniformDomain_3D,
+    ) -> list[VFieldEntry]:
+        return [
+            VFieldEntry(
+                label="div. + sol. + bulk",
+                vfield_3d=generate_mixed_vfield(
+                    uniform_domain_3d=uniform_domain_3d,
+                    bulk_vector=self.bulk_vector,
+                ),
+            ),
+            VFieldEntry(
+                label="purely div.",
+                vfield_3d=generate_div_vfield(uniform_domain_3d),
+            ),
+            VFieldEntry(
+                label="purely sol.",
+                vfield_3d=generate_sol_vfield(uniform_domain_3d),
+            ),
+            VFieldEntry(
+                label="purely bulk",
+                vfield_3d=generate_uniform_vfield(
+                    bulk_vector=self.bulk_vector,
+                    uniform_domain_3d=uniform_domain_3d,
+                ),
+            ),
+        ]
+
+    def _decompose_and_check(
+        self,
+        *,
+        vfield_3d: field_models.VectorField_3D,
+        uniform_domain_3d: domain_models.UniformDomain_3D,
+    ) -> tuple[_DecomposedVFields, list[str]]:
+        decomposed_fields = decompose_fields.compute_helmholtz_decomposed_fields(
+            vfield_3d=vfield_3d,
+        )
+        div_vfield_3d = decomposed_fields.div_vfield_3d
+        sol_vfield_3d = decomposed_fields.sol_vfield_3d
+        bulk_vfield_3d = decomposed_fields.bulk_vfield_3d
         ## reconstructed field: q_rec = q_div + q_sol + q_bulk
-        vfield_rec = field_models.VectorField_3D.from_3d_varray(
+        reconstructed_vfield_3d = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
                 field_models.extract_3d_varray(div_vfield_3d) +
                 field_models.extract_3d_varray(sol_vfield_3d) +
@@ -325,189 +414,114 @@ def main():
             latex_label=r"\vec{q}_\mathrm{sum}",
         )
         ## residual: q - q_rec (should be ~0)
-        vfield_residual = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=(field_models.extract_3d_varray(vfield) - field_models.extract_3d_varray(vfield_rec)),
+        residual_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(reconstructed_vfield_3d)),
             uniform_domain_3d=uniform_domain_3d,
             field_name="q_residual",
             latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
         )
-        ## checks
-        sfield_check_q_diff = field_operators.compute_vfield_magnitude(
-            vfield_residual,
+        check_q_diff_sfield_3d = field_operators.compute_vfield_magnitude(
+            residual_vfield_3d,
             field_name="q_residual_magnitude",
             latex_label=r"|\vec{q} - \vec{q}_\mathrm{sum}|",
         )
-        curl_div = field_operators.compute_vfield_curl(
+        curl_div_vfield_3d = field_operators.compute_vfield_curl(
             div_vfield_3d,
             field_name="curl_q_div",
             latex_label=r"\nabla\times\vec{q}_\mathrm{div}",
         )
-        sfield_check_div_is_sol_free = field_operators.compute_vfield_magnitude(
-            curl_div,
+        check_div_is_sol_free_sfield_3d = field_operators.compute_vfield_magnitude(
+            curl_div_vfield_3d,
             field_name="curl_q_div_magnitude",
             latex_label=r"|\nabla\times\vec{q}_\mathrm{div}|",
         )
-        sfield_check_sol_is_div_free = field_operators.compute_vfield_divergence(
+        check_sol_is_div_free_sfield_3d = field_operators.compute_vfield_divergence(
             sol_vfield_3d,
             field_name="div_q_sol",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{sol}",
         )
-        curl_bulk = field_operators.compute_vfield_curl(
+        curl_bulk_vfield_3d = field_operators.compute_vfield_curl(
             bulk_vfield_3d,
             field_name="curl_q_bulk",
             latex_label=r"\nabla\times\vec{q}_\mathrm{bulk}",
         )
-        sfield_check_bulk_div = field_operators.compute_vfield_divergence(
+        check_bulk_div_sfield_3d = field_operators.compute_vfield_divergence(
             bulk_vfield_3d,
             field_name="div_q_bulk",
             latex_label=r"\nabla\cdot\vec{q}_\mathrm{bulk}",
         )
-        sfield_check_bulk_curl = field_operators.compute_vfield_magnitude(
-            curl_bulk,
+        check_bulk_curl_sfield_3d = field_operators.compute_vfield_magnitude(
+            curl_bulk_vfield_3d,
             field_name="curl_q_bulk_magnitude",
             latex_label=r"|\nabla\times\vec{q}_\mathrm{bulk}|",
         )
-        ## stats and thresholds (tolerant; these can be tightened)
-        check_items = [
-            (
-                "|q - (q_div + q_sol + q_bulk)|",
-                sfield_check_q_diff,
-                0.5,
-                "q_div + q_sol + q_bulk != q",
-            ),
-            (
-                "|curl(q_div)|",
-                sfield_check_div_is_sol_free,
-                0.5,
-                "|curl(q_div)| > threshold",
-            ),
-            (
-                "|div(q_sol)|",
-                sfield_check_sol_is_div_free,
-                0.5,
-                "|div(q_sol)| > threshold",
-            ),
-            (
-                "|curl(q_bulk)|",
-                sfield_check_bulk_curl,
-                1e-12,
-                "|curl(q_bulk)| not ~ 0",
-            ),
-            (
-                "|div(q_bulk)|",
-                sfield_check_bulk_div,
-                1e-12,
-                "|div(q_bulk)| not ~ 0",
-            ),
+        check_items: list[tuple[str, field_models.ScalarField_3D]] = [
+            ("|q - (q_div + q_sol + q_bulk)|", check_q_diff_sfield_3d),
+            ("|curl(q_div)|", check_div_is_sol_free_sfield_3d),
+            ("|div(q_sol)|", check_sol_is_div_free_sfield_3d),
+            ("|curl(q_bulk)|", check_bulk_curl_sfield_3d),
+            ("|div(q_bulk)|", check_bulk_div_sfield_3d),
         ]
-        failed_checks = []
-        for label, sfield, threshold, fail_msg in check_items:
-            median, std = _sfield_abs_median_std(sfield)
-            manage_log.log_note(text=f"{label} median = {median:.2e} +/- {std:.2e}")
-            if median >= threshold:
-                failed_checks.append(fail_msg)
-        ## plots: for each input field, fill a 4x4 block column-wise:
-        index_col = vfield_index
-        plot_vfield_slice(
-            ax=axs_grid[0, index_col],
-            vfield=vfield_rec,
-            domain_bounds=domain_bounds,
+        failed_checks: list[str] = []
+        for check_label, check_sfield_error_3d in check_items:
+            error_median, error_std = _sfield_abs_median_std(check_sfield_error_3d)
+            manage_log.log_note(text=f"{check_label} median = {error_median:.2e} +/- {error_std:.2e}")
+            error_threshold = self.check_thresholds[check_label]
+            if error_median >= error_threshold:
+                failed_checks.append(f"{check_label}: median {error_median:.2e} >= threshold {error_threshold:.2e}")
+        decomposed_vfields = _DecomposedVFields(
+            reconstructed_vfield_3d=reconstructed_vfield_3d,
+            div_vfield_3d=div_vfield_3d,
+            sol_vfield_3d=sol_vfield_3d,
+            bulk_vfield_3d=bulk_vfield_3d,
         )
-        plot_vfield_slice(
-            ax=axs_grid[1, index_col],
-            vfield=div_vfield_3d,
-            domain_bounds=domain_bounds,
-        )
-        plot_vfield_slice(
-            ax=axs_grid[2, index_col],
-            vfield=sol_vfield_3d,
-            domain_bounds=domain_bounds,
-        )
-        plot_vfield_slice(
-            ax=axs_grid[3, index_col],
-            vfield=bulk_vfield_3d,
-            domain_bounds=domain_bounds,
-        )
-        axs_grid[0, index_col].text(
-            0.5,
-            0.95,
-            f"input: {vfield_name}",
-            va="top",
-            ha="center",
-            transform=axs_grid[0, index_col].transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
-        )
-        axs_grid[1, index_col].text(
-            0.5,
-            0.95,
-            "measured: div. comp.",
-            va="top",
-            ha="center",
-            transform=axs_grid[1, index_col].transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
-        )
-        axs_grid[2, index_col].text(
-            0.5,
-            0.95,
-            "measured: sol. comp.",
-            va="top",
-            ha="center",
-            transform=axs_grid[2, index_col].transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
-        )
-        axs_grid[3, index_col].text(
-            0.5,
-            0.95,
-            "measured: bulk comp.",
-            va="top",
-            ha="center",
-            transform=axs_grid[3, index_col].transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
-        )
-        if failed_checks:
-            for check_msg in failed_checks:
-                manage_log.log_outcome(
-                    text=check_msg,
-                    outcome=manage_log.ActionOutcome.FAILURE,
-                )
-            failed_vfields.append(vfield_name)
-        else:
-            manage_log.log_outcome(
-                text=f"{vfield_name}",
-                outcome=manage_log.ActionOutcome.SUCCESS,
+        return decomposed_vfields, failed_checks
+
+    def _plot_vfield_column(
+        self,
+        *,
+        axs_grid: manage_plots.PlotAxesGrid,
+        index_col: int,
+        vfield_name: str,
+        decomposed_vfields: _DecomposedVFields,
+    ) -> None:
+        plot_vfields = [
+            (decomposed_vfields.reconstructed_vfield_3d, f"input: {vfield_name}"),
+            (decomposed_vfields.div_vfield_3d, "measured: div. comp."),
+            (decomposed_vfields.sol_vfield_3d, "measured: sol. comp."),
+            (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
+        ]
+        for plot_index, (plot_vfield_3d, plot_annotation) in enumerate(plot_vfields):
+            ax = axs_grid[plot_index, index_col]
+            plot_vfield_slice(
+                ax=ax,
+                vfield_3d=plot_vfield_3d,
+                domain_bounds=self.domain_bounds,
             )
-        manage_log.log_empty_lines()
-    file_name = "helmholtz_decomposition.png"
-    file_path = Path(__file__).parent / file_name
-    manage_plots.save_figure(
-        fig=fig,
-        fig_path=file_path,
-    )
-    assert len(failed_vfields) == 0, (
-        f"Test failed for the following vector field(s): "
-        f"{ww_lists.as_string(elems=failed_vfields)}"
-    )
-    manage_log.log_action(
-        title="Helmholtz decomposition",
-        outcome=manage_log.ActionOutcome.SUCCESS,
-        message="All tests passed successfully.",
-    )
+            self._annotate_ax(
+                ax=ax,
+                text=plot_annotation,
+            )
+
+    def _annotate_ax(
+        self,
+        *,
+        ax: manage_plots.PlotAxis,
+        text: str,
+    ) -> None:
+        ax.text(
+            0.5,
+            0.95,
+            text,
+            va="top",
+            ha="center",
+            transform=ax.transAxes,
+            bbox=dict(
+                facecolor="white",
+                edgecolor="black",
+                boxstyle="round,pad=0.3",
+            ),
+        )
 
 
 ##
@@ -515,6 +529,9 @@ def main():
 ##
 
 if __name__ == "__main__":
-    main()
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
+    test = TestHelmholtzDecomposition()
+    test.run()
 
 ## } V-TEST

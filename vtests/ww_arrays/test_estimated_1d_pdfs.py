@@ -6,6 +6,7 @@
 
 ## stdlib
 from pathlib import Path
+from typing import Any
 
 ## third-party
 import numpy
@@ -21,48 +22,108 @@ from jormi.ww_plots import manage_plots, style_plots
 ##
 
 
-def main():
-    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
-    ## parameters
-    rng = numpy.random.default_rng(seed=42)
-    num_samples = int(1e5)
-    binning_to_test = [5, 10, 50, 100]
-    integral_error_tol = 1e-2
-    ## distributions to test: each is a different shape to stress the estimator
-    pdfs_to_test = {
-        "delta": rng.normal(
-            loc=10,
-            scale=1e-9,
-            size=num_samples,
-        ),
-        "uniform": rng.uniform(
-            low=0,
-            high=1,
-            size=num_samples,
-        ),
-        "normal": rng.normal(
-            loc=0,
-            scale=1,
-            size=num_samples,
-        ),
-        "exponential": rng.exponential(
-            scale=1,
-            size=num_samples,
-        ),
-    }
-    num_pdfs = len(pdfs_to_test)
-    fig, axs_grid = manage_plots.create_figure(
-        num_rows=num_pdfs,
-        num_cols=1,
-        y_spacing=0.25,
-    )
-    ## estimate PDF for each distribution at multiple bin counts
-    pdfs_that_failed = []
-    for pdf_index, (pdf_label, pdf_samples) in enumerate(pdfs_to_test.items()):
-        ax = axs_grid[pdf_index, 0]
-        failed_bins = []
-        for num_bins in binning_to_test:
+class TestEstimated1DPDFs:
+    """
+    Estimate PDFs of several known distributions at a range of bin counts and
+    check that each estimate integrates to unity within `integral_error_tol`.
+    """
+
+    def __init__(
+        self,
+    ):
+        ## sample parameters
+        self.seed: int = 42
+        self.num_samples: int = int(1e5)
+        ## bin counts to test: stresses the estimator across resolutions
+        self.bin_counts_to_test: list[int] = [5, 10, 50, 100]
+        ## pass criterion: estimated PDF must integrate to ~1
+        self.integral_error_tol: float = 1e-2
+
+    def run(
+        self,
+    ) -> None:
+        pdf_samples_by_label = self._generate_pdf_samples()
+        num_pdfs = len(pdf_samples_by_label)
+        fig, axs_grid = manage_plots.create_figure(
+            num_rows=num_pdfs,
+            num_cols=1,
+            y_spacing=0.25,
+        )
+        failed_pdfs: list[str] = []
+        for pdf_index, (pdf_label, pdf_samples) in enumerate(pdf_samples_by_label.items()):
+            failed_bins = self._plot_and_check_pdf(
+                ax=axs_grid[pdf_index, 0],
+                pdf_samples=pdf_samples,
+                pdf_label=pdf_label,
+            )
+            if failed_bins:
+                manage_log.log_outcome(
+                    text=f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
+                    outcome=manage_log.ActionOutcome.FAILURE,
+                )
+                failed_pdfs.append(pdf_label)
+            else:
+                manage_log.log_outcome(
+                    text=f"{pdf_label}",
+                    outcome=manage_log.ActionOutcome.SUCCESS,
+                )
+        axs_grid[-1, 0].legend(
+            loc="upper right",
+            bbox_to_anchor=(1, 0.9),
+            fontsize=20,
+        )
+        axs_grid[-1, 0].set_xlabel(r"$x$")
+        ## always save even on failure
+        fig_path = Path(__file__).parent / "estimated_1d_pdfs.png"
+        manage_plots.save_figure(
+            fig=fig,
+            fig_path=fig_path,
+        )
+        assert not failed_pdfs, (
+            f"Test failed for the following distributions: {ww_lists.as_string(elems=failed_pdfs)}"
+        )
+        manage_log.log_action(
+            title="Estimate 1D PDFs",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="All checks passed.",
+        )
+
+    def _generate_pdf_samples(
+        self,
+    ) -> dict[str, numpy.ndarray[Any, numpy.dtype[Any]]]:
+        rng = numpy.random.default_rng(seed=self.seed)
+        ## each distribution is a different shape to stress the estimator
+        return {
+            "delta": rng.normal(
+                loc=10,
+                scale=1e-9,
+                size=self.num_samples,
+            ),
+            "uniform": rng.uniform(
+                low=0,
+                high=1,
+                size=self.num_samples,
+            ),
+            "normal": rng.normal(
+                loc=0,
+                scale=1,
+                size=self.num_samples,
+            ),
+            "exponential": rng.exponential(
+                scale=1,
+                size=self.num_samples,
+            ),
+        }
+
+    def _plot_and_check_pdf(
+        self,
+        *,
+        ax: manage_plots.PlotAxis,
+        pdf_samples: numpy.ndarray[Any, numpy.dtype[Any]],
+        pdf_label: str,
+    ) -> list[int]:
+        failed_bins: list[int] = []
+        for num_bins in self.bin_counts_to_test:
             result = compute_array_stats.estimate_pdf(
                 values=pdf_samples,
                 num_bins=num_bins,
@@ -81,7 +142,6 @@ def main():
                 assert len(bin_centers) == num_bins, (
                     f"{pdf_label}: expected {num_bins} centers, got {len(bin_centers)}"
                 )
-            ## normalisation check: sum(pdf * dx) should be ~1
             ax.step(
                 bin_centers,
                 estimated_pdf,
@@ -89,9 +149,10 @@ def main():
                 lw=2,
                 label=f"{num_bins} bins",
             )
+            ## normalisation check: sum(pdf * dx) should be ~1
             bin_widths = numpy.diff(result.bin_edges)
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
-            if abs(pdf_integral - 1.0) > integral_error_tol:
+            if abs(pdf_integral - 1.0) > self.integral_error_tol:
                 failed_bins.append(num_bins)
         ax.text(
             0.95,
@@ -102,38 +163,7 @@ def main():
             transform=ax.transAxes,
         )
         ax.set_ylabel(r"PDF$(x)$")
-        if failed_bins:
-            manage_log.log_outcome(
-                text=f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
-                outcome=manage_log.ActionOutcome.FAILURE,
-            )
-            pdfs_that_failed.append(pdf_label)
-        else:
-            manage_log.log_outcome(
-                text=f"{pdf_label}",
-                outcome=manage_log.ActionOutcome.SUCCESS,
-            )
-    axs_grid[-1, 0].legend(
-        loc="upper right",
-        bbox_to_anchor=(1, 0.9),
-        fontsize=20,
-    )
-    axs_grid[-1, 0].set_xlabel(r"$x$")
-    ## save figure always so it can be inspected on failure
-    fig_name = "estimated_1d_pdfs.png"
-    fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(
-        fig=fig,
-        fig_path=fig_path,
-    )
-    assert len(pdfs_that_failed) == 0, (
-        f"Test failed for the following distributions: {ww_lists.as_string(elems=pdfs_that_failed)}"
-    )
-    manage_log.log_action(
-        title="Estimate 1D PDFs",
-        outcome=manage_log.ActionOutcome.SUCCESS,
-        message="All tests passed successfully.",
-    )
+        return failed_bins
 
 
 ##
@@ -141,6 +171,9 @@ def main():
 ##
 
 if __name__ == "__main__":
-    main()
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
+    test = TestEstimated1DPDFs()
+    test.run()
 
 ## } V-TEST

@@ -11,8 +11,9 @@ from pathlib import Path
 import numpy
 
 ## local
+from jormi import ww_lists
 from jormi.ww_data import fit_series
-from jormi.ww_data.series_types import GaussianSeries
+from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
 
@@ -21,66 +22,143 @@ from jormi.ww_plots import manage_plots, style_plots
 ##
 
 
-def main():
-    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
-    ## model parameters: y_values = true_slope * x_values + true_intercept
-    true_slope = 2.5
-    true_intercept = 1.0
-    noise_sigma = 1.5
-    num_points = 20
-    num_sigma_tol = 3.0  # recovered params must lie within N sigma of truth
-    rng = numpy.random.default_rng(seed=42)
-    ## construct noisy linear dataset
-    x_values = numpy.linspace(0.0, 10.0, num_points)
-    y_sigmas = noise_sigma * numpy.ones_like(x_values)
-    y_values = true_slope * x_values + true_intercept + rng.normal(scale=y_sigmas)
-    series = GaussianSeries(
-        x_values=x_values,
-        y_values=y_values,
-        y_sigmas=y_sigmas,
-    )
-    ## fit methods to test: free linear fit and fixed-slope fit
-    fits_to_test = {
-        "linear model": fit_series.fit_linear_model(series),
-        "fixed slope": fit_series.fit_line_with_fixed_slope(
-            gaussian_series=series,
-            fixed_slope=true_slope,
-        ),
-    }
-    ## plot: column stack, one row per fit method, shared x axis
-    num_fits = len(fits_to_test)
-    fig, axs_grid = manage_plots.create_figure(
-        num_rows=num_fits,
-        num_cols=1,
-        share_x=True,
-    )
-    x_fit_values = numpy.linspace(series.x_bounds[0], series.x_bounds[1], 200)
-    fits_that_failed = []
-    for fit_index, (fit_label, fit) in enumerate(fits_to_test.items()):
-        ax = axs_grid[fit_index, 0]
-        is_top_ax = fit_index == 0
-        is_bottom_ax = fit_index == num_fits - 1
-        ## check: recovered params within N sigma of truth (skip if sigma unavailable)
+class TestLinearFit:
+    """
+    Fit a noisy linear dataset and check that each fit method recovers the true
+    slope and intercept to within `sigma_tol` of its reported uncertainty.
+    """
+
+    def __init__(
+        self,
+    ):
+        ## sample parameters
+        self.seed: int = 42
+        self.num_points: int = 20
+        self.noise_sigma: float = 1.5
+        ## pass criterion: recovered params must lie within sigma_tol of truth
+        self.sigma_tol: float = 3.0
+        ## ground-truth model: y = true_slope * x + true_intercept
+        self.true_slope: float = 2.5
+        self.true_intercept: float = 1.0
+
+    def run(
+        self,
+    ) -> None:
+        gaussian_series = self._generate_gaussian_series()
+        fits_to_test = self._compute_fits(gaussian_series)
+        num_fits = len(fits_to_test)
+        fig, axs_grid = manage_plots.create_figure(
+            num_rows=num_fits,
+            num_cols=1,
+            share_x=True,
+        )
+        failed_fits: list[str] = []
+        for fit_index, (fit_label, fit) in enumerate(fits_to_test.items()):
+            ax = axs_grid[fit_index, 0]
+            self._plot_fit(
+                ax=ax,
+                gaussian_series=gaussian_series,
+                fit=fit,
+                fit_label=fit_label,
+                fit_index=fit_index,
+                num_fits=num_fits,
+            )
+            failed_checks = self._find_failed_checks(fit)
+            if failed_checks:
+                for check_msg in failed_checks:
+                    manage_log.log_outcome(
+                        text=f"{fit_label}: {check_msg}",
+                        outcome=manage_log.ActionOutcome.FAILURE,
+                    )
+                failed_fits.append(fit_label)
+            else:
+                manage_log.log_outcome(
+                    text=(
+                        f"{fit_label} (slope={fit.slope.value:.4f}, "
+                        f"intercept={fit.intercept.value:.4f})"
+                    ),
+                    outcome=manage_log.ActionOutcome.SUCCESS,
+                )
+        ## always save even on failure
+        fig_path = Path(__file__).parent / "linear_fit.png"
+        manage_plots.save_figure(
+            fig=fig,
+            fig_path=fig_path,
+        )
+        assert not failed_fits, (
+            f"Test failed for the following fit methods: {ww_lists.as_string(elems=failed_fits)}"
+        )
+        manage_log.log_action(
+            title="Linear fit",
+            outcome=manage_log.ActionOutcome.SUCCESS,
+            message="All checks passed.",
+        )
+
+    def _generate_gaussian_series(
+        self,
+    ) -> series_types.GaussianSeries:
+        rng = numpy.random.default_rng(seed=self.seed)
+        x_values = numpy.linspace(0.0, 10.0, self.num_points)
+        y_sigmas = self.noise_sigma * numpy.ones_like(x_values)
+        y_values = self.true_slope * x_values + self.true_intercept + rng.normal(scale=y_sigmas)
+        return series_types.GaussianSeries(
+            x_values=x_values,
+            y_values=y_values,
+            y_sigmas=y_sigmas,
+        )
+
+    def _compute_fits(
+        self,
+        gaussian_series: series_types.GaussianSeries,
+    ) -> dict[str, fit_series.LinearFitSummary]:
+        return {
+            "linear model": fit_series.fit_linear_model(gaussian_series),
+            "fixed slope": fit_series.fit_line_with_fixed_slope(
+                gaussian_series=gaussian_series,
+                fixed_slope=self.true_slope,
+            ),
+        }
+
+    def _find_failed_checks(
+        self,
+        fit: fit_series.LinearFitSummary,
+    ) -> list[str]:
         fitted_slope = fit.slope
         fitted_intercept = fit.intercept
-        slope_error = abs(fitted_slope.value - true_slope)
-        intercept_error = abs(fitted_intercept.value - true_intercept)
-        failed_checks = []
-        if (fitted_slope.sigma is not None) and (slope_error > num_sigma_tol * fitted_slope.sigma):
+        slope_error = abs(fitted_slope.value - self.true_slope)
+        intercept_error = abs(fitted_intercept.value - self.true_intercept)
+        ## skip a param whose sigma is unavailable
+        failed_checks: list[str] = []
+        if (fitted_slope.sigma is not None) and (slope_error > self.sigma_tol * fitted_slope.sigma):
             failed_checks.append(
-                f"slope error {slope_error:.4f} > {num_sigma_tol} * sigma ({fitted_slope.sigma:.4f})",
+                f"slope error {slope_error:.4f} > {self.sigma_tol} * sigma ({fitted_slope.sigma:.4f})",
             )
-        if (fitted_intercept.sigma is not None) and (intercept_error
-                                                     > num_sigma_tol * fitted_intercept.sigma):
+        if (fitted_intercept.sigma is not None) and (
+            intercept_error > self.sigma_tol * fitted_intercept.sigma
+        ):
             failed_checks.append(
-                f"intercept error {intercept_error:.4f} > {num_sigma_tol} * sigma ({fitted_intercept.sigma:.4f})",
+                f"intercept error {intercept_error:.4f} > {self.sigma_tol} * sigma"
+                f" ({fitted_intercept.sigma:.4f})",
             )
-        ## plot data with errorbars and overlaid fit line
+        return failed_checks
+
+    def _plot_fit(
+        self,
+        *,
+        ax: manage_plots.PlotAxis,
+        gaussian_series: series_types.GaussianSeries,
+        fit: fit_series.LinearFitSummary,
+        fit_label: str,
+        fit_index: int,
+        num_fits: int,
+    ) -> None:
+        is_top_ax = fit_index == 0
+        is_bottom_ax = fit_index == num_fits - 1
+        x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
         ax.errorbar(
-            x_values,
-            y_values,
-            yerr=y_sigmas,
+            gaussian_series.x_values,
+            gaussian_series.y_values,
+            yerr=gaussian_series.y_sigmas,
             fmt="o",
             color="black",
             label="data" if is_top_ax else None,
@@ -100,31 +178,6 @@ def main():
             ax.set_xlabel("x")
         else:
             ax.tick_params(labelbottom=False)
-        if failed_checks:
-            for check_msg in failed_checks:
-                manage_log.log_outcome(
-                    text=f"{fit_label}: {check_msg}",
-                    outcome=manage_log.ActionOutcome.FAILURE,
-                )
-            fits_that_failed.append(fit_label)
-        else:
-            manage_log.log_outcome(
-                text=f"{fit_label} (slope={fitted_slope.value:.4f}, intercept={fitted_intercept.value:.4f})",
-                outcome=manage_log.ActionOutcome.SUCCESS,
-            )
-    ## save figure always so it can be inspected on failure
-    fig_name = "linear_fit.png"
-    fig_path = Path(__file__).parent / fig_name
-    manage_plots.save_figure(
-        fig=fig,
-        fig_path=fig_path,
-    )
-    assert len(fits_that_failed) == 0, (f"Test failed for the following fit methods: {fits_that_failed}")
-    manage_log.log_action(
-        title="Linear fit",
-        outcome=manage_log.ActionOutcome.SUCCESS,
-        message="All tests passed successfully.",
-    )
 
 
 ##
@@ -132,6 +185,9 @@ def main():
 ##
 
 if __name__ == "__main__":
-    main()
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
+    test = TestLinearFit()
+    test.run()
 
 ## } V-TEST
