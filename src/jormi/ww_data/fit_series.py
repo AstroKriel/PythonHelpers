@@ -51,14 +51,14 @@ def get_linear_intercept(
     return y_ref - slope * x_ref
 
 
-def get_powerlaw_coefficient(
+def get_powerlaw_amplitude(
     *,
     exponent: float,
     x_ref: float,
     y_ref: float,
 ) -> float:
     """
-    Compute the coefficient `A` of a power law:
+    Compute the amplitude `A` of a power law:
         `y = A * x^exponent`
     given a reference point `(x_ref, y_ref)`.
     """

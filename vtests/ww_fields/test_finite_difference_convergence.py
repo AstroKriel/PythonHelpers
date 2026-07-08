@@ -259,7 +259,11 @@ class TestFiniteDifferenceConvergence:
         inverse_dx_values = numpy.array(
             self.num_points_to_test,
         ) / (self.domain_bounds[1] - self.domain_bounds[0])
-        amplitude = calculate_powerlaw_amplitude(inverse_dx_values[0], rms_errors[0], expected_scaling)
+        amplitude = fit_series.get_powerlaw_amplitude(
+            exponent=float(expected_scaling),
+            x_ref=float(inverse_dx_values[0]),
+            y_ref=rms_errors[0],
+        )
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
         residuals = (numpy.array(rms_errors) - expected_errors) / expected_errors
         axs_grid[0, 1].plot(
