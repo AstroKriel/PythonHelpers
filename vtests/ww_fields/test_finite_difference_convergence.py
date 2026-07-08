@@ -5,15 +5,18 @@
 ##
 
 ## stdlib
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, TypedDict
+from typing import Any, Callable
 
 ## third-party
 import numpy
 
 ## local
 from jormi import ww_lists
+from jormi.ww_arrays import compute_array_stats
 from jormi.ww_arrays.farrays_3d import difference_sarrays
+from jormi.ww_data import fit_series
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
 
@@ -22,8 +25,9 @@ from jormi.ww_plots import manage_plots, style_plots
 ##
 
 
-class _GradMethod(TypedDict):
-    worker_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]]
+@dataclass(frozen=True)
+class FiniteDifferenceMethod:
+    dydx_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]]
     expected_scaling: int
     label: str
     color: str
@@ -35,6 +39,7 @@ class _GradMethod(TypedDict):
 
 
 def sample_domain(
+    *,
     domain_bounds: list[float],
     num_points: float,
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
@@ -46,40 +51,30 @@ def sample_domain(
     )  # to ensure periodicity
 
 
-def evaluate_function(
+def evaluate_y(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return numpy.sin(2 * x_values) + numpy.cos(x_values)
 
 
-def evaluate_exact_function_derivative(
+def evaluate_exact_dydx(
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
     return 2 * numpy.cos(2 * x_values) - numpy.sin(x_values)
 
 
-def estimate_function_derivative(
+def evaluate_approx_dydx(
+    *,
     x_values: numpy.ndarray[Any, numpy.dtype[Any]],
     y_values: numpy.ndarray[Any, numpy.dtype[Any]],
-    func_dydx: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
+    dydx_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
 ) -> numpy.ndarray[Any, numpy.dtype[Any]]:
-    cell_width = (x_values[-1] - x_values[0]) / len(x_values)  # assumes uniform samples
-    return func_dydx(
+    cell_width = x_values[1] - x_values[0]  # assumes uniform samples
+    return dydx_fn(
         sarray_3d=y_values[:, None, None],
         cell_width=cell_width,
         grad_axis=0,
     )[:, 0, 0]
-
-
-def calculate_powerlaw_amplitude(
-    x_0: float,
-    y_0: float,
-    b: float,
-) -> float:
-    """Solve for the amplitude of a power law y = a * x^b given a coordinate (x_0, y_0) that the power-law passed through."""
-    if x_0 == 0:
-        return y_0
-    return float(y_0 / numpy.power(x_0, b))
 
 
 ##
@@ -98,25 +93,25 @@ class TestFiniteDifferenceConvergence:
         self.num_samples_for_approx_soln: int = 15
         self.num_points_to_test: list[float] = [10, 20, 50, 1e2, 2e2, 5e2]
         ## scenario config: the finite-difference methods to test and their expected scalings
-        self.grad_methods: list[_GradMethod] = [
-            {
-                "worker_fn": difference_sarrays.second_order_centered_difference,
-                "expected_scaling": -2,
-                "label": "2nd order",
-                "color": "red",
-            },
-            {
-                "worker_fn": difference_sarrays.fourth_order_centered_difference,
-                "expected_scaling": -4,
-                "label": "4th order",
-                "color": "forestgreen",
-            },
-            {
-                "worker_fn": difference_sarrays.sixth_order_centered_difference,
-                "expected_scaling": -6,
-                "label": "6th order",
-                "color": "royalblue",
-            },
+        self.grad_methods: list[FiniteDifferenceMethod] = [
+            FiniteDifferenceMethod(
+                dydx_fn=difference_sarrays.second_order_centered_difference,
+                expected_scaling=-2,
+                label="2nd order",
+                color="red",
+            ),
+            FiniteDifferenceMethod(
+                dydx_fn=difference_sarrays.fourth_order_centered_difference,
+                expected_scaling=-4,
+                label="4th order",
+                color="forestgreen",
+            ),
+            FiniteDifferenceMethod(
+                dydx_fn=difference_sarrays.sixth_order_centered_difference,
+                expected_scaling=-6,
+                label="6th order",
+                color="royalblue",
+            ),
         ]
 
     def run(
@@ -150,9 +145,12 @@ class TestFiniteDifferenceConvergence:
         self,
         axs_grid: manage_plots.PlotAxesGrid,
     ) -> None:
-        x_values = sample_domain(self.domain_bounds, self.num_samples_for_exact_soln)
-        y_values = evaluate_function(x_values)
-        dydx_values = evaluate_exact_function_derivative(x_values)
+        x_values = sample_domain(
+            domain_bounds=self.domain_bounds,
+            num_points=self.num_samples_for_exact_soln,
+        )
+        y_values = evaluate_y(x_values)
+        dydx_values = evaluate_exact_dydx(x_values)
         axs_grid[0, 0].plot(
             x_values,
             y_values,
@@ -173,13 +171,20 @@ class TestFiniteDifferenceConvergence:
         self,
         *,
         axs_grid: manage_plots.PlotAxesGrid,
-        nabla: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
+        dydx_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
         color: str,
         label: str,
     ) -> None:
-        x_values = sample_domain(self.domain_bounds, self.num_samples_for_approx_soln)
-        y_values = evaluate_function(x_values)
-        dydx_values = estimate_function_derivative(x_values, y_values, nabla)
+        x_values = sample_domain(
+            domain_bounds=self.domain_bounds,
+            num_points=self.num_samples_for_approx_soln,
+        )
+        y_values = evaluate_y(x_values)
+        dydx_values = evaluate_approx_dydx(
+            x_values=x_values,
+            y_values=y_values,
+            dydx_fn=dydx_fn,
+        )
         axs_grid[1, 0].plot(
             x_values,
             dydx_values,
@@ -197,36 +202,30 @@ class TestFiniteDifferenceConvergence:
     ) -> list[str]:
         failed_methods: list[str] = []
         for grad_method in self.grad_methods:
-            expected_scaling = grad_method["expected_scaling"]
-            nabla = grad_method["worker_fn"]
-            color = grad_method["color"]
-            label = grad_method["label"]
+            expected_scaling = grad_method.expected_scaling
+            dydx_fn = grad_method.dydx_fn
+            color = grad_method.color
+            label = grad_method.label
             self._plot_approx_soln(
                 axs_grid=axs_grid,
-                nabla=nabla,
+                dydx_fn=dydx_fn,
                 color=color,
                 label=label,
             )
             rms_errors: list[float] = []
             for num_points in self.num_points_to_test:
-                x_values = sample_domain(self.domain_bounds, num_points)
-                y_values = evaluate_function(x_values)
-                dydx_exact = evaluate_exact_function_derivative(x_values)
-                cell_width = x_values[1] - x_values[0]  # assumes uniform samples
-                dydx_approx = nabla(
-                    sarray_3d=y_values[:, None, None],
-                    cell_width=cell_width,
-                    grad_axis=0,
-                )[:, 0, 0]
-                rms_error = float(
-                    numpy.sqrt(
-                        numpy.mean(
-                            numpy.square(
-                                dydx_exact - dydx_approx,
-                            ),
-                        ),
-                    ),
+                x_values = sample_domain(
+                    domain_bounds=self.domain_bounds,
+                    num_points=num_points,
                 )
+                y_values = evaluate_y(x_values)
+                dydx_exact = evaluate_exact_dydx(x_values)
+                dydx_approx = evaluate_approx_dydx(
+                    x_values=x_values,
+                    y_values=y_values,
+                    dydx_fn=dydx_fn,
+                )
+                rms_error = compute_array_stats.compute_rms(dydx_exact - dydx_approx)
                 rms_errors.append(rms_error)
             has_converged = self._check_convergence(
                 axs_grid=axs_grid,
