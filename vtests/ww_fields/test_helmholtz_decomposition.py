@@ -5,8 +5,9 @@
 ##
 
 ## stdlib
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, NamedTuple, TypedDict
+from typing import Any
 
 ## third-party
 import numpy
@@ -29,13 +30,15 @@ from jormi.ww_validation import validate_types
 ##
 
 
-class VFieldEntry(TypedDict):
+@dataclass(frozen=True)
+class VFieldEntry:
     label: str
     vfield_3d: field_models.VectorField_3D
 
 
-class _DecomposedVFields(NamedTuple):
-    reconstructed_vfield_3d: field_models.VectorField_3D
+@dataclass(frozen=True)
+class DecomposedVFields:
+    combined_vfield_3d: field_models.VectorField_3D
     div_vfield_3d: field_models.VectorField_3D
     sol_vfield_3d: field_models.VectorField_3D
     bulk_vfield_3d: field_models.VectorField_3D
@@ -309,8 +312,8 @@ class TestHelmholtzDecomposition:
         )
         failed_vfields: list[str] = []
         for vfield_index, vfield_entry in enumerate(input_vfields):
-            vfield_name = vfield_entry["label"]
-            vfield_3d = vfield_entry["vfield_3d"]
+            vfield_name = vfield_entry.label
+            vfield_3d = vfield_entry.vfield_3d
             manage_log.log_task(text=f"Input: {vfield_name} field")
             decomposed_vfields, failed_checks = self._decompose_and_check(
                 vfield_3d=vfield_3d,
@@ -395,15 +398,15 @@ class TestHelmholtzDecomposition:
         *,
         vfield_3d: field_models.VectorField_3D,
         uniform_domain_3d: domain_models.UniformDomain_3D,
-    ) -> tuple[_DecomposedVFields, list[str]]:
+    ) -> tuple[DecomposedVFields, list[str]]:
         decomposed_fields = decompose_fields.compute_helmholtz_decomposed_fields(
             vfield_3d=vfield_3d,
         )
         div_vfield_3d = decomposed_fields.div_vfield_3d
         sol_vfield_3d = decomposed_fields.sol_vfield_3d
         bulk_vfield_3d = decomposed_fields.bulk_vfield_3d
-        ## reconstructed field: q_rec = q_div + q_sol + q_bulk
-        reconstructed_vfield_3d = field_models.VectorField_3D.from_3d_varray(
+        ## q_sum = q_div + q_sol + q_bulk
+        combined_vfield_3d = field_models.VectorField_3D.from_3d_varray(
             varray_3d=(
                 field_models.extract_3d_varray(div_vfield_3d) +
                 field_models.extract_3d_varray(sol_vfield_3d) +
@@ -413,9 +416,9 @@ class TestHelmholtzDecomposition:
             field_name="q_sum",
             latex_label=r"\vec{q}_\mathrm{sum}",
         )
-        ## residual: q - q_rec (should be ~0)
+        ## residual: q - q_sum (should be ~0)
         residual_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(reconstructed_vfield_3d)),
+            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(combined_vfield_3d)),
             uniform_domain_3d=uniform_domain_3d,
             field_name="q_residual",
             latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
@@ -469,8 +472,8 @@ class TestHelmholtzDecomposition:
             error_threshold = self.check_thresholds[check_label]
             if error_median >= error_threshold:
                 failed_checks.append(f"{check_label}: median {error_median:.2e} >= threshold {error_threshold:.2e}")
-        decomposed_vfields = _DecomposedVFields(
-            reconstructed_vfield_3d=reconstructed_vfield_3d,
+        decomposed_vfields = DecomposedVFields(
+            combined_vfield_3d=combined_vfield_3d,
             div_vfield_3d=div_vfield_3d,
             sol_vfield_3d=sol_vfield_3d,
             bulk_vfield_3d=bulk_vfield_3d,
@@ -483,10 +486,10 @@ class TestHelmholtzDecomposition:
         axs_grid: manage_plots.PlotAxesGrid,
         index_col: int,
         vfield_name: str,
-        decomposed_vfields: _DecomposedVFields,
+        decomposed_vfields: DecomposedVFields,
     ) -> None:
         plot_vfields = [
-            (decomposed_vfields.reconstructed_vfield_3d, f"input: {vfield_name}"),
+            (decomposed_vfields.combined_vfield_3d, f"input: {vfield_name}"),
             (decomposed_vfields.div_vfield_3d, "measured: div. comp."),
             (decomposed_vfields.sol_vfield_3d, "measured: sol. comp."),
             (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
