@@ -5,6 +5,7 @@
 ##
 
 ## stdlib
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,17 @@ from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
 from jormi.ww_plots import manage_plots, style_plots
+
+##
+## === TYPE ALIASES
+##
+
+
+@dataclass(frozen=True)
+class PDFScenario:
+    label: str
+    samples: numpy.ndarray[Any, numpy.dtype[Any]]
+
 
 ##
 ## === BINNING CONVERGENCE TEST
@@ -42,29 +54,29 @@ class TestEstimated1DPDFs:
     def run(
         self,
     ) -> None:
-        pdf_samples_by_label = self._generate_pdf_samples()
-        num_pdfs = len(pdf_samples_by_label)
+        pdf_scenarios = self._generate_pdf_samples()
+        num_pdfs = len(pdf_scenarios)
         fig, axs_grid = manage_plots.create_figure(
             num_rows=num_pdfs,
             num_cols=1,
             y_spacing=0.25,
         )
         failed_pdfs: list[str] = []
-        for pdf_index, (pdf_label, pdf_samples) in enumerate(pdf_samples_by_label.items()):
+        for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
             failed_bins = self._plot_and_check_pdf(
                 ax=axs_grid[pdf_index, 0],
-                pdf_samples=pdf_samples,
-                pdf_label=pdf_label,
+                pdf_samples=pdf_scenario.samples,
+                pdf_label=pdf_scenario.label,
             )
             if failed_bins:
                 manage_log.log_outcome(
-                    text=f"{pdf_label} integral out of tolerance for bins: {failed_bins}",
+                    text=f"{pdf_scenario.label} integral out of tolerance for bins: {failed_bins}",
                     outcome=manage_log.ActionOutcome.FAILURE,
                 )
-                failed_pdfs.append(pdf_label)
+                failed_pdfs.append(pdf_scenario.label)
             else:
                 manage_log.log_outcome(
-                    text=f"{pdf_label}",
+                    text=f"{pdf_scenario.label}",
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         axs_grid[-1, 0].legend(
@@ -90,30 +102,42 @@ class TestEstimated1DPDFs:
 
     def _generate_pdf_samples(
         self,
-    ) -> dict[str, numpy.ndarray[Any, numpy.dtype[Any]]]:
+    ) -> list[PDFScenario]:
         rng = numpy.random.default_rng(seed=self.seed)
         ## each distribution is a different shape to stress the estimator
-        return {
-            "delta": rng.normal(
-                loc=10,
-                scale=1e-9,
-                size=self.num_samples,
+        return [
+            PDFScenario(
+                label="delta",
+                samples=rng.normal(
+                    loc=10,
+                    scale=1e-9,
+                    size=self.num_samples,
+                ),
             ),
-            "uniform": rng.uniform(
-                low=0,
-                high=1,
-                size=self.num_samples,
+            PDFScenario(
+                label="uniform",
+                samples=rng.uniform(
+                    low=0,
+                    high=1,
+                    size=self.num_samples,
+                ),
             ),
-            "normal": rng.normal(
-                loc=0,
-                scale=1,
-                size=self.num_samples,
+            PDFScenario(
+                label="normal",
+                samples=rng.normal(
+                    loc=0,
+                    scale=1,
+                    size=self.num_samples,
+                ),
             ),
-            "exponential": rng.exponential(
-                scale=1,
-                size=self.num_samples,
+            PDFScenario(
+                label="exponential",
+                samples=rng.exponential(
+                    scale=1,
+                    size=self.num_samples,
+                ),
             ),
-        }
+        ]
 
     def _plot_and_check_pdf(
         self,
