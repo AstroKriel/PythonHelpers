@@ -15,7 +15,7 @@ import numpy
 from jormi.ww_data import interpolate_series
 from jormi.ww_data.series_types import DataSeries
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 
 ##
 ## === HELPER FUNCTIONS
@@ -35,6 +35,8 @@ def evaluate_function(
 
 
 def main():
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     ## parameters: known function sin(2x) + cos(x) sampled at a coarse grid
     num_input_points = 15
     num_interp_points = 100

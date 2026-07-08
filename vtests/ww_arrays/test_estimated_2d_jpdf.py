@@ -14,7 +14,7 @@ import numpy
 ## local
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 
 ##
 ## === HELPER FUNCTIONS
@@ -44,6 +44,8 @@ def sample_from_ellipse(
 
 
 def main():
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     ## parameters
     num_points = int(3e5)
     num_bins = int(1e2)

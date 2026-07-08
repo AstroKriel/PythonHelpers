@@ -14,7 +14,7 @@ import numpy
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 
 ##
 ## === FIT ACCURACY TEST
@@ -22,6 +22,8 @@ from jormi.ww_plots import manage_plots
 
 
 def main():
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     ## model parameters: y_values = true_slope * x_values + true_intercept
     true_slope = 2.5
     true_intercept = 1.0

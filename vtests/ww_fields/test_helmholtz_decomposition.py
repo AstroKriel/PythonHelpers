@@ -21,7 +21,7 @@ from jormi.ww_fields.fields_3d import (
     field_models,
 )
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 from jormi.ww_validation import validate_types
 
 
@@ -262,6 +262,8 @@ def plot_vfield_slice(
 
 
 def main():
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     num_cells = 50
     domain_bounds = (-1.0, 1.0)
     resolution = (num_cells, num_cells, num_cells)

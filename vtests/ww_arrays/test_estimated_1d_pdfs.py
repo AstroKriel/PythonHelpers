@@ -14,7 +14,7 @@ import numpy
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 
 ##
 ## === BINNING CONVERGENCE TEST
@@ -22,6 +22,8 @@ from jormi.ww_plots import manage_plots
 
 
 def main():
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     ## parameters
     rng = numpy.random.default_rng(seed=42)
     num_samples = int(1e5)

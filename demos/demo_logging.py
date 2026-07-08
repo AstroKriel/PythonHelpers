@@ -149,6 +149,7 @@ def demo_blocks() -> None:
 
 
 def main() -> None:
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
     demo_lines()
     demo_blocks()
     manage_log.log_note(

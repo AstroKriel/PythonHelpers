@@ -13,9 +13,11 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_io import manage_log
 from jormi.ww_plots import (
     add_color,
     manage_plots,
+    style_plots,
 )
 from jormi.ww_plots.color_palettes import DivergingPalette
 
@@ -41,6 +43,8 @@ def _make_gradient(
 
 
 def main() -> None:
+    manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
+    style_plots.set_theme()
     value_min, value_max, value_mid = -1.0, 1.0, 0.0
     data = _make_gradient(
         value_min=value_min,
