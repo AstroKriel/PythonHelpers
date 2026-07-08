@@ -116,8 +116,8 @@ class TestGradientWLSConvergence:
         self.scored_half_width: float = 2.0
         self.k_neighbors: int = 20
         self.num_points_to_test: list[int] = [2_000, 4_000, 8_000, 16_000, 32_000, 64_000]
-        ## pass criterion: fitted convergence order must fall within these bounds; below the
-        ## lower bound is no real convergence, above the upper suggests an overfit not real convergence
+        ## pass criterion: fitted convergence order must fall within these bounds;
+        ## below the lower bound is no real convergence, above the upper suggests an overfit not real convergence
         self.convergence_order_bounds: tuple[float, float] = (0.3, 3.0)
 
     def run(
