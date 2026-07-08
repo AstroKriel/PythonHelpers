@@ -38,6 +38,54 @@ def sample_from_ellipse(
     return x_rotated, y_rotated
 
 
+def plot_jpdf(
+    *,
+    ax: manage_plots.PlotAxis,
+    jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
+    bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
+    bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],
+    x_samples: numpy.ndarray[Any, numpy.dtype[Any]],
+    y_samples: numpy.ndarray[Any, numpy.dtype[Any]],
+    plot_samples: bool,
+) -> None:
+    ax.imshow(
+        jpdf,
+        extent=(
+            bin_centers_cols.min(),
+            bin_centers_cols.max(),
+            bin_centers_rows.min(),
+            bin_centers_rows.max(),
+        ),
+        origin="lower",
+        aspect="auto",
+        cmap="Blues",
+    )
+    if plot_samples:
+        ax.scatter(
+            x_samples,
+            y_samples,
+            color="red",
+            s=3,
+            alpha=1e-2,
+        )
+    ax.set_xlabel(r"$x$")
+    ax.set_ylabel(r"$y$")
+    ax.axhline(
+        y=0.0,
+        color="black",
+        ls="--",
+        zorder=1,
+    )
+    ax.axvline(
+        x=0.0,
+        color="black",
+        ls="--",
+        zorder=1,
+    )
+    ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
+    ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
+
+
 ##
 ## === JPDF NORMALISATION TEST
 ##
@@ -81,7 +129,7 @@ class TestEstimated2DJPDF:
         jpdf = result.densities
         bin_centers_rows = result.row_centers
         bin_centers_cols = result.col_centers
-        self._plot_jpdf(
+        plot_jpdf(
             ax=ax,
             jpdf=jpdf,
             bin_centers_rows=bin_centers_rows,
@@ -111,54 +159,6 @@ class TestEstimated2DJPDF:
             message="All checks passed.",
             notes={"integral": f"{pdf_integral:.6f}"},
         )
-
-    def _plot_jpdf(
-        self,
-        *,
-        ax: manage_plots.PlotAxis,
-        jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
-        bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
-        bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],
-        x_samples: numpy.ndarray[Any, numpy.dtype[Any]],
-        y_samples: numpy.ndarray[Any, numpy.dtype[Any]],
-        plot_samples: bool,
-    ) -> None:
-        ax.imshow(
-            jpdf,
-            extent=(
-                bin_centers_cols.min(),
-                bin_centers_cols.max(),
-                bin_centers_rows.min(),
-                bin_centers_rows.max(),
-            ),
-            origin="lower",
-            aspect="auto",
-            cmap="Blues",
-        )
-        if plot_samples:
-            ax.scatter(
-                x_samples,
-                y_samples,
-                color="red",
-                s=3,
-                alpha=1e-2,
-            )
-        ax.set_xlabel(r"$x$")
-        ax.set_ylabel(r"$y$")
-        ax.axhline(
-            y=0.0,
-            color="black",
-            ls="--",
-            zorder=1,
-        )
-        ax.axvline(
-            x=0.0,
-            color="black",
-            ls="--",
-            zorder=1,
-        )
-        ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
-        ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
 
 
 ##
