@@ -19,7 +19,7 @@ from jormi.ww_plots.color_palettes import (
     DivergingPalette,
     SequentialPalette,
 )
-from jormi.ww_plots.manage_plots import compute_adjacent_ax_bounds
+from jormi.ww_plots import manage_plots
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_box_positions, validate_types
 
@@ -233,7 +233,7 @@ def add_colorbar(
     )
     cbar_side = validate_box_positions.as_box_side(side=cbar_side)
     cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
-    ax_bounds = compute_adjacent_ax_bounds(
+    ax_bounds = manage_plots.compute_adjacent_ax_bounds(
         ax=ax,
         side=cbar_side,
         thickness=cbar_thickness,
