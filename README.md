@@ -24,31 +24,6 @@ To make `jormi` importable from other projects, install it in editable mode:
 uv pip install -e .
 ```
 
-## File structure
-
-```
-jormi/
-├── src/
-│   └── jormi/              # package root (ww_ = "working with")
-│       ├── ww_arrays/      # array operations (norms, masking, and PDFs) and 3D field-array operations
-│       ├── ww_data/        # fitting and interpolating data series
-│       ├── ww_fields/      # 2D/3D scalar/vector field models + operators, spectra, and decompositions (wrappers over array operations)
-│       ├── ww_fns/         # function decorators and parallel dispatch
-│       ├── ww_io/          # file I/O (CSV and JSON), logging, shell commands
-│       ├── ww_jobs/        # HPC (PBS and SLURM) job submission
-│       ├── ww_plots/       # mpl figures, styling, colormaps, annotations
-│       ├── ww_types/       # type hints, enums, and positional types
-│       ├── ww_validation/  # runtime validation for arrays, types, enums, and positions
-│       ├── ww_dicts.py     # dict helpers
-│       ├── ww_lists.py     # list helpers
-│       └── ww_stats.py     # statistics helpers
-├── utests/                 # unit tests
-├── vtests/                 # validation tests
-├── pyproject.toml          # project metadata and dependencies
-├── uv.lock                 # pinned dependency versions
-└── README.md               # this file
-```
-
 ## Run test suites
 
 Run the suite of unit tests:
@@ -61,6 +36,33 @@ Run the suite of validation tests:
 
 ```bash
 uv run vtests/run_all.py
+```
+
+## File structure
+
+```text
+jormi/
+├── demos/  # example scripts
+│   └── ww_plots/  # examples for the plotting helpers
+├── src/
+│   └── jormi/  # package root (ww_ = "working with")
+│       ├── ww_arrays/  # array operations (norms, masking, and PDFs) and 3D field-array operations
+│       ├── ww_data/  # fitting and interpolating data series
+│       ├── ww_fields/  # 2D/3D scalar/vector field models + operators, spectra, and decompositions (wrappers over array operations)
+│       ├── ww_fns/  # function decorators and parallel dispatch
+│       ├── ww_io/  # file I/O (CSV and JSON), logging, shell commands
+│       ├── ww_jobs/  # HPC (PBS and SLURM) job submission
+│       ├── ww_plots/  # mpl figures, styling, colormaps, annotations
+│       ├── ww_types/  # type hints, enums, and positional types
+│       ├── ww_validation/  # runtime validation for arrays, types, enums, and positions
+│       ├── ww_dicts.py  # dict helpers
+│       ├── ww_lists.py  # list helpers
+│       └── ww_stats.py  # statistics helpers
+├── utests/  # unit tests
+├── vtests/  # validation tests
+├── pyproject.toml  # project metadata and dependencies
+├── uv.lock  # pinned dependency versions
+└── README.md  # this file
 ```
 
 ## License
