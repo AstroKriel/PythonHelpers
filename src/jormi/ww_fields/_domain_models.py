@@ -136,7 +136,7 @@ class Domain(ABC):
     def domain_lengths(
         self,
     ) -> tuple[float, ...]:
-        return tuple(axis_bounds[1] - axis_bounds[0] for axis_bounds in self.domain_bounds)
+        return tuple(axis_range[1] - axis_range[0] for axis_range in self.domain_bounds)
 
     @property
     @abstractmethod
@@ -203,8 +203,8 @@ class UniformDomain(Domain):
         self,
     ) -> tuple[float, ...]:
         return tuple(
-            (axis_bounds[1] - axis_bounds[0]) / num_cells
-            for axis_bounds, num_cells in zip(self.domain_bounds, self.resolution)
+            (axis_range[1] - axis_range[0]) / num_cells
+            for axis_range, num_cells in zip(self.domain_bounds, self.resolution)
         )
 
     @property

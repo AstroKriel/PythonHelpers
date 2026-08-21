@@ -24,8 +24,8 @@ from jormi.ww_types import box_positions
 ##
 
 DataFormat = Literal["xy", "ij"]
-AxisBounds = tuple[
-    tuple[float, float],  # ((min_x_value, max_x_value)
+AxisRanges = tuple[
+    tuple[float, float],  # (min_x_value, max_x_value)
     tuple[float, float],  # (min_y_value, max_y_value)
 ]
 
@@ -56,35 +56,35 @@ def as_plot_view(
 
 
 def _as_axis_extent(
-    axis_bounds: AxisBounds | None,
+    axis_ranges: AxisRanges | None,
 ) -> tuple[float, float, float, float] | None:
     """
-    Convert AxisBounds to the flat (xmin, xmax, ymin, ymax) extent format expected by matplotlib.
-    Returns None if `axis_bounds` is None.
+    Convert AxisRanges to the flat (xmin, xmax, ymin, ymax) extent format expected by matplotlib.
+    Returns None if `axis_ranges` is None.
     """
-    if axis_bounds is None:
+    if axis_ranges is None:
         return None
     validate_types.ensure_nested_tuple(
-        param=axis_bounds,
-        param_name="axis_bounds",
+        param=axis_ranges,
+        param_name="axis_ranges",
         outer_length=2,
         inner_length=2,
         valid_elem_types=validate_types.RuntimeTypes.Numerics.NumericLike,
         allow_none=False,
     )
     validate_types.ensure_ordered_pair(
-        param=axis_bounds[0],
-        param_name="axis_bounds[0]",
+        param=axis_ranges[0],
+        param_name="axis_ranges[0]",
         allow_none=False,
         strict_ordering=True,
     )
     validate_types.ensure_ordered_pair(
-        param=axis_bounds[1],
-        param_name="axis_bounds[1]",
+        param=axis_ranges[1],
+        param_name="axis_ranges[1]",
         allow_none=False,
         strict_ordering=True,
     )
-    (min_x_value, max_x_value), (min_y_value, max_y_value) = axis_bounds
+    (min_x_value, max_x_value), (min_y_value, max_y_value) = axis_ranges
     return (
         float(min_x_value),
         float(max_x_value),
@@ -96,28 +96,28 @@ def _as_axis_extent(
 def _get_value_range(
     *,
     array_2d: NDArray[Any],
-    cbar_bounds: tuple[float, float] | None,
+    cbar_range: tuple[float, float] | None,
 ) -> tuple[float, float]:
     """
     Calculate the (min, max) value range for colorbar scaling.
 
-    If `cbar_bounds` is provided, validate and use it directly. Otherwise, infer from the finite
+    If `cbar_range` is provided, validate and use it directly. Otherwise, infer from the finite
     values in `array_2d`, with a small pad applied.
     """
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
-    if cbar_bounds is not None:
+    if cbar_range is not None:
         validate_types.ensure_ordered_pair(
-            param=cbar_bounds,
-            param_name="cbar_bounds",
+            param=cbar_range,
+            param_name="cbar_range",
             allow_none=False,
         )
-        min_value, max_value = float(cbar_bounds[0]), float(cbar_bounds[1])
+        min_value, max_value = float(cbar_range[0]), float(cbar_range[1])
         if not (numpy.isfinite(min_value) and numpy.isfinite(max_value)):
-            raise ValueError(f"`cbar_bounds` must be finite, got ({min_value}, {max_value}).")
+            raise ValueError(f"`cbar_range` must be finite, got ({min_value}, {max_value}).")
         in_range_mask = finite_mask & (array_2d >= min_value) & (array_2d <= max_value)
         if not numpy.any(in_range_mask):
-            raise ValueError(f"`cbar_bounds` ({min_value}, {max_value}) does not overlap with data.")
+            raise ValueError(f"`cbar_range` ({min_value}, {max_value}) does not overlap with data.")
         return (
             min_value,
             max_value,
@@ -157,8 +157,8 @@ def plot_2d_array(
     array_2d: NDArray[Any],
     data_format: DataFormat,
     axis_aspect_ratio: Literal["equal", "auto"] = "equal",
-    axis_bounds: AxisBounds | None = None,
-    cbar_bounds: tuple[float, float] | None = None,
+    axis_ranges: AxisRanges | None = None,
+    cbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
     add_cbar: bool = True,
     cbar_label: str | None = None,
@@ -177,13 +177,13 @@ def plot_2d_array(
     )
     min_value, max_value = _get_value_range(
         array_2d=array_view,
-        cbar_bounds=cbar_bounds,
+        cbar_range=cbar_range,
     )
     palette = add_color.make_palette(
         config=palette_config,
         value_range=(min_value, max_value),
     )
-    axis_extent = _as_axis_extent(axis_bounds)
+    axis_extent = _as_axis_extent(axis_ranges)
     im_obj = ax.imshow(
         array_view,
         extent=axis_extent,
@@ -224,7 +224,7 @@ def plot_2d_quiver(
     ax: manage_plots.PlotAxis,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
-    axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
+    axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
     num_quivers: int = 25,
     quiver_width: float = 5e-3,
     color: str = "white",
@@ -243,9 +243,9 @@ def plot_2d_quiver(
         param_name_a="array_2d_rows",
         param_name_b="array_2d_cols",
     )
-    axis_extent = _as_axis_extent(axis_bounds)
+    axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
-        raise ValueError("`axis_bounds` must not be None.")
+        raise ValueError("`axis_ranges` must not be None.")
     grid_x, grid_y = _generate_grid(
         field_shape=cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
@@ -271,7 +271,7 @@ def plot_2d_streamlines(
     ax: manage_plots.PlotAxis,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
-    axis_bounds: AxisBounds = ((0.0, 1.0), (0.0, 1.0)),
+    axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
     streamline_width: float = 1.0,
     streamline_density: float = 2.0,
     arrow_size: float = 1.0,
@@ -291,9 +291,9 @@ def plot_2d_streamlines(
         param_name_a="array_2d_rows",
         param_name_b="array_2d_cols",
     )
-    axis_extent = _as_axis_extent(axis_bounds)
+    axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
-        raise ValueError("`axis_bounds` must not be None.")
+        raise ValueError("`axis_ranges` must not be None.")
     grid_x, grid_y = _generate_grid(
         field_shape=cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
@@ -319,7 +319,7 @@ def plot_2d_contours(
     ax: manage_plots.PlotAxis,
     array_2d: NDArray[Any],
     data_format: DataFormat,
-    axis_bounds: AxisBounds = ((-1.0, 1.0), (-1.0, 1.0)),
+    axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
     levels: int | NDArray[Any] = 10,
     color: str = "white",
     linewidth: float = 0.8,
@@ -329,9 +329,9 @@ def plot_2d_contours(
         array=array_2d,
         num_dims=2,
     )
-    axis_extent = _as_axis_extent(axis_bounds)
+    axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
-        raise ValueError("`axis_bounds` must not be None.")
+        raise ValueError("`axis_ranges` must not be None.")
     array_view = as_plot_view(data_array=array_2d, data_format=data_format)
     grid_x, grid_y = _generate_grid(
         field_shape=cast(tuple[int, int], array_view.shape),
