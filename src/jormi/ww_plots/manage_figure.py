@@ -56,20 +56,20 @@ PlotPanelGrid: TypeAlias = NDArray[numpy.object_]
 )
 class BoxShape:
     """
-    Width and height of a rectangle, in inches: a whole figure, or the share it gives
-    one panel.
+    Width and height of a rectangle, in cm: a whole figure, or the share it gives one
+    panel.
 
     Named rather than a bare pair, so which of the two is the height never has to be
     remembered; `as_mpl_shape` produces the pair for handing straight to Matplotlib.
     """
 
-    width: float
-    height: float
+    width_cm: float
+    height_cm: float
 
     def __post_init__(self) -> None:
         for name in (
-            "width",
-            "height",
+            "width_cm",
+            "height_cm",
         ):
             value = getattr(self, name)
             if not (value > 0):
@@ -77,13 +77,16 @@ class BoxShape:
 
     @property
     def as_mpl_shape(self) -> tuple[float, float]:
-        """The pair, width first, as Matplotlib's `figsize` reads it."""
-        return self.width, self.height
+        """The pair, width first and in inches, as Matplotlib's `figsize` reads it."""
+        return (
+            self.width_cm / style_plots.CM_PER_INCH,
+            self.height_cm / style_plots.CM_PER_INCH,
+        )
 
     @property
     def aspect_ratio(self) -> float:
         """Width over height."""
-        return self.width / self.height
+        return self.width_cm / self.height_cm
 
 
 ##
@@ -91,8 +94,8 @@ class BoxShape:
 ##
 
 DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
-    width=6.0,
-    height=4.0,
+    width_cm=15.0,
+    height_cm=10.0,
 )
 
 
@@ -103,18 +106,19 @@ def _compute_figure_shape(
     figure_scale: float = 1.0,
     panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
 ) -> BoxShape:
-    """Compute figure size (inches) from the share each panel gets."""
+    """Compute figure size (cm) from the share each panel gets."""
     if (num_rows < 1) or (num_cols < 1):
         raise ValueError("`num_rows` and `num_cols` must both be >= 1.")
     return BoxShape(
-        width=figure_scale * panel_shape.width * num_cols,
-        height=figure_scale * panel_shape.height * num_rows,
+        width_cm=figure_scale * panel_shape.width_cm * num_cols,
+        height_cm=figure_scale * panel_shape.height_cm * num_rows,
     )
 
 
 def _place_panels_in_figure(
     *,
     figure: mpl_Figure,
+    figure_shape: BoxShape,
     margins: style_plots.FigureMargins,
     x_spacing: float | None = None,
     y_spacing: float | None = None,
@@ -123,11 +127,10 @@ def _place_panels_in_figure(
     Place the panels within `figure`, leaving `margins` clear around them.
 
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
-    the figure's own size is what converts between the two.
+    `figure_shape` is what converts between the two.
     """
-    width_inches, height_inches = figure.get_size_inches()
-    width_pt = float(width_inches) * style_plots.PT_PER_INCH
-    height_pt = float(height_inches) * style_plots.PT_PER_INCH
+    width_pt = figure_shape.width_cm * style_plots.PT_PER_CM
+    height_pt = figure_shape.height_cm * style_plots.PT_PER_CM
     if (margins.left_margin + margins.right_margin) >= width_pt:
         raise ValueError(
             f"`left_margin` + `right_margin` ({margins.left_margin + margins.right_margin} pt)"
@@ -153,7 +156,7 @@ def _place_panels_in_figure(
 
 def _split_width_across_panels(
     *,
-    width_inches: float,
+    width_cm: float,
     num_cols: int,
     aspect_ratio: float,
 ) -> BoxShape:
@@ -167,10 +170,10 @@ def _split_width_across_panels(
         raise ValueError(f"`num_cols` must be >= 1, but got {num_cols}.")
     if not (aspect_ratio > 0):
         raise ValueError(f"`aspect_ratio` must be positive, but got {aspect_ratio}.")
-    panel_width_inches = width_inches / num_cols
+    panel_width_cm = width_cm / num_cols
     return BoxShape(
-        height=panel_width_inches / aspect_ratio,
-        width=panel_width_inches,
+        height_cm=panel_width_cm / aspect_ratio,
+        width_cm=panel_width_cm,
     )
 
 
@@ -198,7 +201,7 @@ def _get_figure_shape(
         if aspect_ratio is None:
             aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
         page_panel_shape = _split_width_across_panels(
-            width_inches=active_layout.width.width_inches,
+            width_cm=active_layout.width.width_cm,
             num_cols=num_cols,
             aspect_ratio=aspect_ratio,
         )
@@ -294,7 +297,7 @@ def create_figure(
 
     Sizing
     ------
-    `panel_shape` is the share of the figure given to one panel, in inches, so the figure
+    `panel_shape` is the share of the figure given to one panel, in cm, so the figure
     comes out `panel_shape` times the grid. It is not the size the panel is drawn at: tick
     labels and axis labels are held in margins taken out of that share, so the panel itself
     is drawn smaller. A colorbar is placed beyond the panel rather than within those
@@ -329,6 +332,7 @@ def create_figure(
         )
         _place_panels_in_figure(
             figure=figure,
+            figure_shape=figure_shape,
             margins=active_layout.margins,
         )
         return figure, panel
@@ -370,6 +374,7 @@ def create_figure(
     )
     _place_panels_in_figure(
         figure=figure,
+        figure_shape=figure_shape,
         margins=active_layout.margins,
         x_spacing=x_spacing,
         y_spacing=y_spacing,

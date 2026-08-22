@@ -121,8 +121,11 @@ class TextSizes:
 ## === FIGURE LAYOUT
 ##
 
+## figure sizes are given in cm and text sizes in pt, the two units a page is specified
+## in; inches appear only where Matplotlib insists on them
 CM_PER_INCH: float = 2.54
 PT_PER_INCH: float = 72.0
+PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
 
 
 @dataclasses.dataclass(
@@ -163,10 +166,10 @@ class FigureWidth:
     """
     How wide a figure is drawn, so that its text is sized for the page.
 
-    Drawing a figure at the width it is printed at means a point of text is a point on
-    the page, rather than being scaled by however much the document resizes the figure.
-    How that width is shared between axes depends on the grid, so it is decided when the
-    figure is built rather than here.
+    Drawing a figure at the width it is printed at means a pt of text is a pt on the page,
+    rather than being scaled by however much the document resizes the figure. How that
+    width is shared between panels depends on the grid, so it is decided when the figure
+    is built rather than here.
     """
 
     ## the widest a figure may be drawn: the full text width of the document the figures
@@ -184,9 +187,9 @@ class FigureWidth:
             )
 
     @property
-    def width_inches(self) -> float:
-        """Width the figure is drawn at, in the inches Matplotlib expects."""
-        return self.width_fraction * self.max_width_cm / CM_PER_INCH
+    def width_cm(self) -> float:
+        """Width the figure is drawn at, being its share of the widest it may be."""
+        return self.width_fraction * self.max_width_cm
 
 
 @dataclasses.dataclass(

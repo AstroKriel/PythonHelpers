@@ -93,8 +93,8 @@ def main() -> None:
         num_rows=num_panels,
         num_cols=1,
         panel_shape=manage_figure.BoxShape(
-            width=4.0,
-            height=4.0,
+            width_cm=10.0,
+            height_cm=10.0,
         ),
         x_spacing=0.3,
     )

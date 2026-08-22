@@ -321,8 +321,8 @@ class TestHelmholtzDecomposition:
             num_rows=4,
             num_cols=4,
             panel_shape=manage_figure.BoxShape(
-                width=8.0,
-                height=7.0,
+                width_cm=20.0,
+                height_cm=17.5,
             ),
         )
         failed_vfields: list[str] = []
