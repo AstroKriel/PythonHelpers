@@ -137,20 +137,60 @@ def _set_figure_margins(
     )
 
 
+def _compute_mpl_spacing(
+    *,
+    spacing_pt: float,
+    span_pt: float,
+    num_panels: int,
+    param_name: str,
+) -> float:
+    """
+    Convert a gap between panels (pt) into the fraction of a panel that Matplotlib wants.
+
+    Matplotlib measures a gap against the panel it sits beside, and the panels share
+    whatever `span_pt` the margins leave, so the gaps have to come out of that span first.
+    """
+    total_spacing_pt = (num_panels - 1) * spacing_pt
+    if total_spacing_pt >= span_pt:
+        raise ValueError(
+            f"`{param_name}` ({spacing_pt} pt) leaves no room for {num_panels} panels"
+            f" in the {span_pt:.1f} pt the margins leave.",
+        )
+    panel_span_pt = (span_pt - total_spacing_pt) / num_panels
+    return spacing_pt / panel_span_pt
+
+
 def _set_panel_spacing(
     *,
     figure: mpl_Figure,
+    figure_shape: BoxShape,
+    figure_margins: style_plots.FigureMargins,
+    num_panel_rows: int,
+    num_panel_columns: int,
     panel_column_spacing: float,
     panel_row_spacing: float,
 ) -> None:
     """
-    Set the gaps between the panels in `figure`.
+    Leave `panel_column_spacing` and `panel_row_spacing` (pt) between the panels in `figure`.
 
-    Both are fractions of a panel's own width or height, as Matplotlib measures them.
+    Gaps are in pt like the margins, since a gap holds the neighbouring panel's tick and
+    axis labels; `figure_shape` and `figure_margins` give the span they are measured against.
     """
+    figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
+    figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
     figure.subplots_adjust(
-        wspace=panel_column_spacing,
-        hspace=panel_row_spacing,
+        wspace=_compute_mpl_spacing(
+            spacing_pt=panel_column_spacing,
+            span_pt=figure_width_pt - figure_margins.left - figure_margins.right,
+            num_panels=num_panel_columns,
+            param_name="panel_column_spacing",
+        ),
+        hspace=_compute_mpl_spacing(
+            spacing_pt=panel_row_spacing,
+            span_pt=figure_height_pt - figure_margins.bottom - figure_margins.top,
+            num_panels=num_panel_rows,
+            param_name="panel_row_spacing",
+        ),
     )
 
 
@@ -271,8 +311,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 0.05,
-    panel_row_spacing: float = 0.05,
+    panel_column_spacing: float = 10.0,
+    panel_row_spacing: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:
@@ -286,8 +326,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 0.05,
-    panel_row_spacing: float = 0.05,
+    panel_column_spacing: float = 10.0,
+    panel_row_spacing: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, Panel | PanelGrid]:
@@ -379,6 +419,10 @@ def create_figure(
         return figure, panels
     _set_panel_spacing(
         figure=figure,
+        figure_shape=figure_shape,
+        figure_margins=figure_layout.figure_margins,
+        num_panel_rows=num_panel_rows,
+        num_panel_columns=num_panel_columns,
         panel_column_spacing=panel_column_spacing,
         panel_row_spacing=panel_row_spacing,
     )
@@ -393,8 +437,8 @@ def create_figure_grid(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 0.05,
-    panel_row_spacing: float = 0.05,
+    panel_column_spacing: float = 10.0,
+    panel_row_spacing: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:
