@@ -137,7 +137,7 @@ def _set_figure_margins(
     )
 
 
-def _compute_mpl_gap(
+def _compute_mpl_panel_gap(
     *,
     gap_length_pt: float,
     total_length_pt: float,
@@ -179,13 +179,13 @@ def _set_panel_gaps(
     figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
     figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
     figure.subplots_adjust(
-        wspace=_compute_mpl_gap(
+        wspace=_compute_mpl_panel_gap(
             gap_length_pt=panel_column_gap,
             total_length_pt=figure_width_pt - figure_margins.left - figure_margins.right,
             num_panels=num_panel_columns,
             param_name="panel_column_gap",
         ),
-        hspace=_compute_mpl_gap(
+        hspace=_compute_mpl_panel_gap(
             gap_length_pt=panel_row_gap,
             total_length_pt=figure_height_pt - figure_margins.bottom - figure_margins.top,
             num_panels=num_panel_rows,
@@ -485,7 +485,7 @@ class PanelBounds:
     y_width: float
 
 
-def compute_adjacent_panel_bounds(
+def compute_neighbouring_panel_bounds(
     *,
     panel: Panel,
     side: _Side = box_positions.Positions.Side.Right,
@@ -494,7 +494,7 @@ def compute_adjacent_panel_bounds(
     length: float = 1.0,
 ) -> PanelBounds:
     """
-    Compute figure bounds for a panel placed adjacent to `panel`.
+    Compute figure bounds for a panel placed neighbouring `panel`.
 
     The new panel sits on the `side` of `panel`, offset by `gap` (in figure coordinates).
     `thickness` sets its extent perpendicular to `side`, as a fraction of `panel`'s

@@ -235,7 +235,7 @@ def add_colorbar(
     )
     colorbar_side = validate_box_positions.as_box_side(side=colorbar_side)
     colorbar_orientation = _SIDE_TO_ORIENTATION[colorbar_side]
-    panel_bounds = manage_figure.compute_adjacent_panel_bounds(
+    panel_bounds = manage_figure.compute_neighbouring_panel_bounds(
         panel=panel,
         side=colorbar_side,
         thickness=colorbar_thickness,
