@@ -68,21 +68,21 @@ class TextSizes:
 
     @property
     def axis_label_size(self) -> float:
-        return self.get_size_at_level(level=self.axis_label_level)
+        return self.compute_size_at_level(level=self.axis_label_level)
 
     @property
     def tick_label_size(self) -> float:
-        return self.get_size_at_level(level=self.tick_label_level)
+        return self.compute_size_at_level(level=self.tick_label_level)
 
     @property
     def annotation_size(self) -> float:
-        return self.get_size_at_level(level=self.annotation_level)
+        return self.compute_size_at_level(level=self.annotation_level)
 
     @property
     def legend_size(self) -> float:
-        return self.get_size_at_level(level=self.legend_level)
+        return self.compute_size_at_level(level=self.legend_level)
 
-    def get_size_at_level(
+    def compute_size_at_level(
         self,
         *,
         level: float,

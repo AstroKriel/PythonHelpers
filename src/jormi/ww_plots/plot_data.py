@@ -93,7 +93,7 @@ def _as_axis_extent(
     )
 
 
-def _get_value_range(
+def _resolve_value_range(
     *,
     array_2d: NDArray[Any],
     cbar_range: tuple[float, float] | None,
@@ -175,7 +175,7 @@ def plot_2d_array(
         data_array=array_2d,
         data_format=data_format,
     )
-    min_value, max_value = _get_value_range(
+    min_value, max_value = _resolve_value_range(
         array_2d=array_view,
         cbar_range=cbar_range,
     )
