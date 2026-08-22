@@ -11,12 +11,13 @@ from typing import Any
 import numpy
 from numpy.typing import NDArray
 
+from matplotlib import rcParams
 from matplotlib.collections import LineCollection
 from matplotlib.legend import Legend as mpl_legend
 from matplotlib.lines import Line2D as mpl_line2d
 
 ## local
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import manage_plots, style_plots
 from jormi.ww_validation import validate_arrays, validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
@@ -58,7 +59,7 @@ def add_text(
     label: str,
     x_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Center.Center,
     y_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Center.Center,
-    text_size: float = 20,
+    text_size: float | None = None,
     text_color: ColorType = "black",
     box_alpha: float = 0.0,
     box_color: ColorType = "white",
@@ -67,7 +68,11 @@ def add_text(
     """
     Add a text label to an axis at a position given in axes coordinates [0, 1].
     A background box is drawn when `box_alpha > 0`.
+
+    `text_size` defaults to the active annotation text size.
     """
+    if text_size is None:
+        text_size = style_plots.get_text_sizes().annotation_size
     ## validate position in axes coordinates [0, 1]
     validate_types.ensure_in_bounds(
         param=x_pos,
@@ -135,9 +140,9 @@ def add_custom_legend(
     artists: list[str],
     labels: list[str],
     colors: list[ColorType],
-    marker_size: float = 8,
-    line_width: float = 1.5,
-    text_size: float = 16,
+    marker_size: float | None = None,
+    line_width: float | None = None,
+    text_size: float | None = None,
     text_color: ColorType = "black",
     anchor_point: tuple[float, float] = (1.0, 1.0),
     anchor_at_corner: box_positions.Positions.PositionLike = box_positions.Positions.Corner.TopRight,
@@ -151,8 +156,16 @@ def add_custom_legend(
 
     Each entry in `artists` must be a marker (e.g. "o", "s") or line style (e.g. "-", "--"),
     paired with the corresponding entry in `labels` and `colors`. A legend frame is drawn
-    when `frame_alpha > 0`.
+    when `frame_alpha > 0`. `text_size` defaults to the active legend text size, and the
+    marker and line sizes default to those the data is drawn with, so a swatch matches
+    what it stands for.
     """
+    if text_size is None:
+        text_size = style_plots.get_text_sizes().legend_size
+    if marker_size is None:
+        marker_size = float(rcParams["lines.markersize"])
+    if line_width is None:
+        line_width = float(rcParams["lines.linewidth"])
     ## validate parallel lists
     validate_types.ensure_list_of_strings(
         param=artists,

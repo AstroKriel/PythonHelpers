@@ -94,7 +94,10 @@ def main() -> None:
     fig, axs = manage_plots.create_figure(
         num_rows=num_panels,
         num_cols=1,
-        axis_shape=(4, 4),
+        axis_shape=manage_plots.BoxShape(
+            width=4.0,
+            height=4.0,
+        ),
         x_spacing=0.3,
     )
 

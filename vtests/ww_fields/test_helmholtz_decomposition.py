@@ -328,7 +328,10 @@ class TestHelmholtzDecomposition:
         fig, axs_grid = manage_plots.create_figure(
             num_rows=4,
             num_cols=4,
-            axis_shape=(7, 8),
+            axis_shape=manage_plots.BoxShape(
+                width=8.0,
+                height=7.0,
+            ),
         )
         failed_vfields: list[str] = []
         for vfield_index, vfield_entry in enumerate(input_vfields):
