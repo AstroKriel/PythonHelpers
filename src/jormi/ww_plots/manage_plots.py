@@ -174,7 +174,7 @@ def _split_width_across_axes(
     )
 
 
-def _resolve_figure_shape(
+def _get_figure_shape(
     *,
     num_rows: int,
     num_cols: int,
@@ -309,7 +309,7 @@ def create_figure(
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_rows is None) and (num_cols is None):
-        figure_shape, active_layout = _resolve_figure_shape(
+        figure_shape, active_layout = _get_figure_shape(
             num_rows=1,
             num_cols=1,
             figure_scale=figure_scale,
@@ -350,7 +350,7 @@ def create_figure(
             "For a single-panel figure, omit `num_rows` and `num_cols` so that"
             " a single Axis is returned instead of a 1x1 Axes grid.",
         )
-    figure_shape, active_layout = _resolve_figure_shape(
+    figure_shape, active_layout = _get_figure_shape(
         num_rows=num_rows,
         num_cols=num_cols,
         figure_scale=figure_scale,
