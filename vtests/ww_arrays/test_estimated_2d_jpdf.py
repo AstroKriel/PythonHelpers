@@ -40,7 +40,7 @@ def sample_from_ellipse(
 
 def plot_jpdf(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],

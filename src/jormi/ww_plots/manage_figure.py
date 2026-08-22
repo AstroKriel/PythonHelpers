@@ -42,8 +42,8 @@ from jormi.ww_types import box_positions
 ## === TYPE ALIASES
 ##
 
-PlotPanel: TypeAlias = mpl_Axes
-PlotPanelGrid: TypeAlias = NDArray[numpy.object_]
+Panel: TypeAlias = mpl_Axes
+PanelGrid: TypeAlias = NDArray[numpy.object_]
 
 ##
 ## === BOX SHAPE
@@ -261,7 +261,7 @@ def create_figure(
     panel_aspect_ratio: float | None = None,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotPanel]:
+) -> tuple[mpl_Figure, Panel]:
     ...
 
 
@@ -279,7 +279,7 @@ def create_figure(
     share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotPanelGrid]:
+) -> tuple[mpl_Figure, PanelGrid]:
     ...
 
 
@@ -296,7 +296,7 @@ def create_figure(
     share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotPanel | PlotPanelGrid]:
+) -> tuple[mpl_Figure, Panel | PanelGrid]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
 
@@ -401,8 +401,8 @@ def create_figure(
         panel_column_spacing=panel_column_spacing,
         panel_row_spacing=panel_row_spacing,
     )
-    panels_grid: PlotPanelGrid = numpy.asarray(panels, dtype=object)
-    return figure, panels_grid
+    panel_grid: PanelGrid = numpy.asarray(panels, dtype=object)
+    return figure, panel_grid
 
 
 def create_figure_grid(
@@ -418,10 +418,10 @@ def create_figure_grid(
     share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotPanelGrid]:
+) -> tuple[mpl_Figure, PanelGrid]:
     """
     Like `create_figure`, but always returns a 2D panel grid of shape (num_panel_rows, num_panel_columns), so
-    callers can always index panels as panels_grid[row, col].
+    callers can always index panels as panel_grid[row, col].
     """
     if (num_panel_rows == 1) and (num_panel_columns == 1):
         figure, panel = create_figure(
@@ -431,9 +431,9 @@ def create_figure_grid(
             auto_style=auto_style,
             theme=theme,
         )
-        panels_grid: PlotPanelGrid = numpy.asarray([[panel]], dtype=object)
-        return figure, panels_grid
-    figure, panels_grid = create_figure(
+        panel_grid: PanelGrid = numpy.asarray([[panel]], dtype=object)
+        return figure, panel_grid
+    figure, panel_grid = create_figure(
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         panel_shape=panel_shape,
@@ -446,7 +446,7 @@ def create_figure_grid(
         auto_style=auto_style,
         theme=theme,
     )
-    return figure, panels_grid
+    return figure, panel_grid
 
 
 ##
@@ -468,7 +468,7 @@ class PanelBounds:
 
 def compute_adjacent_panel_bounds(
     *,
-    panel: PlotPanel,
+    panel: Panel,
     side: _Side = box_positions.Positions.Side.Right,
     gap: float = 0.1,
     thickness: float = 1.0,
@@ -522,14 +522,14 @@ def compute_adjacent_panel_bounds(
 
 def add_inset_panel(
     *,
-    panel: PlotPanel,
+    panel: Panel,
     bounds: tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
     x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-) -> PlotPanel:
+) -> Panel:
     """Add an inset Axis to `panel`."""
     x_label_side = validate_box_positions.as_box_side(x_label_alignment)
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)

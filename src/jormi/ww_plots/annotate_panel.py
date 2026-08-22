@@ -53,7 +53,7 @@ _VALID_LINES: list[str] = [
 
 def add_text(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     x_pos: float,
     y_pos: float,
     label: str,
@@ -136,7 +136,7 @@ def add_text(
 
 def add_custom_legend(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     artists: list[str],
     labels: list[str],
     colors: list[ColorType],
@@ -265,7 +265,7 @@ def add_custom_legend(
 
 def overlay_curve(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     x_values: list[float] | NDArray[Any],
     y_values: list[float] | NDArray[Any],
     color: ColorType = "black",

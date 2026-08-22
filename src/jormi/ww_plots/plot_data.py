@@ -153,7 +153,7 @@ def _get_value_range(
 
 def plot_2d_array(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
     data_aspect_ratio: Literal["equal", "auto"] = "equal",
@@ -221,7 +221,7 @@ def _generate_grid(
 
 def plot_2d_quiver(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
@@ -268,7 +268,7 @@ def plot_2d_quiver(
 
 def plot_2d_streamlines(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
@@ -316,7 +316,7 @@ def plot_2d_streamlines(
 
 def plot_2d_contours(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),

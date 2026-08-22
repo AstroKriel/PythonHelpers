@@ -53,7 +53,7 @@ def compute_typical_spacing(
 
 def plot_convergence(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
     rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> fit_series.FitStatistic:

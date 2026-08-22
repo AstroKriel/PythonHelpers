@@ -201,7 +201,7 @@ def compute_field_fraction(
 
 
 def plot_vfield_slice(
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
@@ -268,7 +268,7 @@ def plot_vfield_slice(
 
 def annotate_panel_title(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     text: str,
 ) -> None:
     annotate_panel.add_text(
@@ -317,7 +317,7 @@ class TestHelmholtzDecomposition:
         uniform_domain_3d = self._build_domain()
         input_vfields = self._build_input_vfields(uniform_domain_3d)
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
-        figure, panels_grid = manage_figure.create_figure(
+        figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=4,
             num_panel_columns=4,
             panel_shape=manage_figure.BoxShape(
@@ -335,7 +335,7 @@ class TestHelmholtzDecomposition:
                 uniform_domain_3d=uniform_domain_3d,
             )
             self._plot_vfield_column(
-                panels_grid=panels_grid,
+                panel_grid=panel_grid,
                 index_col=vfield_index,
                 vfield_name=vfield_name,
                 decomposed_vfields=decomposed_vfields,
@@ -498,7 +498,7 @@ class TestHelmholtzDecomposition:
     def _plot_vfield_column(
         self,
         *,
-        panels_grid: manage_figure.PlotPanelGrid,
+        panel_grid: manage_figure.PanelGrid,
         index_col: int,
         vfield_name: str,
         decomposed_vfields: DecomposedVFields,
@@ -510,7 +510,7 @@ class TestHelmholtzDecomposition:
             (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
         ]
         for plot_index, (plot_vfield_3d, plot_annotation) in enumerate(plot_vfields):
-            panel = panels_grid[plot_index, index_col]
+            panel = panel_grid[plot_index, index_col]
             plot_vfield_slice(
                 panel=panel,
                 vfield_3d=plot_vfield_3d,

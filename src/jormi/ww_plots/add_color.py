@@ -191,7 +191,7 @@ def _label_colorbar(
 
 def add_colorbar(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     palette: ColorPalette,
     label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,

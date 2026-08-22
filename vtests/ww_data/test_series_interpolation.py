@@ -39,7 +39,7 @@ def measure_max_error(
 
 def plot_order(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     data_series: series_types.DataSeries,
     result: series_types.DataSeries,
     spline_order: int,
@@ -111,7 +111,7 @@ class TestSeriesInterpolation:
             self.num_interp_points,
         )
         num_orders = len(self.spline_orders_to_test)
-        figure, panels_grid = manage_figure.create_figure(
+        figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_orders,
             num_panel_columns=1,
             share_x_axis=True,
@@ -124,7 +124,7 @@ class TestSeriesInterpolation:
                 spline_order=spline_order,
             )
             plot_order(
-                panel=panels_grid[order_index, 0],
+                panel=panel_grid[order_index, 0],
                 data_series=data_series,
                 result=result,
                 spline_order=spline_order,

@@ -57,7 +57,7 @@ class TestEstimated1DPDFs:
     ) -> None:
         pdf_scenarios = self._generate_pdf_samples()
         num_pdfs = len(pdf_scenarios)
-        figure, panels_grid = manage_figure.create_figure(
+        figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_pdfs,
             num_panel_columns=1,
             panel_row_spacing=0.25,
@@ -65,7 +65,7 @@ class TestEstimated1DPDFs:
         failed_pdfs: list[str] = []
         for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
             failed_bins = self._plot_and_check_pdf(
-                panel=panels_grid[pdf_index, 0],
+                panel=panel_grid[pdf_index, 0],
                 pdf_samples=pdf_scenario.samples,
                 pdf_label=pdf_scenario.label,
             )
@@ -80,12 +80,12 @@ class TestEstimated1DPDFs:
                     text=f"{pdf_scenario.label}",
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
-        panels_grid[-1, 0].legend(
+        panel_grid[-1, 0].legend(
             loc="upper right",
             bbox_to_anchor=(1, 0.9),
             fontsize=20,
         )
-        panels_grid[-1, 0].set_xlabel(r"$x$")
+        panel_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
         figure_path = Path(__file__).parent / "estimated_1d_pdfs.png"
         manage_figure.save_figure(
@@ -143,7 +143,7 @@ class TestEstimated1DPDFs:
     def _plot_and_check_pdf(
         self,
         *,
-        panel: manage_figure.PlotPanel,
+        panel: manage_figure.Panel,
         pdf_samples: numpy.ndarray[Any, numpy.dtype[Any]],
         pdf_label: str,
     ) -> list[int]:

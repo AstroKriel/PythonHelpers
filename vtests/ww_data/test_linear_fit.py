@@ -36,7 +36,7 @@ class FitScenario:
 
 def plot_fit(
     *,
-    panel: manage_figure.PlotPanel,
+    panel: manage_figure.Panel,
     gaussian_series: series_types.GaussianSeries,
     fit: fit_series.LinearFitSummary,
     fit_label: str,
@@ -101,14 +101,14 @@ class TestLinearFit:
         gaussian_series = self._generate_gaussian_series()
         fits_to_test = self._compute_fits(gaussian_series)
         num_fits = len(fits_to_test)
-        figure, panels_grid = manage_figure.create_figure(
+        figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_fits,
             num_panel_columns=1,
             share_x_axis=True,
         )
         failed_fits: list[str] = []
         for fit_index, fit_scenario in enumerate(fits_to_test):
-            panel = panels_grid[fit_index, 0]
+            panel = panel_grid[fit_index, 0]
             plot_fit(
                 panel=panel,
                 gaussian_series=gaussian_series,
