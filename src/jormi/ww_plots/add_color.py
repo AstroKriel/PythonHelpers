@@ -8,7 +8,6 @@
 from dataclasses import dataclass
 
 ## third-party
-import matplotlib.axes as mpl_axes
 import matplotlib.cm as mpl_cm
 import matplotlib.colorbar as mpl_colorbar
 
@@ -192,7 +191,7 @@ def _label_cbar(
 
 def add_colorbar(
     *,
-    panel: mpl_axes.Axes,
+    panel: manage_plots.PlotPanel,
     palette: ColorPalette,
     label: str | None = None,
     cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,

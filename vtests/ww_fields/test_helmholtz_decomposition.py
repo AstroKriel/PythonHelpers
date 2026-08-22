@@ -11,7 +11,6 @@ from typing import Any
 
 ## third-party
 import numpy
-from matplotlib.axes import Axes as mpl_Axes
 
 ## local
 from jormi import ww_lists
@@ -201,7 +200,7 @@ def compute_field_fraction(
 
 
 def plot_vfield_slice(
-    panel: mpl_Axes,
+    panel: manage_plots.PlotPanel,
     vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
