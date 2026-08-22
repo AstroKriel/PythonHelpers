@@ -141,11 +141,17 @@ def _place_panels_in_figure(
             f"margins `bottom` + `top` ({figure_margins.bottom + figure_margins.top} pt)"
             f" leave no room for the panels in a figure {height_pt:.1f} pt tall.",
         )
+    ## Matplotlib positions panels from the figure's left and bottom edges, so the right
+    ## and top margins are measured back from the far edge
+    left_position = figure_margins.left / width_pt
+    right_position = 1.0 - (figure_margins.right / width_pt)
+    bottom_position = figure_margins.bottom / height_pt
+    top_position = 1.0 - (figure_margins.top / height_pt)
     figure.subplots_adjust(
-        left=figure_margins.left / width_pt,
-        right=1.0 - (figure_margins.right / width_pt),
-        bottom=figure_margins.bottom / height_pt,
-        top=1.0 - (figure_margins.top / height_pt),
+        left=left_position,
+        right=right_position,
+        bottom=bottom_position,
+        top=top_position,
     )
     if (panel_column_spacing is not None) and (panel_row_spacing is not None):
         figure.subplots_adjust(
