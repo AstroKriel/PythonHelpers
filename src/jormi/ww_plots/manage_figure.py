@@ -140,7 +140,9 @@ def _set_figure_margins(
 def _compute_mpl_panel_gap(
     *,
     gap_length_pt: float,
-    total_length_pt: float,
+    figure_length_pt: float,
+    start_margin_pt: float,
+    end_margin_pt: float,
     num_panels: int,
     param_name: str,
 ) -> float:
@@ -150,6 +152,7 @@ def _compute_mpl_panel_gap(
     Matplotlib measures a gap against the panel beside it, and the panels share whatever
     the margins leave, so the gaps come out of that total length before the panels do.
     """
+    total_length_pt = figure_length_pt - start_margin_pt - end_margin_pt
     total_gap_length_pt = (num_panels - 1) * gap_length_pt
     if total_gap_length_pt >= total_length_pt:
         raise ValueError(
@@ -181,13 +184,17 @@ def _set_panel_gaps(
     figure.subplots_adjust(
         wspace=_compute_mpl_panel_gap(
             gap_length_pt=panel_column_gap,
-            total_length_pt=figure_width_pt - figure_margins.left - figure_margins.right,
+            figure_length_pt=figure_width_pt,
+            start_margin_pt=figure_margins.left,
+            end_margin_pt=figure_margins.right,
             num_panels=num_panel_columns,
             param_name="panel_column_gap",
         ),
         hspace=_compute_mpl_panel_gap(
             gap_length_pt=panel_row_gap,
-            total_length_pt=figure_height_pt - figure_margins.bottom - figure_margins.top,
+            figure_length_pt=figure_height_pt,
+            start_margin_pt=figure_margins.bottom,
+            end_margin_pt=figure_margins.top,
             num_panels=num_panel_rows,
             param_name="panel_row_gap",
         ),
