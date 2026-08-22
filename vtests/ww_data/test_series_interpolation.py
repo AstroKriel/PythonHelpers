@@ -114,7 +114,7 @@ class TestSeriesInterpolation:
         figure, panels_grid = manage_figure.create_figure(
             num_panel_rows=num_orders,
             num_panel_columns=1,
-            share_x=True,
+            share_x_axis=True,
         )
         failed_orders: list[str] = []
         for order_index, spline_order in enumerate(self.spline_orders_to_test):

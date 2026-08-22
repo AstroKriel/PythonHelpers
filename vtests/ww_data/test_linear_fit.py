@@ -104,7 +104,7 @@ class TestLinearFit:
         figure, panels_grid = manage_figure.create_figure(
             num_panel_rows=num_fits,
             num_panel_columns=1,
-            share_x=True,
+            share_x_axis=True,
         )
         failed_fits: list[str] = []
         for fit_index, fit_scenario in enumerate(fits_to_test):

@@ -244,10 +244,6 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
-    panel_column_spacing: float = 0.05,
-    panel_row_spacing: float = 0.05,
-    share_x: bool = False,
-    share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanel]:
@@ -265,8 +261,8 @@ def create_figure(
     aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
-    share_x: bool = False,
-    share_y: bool = False,
+    share_x_axis: bool = False,
+    share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanelGrid]:
@@ -283,8 +279,8 @@ def create_figure(
     aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
-    share_x: bool = False,
-    share_y: bool = False,
+    share_x_axis: bool = False,
+    share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanel | PlotPanelGrid]:
@@ -326,8 +322,8 @@ def create_figure(
             nrows=1,
             ncols=1,
             figsize=figure_shape.as_mpl_shape,
-            sharex=share_x,
-            sharey=share_y,
+            sharex=share_x_axis,
+            sharey=share_y_axis,
             squeeze=True,
         )
         _place_panels_in_figure(
@@ -368,8 +364,8 @@ def create_figure(
         nrows=num_panel_rows,
         ncols=num_panel_columns,
         figsize=figure_shape.as_mpl_shape,
-        sharex=share_x,
-        sharey=share_y,
+        sharex=share_x_axis,
+        sharey=share_y_axis,
         squeeze=False,
     )
     _place_panels_in_figure(
@@ -393,8 +389,8 @@ def create_figure_grid(
     aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
-    share_x: bool = False,
-    share_y: bool = False,
+    share_x_axis: bool = False,
+    share_y_axis: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanelGrid]:
@@ -422,8 +418,8 @@ def create_figure_grid(
         aspect_ratio=aspect_ratio,
         panel_column_spacing=panel_column_spacing,
         panel_row_spacing=panel_row_spacing,
-        share_x=share_x,
-        share_y=share_y,
+        share_x_axis=share_x_axis,
+        share_y_axis=share_y_axis,
         auto_style=auto_style,
         theme=theme,
     )
