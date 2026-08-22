@@ -193,40 +193,21 @@ def _split_width_across_panels(
     )
 
 
-def _get_figure_shape(
+def _ensure_figure_sizing(
     *,
     panel_shape: BoxShape | None,
-    num_panel_rows: int,
-    num_panel_columns: int,
-    figure_scale: float,
     figure_layout: style_plots.FigureLayout | None,
     panel_aspect_ratio: float | None,
-) -> tuple[BoxShape, style_plots.FigureLayout]:
+) -> None:
     """
-    Size a figure from a page layout, or in its own terms, but not both.
+    Check that a figure is sized from a page layout, or in its own terms, but not both.
 
     A layout pins the figure to a share of the page, so adding panels makes each one
     smaller. `panel_shape` instead gives each panel a fixed size, so the figure grows as
     panels are added, and the figure is no longer tied to a page.
     """
-    if figure_layout is None:
-        active_figure_layout = style_plots.get_figure_layout()
-    else:
-        active_figure_layout = figure_layout
     if panel_shape is None:
-        if panel_aspect_ratio is None:
-            panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
-        page_panel_shape = _split_width_across_panels(
-            figure_width_cm=active_figure_layout.figure_width.width_cm,
-            num_panel_columns=num_panel_columns,
-            panel_aspect_ratio=panel_aspect_ratio,
-        )
-        figure_shape = _compute_figure_shape(
-            num_panel_rows=num_panel_rows,
-            num_panel_columns=num_panel_columns,
-            panel_shape=page_panel_shape,
-        )
-        return figure_shape, active_figure_layout
+        return
     if figure_layout is not None:
         raise ValueError(
             "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
@@ -237,13 +218,52 @@ def _get_figure_shape(
             "`panel_aspect_ratio` only applies when a figure is sized to a page;"
             " with `panel_shape` the shape of each panel is already set by it.",
         )
-    figure_shape = _compute_figure_shape(
+
+
+def _get_active_figure_layout(
+    *,
+    figure_layout: style_plots.FigureLayout | None,
+) -> style_plots.FigureLayout:
+    """The layout given, or the one set by the most recent `set_theme` call."""
+    if figure_layout is None:
+        return style_plots.get_figure_layout()
+    return figure_layout
+
+
+def _get_figure_shape(
+    *,
+    panel_shape: BoxShape | None,
+    figure_layout: style_plots.FigureLayout,
+    num_panel_rows: int,
+    num_panel_columns: int,
+    figure_scale: float,
+    panel_aspect_ratio: float | None,
+) -> BoxShape:
+    """
+    Size a figure, either from its share of the page or from the size each panel is given.
+
+    `panel_shape` is what chooses between the two; `_ensure_figure_sizing` is what checks
+    the two ways were not both asked for.
+    """
+    if panel_shape is None:
+        if panel_aspect_ratio is None:
+            panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
+        panel_shape = _split_width_across_panels(
+            figure_width_cm=figure_layout.figure_width.width_cm,
+            num_panel_columns=num_panel_columns,
+            panel_aspect_ratio=panel_aspect_ratio,
+        )
+        return _compute_figure_shape(
+            panel_shape=panel_shape,
+            num_panel_rows=num_panel_rows,
+            num_panel_columns=num_panel_columns,
+        )
+    return _compute_figure_shape(
+        panel_shape=panel_shape,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
-        panel_shape=panel_shape,
     )
-    return figure_shape, active_figure_layout
 
 
 ##
@@ -326,12 +346,18 @@ def create_figure(
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_panel_rows is None) and (num_panel_columns is None):
-        figure_shape, active_figure_layout = _get_figure_shape(
+        _ensure_figure_sizing(
+            panel_shape=panel_shape,
+            figure_layout=figure_layout,
+            panel_aspect_ratio=panel_aspect_ratio,
+        )
+        active_figure_layout = _get_active_figure_layout(figure_layout=figure_layout)
+        figure_shape = _get_figure_shape(
+            panel_shape=panel_shape,
+            figure_layout=active_figure_layout,
             num_panel_rows=1,
             num_panel_columns=1,
             figure_scale=figure_scale,
-            panel_shape=panel_shape,
-            figure_layout=figure_layout,
             panel_aspect_ratio=panel_aspect_ratio,
         )
         figure, panel = mpl_plot.subplots(
@@ -368,12 +394,18 @@ def create_figure(
             "For a single-panel figure, omit `num_panel_rows` and `num_panel_columns` so that"
             " a single Axis is returned instead of a 1x1 Axes grid.",
         )
-    figure_shape, active_figure_layout = _get_figure_shape(
+    _ensure_figure_sizing(
+        panel_shape=panel_shape,
+        figure_layout=figure_layout,
+        panel_aspect_ratio=panel_aspect_ratio,
+    )
+    active_figure_layout = _get_active_figure_layout(figure_layout=figure_layout)
+    figure_shape = _get_figure_shape(
+        panel_shape=panel_shape,
+        figure_layout=active_figure_layout,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
-        panel_shape=panel_shape,
-        figure_layout=figure_layout,
         panel_aspect_ratio=panel_aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
