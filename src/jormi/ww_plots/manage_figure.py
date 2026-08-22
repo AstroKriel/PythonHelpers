@@ -315,9 +315,8 @@ def create_figure(
     - Mixed None/int specifications are not allowed.
     """
     if (num_panel_rows is None) and (num_panel_columns is None):
-        is_single_panel = True
-        num_grid_rows = 1
-        num_grid_columns = 1
+        num_panel_rows = 1
+        num_panel_columns = 1
     elif (num_panel_rows is None) or (num_panel_columns is None):
         raise ValueError(
             "Either specify both `num_panel_rows` and `num_panel_columns`, or neither."
@@ -339,9 +338,8 @@ def create_figure(
                 "For a single-panel figure, omit `num_panel_rows` and `num_panel_columns` so that"
                 " a single Panel is returned instead of a 1x1 panel grid.",
             )
-        is_single_panel = False
-        num_grid_rows = num_panel_rows
-        num_grid_columns = num_panel_columns
+    ## a 1x1 grid is rejected above, so both being 1 means the arguments were omitted
+    is_single_panel = (num_panel_rows == 1) and (num_panel_columns == 1)
     _ensure_figure_sizing(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
@@ -351,13 +349,13 @@ def create_figure(
     figure_shape = _compute_figure_shape(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        num_panel_rows=num_grid_rows,
-        num_panel_columns=num_grid_columns,
+        num_panel_rows=num_panel_rows,
+        num_panel_columns=num_panel_columns,
         panel_aspect_ratio=panel_aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
-        nrows=num_grid_rows,
-        ncols=num_grid_columns,
+        nrows=num_panel_rows,
+        ncols=num_panel_columns,
         figsize=figure_shape.as_mpl_shape,
         sharex=share_x_axis,
         sharey=share_y_axis,
