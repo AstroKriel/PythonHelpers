@@ -17,7 +17,7 @@ from matplotlib.legend import Legend as mpl_legend
 from matplotlib.lines import Line2D as mpl_line2d
 
 ## local
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 from jormi.ww_validation import validate_arrays, validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
@@ -53,7 +53,7 @@ _VALID_LINES: list[str] = [
 
 def add_text(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     x_pos: float,
     y_pos: float,
     label: str,
@@ -136,7 +136,7 @@ def add_text(
 
 def add_custom_legend(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     artists: list[str],
     labels: list[str],
     colors: list[ColorType],
@@ -265,7 +265,7 @@ def add_custom_legend(
 
 def overlay_curve(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     x_values: list[float] | NDArray[Any],
     y_values: list[float] | NDArray[Any],
     color: ColorType = "black",

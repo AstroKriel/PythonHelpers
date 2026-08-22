@@ -18,7 +18,7 @@ from jormi.ww_arrays import compute_array_stats
 from jormi.ww_arrays.farrays_3d import difference_sarrays
 from jormi.ww_data import fit_series
 from jormi.ww_io import manage_log
-from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_plots
 from jormi.ww_types import box_positions
 
 ##
@@ -125,7 +125,7 @@ class TestFiniteDifferenceConvergence:
     def run(
         self,
     ) -> None:
-        fig, panels_grid = manage_plots.create_figure(
+        figure, panels_grid = manage_figure.create_figure(
             num_rows=2,
             num_cols=2,
             figure_scale=2.0,
@@ -136,8 +136,8 @@ class TestFiniteDifferenceConvergence:
         self._annotate_figure(panels_grid)
         file_name = "finite_difference_convergence.png"
         file_path = Path(__file__).parent / file_name
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=file_path,
         )
         assert len(
@@ -151,7 +151,7 @@ class TestFiniteDifferenceConvergence:
 
     def _plot_exact_soln(
         self,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
     ) -> None:
         x_values = sample_domain(
             domain_bounds=self.domain_bounds,
@@ -178,7 +178,7 @@ class TestFiniteDifferenceConvergence:
     def _plot_approx_soln(
         self,
         *,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
         dydx_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
         color: str,
         label: str,
@@ -206,7 +206,7 @@ class TestFiniteDifferenceConvergence:
 
     def _test_method_scaling(
         self,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
     ) -> list[str]:
         failed_methods: list[str] = []
         for grad_method in self.grad_methods:
@@ -257,7 +257,7 @@ class TestFiniteDifferenceConvergence:
     def _check_convergence(
         self,
         *,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
         rms_errors: list[float],
         expected_scaling: int,
         color: str,
@@ -305,7 +305,7 @@ class TestFiniteDifferenceConvergence:
 
     def _annotate_figure(
         self,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
     ) -> None:
         y_min, y_max = panels_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)

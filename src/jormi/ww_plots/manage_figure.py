@@ -114,19 +114,19 @@ def _compute_figure_shape(
 
 def _place_panels_in_figure(
     *,
-    fig: mpl_Figure,
+    figure: mpl_Figure,
     margins: style_plots.FigureMargins,
     x_spacing: float | None = None,
     y_spacing: float | None = None,
 ) -> None:
     """
-    Place the panels within `fig`, leaving `margins` clear around them.
+    Place the panels within `figure`, leaving `margins` clear around them.
 
     Margins are in points, while Matplotlib places panels as fractions of the figure, so
     the figure's own size is what converts between the two.
     """
     width_points, height_points = (
-        float(length_inches) * style_plots.POINTS_PER_INCH for length_inches in fig.get_size_inches()
+        float(length_inches) * style_plots.POINTS_PER_INCH for length_inches in figure.get_size_inches()
     )
     if (margins.left_margin + margins.right_margin) >= width_points:
         raise ValueError(
@@ -138,14 +138,14 @@ def _place_panels_in_figure(
             f"`bottom_margin` + `top_margin` ({margins.bottom_margin + margins.top_margin} pt)"
             f" leave no room for the panels in a figure {height_points:.1f} pt tall.",
         )
-    fig.subplots_adjust(
+    figure.subplots_adjust(
         left=margins.left_margin / width_points,
         right=1.0 - (margins.right_margin / width_points),
         bottom=margins.bottom_margin / height_points,
         top=1.0 - (margins.top_margin / height_points),
     )
     if (x_spacing is not None) and (y_spacing is not None):
-        fig.subplots_adjust(
+        figure.subplots_adjust(
             wspace=x_spacing,
             hspace=y_spacing,
         )
@@ -287,8 +287,8 @@ def create_figure(
     Create a Matplotlib figure and Axis / Axes grid.
 
     Overloads:
-        - create_figure() -> (fig, panel)
-        - create_figure(num_rows=N, num_cols=M) -> (fig, panels) with shape (N, M)
+        - create_figure() -> (figure, panel)
+        - create_figure(num_rows=N, num_cols=M) -> (figure, panels) with shape (N, M)
 
     Sizing
     ------
@@ -317,7 +317,7 @@ def create_figure(
             figure_layout=figure_layout,
             aspect_ratio=aspect_ratio,
         )
-        fig, panel = mpl_plot.subplots(
+        figure, panel = mpl_plot.subplots(
             nrows=1,
             ncols=1,
             figsize=figure_shape.as_mpl_shape,
@@ -326,10 +326,10 @@ def create_figure(
             squeeze=True,
         )
         _place_panels_in_figure(
-            fig=fig,
+            figure=figure,
             margins=active_layout.margins,
         )
-        return fig, panel
+        return figure, panel
     if (num_rows is None) or (num_cols is None):
         raise ValueError(
             "Either specify both `num_rows` and `num_cols`, or neither."
@@ -358,7 +358,7 @@ def create_figure(
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
     )
-    fig, panels = mpl_plot.subplots(
+    figure, panels = mpl_plot.subplots(
         nrows=num_rows,
         ncols=num_cols,
         figsize=figure_shape.as_mpl_shape,
@@ -367,13 +367,13 @@ def create_figure(
         squeeze=False,
     )
     _place_panels_in_figure(
-        fig=fig,
+        figure=figure,
         margins=active_layout.margins,
         x_spacing=x_spacing,
         y_spacing=y_spacing,
     )
     panels_grid: PlotPanelGrid = numpy.asarray(panels, dtype=object)
-    return fig, panels_grid
+    return figure, panels_grid
 
 
 def create_figure_grid(
@@ -396,7 +396,7 @@ def create_figure_grid(
     callers can always index panels as panels_grid[row, col].
     """
     if (num_rows == 1) and (num_cols == 1):
-        fig, panel = create_figure(
+        figure, panel = create_figure(
             figure_scale=figure_scale,
             panel_shape=panel_shape,
             figure_layout=figure_layout,
@@ -405,8 +405,8 @@ def create_figure_grid(
             theme=theme,
         )
         panels_grid: PlotPanelGrid = numpy.asarray([[panel]], dtype=object)
-        return fig, panels_grid
-    fig, panels_grid = create_figure(
+        return figure, panels_grid
+    figure, panels_grid = create_figure(
         num_rows=num_rows,
         num_cols=num_cols,
         figure_scale=figure_scale,
@@ -420,7 +420,7 @@ def create_figure_grid(
         auto_style=auto_style,
         theme=theme,
     )
-    return fig, panels_grid
+    return figure, panels_grid
 
 
 ##
@@ -550,20 +550,20 @@ def add_inset_panel(
 
 def save_figure(
     *,
-    fig: mpl_Figure,
+    figure: mpl_Figure,
     figure_path: str | Path,
     dpi: int = 200,
     verbose: bool = True,
 ) -> None:
     """
-    Save `fig` to `figure_path`; close it.
+    Save `figure` to `figure_path`; close it.
 
     Accepts `.png` or `.pdf` paths; errors are logged rather than raised.
     """
     if not str(figure_path).endswith(".png") and not str(figure_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
     try:
-        fig.savefig(figure_path, dpi=dpi)
+        figure.savefig(figure_path, dpi=dpi)
         if verbose:
             manage_log.log_action(
                 title="Save figure",
@@ -586,7 +586,7 @@ def save_figure(
     except Exception as exception:
         manage_log.log_error(text=f"Unexpected error while saving the figure to {figure_path}: {exception}")
     finally:
-        mpl_plot.close(fig)
+        mpl_plot.close(figure)
 
 
 def animate_pngs_to_mp4(

@@ -16,7 +16,7 @@ from jormi import ww_lists
 from jormi.ww_data import fit_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 
 ##
 ## === TYPE ALIASES
@@ -36,7 +36,7 @@ class FitScenario:
 
 def plot_fit(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     gaussian_series: series_types.GaussianSeries,
     fit: fit_series.LinearFitSummary,
     fit_label: str,
@@ -101,7 +101,7 @@ class TestLinearFit:
         gaussian_series = self._generate_gaussian_series()
         fits_to_test = self._compute_fits(gaussian_series)
         num_fits = len(fits_to_test)
-        fig, panels_grid = manage_plots.create_figure(
+        figure, panels_grid = manage_figure.create_figure(
             num_rows=num_fits,
             num_cols=1,
             share_x=True,
@@ -135,8 +135,8 @@ class TestLinearFit:
                 )
         ## always save even on failure
         figure_path = Path(__file__).parent / "linear_fit.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=figure_path,
         )
         assert not failed_fits, (

@@ -17,7 +17,7 @@ from jormi.ww_io import manage_log
 from jormi.ww_plots import (
     add_color,
     annotate_panel,
-    manage_plots,
+    manage_figure,
     style_plots,
 )
 from jormi.ww_plots.color_palettes import DivergingPalette
@@ -93,10 +93,10 @@ def main() -> None:
     ]
 
     num_panels = len(palettes)
-    fig, panels = manage_plots.create_figure(
+    figure, panels = manage_figure.create_figure(
         num_rows=num_panels,
         num_cols=1,
-        panel_shape=manage_plots.BoxShape(
+        panel_shape=manage_figure.BoxShape(
             width=4.0,
             height=4.0,
         ),
@@ -115,8 +115,8 @@ def main() -> None:
         add_color.add_colorbar(
             panel=panel,
             palette=palette,
-            cbar_length=0.95,
-            cbar_thickness=0.1,
+            colorbar_length=0.95,
+            colorbar_thickness=0.1,
         )
         annotate_panel.add_text(
             panel=panel,
@@ -132,8 +132,8 @@ def main() -> None:
         panel.set_yticks([])
 
     script_path = Path(__file__).parent
-    manage_plots.save_figure(
-        fig=fig,
+    manage_figure.save_figure(
+        figure=figure,
         figure_path=script_path / "diverging_palettes.png",
     )
 

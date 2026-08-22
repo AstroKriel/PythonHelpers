@@ -18,7 +18,7 @@ from jormi.ww_plots.color_palettes import (
     DivergingPalette,
     SequentialPalette,
 )
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_box_positions, validate_types
 
@@ -150,38 +150,38 @@ _SIDE_TO_ORIENTATION: dict[_Side, str] = {
 }
 
 
-def _label_cbar(
+def _label_colorbar(
     *,
-    cbar: mpl_colorbar.Colorbar,
+    colorbar: mpl_colorbar.Colorbar,
     label: str | None,
-    cbar_side: _Side,
+    colorbar_side: _Side,
     label_size: int | float,
     label_pad: float,
 ) -> None:
-    if cbar_side in (_Side.Left, _Side.Right):
-        axis = cbar.ax.yaxis
+    if colorbar_side in (_Side.Left, _Side.Right):
+        axis = colorbar.ax.yaxis
         if label:
-            cbar.set_label(
+            colorbar.set_label(
                 label=label,
                 fontsize=label_size,
                 labelpad=label_pad,
                 rotation=90,
             )
-            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
-        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
+            axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(colorbar_side)  # pyright: ignore[reportArgumentType]
         axis.label.set_verticalalignment("center")
-    elif cbar_side in (_Side.Top, _Side.Bottom):
-        axis = cbar.ax.xaxis
+    elif colorbar_side in (_Side.Top, _Side.Bottom):
+        axis = colorbar.ax.xaxis
         if label:
-            cbar.set_label(
+            colorbar.set_label(
                 label=label,
                 fontsize=label_size,
                 labelpad=label_pad,
             )
-            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
-        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
+            axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(colorbar_side)  # pyright: ignore[reportArgumentType]
     else:
-        raise ValueError(f"unexpected cbar_side: {cbar_side!r}.")  # pyright: ignore[reportUnreachable]
+        raise ValueError(f"unexpected colorbar_side: {colorbar_side!r}.")  # pyright: ignore[reportUnreachable]
 
 
 ##
@@ -191,13 +191,13 @@ def _label_cbar(
 
 def add_colorbar(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     palette: ColorPalette,
     label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-    cbar_thickness: float = 0.075,
-    cbar_length: float = 1.0,
-    cbar_pad: float = 0.01,
+    colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    colorbar_thickness: float = 0.075,
+    colorbar_length: float = 1.0,
+    colorbar_pad: float = 0.01,
     label_pad: float = 10.0,
     label_size: int | float | None = None,
 ) -> mpl_colorbar.Colorbar:
@@ -206,15 +206,15 @@ def add_colorbar(
         label_size = style_plots.get_text_sizes().axis_label_size
     ## validate numeric params
     validate_types.ensure_finite_float(
-        param=cbar_thickness,
-        param_name="cbar_thickness",
+        param=colorbar_thickness,
+        param_name="colorbar_thickness",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
     validate_types.ensure_finite_float(
-        param=cbar_pad,
-        param_name="cbar_pad",
+        param=colorbar_pad,
+        param_name="colorbar_pad",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
@@ -233,16 +233,16 @@ def add_colorbar(
         require_positive=True,
         allow_zero=False,
     )
-    cbar_side = validate_box_positions.as_box_side(side=cbar_side)
-    cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
-    panel_bounds = manage_plots.compute_adjacent_panel_bounds(
+    colorbar_side = validate_box_positions.as_box_side(side=colorbar_side)
+    colorbar_orientation = _SIDE_TO_ORIENTATION[colorbar_side]
+    panel_bounds = manage_figure.compute_adjacent_panel_bounds(
         panel=panel,
-        side=cbar_side,
-        thickness=cbar_thickness,
-        length=cbar_length,
-        gap=cbar_pad,
+        side=colorbar_side,
+        thickness=colorbar_thickness,
+        length=colorbar_length,
+        gap=colorbar_pad,
     )
-    cbar_panel = panel.figure.add_axes(
+    colorbar_panel = panel.figure.add_axes(
         (
             panel_bounds.x_min,
             panel_bounds.y_min,
@@ -250,25 +250,25 @@ def add_colorbar(
             panel_bounds.y_width,
         ),
     )
-    cbar_mappable = mpl_cm.ScalarMappable(
+    colorbar_mappable = mpl_cm.ScalarMappable(
         norm=palette.mpl_norm,
         cmap=palette.mpl_cmap,
     )
     ## required by mpl to suppress warning when ScalarMappable has no data
-    cbar_mappable.set_array([])
-    cbar = panel.figure.colorbar(
-        mappable=cbar_mappable,
-        cax=cbar_panel,
-        orientation=cbar_orientation,
+    colorbar_mappable.set_array([])
+    colorbar = panel.figure.colorbar(
+        mappable=colorbar_mappable,
+        cax=colorbar_panel,
+        orientation=colorbar_orientation,
     )
-    _label_cbar(
-        cbar=cbar,
+    _label_colorbar(
+        colorbar=colorbar,
         label=label,
-        cbar_side=cbar_side,
+        colorbar_side=colorbar_side,
         label_size=label_size,
         label_pad=label_pad,
     )
-    return cbar
+    return colorbar
 
 
 ## } MODULE

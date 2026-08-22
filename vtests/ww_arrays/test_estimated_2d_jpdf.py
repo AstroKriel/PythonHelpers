@@ -14,7 +14,7 @@ import numpy
 ## local
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 
 ##
 ## === HELPER FUNCTIONS
@@ -40,7 +40,7 @@ def sample_from_ellipse(
 
 def plot_jpdf(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],
@@ -119,7 +119,7 @@ class TestEstimated2DJPDF:
             num_samples=self.num_points,
             rng=rng,
         )
-        fig, panel = manage_plots.create_figure()
+        figure, panel = manage_figure.create_figure()
         result = compute_array_stats.estimate_jpdf(
             data_x=x_samples,
             data_y=y_samples,
@@ -146,8 +146,8 @@ class TestEstimated2DJPDF:
         )
         ## always save even on failure
         figure_path = Path(__file__).parent / "estimated_2d_jpdf.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=figure_path,
         )
         assert abs(pdf_integral - 1.0) < self.integral_error_tol, (

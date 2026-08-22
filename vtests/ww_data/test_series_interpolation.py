@@ -16,7 +16,7 @@ from jormi import ww_lists
 from jormi.ww_data import interpolate_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 
 ##
 ## === HELPER FUNCTIONS
@@ -39,7 +39,7 @@ def measure_max_error(
 
 def plot_order(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     data_series: series_types.DataSeries,
     result: series_types.DataSeries,
     spline_order: int,
@@ -111,7 +111,7 @@ class TestSeriesInterpolation:
             self.num_interp_points,
         )
         num_orders = len(self.spline_orders_to_test)
-        fig, panels_grid = manage_plots.create_figure(
+        figure, panels_grid = manage_figure.create_figure(
             num_rows=num_orders,
             num_cols=1,
             share_x=True,
@@ -146,8 +146,8 @@ class TestSeriesInterpolation:
                 )
         ## always save even on failure
         figure_path = Path(__file__).parent / "interpolated_series.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=figure_path,
         )
         assert not failed_orders, (

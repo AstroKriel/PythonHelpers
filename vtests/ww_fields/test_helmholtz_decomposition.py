@@ -21,7 +21,7 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
 )
 from jormi.ww_io import manage_log
-from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_plots
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_types
 
@@ -201,7 +201,7 @@ def compute_field_fraction(
 
 
 def plot_vfield_slice(
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
@@ -268,7 +268,7 @@ def plot_vfield_slice(
 
 def annotate_panel_title(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     text: str,
 ) -> None:
     annotate_panel.add_text(
@@ -317,10 +317,10 @@ class TestHelmholtzDecomposition:
         uniform_domain_3d = self._build_domain()
         input_vfields = self._build_input_vfields(uniform_domain_3d)
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
-        fig, panels_grid = manage_plots.create_figure(
+        figure, panels_grid = manage_figure.create_figure(
             num_rows=4,
             num_cols=4,
-            panel_shape=manage_plots.BoxShape(
+            panel_shape=manage_figure.BoxShape(
                 width=8.0,
                 height=7.0,
             ),
@@ -355,8 +355,8 @@ class TestHelmholtzDecomposition:
             manage_log.log_empty_lines()
         ## always save even on failure, so a fail stays inspectable
         figure_path = Path(__file__).parent / "helmholtz_decomposition.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=figure_path,
         )
         assert not failed_vfields, (
@@ -498,7 +498,7 @@ class TestHelmholtzDecomposition:
     def _plot_vfield_column(
         self,
         *,
-        panels_grid: manage_plots.PlotPanelGrid,
+        panels_grid: manage_figure.PlotPanelGrid,
         index_col: int,
         vfield_name: str,
         decomposed_vfields: DecomposedVFields,

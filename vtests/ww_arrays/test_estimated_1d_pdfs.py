@@ -16,7 +16,7 @@ import numpy
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_plots
 from jormi.ww_types import box_positions
 
 ##
@@ -57,7 +57,7 @@ class TestEstimated1DPDFs:
     ) -> None:
         pdf_scenarios = self._generate_pdf_samples()
         num_pdfs = len(pdf_scenarios)
-        fig, panels_grid = manage_plots.create_figure(
+        figure, panels_grid = manage_figure.create_figure(
             num_rows=num_pdfs,
             num_cols=1,
             y_spacing=0.25,
@@ -88,8 +88,8 @@ class TestEstimated1DPDFs:
         panels_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
         figure_path = Path(__file__).parent / "estimated_1d_pdfs.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=figure_path,
         )
         assert not failed_pdfs, (
@@ -143,7 +143,7 @@ class TestEstimated1DPDFs:
     def _plot_and_check_pdf(
         self,
         *,
-        panel: manage_plots.PlotPanel,
+        panel: manage_figure.PlotPanel,
         pdf_samples: numpy.ndarray[Any, numpy.dtype[Any]],
         pdf_label: str,
     ) -> list[int]:

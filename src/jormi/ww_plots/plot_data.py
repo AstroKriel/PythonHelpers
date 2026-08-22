@@ -14,7 +14,7 @@ from numpy.typing import NDArray
 ## local
 from jormi.ww_plots import (
     add_color,
-    manage_plots,
+    manage_figure,
 )
 from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
@@ -96,28 +96,28 @@ def _as_axis_extent(
 def _get_value_range(
     *,
     array_2d: NDArray[Any],
-    cbar_range: tuple[float, float] | None,
+    colorbar_range: tuple[float, float] | None,
 ) -> tuple[float, float]:
     """
     Calculate the (min, max) value range for colorbar scaling.
 
-    If `cbar_range` is provided, validate and use it directly. Otherwise, infer from the finite
+    If `colorbar_range` is provided, validate and use it directly. Otherwise, infer from the finite
     values in `array_2d`, with a small pad applied.
     """
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
-    if cbar_range is not None:
+    if colorbar_range is not None:
         validate_types.ensure_ordered_pair(
-            param=cbar_range,
-            param_name="cbar_range",
+            param=colorbar_range,
+            param_name="colorbar_range",
             allow_none=False,
         )
-        min_value, max_value = float(cbar_range[0]), float(cbar_range[1])
+        min_value, max_value = float(colorbar_range[0]), float(colorbar_range[1])
         if not (numpy.isfinite(min_value) and numpy.isfinite(max_value)):
-            raise ValueError(f"`cbar_range` must be finite, got ({min_value}, {max_value}).")
+            raise ValueError(f"`colorbar_range` must be finite, got ({min_value}, {max_value}).")
         in_range_mask = finite_mask & (array_2d >= min_value) & (array_2d <= max_value)
         if not numpy.any(in_range_mask):
-            raise ValueError(f"`cbar_range` ({min_value}, {max_value}) does not overlap with data.")
+            raise ValueError(f"`colorbar_range` ({min_value}, {max_value}) does not overlap with data.")
         return (
             min_value,
             max_value,
@@ -153,16 +153,16 @@ def _get_value_range(
 
 def plot_2d_array(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
     panel_aspect_ratio: Literal["equal", "auto"] = "equal",
     axis_ranges: AxisRanges | None = None,
-    cbar_range: tuple[float, float] | None = None,
+    colorbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
-    add_cbar: bool = True,
-    cbar_label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    add_colorbar: bool = True,
+    colorbar_label: str | None = None,
+    colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
@@ -177,7 +177,7 @@ def plot_2d_array(
     )
     min_value, max_value = _get_value_range(
         array_2d=array_view,
-        cbar_range=cbar_range,
+        colorbar_range=colorbar_range,
     )
     palette = add_color.make_palette(
         config=palette_config,
@@ -196,12 +196,12 @@ def plot_2d_array(
         min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
         panel.set_xlim((min_x_value, max_x_value))
         panel.set_ylim((min_y_value, max_y_value))
-    if add_cbar:
+    if add_colorbar:
         add_color.add_colorbar(
             panel=panel,
             palette=palette,
-            label=cbar_label,
-            cbar_side=cbar_side,
+            label=colorbar_label,
+            colorbar_side=colorbar_side,
         )
     return im_obj
 
@@ -221,7 +221,7 @@ def _generate_grid(
 
 def plot_2d_quiver(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
@@ -268,7 +268,7 @@ def plot_2d_quiver(
 
 def plot_2d_streamlines(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
@@ -316,7 +316,7 @@ def plot_2d_streamlines(
 
 def plot_2d_contours(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),

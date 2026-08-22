@@ -16,7 +16,7 @@ from jormi.ww_arrays.farrays_3d_unstructured import gradient_operators
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_plots
 from jormi.ww_types import box_positions
 
 ##
@@ -53,7 +53,7 @@ def compute_typical_spacing(
 
 def plot_convergence(
     *,
-    panel: manage_plots.PlotPanel,
+    panel: manage_figure.PlotPanel,
     typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
     rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> fit_series.FitStatistic:
@@ -121,7 +121,7 @@ class TestGradientWLSConvergence:
     def run(
         self,
     ) -> None:
-        fig, panel = manage_plots.create_figure()
+        figure, panel = manage_figure.create_figure()
         typical_spacings, rms_errors = self._measure_convergence()
         fitted_slope = plot_convergence(
             panel=panel,
@@ -129,8 +129,8 @@ class TestGradientWLSConvergence:
             rms_errors=rms_errors,
         )
         file_path = Path(__file__).parent / "gradient_wls_convergence.png"
-        manage_plots.save_figure(
-            fig=fig,
+        manage_figure.save_figure(
+            figure=figure,
             figure_path=file_path,
         )
         lower_bound, upper_bound = self.convergence_order_bounds
