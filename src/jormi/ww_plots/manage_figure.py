@@ -101,10 +101,10 @@ DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
 
 def _compute_figure_shape(
     *,
+    panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
     num_panel_rows: int = 1,
     num_panel_columns: int = 1,
     figure_scale: float = 1.0,
-    panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
 ) -> BoxShape:
     """Compute figure size (cm) from the share each panel gets."""
     if (num_panel_rows < 1) or (num_panel_columns < 1):
@@ -120,8 +120,8 @@ def _place_panels_in_figure(
     figure: mpl_Figure,
     figure_shape: BoxShape,
     figure_margins: style_plots.FigureMargins,
-    x_spacing: float | None = None,
-    y_spacing: float | None = None,
+    panel_column_spacing: float | None = None,
+    panel_row_spacing: float | None = None,
 ) -> None:
     """
     Place the panels within `figure`, leaving `figure_margins` clear around them.
@@ -129,8 +129,8 @@ def _place_panels_in_figure(
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     `figure_shape` is what converts between the two.
     """
-    width_pt = figure_shape.width_cm * style_plots.PT_PER_CM
-    height_pt = figure_shape.height_cm * style_plots.PT_PER_CM
+    width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
+    height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
     if (figure_margins.left + figure_margins.right) >= width_pt:
         raise ValueError(
             f"margins `left` + `right` ({figure_margins.left + figure_margins.right} pt)"
@@ -147,10 +147,10 @@ def _place_panels_in_figure(
         bottom=figure_margins.bottom / height_pt,
         top=1.0 - (figure_margins.top / height_pt),
     )
-    if (x_spacing is not None) and (y_spacing is not None):
+    if (panel_column_spacing is not None) and (panel_row_spacing is not None):
         figure.subplots_adjust(
-            wspace=x_spacing,
-            hspace=y_spacing,
+            wspace=panel_column_spacing,
+            hspace=panel_row_spacing,
         )
 
 
@@ -244,8 +244,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
-    x_spacing: float = 0.05,
-    y_spacing: float = 0.05,
+    panel_column_spacing: float = 0.05,
+    panel_row_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
@@ -263,8 +263,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
-    x_spacing: float = 0.05,
-    y_spacing: float = 0.05,
+    panel_column_spacing: float = 0.05,
+    panel_row_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
@@ -281,8 +281,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
-    x_spacing: float = 0.05,
-    y_spacing: float = 0.05,
+    panel_column_spacing: float = 0.05,
+    panel_row_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
@@ -376,8 +376,8 @@ def create_figure(
         figure=figure,
         figure_shape=figure_shape,
         figure_margins=active_figure_layout.figure_margins,
-        x_spacing=x_spacing,
-        y_spacing=y_spacing,
+        panel_column_spacing=panel_column_spacing,
+        panel_row_spacing=panel_row_spacing,
     )
     panels_grid: PlotPanelGrid = numpy.asarray(panels, dtype=object)
     return figure, panels_grid
@@ -391,8 +391,8 @@ def create_figure_grid(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
-    x_spacing: float = 0.05,
-    y_spacing: float = 0.05,
+    panel_column_spacing: float = 0.05,
+    panel_row_spacing: float = 0.05,
     share_x: bool = False,
     share_y: bool = False,
     auto_style: bool = True,
@@ -420,8 +420,8 @@ def create_figure_grid(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
-        x_spacing=x_spacing,
-        y_spacing=y_spacing,
+        panel_column_spacing=panel_column_spacing,
+        panel_row_spacing=panel_row_spacing,
         share_x=share_x,
         share_y=share_y,
         auto_style=auto_style,

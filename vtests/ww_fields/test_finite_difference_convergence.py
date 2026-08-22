@@ -129,7 +129,7 @@ class TestFiniteDifferenceConvergence:
             num_panel_rows=2,
             num_panel_columns=2,
             figure_scale=2.0,
-            x_spacing=0.35,
+            panel_column_spacing=0.35,
         )
         self._plot_exact_soln(panels_grid)
         failed_methods = self._test_method_scaling(panels_grid)

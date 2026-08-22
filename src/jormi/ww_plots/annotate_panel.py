@@ -148,7 +148,7 @@ def add_custom_legend(
     anchor_at_corner: box_positions.Positions.PositionLike = box_positions.Positions.Corner.TopRight,
     frame_alpha: float = 0.0,
     num_legend_columns: int = 1,
-    spacing: float = 0.5,
+    legend_spacing: float = 0.5,
     marker_first: bool = True,
 ):
     """
@@ -255,9 +255,9 @@ def add_custom_legend(
         edgecolor="black",
         ncol=num_legend_columns,
         borderpad=0.45,
-        handletextpad=spacing,
-        labelspacing=spacing,
-        columnspacing=spacing,
+        handletextpad=legend_spacing,
+        labelspacing=legend_spacing,
+        columnspacing=legend_spacing,
         markerfirst=marker_first,
     )
     panel.add_artist(legend)

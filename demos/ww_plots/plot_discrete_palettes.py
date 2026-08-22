@@ -98,7 +98,7 @@ def main() -> None:
             width_cm=10.0,
             height_cm=10.0,
         ),
-        x_spacing=0.3,
+        panel_column_spacing=0.3,
     )
 
     for panel_index, (title, palette) in enumerate(palettes):
