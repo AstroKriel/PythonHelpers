@@ -201,7 +201,7 @@ def compute_field_fraction(
 
 
 def plot_vfield_slice(
-    ax: mpl_Axes,
+    panel: mpl_Axes,
     vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
@@ -230,14 +230,14 @@ def plot_vfield_slice(
             sfield_q_magn_slice,
         ),
     )
-    ax.imshow(
+    panel.imshow(
         sfield_q_magn_slice.T,
         origin="lower",
         extent=(domain_bounds[0], domain_bounds[1], domain_bounds[0], domain_bounds[1]),
         cmap="viridis",
         alpha=0.7,
     )
-    ax.streamplot(
+    panel.streamplot(
         grid_x0,
         grid_x1,
         varray[0, :, :, index_x2],
@@ -251,37 +251,37 @@ def plot_vfield_slice(
     )
     min_label = f"min: {sfield_q_magn_min:.2e}"
     max_label = f"max: {sfield_q_magn_max:.2e}"
-    ax.text(
+    panel.text(
         0.05,
         0.05,
         f"{min_label}\n{max_label}",
         va="bottom",
         ha="left",
-        transform=ax.transAxes,
+        transform=panel.transAxes,
         bbox=dict(
             facecolor="white",
             edgecolor="black",
             boxstyle="round,pad=0.3",
         ),
     )
-    ax.set_xlim((domain_bounds[0], domain_bounds[1]))
-    ax.set_ylim((domain_bounds[0], domain_bounds[1]))
-    ax.set_xticks([])
-    ax.set_yticks([])
+    panel.set_xlim((domain_bounds[0], domain_bounds[1]))
+    panel.set_ylim((domain_bounds[0], domain_bounds[1]))
+    panel.set_xticks([])
+    panel.set_yticks([])
 
 
 def annotate_ax(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     text: str,
 ) -> None:
-    ax.text(
+    panel.text(
         0.5,
         0.95,
         text,
         va="top",
         ha="center",
-        transform=ax.transAxes,
+        transform=panel.transAxes,
         bbox=dict(
             facecolor="white",
             edgecolor="black",
@@ -325,10 +325,10 @@ class TestHelmholtzDecomposition:
         uniform_domain_3d = self._build_domain()
         input_vfields = self._build_input_vfields(uniform_domain_3d)
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
-        fig, axs_grid = manage_plots.create_figure(
+        fig, panels_grid = manage_plots.create_figure(
             num_rows=4,
             num_cols=4,
-            axis_shape=manage_plots.BoxShape(
+            panel_shape=manage_plots.BoxShape(
                 width=8.0,
                 height=7.0,
             ),
@@ -343,7 +343,7 @@ class TestHelmholtzDecomposition:
                 uniform_domain_3d=uniform_domain_3d,
             )
             self._plot_vfield_column(
-                axs_grid=axs_grid,
+                panels_grid=panels_grid,
                 index_col=vfield_index,
                 vfield_name=vfield_name,
                 decomposed_vfields=decomposed_vfields,
@@ -506,7 +506,7 @@ class TestHelmholtzDecomposition:
     def _plot_vfield_column(
         self,
         *,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panels_grid: manage_plots.PlotPanelGrid,
         index_col: int,
         vfield_name: str,
         decomposed_vfields: DecomposedVFields,
@@ -518,14 +518,14 @@ class TestHelmholtzDecomposition:
             (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
         ]
         for plot_index, (plot_vfield_3d, plot_annotation) in enumerate(plot_vfields):
-            ax = axs_grid[plot_index, index_col]
+            panel = panels_grid[plot_index, index_col]
             plot_vfield_slice(
-                ax=ax,
+                panel=panel,
                 vfield_3d=plot_vfield_3d,
                 domain_bounds=self.domain_bounds,
             )
             annotate_ax(
-                ax=ax,
+                panel=panel,
                 text=plot_annotation,
             )
 

@@ -53,7 +53,7 @@ _VALID_LINES: list[str] = [
 
 def add_text(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     x_pos: float,
     y_pos: float,
     label: str,
@@ -66,14 +66,14 @@ def add_text(
     rotate_deg: float | None = None,
 ):
     """
-    Add a text label to an axis at a position given in axes coordinates [0, 1].
+    Add a text label to a panel at a position given in panel coordinates [0, 1].
     A background box is drawn when `box_alpha > 0`.
 
     `text_size` defaults to the active annotation text size.
     """
     if text_size is None:
         text_size = style_plots.get_text_sizes().annotation_size
-    ## validate position in axes coordinates [0, 1]
+    ## validate position in panel coordinates [0, 1]
     validate_types.ensure_in_bounds(
         param=x_pos,
         param_name="x_pos",
@@ -120,7 +120,7 @@ def add_text(
             boxstyle="round,pad=0.3",
         ) if box_alpha > 0.0 else None
     )
-    ax.text(
+    panel.text(
         x=x_pos,
         y=y_pos,
         s=label,
@@ -129,14 +129,14 @@ def add_text(
         color=text_color,
         fontsize=text_size,
         rotation=rotate_deg,
-        transform=ax.transAxes,
+        transform=panel.transAxes,
         bbox=box_params,
     )
 
 
 def add_custom_legend(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     artists: list[str],
     labels: list[str],
     colors: list[ColorType],
@@ -152,7 +152,7 @@ def add_custom_legend(
     marker_first: bool = True,
 ):
     """
-    Add a custom legend to an axis, built from explicit style strings rather than plot handles.
+    Add a custom legend to a panel, built from explicit style strings rather than plot handles.
 
     Each entry in `artists` must be a marker (e.g. "o", "s") or line style (e.g. "-", "--"),
     paired with the corresponding entry in `labels` and `colors`. A legend frame is drawn
@@ -191,7 +191,7 @@ def add_custom_legend(
         min_value=0.0,
         max_value=1.0,
     )
-    ## validate anchor position in axes coordinates [0, 1]
+    ## validate anchor position in panel coordinates [0, 1]
     validate_types.ensure_tuple_of_numbers(
         param=anchor_point,
         param_name="anchor_point",
@@ -240,9 +240,9 @@ def add_custom_legend(
                 f"\t- Valid line styles: {_VALID_LINES}.",
             )
         artists_to_draw.append(artist_to_draw)
-    ## draw legend; use Legend directly so multiple legends can coexist on the same axis
+    ## draw legend; use Legend directly so multiple legends can coexist on the same panel
     legend = mpl_legend(
-        ax,
+        panel,
         handles=artists_to_draw,
         labels=labels,
         bbox_to_anchor=anchor_point,
@@ -260,12 +260,12 @@ def add_custom_legend(
         columnspacing=spacing,
         markerfirst=marker_first,
     )
-    ax.add_artist(legend)
+    panel.add_artist(legend)
 
 
 def overlay_curve(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     x_values: list[float] | NDArray[Any],
     y_values: list[float] | NDArray[Any],
     color: ColorType = "black",
@@ -276,7 +276,7 @@ def overlay_curve(
     zorder: float = 1.0,
 ):
     """
-    Overlay a 2D curve onto an axis without affecting its axis limits.
+    Overlay a 2D curve onto a panel without affecting its axis limits.
 
     `x_values` and `y_values` must be 1D and the same length, with at least two points.
     """
@@ -321,7 +321,7 @@ def overlay_curve(
         zorder=zorder,
         label=label,
     )
-    ax.add_collection(collection, autolim=False)
+    panel.add_collection(collection, autolim=False)
 
 
 ## } MODULE

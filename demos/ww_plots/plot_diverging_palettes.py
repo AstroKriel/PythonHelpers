@@ -91,10 +91,10 @@ def main() -> None:
     ]
 
     num_panels = len(palettes)
-    fig, axs = manage_plots.create_figure(
+    fig, panels = manage_plots.create_figure(
         num_rows=num_panels,
         num_cols=1,
-        axis_shape=manage_plots.BoxShape(
+        panel_shape=manage_plots.BoxShape(
             width=4.0,
             height=4.0,
         ),
@@ -102,8 +102,8 @@ def main() -> None:
     )
 
     for col_idx, (title, palette) in enumerate(palettes):
-        ax = axs[col_idx, 0]
-        ax.imshow(
+        panel = panels[col_idx, 0]
+        panel.imshow(
             data,
             norm=palette.mpl_norm,
             cmap=palette.mpl_cmap,
@@ -111,27 +111,27 @@ def main() -> None:
             aspect="auto",
         )
         add_color.add_colorbar(
-            ax=ax,
+            panel=panel,
             palette=palette,
             cbar_length=0.95,
             cbar_thickness=0.1,
         )
-        ax.text(
+        panel.text(
             0.5,
             0.95,
             title,
             fontsize=14,
             va="top",
             ha="center",
-            transform=ax.transAxes,
+            transform=panel.transAxes,
             bbox=dict(
                 facecolor="white",
                 edgecolor="black",
                 boxstyle="round,pad=0.3",
             ),
         )
-        ax.set_xticks([])
-        ax.set_yticks([])
+        panel.set_xticks([])
+        panel.set_yticks([])
 
     script_path = Path(__file__).parent
     manage_plots.save_figure(

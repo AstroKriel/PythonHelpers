@@ -39,7 +39,7 @@ def measure_max_error(
 
 def plot_order(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     data_series: series_types.DataSeries,
     result: series_types.DataSeries,
     spline_order: int,
@@ -48,35 +48,35 @@ def plot_order(
 ) -> None:
     is_top_ax = order_index == 0
     is_bottom_ax = order_index == num_orders - 1
-    ax.plot(
+    panel.plot(
         result.x_values,
         result.y_values,
         color="red",
         label=f"spline order = {spline_order}",
     )
-    ax.scatter(
+    panel.scatter(
         data_series.x_values,
         data_series.y_values,
         color="black",
         zorder=3,
         label="input data" if is_top_ax else None,
     )
-    ax.plot(
+    panel.plot(
         result.x_values,
         evaluate_model(result.x_values),
         color="black",
         ls="--",
         label="true f(x)" if is_top_ax else None,
     )
-    ax.set_ylabel("y")
-    ax.legend(
+    panel.set_ylabel("y")
+    panel.legend(
         fontsize=20,
         loc="upper right",
     )
     if is_bottom_ax:
-        ax.set_xlabel("x")
+        panel.set_xlabel("x")
     else:
-        ax.tick_params(labelbottom=False)
+        panel.tick_params(labelbottom=False)
 
 
 ##
@@ -111,7 +111,7 @@ class TestSeriesInterpolation:
             self.num_interp_points,
         )
         num_orders = len(self.spline_orders_to_test)
-        fig, axs_grid = manage_plots.create_figure(
+        fig, panels_grid = manage_plots.create_figure(
             num_rows=num_orders,
             num_cols=1,
             share_x=True,
@@ -124,7 +124,7 @@ class TestSeriesInterpolation:
                 spline_order=spline_order,
             )
             plot_order(
-                ax=axs_grid[order_index, 0],
+                panel=panels_grid[order_index, 0],
                 data_series=data_series,
                 result=result,
                 spline_order=spline_order,

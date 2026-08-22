@@ -192,7 +192,7 @@ def _label_cbar(
 
 def add_colorbar(
     *,
-    ax: mpl_axes.Axes,
+    panel: mpl_axes.Axes,
     palette: ColorPalette,
     label: str | None = None,
     cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
@@ -236,19 +236,19 @@ def add_colorbar(
     )
     cbar_side = validate_box_positions.as_box_side(side=cbar_side)
     cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
-    ax_bounds = manage_plots.compute_adjacent_ax_bounds(
-        ax=ax,
+    panel_bounds = manage_plots.compute_adjacent_panel_bounds(
+        panel=panel,
         side=cbar_side,
         thickness=cbar_thickness,
         length=cbar_length,
         gap=cbar_pad,
     )
-    cbar_ax = ax.figure.add_axes(
+    cbar_panel = panel.figure.add_axes(
         (
-            ax_bounds.x_min,
-            ax_bounds.y_min,
-            ax_bounds.x_width,
-            ax_bounds.y_width,
+            panel_bounds.x_min,
+            panel_bounds.y_min,
+            panel_bounds.x_width,
+            panel_bounds.y_width,
         ),
     )
     cbar_mappable = mpl_cm.ScalarMappable(
@@ -257,9 +257,9 @@ def add_colorbar(
     )
     ## required by mpl to suppress warning when ScalarMappable has no data
     cbar_mappable.set_array([])
-    cbar = ax.figure.colorbar(
+    cbar = panel.figure.colorbar(
         mappable=cbar_mappable,
-        cax=cbar_ax,
+        cax=cbar_panel,
         orientation=cbar_orientation,
     )
     _label_cbar(

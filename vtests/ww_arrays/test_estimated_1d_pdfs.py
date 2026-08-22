@@ -56,7 +56,7 @@ class TestEstimated1DPDFs:
     ) -> None:
         pdf_scenarios = self._generate_pdf_samples()
         num_pdfs = len(pdf_scenarios)
-        fig, axs_grid = manage_plots.create_figure(
+        fig, panels_grid = manage_plots.create_figure(
             num_rows=num_pdfs,
             num_cols=1,
             y_spacing=0.25,
@@ -64,7 +64,7 @@ class TestEstimated1DPDFs:
         failed_pdfs: list[str] = []
         for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
             failed_bins = self._plot_and_check_pdf(
-                ax=axs_grid[pdf_index, 0],
+                panel=panels_grid[pdf_index, 0],
                 pdf_samples=pdf_scenario.samples,
                 pdf_label=pdf_scenario.label,
             )
@@ -79,12 +79,12 @@ class TestEstimated1DPDFs:
                     text=f"{pdf_scenario.label}",
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
-        axs_grid[-1, 0].legend(
+        panels_grid[-1, 0].legend(
             loc="upper right",
             bbox_to_anchor=(1, 0.9),
             fontsize=20,
         )
-        axs_grid[-1, 0].set_xlabel(r"$x$")
+        panels_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
         figure_path = Path(__file__).parent / "estimated_1d_pdfs.png"
         manage_plots.save_figure(
@@ -142,7 +142,7 @@ class TestEstimated1DPDFs:
     def _plot_and_check_pdf(
         self,
         *,
-        ax: manage_plots.PlotAxis,
+        panel: manage_plots.PlotPanel,
         pdf_samples: numpy.ndarray[Any, numpy.dtype[Any]],
         pdf_label: str,
     ) -> list[int]:
@@ -166,7 +166,7 @@ class TestEstimated1DPDFs:
                 assert len(bin_centers) == num_bins, (
                     f"{pdf_label}: expected {num_bins} centers, got {len(bin_centers)}"
                 )
-            ax.step(
+            panel.step(
                 bin_centers,
                 estimated_pdf,
                 where="mid",
@@ -178,15 +178,15 @@ class TestEstimated1DPDFs:
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > self.integral_error_tol:
                 failed_bins.append(num_bins)
-        ax.text(
+        panel.text(
             0.95,
             0.95,
             pdf_label,
             ha="right",
             va="top",
-            transform=ax.transAxes,
+            transform=panel.transAxes,
         )
-        ax.set_ylabel(r"PDF$(x)$")
+        panel.set_ylabel(r"PDF$(x)$")
         return failed_bins
 
 

@@ -53,7 +53,7 @@ def compute_typical_spacing(
 
 def plot_convergence(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
     rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> fit_series.FitStatistic:
@@ -68,7 +68,7 @@ def plot_convergence(
     fit = fit_series.fit_linear_model(log_series)
     fitted_slope = fit.slope
     fitted_errors = numpy.exp(fit.evaluate_fit(log_series.x_values))
-    ax.plot(
+    panel.plot(
         inverse_spacings,
         rms_errors,
         marker="o",
@@ -76,18 +76,18 @@ def plot_convergence(
         color="black",
         label="measured",
     )
-    ax.plot(
+    panel.plot(
         inverse_spacings,
         fitted_errors,
         ls="--",
         color="black",
         label=rf"$e \sim O(\tilde{{\Delta x}}^{{{fitted_slope.value:.2f} \pm {fitted_slope.sigma:.2f}}})$",
     )
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
-    ax.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
-    ax.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
+    panel.set_xscale("log")
+    panel.set_yscale("log")
+    panel.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
+    panel.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
+    panel.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
     return fitted_slope
 
 
@@ -121,10 +121,10 @@ class TestGradientWLSConvergence:
     def run(
         self,
     ) -> None:
-        fig, ax = manage_plots.create_figure()
+        fig, panel = manage_plots.create_figure()
         typical_spacings, rms_errors = self._measure_convergence()
         fitted_slope = plot_convergence(
-            ax=ax,
+            panel=panel,
             typical_spacings=typical_spacings,
             rms_errors=rms_errors,
         )

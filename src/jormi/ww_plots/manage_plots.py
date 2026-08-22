@@ -42,8 +42,8 @@ from jormi.ww_types import box_positions
 ## === TYPE ALIASES
 ##
 
-PlotAxis: TypeAlias = mpl_Axes
-PlotAxesGrid: TypeAlias = NDArray[numpy.object_]
+PlotPanel: TypeAlias = mpl_Axes
+PlotPanelGrid: TypeAlias = NDArray[numpy.object_]
 
 ##
 ## === BOX SHAPE
@@ -57,7 +57,7 @@ PlotAxesGrid: TypeAlias = NDArray[numpy.object_]
 class BoxShape:
     """
     Width and height of a rectangle, in inches: a whole figure, or the share it gives
-    one axis.
+    one panel.
 
     Named rather than a bare pair, so which of the two is the height never has to be
     remembered; `as_mpl_shape` produces the pair for handing straight to Matplotlib.
@@ -90,7 +90,7 @@ class BoxShape:
 ## === INTERNAL HELPERS
 ##
 
-DEFAULT_AXIS_SHAPE: BoxShape = BoxShape(
+DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
     width=6.0,
     height=4.0,
 )
@@ -101,18 +101,18 @@ def _compute_figure_shape(
     num_rows: int = 1,
     num_cols: int = 1,
     figure_scale: float = 1.0,
-    axis_shape: BoxShape = DEFAULT_AXIS_SHAPE,
+    panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
 ) -> BoxShape:
-    """Compute figure size (inches) from the share each axis gets."""
+    """Compute figure size (inches) from the share each panel gets."""
     if (num_rows < 1) or (num_cols < 1):
         raise ValueError("`num_rows` and `num_cols` must both be >= 1.")
     return BoxShape(
-        width=figure_scale * axis_shape.width * num_cols,
-        height=figure_scale * axis_shape.height * num_rows,
+        width=figure_scale * panel_shape.width * num_cols,
+        height=figure_scale * panel_shape.height * num_rows,
     )
 
 
-def _place_axes_in_figure(
+def _place_panels_in_figure(
     *,
     fig: mpl_Figure,
     margins: style_plots.FigureMargins,
@@ -120,9 +120,9 @@ def _place_axes_in_figure(
     y_spacing: float | None = None,
 ) -> None:
     """
-    Place the axes within `fig`, leaving `margins` clear around them.
+    Place the panels within `fig`, leaving `margins` clear around them.
 
-    Margins are in points, while Matplotlib places axes as fractions of the figure, so
+    Margins are in points, while Matplotlib places panels as fractions of the figure, so
     the figure's own size is what converts between the two.
     """
     width_points, height_points = (
@@ -131,12 +131,12 @@ def _place_axes_in_figure(
     if (margins.left_margin + margins.right_margin) >= width_points:
         raise ValueError(
             f"`left_margin` + `right_margin` ({margins.left_margin + margins.right_margin} pt)"
-            f" leave no room for the axes in a figure {width_points:.1f} pt wide.",
+            f" leave no room for the panels in a figure {width_points:.1f} pt wide.",
         )
     if (margins.bottom_margin + margins.top_margin) >= height_points:
         raise ValueError(
             f"`bottom_margin` + `top_margin` ({margins.bottom_margin + margins.top_margin} pt)"
-            f" leave no room for the axes in a figure {height_points:.1f} pt tall.",
+            f" leave no room for the panels in a figure {height_points:.1f} pt tall.",
         )
     fig.subplots_adjust(
         left=margins.left_margin / width_points,
@@ -151,26 +151,26 @@ def _place_axes_in_figure(
         )
 
 
-def _split_width_across_axes(
+def _split_width_across_panels(
     *,
     width_inches: float,
     num_cols: int,
     aspect_ratio: float,
 ) -> BoxShape:
     """
-    Share a figure's width between the axes in a row, giving the share each one gets.
+    Share a figure's width between the panels in a row, giving the share each one gets.
 
-    `aspect_ratio` is the width / height of that share; an axis is drawn smaller than
+    `aspect_ratio` is the width / height of that share; a panel is drawn smaller than
     its share, by whatever the margins hold.
     """
     if num_cols < 1:
         raise ValueError(f"`num_cols` must be >= 1, but got {num_cols}.")
     if not (aspect_ratio > 0):
         raise ValueError(f"`aspect_ratio` must be positive, but got {aspect_ratio}.")
-    axis_width_inches = width_inches / num_cols
+    panel_width_inches = width_inches / num_cols
     return BoxShape(
-        height=axis_width_inches / aspect_ratio,
-        width=axis_width_inches,
+        height=panel_width_inches / aspect_ratio,
+        width=panel_width_inches,
     )
 
 
@@ -179,47 +179,47 @@ def _get_figure_shape(
     num_rows: int,
     num_cols: int,
     figure_scale: float,
-    axis_shape: BoxShape | None,
+    panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
     aspect_ratio: float | None,
 ) -> tuple[BoxShape, style_plots.FigureLayout]:
     """
     Size a figure from a page layout, or in its own terms, but not both.
 
-    A layout pins the figure to a share of the page, so adding axes makes each one
-    smaller. `axis_shape` instead gives each axis a fixed size, so the figure grows as
-    axes are added, and the figure is no longer tied to a page.
+    A layout pins the figure to a share of the page, so adding panels makes each one
+    smaller. `panel_shape` instead gives each panel a fixed size, so the figure grows as
+    panels are added, and the figure is no longer tied to a page.
     """
     active_layout = style_plots.get_figure_layout() if (figure_layout is None) else figure_layout
-    if axis_shape is None:
+    if panel_shape is None:
         return (
             _compute_figure_shape(
                 num_rows=num_rows,
                 num_cols=num_cols,
-                axis_shape=_split_width_across_axes(
+                panel_shape=_split_width_across_panels(
                     width_inches=active_layout.width.width_inches,
                     num_cols=num_cols,
-                    aspect_ratio=DEFAULT_AXIS_SHAPE.aspect_ratio if (aspect_ratio is None) else aspect_ratio,
+                    aspect_ratio=DEFAULT_PANEL_SHAPE.aspect_ratio if (aspect_ratio is None) else aspect_ratio,
                 ),
             ),
             active_layout,
         )
     if figure_layout is not None:
         raise ValueError(
-            "`figure_layout` and `axis_shape` are mutually exclusive: a layout sizes the"
-            " figure to a share of the page, while `axis_shape` sizes each axis outright.",
+            "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
+            " figure to a share of the page, while `panel_shape` sizes each panel outright.",
         )
     if aspect_ratio is not None:
         raise ValueError(
             "`aspect_ratio` only applies when a figure is sized to a page;"
-            " with `axis_shape` the shape of each axis is already set by it.",
+            " with `panel_shape` the shape of each panel is already set by it.",
         )
     return (
         _compute_figure_shape(
             num_rows=num_rows,
             num_cols=num_cols,
             figure_scale=figure_scale,
-            axis_shape=axis_shape,
+            panel_shape=panel_shape,
         ),
         active_layout,
     )
@@ -236,7 +236,7 @@ def create_figure(
     num_rows: None = None,
     num_cols: None = None,
     figure_scale: float = 1.0,
-    axis_shape: BoxShape | None = None,
+    panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
     x_spacing: float = 0.05,
@@ -245,7 +245,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotAxis]:
+) -> tuple[mpl_Figure, PlotPanel]:
     ...
 
 
@@ -255,7 +255,7 @@ def create_figure(
     num_rows: int,
     num_cols: int,
     figure_scale: float = 1.0,
-    axis_shape: BoxShape | None = None,
+    panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
     x_spacing: float = 0.05,
@@ -264,7 +264,7 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotAxesGrid]:
+) -> tuple[mpl_Figure, PlotPanelGrid]:
     ...
 
 
@@ -273,7 +273,7 @@ def create_figure(
     num_rows: int | None = None,
     num_cols: int | None = None,
     figure_scale: float = 1.0,
-    axis_shape: BoxShape | None = None,
+    panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
     x_spacing: float = 0.05,
@@ -282,20 +282,20 @@ def create_figure(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotAxis | PlotAxesGrid]:
+) -> tuple[mpl_Figure, PlotPanel | PlotPanelGrid]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
 
     Overloads:
-        - create_figure() -> (fig, axis)
-        - create_figure(num_rows=N, num_cols=M) -> (fig, axs) with shape (N, M)
+        - create_figure() -> (fig, panel)
+        - create_figure(num_rows=N, num_cols=M) -> (fig, panels) with shape (N, M)
 
     Sizing
     ------
-    `axis_shape` is the share of the figure given to one axis, in inches, so the figure
-    comes out `axis_shape` times the grid. It is not the size the axis is drawn at: tick
-    labels and axis labels are held in margins taken out of that share, so the axis itself
-    is drawn smaller. A colorbar is placed beyond the axis rather than within those
+    `panel_shape` is the share of the figure given to one panel, in inches, so the figure
+    comes out `panel_shape` times the grid. It is not the size the panel is drawn at: tick
+    labels and axis labels are held in margins taken out of that share, so the panel itself
+    is drawn smaller. A colorbar is placed beyond the panel rather than within those
     margins, and so can reach past the figure edge.
 
     Notes
@@ -303,7 +303,7 @@ def create_figure(
     - If `num_rows` and `num_cols` are both None (or omitted), a single-panel
       figure is created and a single Axis is returned.
     - If `num_rows` and `num_cols` are both provided as integers, a grid of
-      axes is created and a 2D object-dtype array of Axes is returned.
+      panels is created and a 2D object-dtype array of Axes is returned.
     - Mixed None/int specifications are not allowed.
     """
     if auto_style and (theme is not None):
@@ -313,11 +313,11 @@ def create_figure(
             num_rows=1,
             num_cols=1,
             figure_scale=figure_scale,
-            axis_shape=axis_shape,
+            panel_shape=panel_shape,
             figure_layout=figure_layout,
             aspect_ratio=aspect_ratio,
         )
-        fig, ax = mpl_plot.subplots(
+        fig, panel = mpl_plot.subplots(
             nrows=1,
             ncols=1,
             figsize=figure_shape.as_mpl_shape,
@@ -325,11 +325,11 @@ def create_figure(
             sharey=share_y,
             squeeze=True,
         )
-        _place_axes_in_figure(
+        _place_panels_in_figure(
             fig=fig,
             margins=active_layout.margins,
         )
-        return fig, ax
+        return fig, panel
     if (num_rows is None) or (num_cols is None):
         raise ValueError(
             "Either specify both `num_rows` and `num_cols`, or neither."
@@ -354,11 +354,11 @@ def create_figure(
         num_rows=num_rows,
         num_cols=num_cols,
         figure_scale=figure_scale,
-        axis_shape=axis_shape,
+        panel_shape=panel_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
     )
-    fig, axs = mpl_plot.subplots(
+    fig, panels = mpl_plot.subplots(
         nrows=num_rows,
         ncols=num_cols,
         figsize=figure_shape.as_mpl_shape,
@@ -366,14 +366,14 @@ def create_figure(
         sharey=share_y,
         squeeze=False,
     )
-    _place_axes_in_figure(
+    _place_panels_in_figure(
         fig=fig,
         margins=active_layout.margins,
         x_spacing=x_spacing,
         y_spacing=y_spacing,
     )
-    axs_grid: PlotAxesGrid = numpy.asarray(axs, dtype=object)
-    return fig, axs_grid
+    panels_grid: PlotPanelGrid = numpy.asarray(panels, dtype=object)
+    return fig, panels_grid
 
 
 def create_figure_grid(
@@ -381,7 +381,7 @@ def create_figure_grid(
     num_rows: int = 1,
     num_cols: int = 1,
     figure_scale: float = 1.0,
-    axis_shape: BoxShape | None = None,
+    panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
     x_spacing: float = 0.05,
@@ -390,27 +390,27 @@ def create_figure_grid(
     share_y: bool = False,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
-) -> tuple[mpl_Figure, PlotAxesGrid]:
+) -> tuple[mpl_Figure, PlotPanelGrid]:
     """
-    Like `create_figure`, but always returns a 2D axes grid of shape (num_rows, num_cols), so
-    callers can always index axes as axs_grid[row, col].
+    Like `create_figure`, but always returns a 2D panel grid of shape (num_rows, num_cols), so
+    callers can always index panels as panels_grid[row, col].
     """
     if (num_rows == 1) and (num_cols == 1):
-        fig, ax = create_figure(
+        fig, panel = create_figure(
             figure_scale=figure_scale,
-            axis_shape=axis_shape,
+            panel_shape=panel_shape,
             figure_layout=figure_layout,
             aspect_ratio=aspect_ratio,
             auto_style=auto_style,
             theme=theme,
         )
-        axs_grid: PlotAxesGrid = numpy.asarray([[ax]], dtype=object)
-        return fig, axs_grid
-    fig, axs_grid = create_figure(
+        panels_grid: PlotPanelGrid = numpy.asarray([[panel]], dtype=object)
+        return fig, panels_grid
+    fig, panels_grid = create_figure(
         num_rows=num_rows,
         num_cols=num_cols,
         figure_scale=figure_scale,
-        axis_shape=axis_shape,
+        panel_shape=panel_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
         x_spacing=x_spacing,
@@ -420,7 +420,7 @@ def create_figure_grid(
         auto_style=auto_style,
         theme=theme,
     )
-    return fig, axs_grid
+    return fig, panels_grid
 
 
 ##
@@ -431,8 +431,8 @@ _Side = box_positions.Positions.Side
 
 
 @dataclass(frozen=True)
-class AxisBounds:
-    """Bounding box for an axis in figure coordinates."""
+class PanelBounds:
+    """Bounding box for a panel in figure coordinates."""
 
     x_min: float
     y_min: float
@@ -440,34 +440,34 @@ class AxisBounds:
     y_width: float
 
 
-def compute_adjacent_ax_bounds(
+def compute_adjacent_panel_bounds(
     *,
-    ax: PlotAxis,
+    panel: PlotPanel,
     side: _Side = box_positions.Positions.Side.Right,
     gap: float = 0.1,
     thickness: float = 1.0,
     length: float = 1.0,
-) -> AxisBounds:
-    """Compute figure bounds for an axis placed adjacent to `ax`.
+) -> PanelBounds:
+    """Compute figure bounds for a panel placed adjacent to `panel`.
 
-    The new axis sits on the `side` of `ax`, offset by `gap` (in figure coordinates).
-    `thickness` sets its extent perpendicular to `side`, as a fraction of `ax`'s
+    The new panel sits on the `side` of `panel`, offset by `gap` (in figure coordinates).
+    `thickness` sets its extent perpendicular to `side`, as a fraction of `panel`'s
     corresponding dimension. `length` sets its span parallel to `side`, also as a
-    fraction, centered on `ax`'s edge.
+    fraction, centered on `panel`'s edge.
     """
-    box = ax.get_position()
+    box = panel.get_position()
     if side in (_Side.Left, _Side.Right):
         x_width = box.width * thickness
         y_width = box.height * length
         if side == _Side.Right:
-            return AxisBounds(
+            return PanelBounds(
                 x_min=box.x1 + gap,
                 y_min=box.y0 + (box.height - y_width) / 2,
                 x_width=x_width,
                 y_width=y_width,
             )
         else:
-            return AxisBounds(
+            return PanelBounds(
                 x_min=box.x0 - x_width - gap,
                 y_min=box.y0 + (box.height - y_width) / 2,
                 x_width=x_width,
@@ -477,14 +477,14 @@ def compute_adjacent_ax_bounds(
         x_width = box.width * length
         y_width = box.height * thickness
         if side == _Side.Top:
-            return AxisBounds(
+            return PanelBounds(
                 x_min=box.x0 + (box.width - x_width) / 2,
                 y_min=box.y1 + gap,
                 x_width=x_width,
                 y_width=y_width,
             )
         else:
-            return AxisBounds(
+            return PanelBounds(
                 x_min=box.x0 + (box.width - x_width) / 2,
                 y_min=box.y0 - y_width - gap,
                 x_width=x_width,
@@ -494,35 +494,35 @@ def compute_adjacent_ax_bounds(
         raise ValueError(f"unexpected side: {side!r}.")  # pyright: ignore[reportUnreachable]
 
 
-def add_inset_axis(
+def add_inset_panel(
     *,
-    ax: PlotAxis,
+    panel: PlotPanel,
     bounds: tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
     x_label: str | None = None,
     y_label: str | None = None,
     fontsize: float | None = None,
     x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-) -> PlotAxis:
-    """Add an inset Axis to `ax`."""
+) -> PlotPanel:
+    """Add an inset Axis to `panel`."""
     x_label_side = validate_box_positions.as_box_side(x_label_alignment)
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)
-    ax_inset = ax.inset_axes(bounds)
+    inset_panel = panel.inset_axes(bounds)
     if fontsize is None:
         fontsize = rcParams["axes.labelsize"]
     if x_label is not None:
-        ax_inset.set_xlabel(
+        inset_panel.set_xlabel(
             xlabel=x_label,
             fontsize=fontsize,
         )
-        ax_inset.xaxis.set_label_position(x_label_side.value)  # pyright: ignore[reportArgumentType]
+        inset_panel.xaxis.set_label_position(x_label_side.value)  # pyright: ignore[reportArgumentType]
     if y_label is not None:
-        ax_inset.set_ylabel(
+        inset_panel.set_ylabel(
             ylabel=y_label,
             fontsize=fontsize,
         )
-        ax_inset.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
-    ax_inset.tick_params(
+        inset_panel.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
+    inset_panel.tick_params(
         axis="x",
         labeltop=(x_label_side is box_positions.Positions.Side.Top),
         labelbottom=(x_label_side is box_positions.Positions.Side.Bottom),
@@ -530,8 +530,8 @@ def add_inset_axis(
         bottom=True,
     )
     if x_label_side is box_positions.Positions.Side.Top:
-        ax_inset.xaxis.tick_top()
-    ax_inset.tick_params(
+        inset_panel.xaxis.tick_top()
+    inset_panel.tick_params(
         axis="y",
         labelleft=(y_label_side is box_positions.Positions.Side.Left),
         labelright=(y_label_side is box_positions.Positions.Side.Right),
@@ -539,8 +539,8 @@ def add_inset_axis(
         right=True,
     )
     if y_label_side is box_positions.Positions.Side.Right:
-        ax_inset.yaxis.tick_right()
-    return ax_inset
+        inset_panel.yaxis.tick_right()
+    return inset_panel
 
 
 ##

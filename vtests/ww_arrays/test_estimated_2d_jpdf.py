@@ -40,7 +40,7 @@ def sample_from_ellipse(
 
 def plot_jpdf(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],
@@ -48,7 +48,7 @@ def plot_jpdf(
     y_samples: numpy.ndarray[Any, numpy.dtype[Any]],
     plot_samples: bool,
 ) -> None:
-    ax.imshow(
+    panel.imshow(
         jpdf,
         extent=(
             bin_centers_cols.min(),
@@ -61,29 +61,29 @@ def plot_jpdf(
         cmap="Blues",
     )
     if plot_samples:
-        ax.scatter(
+        panel.scatter(
             x_samples,
             y_samples,
             color="red",
             s=3,
             alpha=1e-2,
         )
-    ax.set_xlabel(r"$x$")
-    ax.set_ylabel(r"$y$")
-    ax.axhline(
+    panel.set_xlabel(r"$x$")
+    panel.set_ylabel(r"$y$")
+    panel.axhline(
         y=0.0,
         color="black",
         ls="--",
         zorder=1,
     )
-    ax.axvline(
+    panel.axvline(
         x=0.0,
         color="black",
         ls="--",
         zorder=1,
     )
-    ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
-    ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
+    panel.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
+    panel.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
 
 
 ##
@@ -119,7 +119,7 @@ class TestEstimated2DJPDF:
             num_samples=self.num_points,
             rng=rng,
         )
-        fig, ax = manage_plots.create_figure()
+        fig, panel = manage_plots.create_figure()
         result = compute_array_stats.estimate_jpdf(
             data_x=x_samples,
             data_y=y_samples,
@@ -130,7 +130,7 @@ class TestEstimated2DJPDF:
         bin_centers_rows = result.row_centers
         bin_centers_cols = result.col_centers
         plot_jpdf(
-            ax=ax,
+            panel=panel,
             jpdf=jpdf,
             bin_centers_rows=bin_centers_rows,
             bin_centers_cols=bin_centers_cols,

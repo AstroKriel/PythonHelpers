@@ -36,7 +36,7 @@ class FitScenario:
 
 def plot_fit(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     gaussian_series: series_types.GaussianSeries,
     fit: fit_series.LinearFitSummary,
     fit_label: str,
@@ -46,7 +46,7 @@ def plot_fit(
     is_top_ax = fit_index == 0
     is_bottom_ax = fit_index == num_fits - 1
     x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
-    ax.errorbar(
+    panel.errorbar(
         gaussian_series.x_values,
         gaussian_series.y_values,
         yerr=gaussian_series.y_sigmas,
@@ -54,21 +54,21 @@ def plot_fit(
         color="black",
         label="data" if is_top_ax else None,
     )
-    ax.plot(
+    panel.plot(
         x_fit_values,
         fit.evaluate_fit(x_fit_values),
         color="red",
         label=fit_label,
     )
-    ax.set_ylabel("y")
-    ax.legend(
+    panel.set_ylabel("y")
+    panel.legend(
         fontsize=20,
         loc="upper left",
     )
     if is_bottom_ax:
-        ax.set_xlabel("x")
+        panel.set_xlabel("x")
     else:
-        ax.tick_params(labelbottom=False)
+        panel.tick_params(labelbottom=False)
 
 
 ##
@@ -101,16 +101,16 @@ class TestLinearFit:
         gaussian_series = self._generate_gaussian_series()
         fits_to_test = self._compute_fits(gaussian_series)
         num_fits = len(fits_to_test)
-        fig, axs_grid = manage_plots.create_figure(
+        fig, panels_grid = manage_plots.create_figure(
             num_rows=num_fits,
             num_cols=1,
             share_x=True,
         )
         failed_fits: list[str] = []
         for fit_index, fit_scenario in enumerate(fits_to_test):
-            ax = axs_grid[fit_index, 0]
+            panel = panels_grid[fit_index, 0]
             plot_fit(
-                ax=ax,
+                panel=panel,
                 gaussian_series=gaussian_series,
                 fit=fit_scenario.fit,
                 fit_label=fit_scenario.label,

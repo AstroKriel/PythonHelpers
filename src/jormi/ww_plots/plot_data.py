@@ -153,10 +153,10 @@ def _get_value_range(
 
 def plot_2d_array(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
-    axis_aspect_ratio: Literal["equal", "auto"] = "equal",
+    panel_aspect_ratio: Literal["equal", "auto"] = "equal",
     axis_ranges: AxisRanges | None = None,
     cbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
@@ -184,21 +184,21 @@ def plot_2d_array(
         value_range=(min_value, max_value),
     )
     axis_extent = _as_axis_extent(axis_ranges)
-    im_obj = ax.imshow(
+    im_obj = panel.imshow(
         array_view,
         extent=axis_extent,
-        aspect=axis_aspect_ratio,
+        aspect=panel_aspect_ratio,
         origin="lower",
         cmap=palette.mpl_cmap,
         norm=palette.mpl_norm,
     )
     if axis_extent is not None:
         min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-        ax.set_xlim((min_x_value, max_x_value))
-        ax.set_ylim((min_y_value, max_y_value))
+        panel.set_xlim((min_x_value, max_x_value))
+        panel.set_ylim((min_y_value, max_y_value))
     if add_cbar:
         add_color.add_colorbar(
-            ax=ax,
+            panel=panel,
             palette=palette,
             label=cbar_label,
             cbar_side=cbar_side,
@@ -221,7 +221,7 @@ def _generate_grid(
 
 def plot_2d_quiver(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
@@ -252,7 +252,7 @@ def plot_2d_quiver(
     )
     quiver_step_rows = max(1, array_2d_rows.shape[0] // num_quivers)
     quiver_step_cols = max(1, array_2d_cols.shape[1] // num_quivers)
-    quiver_obj = ax.quiver(
+    quiver_obj = panel.quiver(
         grid_x[::quiver_step_rows, ::quiver_step_cols],
         grid_y[::quiver_step_rows, ::quiver_step_cols],
         array_2d_cols[::quiver_step_rows, ::quiver_step_cols],
@@ -261,14 +261,14 @@ def plot_2d_quiver(
         color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return quiver_obj
 
 
 def plot_2d_streamlines(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
@@ -298,7 +298,7 @@ def plot_2d_streamlines(
         field_shape=cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
     )
-    stream_obj = ax.streamplot(
+    stream_obj = panel.streamplot(
         grid_x,
         grid_y,
         array_2d_cols,
@@ -309,14 +309,14 @@ def plot_2d_streamlines(
         color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return stream_obj
 
 
 def plot_2d_contours(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_plots.PlotPanel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
@@ -337,7 +337,7 @@ def plot_2d_contours(
         field_shape=cast(tuple[int, int], array_view.shape),
         axis_extent=axis_extent,
     )
-    contour_obj = ax.contour(
+    contour_obj = panel.contour(
         grid_x,
         grid_y,
         array_view,
@@ -347,8 +347,8 @@ def plot_2d_contours(
         linestyles=linestyle,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return contour_obj
 
 
