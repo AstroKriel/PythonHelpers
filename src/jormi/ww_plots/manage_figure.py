@@ -71,9 +71,9 @@ class BoxShape:
             "width_cm",
             "height_cm",
         ):
-            value = getattr(self, param_name)
-            if not (value > 0):
-                raise ValueError(f"`{param_name}` must be positive, but got {value}.")
+            param_value = getattr(self, param_name)
+            if not (param_value > 0):
+                raise ValueError(f"`{param_name}` must be positive, but got {param_value}.")
 
     @property
     def as_mpl_shape(self) -> tuple[float, float]:
@@ -296,22 +296,30 @@ def create_figure(
 
     Overloads:
         - create_figure() -> (figure, panel)
-        - create_figure(num_panel_rows=N, num_panel_columns=M) -> (figure, panels) with shape (N, M)
+        - create_figure(num_panel_rows=N, num_panel_columns=M) -> (figure, panel_grid) of shape (N, M)
 
     Sizing
     ------
-    `panel_shape` is the share of the figure given to one panel, in cm, so the figure
-    comes out `panel_shape` times the grid. It is not the size the panel is drawn at: tick
-    labels and axis labels are held in margins taken out of that share, so the panel itself
-    is drawn smaller. A colorbar is placed beyond the panel rather than within those
-    margins, and so can reach past the figure edge.
+    A figure is sized in one of two ways, and asking for both is refused.
+
+    By default it takes its share of the page, from `figure_layout` or from the one
+    `set_theme` last set. The figure width is then fixed, so adding columns makes each
+    panel narrower, and `panel_aspect_ratio` sets the shape of the share each panel gets.
+
+    Passing `panel_shape` instead sizes each panel outright in cm, so the figure grows as
+    panels are added and is no longer tied to a page.
+
+    Either way, `panel_shape` is the share of the figure a panel gets, not the size it is
+    drawn at: tick labels and axis labels are held in margins taken out of that share, so
+    the panel itself is drawn smaller. A colorbar is placed beyond the panel rather than
+    within those margins, and so can reach past the figure edge.
 
     Notes
     -----
     - If `num_panel_rows` and `num_panel_columns` are both None (or omitted), a single-panel
-      figure is created and a single Axis is returned.
-    - If `num_panel_rows` and `num_panel_columns` are both provided as integers, a grid of
-      panels is created and a 2D object-dtype array of Axes is returned.
+      figure is created and a single Panel is returned.
+    - If both are given as integers, a grid is created and a 2D object-dtype `PanelGrid` is
+      returned; 1x1 is refused, since that is the single-panel case.
     - Mixed None/int specifications are not allowed.
     """
     if (num_panel_rows is None) and (num_panel_columns is None):
@@ -441,7 +449,8 @@ def compute_adjacent_panel_bounds(
     thickness: float = 1.0,
     length: float = 1.0,
 ) -> PanelBounds:
-    """Compute figure bounds for a panel placed adjacent to `panel`.
+    """
+    Compute figure bounds for a panel placed adjacent to `panel`.
 
     The new panel sits on the `side` of `panel`, offset by `gap` (in figure coordinates).
     `thickness` sets its extent perpendicular to `side`, as a fraction of `panel`'s

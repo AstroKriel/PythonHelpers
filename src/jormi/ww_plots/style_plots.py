@@ -153,9 +153,9 @@ class FigureMargins:
             "bottom",
             "top",
         ):
-            value = getattr(self, param_name)
-            if value < 0:
-                raise ValueError(f"`{param_name}` must not be negative, but got {value}.")
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
 
 
 @dataclasses.dataclass(
