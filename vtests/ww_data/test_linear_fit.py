@@ -102,8 +102,8 @@ class TestLinearFit:
         fits_to_test = self._compute_fits(gaussian_series)
         num_fits = len(fits_to_test)
         figure, panels_grid = manage_figure.create_figure(
-            num_rows=num_fits,
-            num_cols=1,
+            num_panel_rows=num_fits,
+            num_panel_columns=1,
             share_x=True,
         )
         failed_fits: list[str] = []

@@ -101,17 +101,17 @@ DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
 
 def _compute_figure_shape(
     *,
-    num_rows: int = 1,
-    num_cols: int = 1,
+    num_panel_rows: int = 1,
+    num_panel_columns: int = 1,
     figure_scale: float = 1.0,
     panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
 ) -> BoxShape:
     """Compute figure size (cm) from the share each panel gets."""
-    if (num_rows < 1) or (num_cols < 1):
-        raise ValueError("`num_rows` and `num_cols` must both be >= 1.")
+    if (num_panel_rows < 1) or (num_panel_columns < 1):
+        raise ValueError("`num_panel_rows` and `num_panel_columns` must both be >= 1.")
     return BoxShape(
-        width_cm=figure_scale * panel_shape.width_cm * num_cols,
-        height_cm=figure_scale * panel_shape.height_cm * num_rows,
+        width_cm=figure_scale * panel_shape.width_cm * num_panel_columns,
+        height_cm=figure_scale * panel_shape.height_cm * num_panel_rows,
     )
 
 
@@ -157,7 +157,7 @@ def _place_panels_in_figure(
 def _split_width_across_panels(
     *,
     width_cm: float,
-    num_cols: int,
+    num_panel_columns: int,
     aspect_ratio: float,
 ) -> BoxShape:
     """
@@ -166,11 +166,11 @@ def _split_width_across_panels(
     `aspect_ratio` is the width / height of that share; a panel is drawn smaller than
     its share, by whatever the margins hold.
     """
-    if num_cols < 1:
-        raise ValueError(f"`num_cols` must be >= 1, but got {num_cols}.")
+    if num_panel_columns < 1:
+        raise ValueError(f"`num_panel_columns` must be >= 1, but got {num_panel_columns}.")
     if not (aspect_ratio > 0):
         raise ValueError(f"`aspect_ratio` must be positive, but got {aspect_ratio}.")
-    panel_width_cm = width_cm / num_cols
+    panel_width_cm = width_cm / num_panel_columns
     return BoxShape(
         height_cm=panel_width_cm / aspect_ratio,
         width_cm=panel_width_cm,
@@ -179,8 +179,8 @@ def _split_width_across_panels(
 
 def _get_figure_shape(
     *,
-    num_rows: int,
-    num_cols: int,
+    num_panel_rows: int,
+    num_panel_columns: int,
     figure_scale: float,
     panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
@@ -202,12 +202,12 @@ def _get_figure_shape(
             aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
         page_panel_shape = _split_width_across_panels(
             width_cm=active_figure_layout.figure_width.width_cm,
-            num_cols=num_cols,
+            num_panel_columns=num_panel_columns,
             aspect_ratio=aspect_ratio,
         )
         figure_shape = _compute_figure_shape(
-            num_rows=num_rows,
-            num_cols=num_cols,
+            num_panel_rows=num_panel_rows,
+            num_panel_columns=num_panel_columns,
             panel_shape=page_panel_shape,
         )
         return figure_shape, active_figure_layout
@@ -222,8 +222,8 @@ def _get_figure_shape(
             " with `panel_shape` the shape of each panel is already set by it.",
         )
     figure_shape = _compute_figure_shape(
-        num_rows=num_rows,
-        num_cols=num_cols,
+        num_panel_rows=num_panel_rows,
+        num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
         panel_shape=panel_shape,
     )
@@ -238,8 +238,8 @@ def _get_figure_shape(
 @overload
 def create_figure(
     *,
-    num_rows: None = None,
-    num_cols: None = None,
+    num_panel_rows: None = None,
+    num_panel_columns: None = None,
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
@@ -257,8 +257,8 @@ def create_figure(
 @overload
 def create_figure(
     *,
-    num_rows: int,
-    num_cols: int,
+    num_panel_rows: int,
+    num_panel_columns: int,
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
@@ -275,8 +275,8 @@ def create_figure(
 
 def create_figure(
     *,
-    num_rows: int | None = None,
-    num_cols: int | None = None,
+    num_panel_rows: int | None = None,
+    num_panel_columns: int | None = None,
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
@@ -293,7 +293,7 @@ def create_figure(
 
     Overloads:
         - create_figure() -> (figure, panel)
-        - create_figure(num_rows=N, num_cols=M) -> (figure, panels) with shape (N, M)
+        - create_figure(num_panel_rows=N, num_panel_columns=M) -> (figure, panels) with shape (N, M)
 
     Sizing
     ------
@@ -305,18 +305,18 @@ def create_figure(
 
     Notes
     -----
-    - If `num_rows` and `num_cols` are both None (or omitted), a single-panel
+    - If `num_panel_rows` and `num_panel_columns` are both None (or omitted), a single-panel
       figure is created and a single Axis is returned.
-    - If `num_rows` and `num_cols` are both provided as integers, a grid of
+    - If `num_panel_rows` and `num_panel_columns` are both provided as integers, a grid of
       panels is created and a 2D object-dtype array of Axes is returned.
     - Mixed None/int specifications are not allowed.
     """
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
-    if (num_rows is None) and (num_cols is None):
+    if (num_panel_rows is None) and (num_panel_columns is None):
         figure_shape, active_figure_layout = _get_figure_shape(
-            num_rows=1,
-            num_cols=1,
+            num_panel_rows=1,
+            num_panel_columns=1,
             figure_scale=figure_scale,
             panel_shape=panel_shape,
             figure_layout=figure_layout,
@@ -336,37 +336,37 @@ def create_figure(
             figure_margins=active_figure_layout.figure_margins,
         )
         return figure, panel
-    if (num_rows is None) or (num_cols is None):
+    if (num_panel_rows is None) or (num_panel_columns is None):
         raise ValueError(
-            "Either specify both `num_rows` and `num_cols`, or neither."
+            "Either specify both `num_panel_rows` and `num_panel_columns`, or neither."
             " Mixed None/int combinations are not supported.",
         )
     validate_types.ensure_finite_int(
-        param=num_rows,
-        param_name="num_rows",
+        param=num_panel_rows,
+        param_name="num_panel_rows",
         require_positive=True,
     )
     validate_types.ensure_finite_int(
-        param=num_cols,
-        param_name="num_cols",
+        param=num_panel_columns,
+        param_name="num_panel_columns",
         require_positive=True,
     )
-    if (num_rows == 1) and (num_cols == 1):
+    if (num_panel_rows == 1) and (num_panel_columns == 1):
         raise ValueError(
-            "For a single-panel figure, omit `num_rows` and `num_cols` so that"
+            "For a single-panel figure, omit `num_panel_rows` and `num_panel_columns` so that"
             " a single Axis is returned instead of a 1x1 Axes grid.",
         )
     figure_shape, active_figure_layout = _get_figure_shape(
-        num_rows=num_rows,
-        num_cols=num_cols,
+        num_panel_rows=num_panel_rows,
+        num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
         panel_shape=panel_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
-        nrows=num_rows,
-        ncols=num_cols,
+        nrows=num_panel_rows,
+        ncols=num_panel_columns,
         figsize=figure_shape.as_mpl_shape,
         sharex=share_x,
         sharey=share_y,
@@ -385,8 +385,8 @@ def create_figure(
 
 def create_figure_grid(
     *,
-    num_rows: int = 1,
-    num_cols: int = 1,
+    num_panel_rows: int = 1,
+    num_panel_columns: int = 1,
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
@@ -399,10 +399,10 @@ def create_figure_grid(
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanelGrid]:
     """
-    Like `create_figure`, but always returns a 2D panel grid of shape (num_rows, num_cols), so
+    Like `create_figure`, but always returns a 2D panel grid of shape (num_panel_rows, num_panel_columns), so
     callers can always index panels as panels_grid[row, col].
     """
-    if (num_rows == 1) and (num_cols == 1):
+    if (num_panel_rows == 1) and (num_panel_columns == 1):
         figure, panel = create_figure(
             figure_scale=figure_scale,
             panel_shape=panel_shape,
@@ -414,8 +414,8 @@ def create_figure_grid(
         panels_grid: PlotPanelGrid = numpy.asarray([[panel]], dtype=object)
         return figure, panels_grid
     figure, panels_grid = create_figure(
-        num_rows=num_rows,
-        num_cols=num_cols,
+        num_panel_rows=num_panel_rows,
+        num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
         panel_shape=panel_shape,
         figure_layout=figure_layout,

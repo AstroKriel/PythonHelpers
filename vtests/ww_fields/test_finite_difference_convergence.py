@@ -126,8 +126,8 @@ class TestFiniteDifferenceConvergence:
         self,
     ) -> None:
         figure, panels_grid = manage_figure.create_figure(
-            num_rows=2,
-            num_cols=2,
+            num_panel_rows=2,
+            num_panel_columns=2,
             figure_scale=2.0,
             x_spacing=0.35,
         )

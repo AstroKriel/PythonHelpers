@@ -94,8 +94,8 @@ def main() -> None:
 
     num_panels = len(palettes)
     figure, panels = manage_figure.create_figure(
-        num_rows=num_panels,
-        num_cols=1,
+        num_panel_rows=num_panels,
+        num_panel_columns=1,
         panel_shape=manage_figure.BoxShape(
             width_cm=10.0,
             height_cm=10.0,
@@ -103,8 +103,8 @@ def main() -> None:
         x_spacing=0.3,
     )
 
-    for col_idx, (title, palette) in enumerate(palettes):
-        panel = panels[col_idx, 0]
+    for panel_index, (title, palette) in enumerate(palettes):
+        panel = panels[panel_index, 0]
         panel.imshow(
             data,
             norm=palette.mpl_norm,

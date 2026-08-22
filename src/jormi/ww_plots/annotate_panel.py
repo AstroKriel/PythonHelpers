@@ -147,7 +147,7 @@ def add_custom_legend(
     anchor_point: tuple[float, float] = (1.0, 1.0),
     anchor_at_corner: box_positions.Positions.PositionLike = box_positions.Positions.Corner.TopRight,
     frame_alpha: float = 0.0,
-    num_cols: int = 1,
+    num_legend_columns: int = 1,
     spacing: float = 0.5,
     marker_first: bool = True,
 ):
@@ -253,7 +253,7 @@ def add_custom_legend(
         framealpha=frame_alpha,
         facecolor="white",
         edgecolor="black",
-        ncol=num_cols,
+        ncol=num_legend_columns,
         borderpad=0.45,
         handletextpad=spacing,
         labelspacing=spacing,

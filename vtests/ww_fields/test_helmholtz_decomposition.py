@@ -318,8 +318,8 @@ class TestHelmholtzDecomposition:
         input_vfields = self._build_input_vfields(uniform_domain_3d)
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
         figure, panels_grid = manage_figure.create_figure(
-            num_rows=4,
-            num_cols=4,
+            num_panel_rows=4,
+            num_panel_columns=4,
             panel_shape=manage_figure.BoxShape(
                 width_cm=20.0,
                 height_cm=17.5,

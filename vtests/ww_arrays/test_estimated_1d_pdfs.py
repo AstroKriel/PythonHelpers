@@ -58,8 +58,8 @@ class TestEstimated1DPDFs:
         pdf_scenarios = self._generate_pdf_samples()
         num_pdfs = len(pdf_scenarios)
         figure, panels_grid = manage_figure.create_figure(
-            num_rows=num_pdfs,
-            num_cols=1,
+            num_panel_rows=num_pdfs,
+            num_panel_columns=1,
             y_spacing=0.25,
         )
         failed_pdfs: list[str] = []
