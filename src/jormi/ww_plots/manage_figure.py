@@ -122,27 +122,27 @@ def _place_panels_in_figure(
     """
     Place the panels within `figure`, leaving `margins` clear around them.
 
-    Margins are in points, while Matplotlib places panels as fractions of the figure, so
+    Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     the figure's own size is what converts between the two.
     """
     width_inches, height_inches = figure.get_size_inches()
-    width_points = float(width_inches) * style_plots.POINTS_PER_INCH
-    height_points = float(height_inches) * style_plots.POINTS_PER_INCH
-    if (margins.left_margin + margins.right_margin) >= width_points:
+    width_pt = float(width_inches) * style_plots.PT_PER_INCH
+    height_pt = float(height_inches) * style_plots.PT_PER_INCH
+    if (margins.left_margin + margins.right_margin) >= width_pt:
         raise ValueError(
             f"`left_margin` + `right_margin` ({margins.left_margin + margins.right_margin} pt)"
-            f" leave no room for the panels in a figure {width_points:.1f} pt wide.",
+            f" leave no room for the panels in a figure {width_pt:.1f} pt wide.",
         )
-    if (margins.bottom_margin + margins.top_margin) >= height_points:
+    if (margins.bottom_margin + margins.top_margin) >= height_pt:
         raise ValueError(
             f"`bottom_margin` + `top_margin` ({margins.bottom_margin + margins.top_margin} pt)"
-            f" leave no room for the panels in a figure {height_points:.1f} pt tall.",
+            f" leave no room for the panels in a figure {height_pt:.1f} pt tall.",
         )
     figure.subplots_adjust(
-        left=margins.left_margin / width_points,
-        right=1.0 - (margins.right_margin / width_points),
-        bottom=margins.bottom_margin / height_points,
-        top=1.0 - (margins.top_margin / height_points),
+        left=margins.left_margin / width_pt,
+        right=1.0 - (margins.right_margin / width_pt),
+        bottom=margins.bottom_margin / height_pt,
+        top=1.0 - (margins.top_margin / height_pt),
     )
     if (x_spacing is not None) and (y_spacing is not None):
         figure.subplots_adjust(

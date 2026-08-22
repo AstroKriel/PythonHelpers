@@ -122,7 +122,7 @@ class TextSizes:
 ##
 
 CM_PER_INCH: float = 2.54
-POINTS_PER_INCH: float = 72.0
+PT_PER_INCH: float = 72.0
 
 
 @dataclasses.dataclass(
@@ -131,9 +131,9 @@ POINTS_PER_INCH: float = 72.0
 )
 class FigureMargins:
     """
-    Space between the figure edge and the axes, in points.
+    Space between the figure edge and the axes, in pt (1 pt = 1/72 inch).
 
-    Points, not fractions, because what the margins hold is measured in points: tick
+    Absolute, not fractional, because what the margins hold is measured in pt: tick
     labels, axis labels and the tick marks themselves. A fraction would give a wide
     figure more room than its labels need and a narrow one too little.
     """
@@ -360,7 +360,7 @@ def _get_base_rc_params(
         ## font
         "font.family": "serif",
         **text_sizes.as_rc_params(),
-        ## Lines, ticks and pads are in points, like the text, and are chosen for the
+        ## Lines, ticks and pads are in pt, like the text, and are chosen for the
         ## medium a figure is bound for rather than derived from the text size. A figure
         ## drawn wider keeps the same stroke weights, since a point stays a point.
         "lines.linewidth": 0.9,
