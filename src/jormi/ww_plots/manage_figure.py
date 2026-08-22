@@ -181,7 +181,6 @@ def _ensure_figure_sizing(
     *,
     panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
-    figure_scale: float,
     panel_aspect_ratio: float | None,
 ) -> None:
     """
@@ -192,11 +191,6 @@ def _ensure_figure_sizing(
     panels are added, and the figure is no longer tied to a page.
     """
     if panel_shape is None:
-        if figure_scale != 1.0:
-            raise ValueError(
-                f"`figure_scale` must be 1.0 when a figure is sized to a page, but got {figure_scale}."
-                " Scaling it would break the page anchoring; set `width_fraction` instead.",
-            )
         return
     if figure_layout is not None:
         raise ValueError(
@@ -226,7 +220,6 @@ def _compute_figure_shape(
     figure_layout: style_plots.FigureLayout,
     num_panel_rows: int,
     num_panel_columns: int,
-    figure_scale: float,
     panel_aspect_ratio: float | None,
 ) -> BoxShape:
     """
@@ -248,8 +241,8 @@ def _compute_figure_shape(
     else:
         figure_panel_shape = panel_shape
     return BoxShape(
-        width_cm=figure_scale * figure_panel_shape.width_cm * num_panel_columns,
-        height_cm=figure_scale * figure_panel_shape.height_cm * num_panel_rows,
+        width_cm=figure_panel_shape.width_cm * num_panel_columns,
+        height_cm=figure_panel_shape.height_cm * num_panel_rows,
     )
 
 
@@ -263,7 +256,6 @@ def create_figure(
     *,
     num_panel_rows: None = None,
     num_panel_columns: None = None,
-    figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
@@ -278,7 +270,6 @@ def create_figure(
     *,
     num_panel_rows: int,
     num_panel_columns: int,
-    figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
@@ -296,7 +287,6 @@ def create_figure(
     *,
     num_panel_rows: int | None = None,
     num_panel_columns: int | None = None,
-    figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
@@ -336,7 +326,6 @@ def create_figure(
         _ensure_figure_sizing(
             panel_shape=panel_shape,
             figure_layout=figure_layout,
-            figure_scale=figure_scale,
             panel_aspect_ratio=panel_aspect_ratio,
         )
         figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
@@ -345,7 +334,6 @@ def create_figure(
             figure_layout=figure_layout,
             num_panel_rows=1,
             num_panel_columns=1,
-            figure_scale=figure_scale,
             panel_aspect_ratio=panel_aspect_ratio,
         )
         figure, panel = mpl_plot.subplots(
@@ -385,7 +373,6 @@ def create_figure(
     _ensure_figure_sizing(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        figure_scale=figure_scale,
         panel_aspect_ratio=panel_aspect_ratio,
     )
     figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
@@ -394,7 +381,6 @@ def create_figure(
         figure_layout=figure_layout,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        figure_scale=figure_scale,
         panel_aspect_ratio=panel_aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
@@ -423,7 +409,6 @@ def create_figure_grid(
     *,
     num_panel_rows: int = 1,
     num_panel_columns: int = 1,
-    figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
@@ -440,7 +425,6 @@ def create_figure_grid(
     """
     if (num_panel_rows == 1) and (num_panel_columns == 1):
         figure, panel = create_figure(
-            figure_scale=figure_scale,
             panel_shape=panel_shape,
             figure_layout=figure_layout,
             panel_aspect_ratio=panel_aspect_ratio,
@@ -452,7 +436,6 @@ def create_figure_grid(
     figure, panels_grid = create_figure(
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        figure_scale=figure_scale,
         panel_shape=panel_shape,
         figure_layout=figure_layout,
         panel_aspect_ratio=panel_aspect_ratio,
