@@ -99,22 +99,6 @@ DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
 )
 
 
-def _compute_figure_shape(
-    *,
-    panel_shape: BoxShape = DEFAULT_PANEL_SHAPE,
-    num_panel_rows: int = 1,
-    num_panel_columns: int = 1,
-    figure_scale: float = 1.0,
-) -> BoxShape:
-    """Compute figure size (cm) from the share each panel gets."""
-    if (num_panel_rows < 1) or (num_panel_columns < 1):
-        raise ValueError("`num_panel_rows` and `num_panel_columns` must both be >= 1.")
-    return BoxShape(
-        width_cm=figure_scale * panel_shape.width_cm * num_panel_columns,
-        height_cm=figure_scale * panel_shape.height_cm * num_panel_rows,
-    )
-
-
 def _set_figure_margins(
     *,
     figure: mpl_Figure,
@@ -197,6 +181,7 @@ def _ensure_figure_sizing(
     *,
     panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
+    figure_scale: float,
     panel_aspect_ratio: float | None,
 ) -> None:
     """
@@ -207,6 +192,11 @@ def _ensure_figure_sizing(
     panels are added, and the figure is no longer tied to a page.
     """
     if panel_shape is None:
+        if figure_scale != 1.0:
+            raise ValueError(
+                f"`figure_scale` must be 1.0 when a figure is sized to a page, but got {figure_scale}."
+                " Scaling it would break the page anchoring; set `width_fraction` instead.",
+            )
         return
     if figure_layout is not None:
         raise ValueError(
@@ -220,7 +210,7 @@ def _ensure_figure_sizing(
         )
 
 
-def _get_active_figure_layout(
+def _resolve_figure_layout(
     *,
     figure_layout: style_plots.FigureLayout | None,
 ) -> style_plots.FigureLayout:
@@ -230,7 +220,7 @@ def _get_active_figure_layout(
     return figure_layout
 
 
-def _get_figure_shape(
+def _compute_figure_shape(
     *,
     panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout,
@@ -240,29 +230,26 @@ def _get_figure_shape(
     panel_aspect_ratio: float | None,
 ) -> BoxShape:
     """
-    Size a figure, either from its share of the page or from the size each panel is given.
+    Size a figure (cm), either from its share of the page or from the size each panel is given.
 
     `panel_shape` is what chooses between the two; `_ensure_figure_sizing` is what checks
     the two ways were not both asked for.
     """
+    if (num_panel_rows < 1) or (num_panel_columns < 1):
+        raise ValueError("`num_panel_rows` and `num_panel_columns` must both be >= 1.")
     if panel_shape is None:
         if panel_aspect_ratio is None:
             panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
-        page_panel_shape = _compute_panel_shape(
+        figure_panel_shape = _compute_panel_shape(
             figure_width_cm=figure_layout.figure_width.width_cm,
             num_panel_columns=num_panel_columns,
             panel_aspect_ratio=panel_aspect_ratio,
         )
-        return _compute_figure_shape(
-            panel_shape=page_panel_shape,
-            num_panel_rows=num_panel_rows,
-            num_panel_columns=num_panel_columns,
-        )
-    return _compute_figure_shape(
-        panel_shape=panel_shape,
-        num_panel_rows=num_panel_rows,
-        num_panel_columns=num_panel_columns,
-        figure_scale=figure_scale,
+    else:
+        figure_panel_shape = panel_shape
+    return BoxShape(
+        width_cm=figure_scale * figure_panel_shape.width_cm * num_panel_columns,
+        height_cm=figure_scale * figure_panel_shape.height_cm * num_panel_rows,
     )
 
 
@@ -349,12 +336,13 @@ def create_figure(
         _ensure_figure_sizing(
             panel_shape=panel_shape,
             figure_layout=figure_layout,
+            figure_scale=figure_scale,
             panel_aspect_ratio=panel_aspect_ratio,
         )
-        active_figure_layout = _get_active_figure_layout(figure_layout=figure_layout)
-        figure_shape = _get_figure_shape(
+        figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
+        figure_shape = _compute_figure_shape(
             panel_shape=panel_shape,
-            figure_layout=active_figure_layout,
+            figure_layout=figure_layout,
             num_panel_rows=1,
             num_panel_columns=1,
             figure_scale=figure_scale,
@@ -371,7 +359,7 @@ def create_figure(
         _set_figure_margins(
             figure=figure,
             figure_shape=figure_shape,
-            figure_margins=active_figure_layout.figure_margins,
+            figure_margins=figure_layout.figure_margins,
         )
         return figure, panel
     if (num_panel_rows is None) or (num_panel_columns is None):
@@ -397,12 +385,13 @@ def create_figure(
     _ensure_figure_sizing(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
+        figure_scale=figure_scale,
         panel_aspect_ratio=panel_aspect_ratio,
     )
-    active_figure_layout = _get_active_figure_layout(figure_layout=figure_layout)
-    figure_shape = _get_figure_shape(
+    figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
+    figure_shape = _compute_figure_shape(
         panel_shape=panel_shape,
-        figure_layout=active_figure_layout,
+        figure_layout=figure_layout,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         figure_scale=figure_scale,
@@ -419,7 +408,7 @@ def create_figure(
     _set_figure_margins(
         figure=figure,
         figure_shape=figure_shape,
-        figure_margins=active_figure_layout.figure_margins,
+        figure_margins=figure_layout.figure_margins,
     )
     _set_panel_spacing(
         figure=figure,

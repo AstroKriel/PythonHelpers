@@ -128,7 +128,6 @@ class TestFiniteDifferenceConvergence:
         figure, panels_grid = manage_figure.create_figure(
             num_panel_rows=2,
             num_panel_columns=2,
-            figure_scale=2.0,
             panel_column_spacing=0.35,
         )
         self._plot_exact_soln(panels_grid)
