@@ -96,7 +96,7 @@ DEFAULT_AXIS_SHAPE: BoxShape = BoxShape(
 )
 
 
-def _get_figure_shape(
+def _compute_figure_shape(
     *,
     num_rows: int = 1,
     num_cols: int = 1,
@@ -193,7 +193,7 @@ def _resolve_figure_shape(
     active_layout = style_plots.get_figure_layout() if (figure_layout is None) else figure_layout
     if axis_shape is None:
         return (
-            _get_figure_shape(
+            _compute_figure_shape(
                 num_rows=num_rows,
                 num_cols=num_cols,
                 axis_shape=_split_width_across_axes(
@@ -215,7 +215,7 @@ def _resolve_figure_shape(
             " with `axis_shape` the shape of each axis is already set by it.",
         )
     return (
-        _get_figure_shape(
+        _compute_figure_shape(
             num_rows=num_rows,
             num_cols=num_cols,
             figure_scale=figure_scale,
