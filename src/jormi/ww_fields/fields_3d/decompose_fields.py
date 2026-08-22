@@ -183,7 +183,7 @@ def compute_tnb_decomposed_fields(
         param_name="<vfield_3d>",
     )
     sim_time = vfield_3d.sim_time
-    tnb_farrays_3d = _decompose_farrays.compute_tnb_farrays_3d(
+    tnb_farrays_3d = _decompose_farrays.compute_tnb_farrays(
         varray_3d=varray_3d,
         cell_widths_3d=uniform_domain_3d.cell_widths,
         grad_order=grad_order,
@@ -334,7 +334,7 @@ def compute_magnetic_curvature_decomposed_fields(
     )
     uniform_domain_3d = velocity_vfield_3d.uniform_domain
     sim_time = velocity_vfield_3d.sim_time
-    magnetic_curvature_farrays_3d = _decompose_farrays.compute_magnetic_curvature_farrays_3d(
+    magnetic_curvature_farrays_3d = _decompose_farrays.compute_magnetic_curvature_farrays(
         v_varray_3d=v_varray_3d,
         tangent_uvarray_3d=tangent_uvarray_3d,
         normal_uvarray_3d=normal_uvarray_3d,
@@ -437,7 +437,7 @@ def compute_lorentz_force_decomposed_fields(
         param_name="<magnetic_vfield_3d>",
     )
     sim_time = magnetic_vfield_3d.sim_time
-    lorentz_force_farrays_3d = _decompose_farrays.compute_lorentz_force_farrays_3d(
+    lorentz_force_farrays_3d = _decompose_farrays.compute_lorentz_force_farrays(
         b_varray_3d=b_varray_3d,
         cell_widths_3d=uniform_domain_3d.cell_widths,
         grad_order=grad_order,
