@@ -115,16 +115,14 @@ def _compute_figure_shape(
     )
 
 
-def _place_panels_in_figure(
+def _set_figure_margins(
     *,
     figure: mpl_Figure,
     figure_shape: BoxShape,
     figure_margins: style_plots.FigureMargins,
-    panel_column_spacing: float | None = None,
-    panel_row_spacing: float | None = None,
 ) -> None:
     """
-    Place the panels within `figure`, leaving `figure_margins` clear around them.
+    Leave `figure_margins` clear around the panels in `figure`.
 
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     `figure_shape` is what converts between the two.
@@ -153,11 +151,23 @@ def _place_panels_in_figure(
         bottom=bottom_position,
         top=top_position,
     )
-    if (panel_column_spacing is not None) and (panel_row_spacing is not None):
-        figure.subplots_adjust(
-            wspace=panel_column_spacing,
-            hspace=panel_row_spacing,
-        )
+
+
+def _set_panel_spacing(
+    *,
+    figure: mpl_Figure,
+    panel_column_spacing: float,
+    panel_row_spacing: float,
+) -> None:
+    """
+    Set the gaps between the panels in `figure`.
+
+    Both are fractions of a panel's own width or height, as Matplotlib measures them.
+    """
+    figure.subplots_adjust(
+        wspace=panel_column_spacing,
+        hspace=panel_row_spacing,
+    )
 
 
 def _split_width_across_panels(
@@ -332,7 +342,7 @@ def create_figure(
             sharey=share_y_axis,
             squeeze=True,
         )
-        _place_panels_in_figure(
+        _set_figure_margins(
             figure=figure,
             figure_shape=figure_shape,
             figure_margins=active_figure_layout.figure_margins,
@@ -374,10 +384,13 @@ def create_figure(
         sharey=share_y_axis,
         squeeze=False,
     )
-    _place_panels_in_figure(
+    _set_figure_margins(
         figure=figure,
         figure_shape=figure_shape,
         figure_margins=active_figure_layout.figure_margins,
+    )
+    _set_panel_spacing(
+        figure=figure,
         panel_column_spacing=panel_column_spacing,
         panel_row_spacing=panel_row_spacing,
     )
