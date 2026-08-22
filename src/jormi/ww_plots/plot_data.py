@@ -156,7 +156,7 @@ def plot_2d_array(
     panel: manage_figure.PlotPanel,
     array_2d: NDArray[Any],
     data_format: DataFormat,
-    panel_aspect_ratio: Literal["equal", "auto"] = "equal",
+    data_aspect_ratio: Literal["equal", "auto"] = "equal",
     axis_ranges: AxisRanges | None = None,
     colorbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
@@ -187,7 +187,7 @@ def plot_2d_array(
     im_obj = panel.imshow(
         array_view,
         extent=axis_extent,
-        aspect=panel_aspect_ratio,
+        aspect=data_aspect_ratio,
         origin="lower",
         cmap=palette.mpl_cmap,
         norm=palette.mpl_norm,

@@ -174,33 +174,33 @@ def _split_width_across_panels(
     *,
     width_cm: float,
     num_panel_columns: int,
-    aspect_ratio: float,
+    panel_aspect_ratio: float,
 ) -> BoxShape:
     """
     Share a figure's width between the panels in a row, giving the share each one gets.
 
-    `aspect_ratio` is the width / height of that share; a panel is drawn smaller than
+    `panel_aspect_ratio` is the width / height of that share; a panel is drawn smaller than
     its share, by whatever the margins hold.
     """
     if num_panel_columns < 1:
         raise ValueError(f"`num_panel_columns` must be >= 1, but got {num_panel_columns}.")
-    if not (aspect_ratio > 0):
-        raise ValueError(f"`aspect_ratio` must be positive, but got {aspect_ratio}.")
+    if not (panel_aspect_ratio > 0):
+        raise ValueError(f"`panel_aspect_ratio` must be positive, but got {panel_aspect_ratio}.")
     panel_width_cm = width_cm / num_panel_columns
     return BoxShape(
-        height_cm=panel_width_cm / aspect_ratio,
+        height_cm=panel_width_cm / panel_aspect_ratio,
         width_cm=panel_width_cm,
     )
 
 
 def _get_figure_shape(
     *,
+    panel_shape: BoxShape | None,
     num_panel_rows: int,
     num_panel_columns: int,
     figure_scale: float,
-    panel_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
-    aspect_ratio: float | None,
+    panel_aspect_ratio: float | None,
 ) -> tuple[BoxShape, style_plots.FigureLayout]:
     """
     Size a figure from a page layout, or in its own terms, but not both.
@@ -214,12 +214,12 @@ def _get_figure_shape(
     else:
         active_figure_layout = figure_layout
     if panel_shape is None:
-        if aspect_ratio is None:
-            aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
+        if panel_aspect_ratio is None:
+            panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
         page_panel_shape = _split_width_across_panels(
             width_cm=active_figure_layout.figure_width.width_cm,
             num_panel_columns=num_panel_columns,
-            aspect_ratio=aspect_ratio,
+            panel_aspect_ratio=panel_aspect_ratio,
         )
         figure_shape = _compute_figure_shape(
             num_panel_rows=num_panel_rows,
@@ -232,9 +232,9 @@ def _get_figure_shape(
             "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
             " figure to a share of the page, while `panel_shape` sizes each panel outright.",
         )
-    if aspect_ratio is not None:
+    if panel_aspect_ratio is not None:
         raise ValueError(
-            "`aspect_ratio` only applies when a figure is sized to a page;"
+            "`panel_aspect_ratio` only applies when a figure is sized to a page;"
             " with `panel_shape` the shape of each panel is already set by it.",
         )
     figure_shape = _compute_figure_shape(
@@ -259,7 +259,7 @@ def create_figure(
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
-    aspect_ratio: float | None = None,
+    panel_aspect_ratio: float | None = None,
     auto_style: bool = True,
     theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PlotPanel]:
@@ -274,7 +274,7 @@ def create_figure(
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
-    aspect_ratio: float | None = None,
+    panel_aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
@@ -292,7 +292,7 @@ def create_figure(
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
-    aspect_ratio: float | None = None,
+    panel_aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
@@ -332,7 +332,7 @@ def create_figure(
             figure_scale=figure_scale,
             panel_shape=panel_shape,
             figure_layout=figure_layout,
-            aspect_ratio=aspect_ratio,
+            panel_aspect_ratio=panel_aspect_ratio,
         )
         figure, panel = mpl_plot.subplots(
             nrows=1,
@@ -374,7 +374,7 @@ def create_figure(
         figure_scale=figure_scale,
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        aspect_ratio=aspect_ratio,
+        panel_aspect_ratio=panel_aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
         nrows=num_panel_rows,
@@ -405,7 +405,7 @@ def create_figure_grid(
     figure_scale: float = 1.0,
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
-    aspect_ratio: float | None = None,
+    panel_aspect_ratio: float | None = None,
     panel_column_spacing: float = 0.05,
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
@@ -422,7 +422,7 @@ def create_figure_grid(
             figure_scale=figure_scale,
             panel_shape=panel_shape,
             figure_layout=figure_layout,
-            aspect_ratio=aspect_ratio,
+            panel_aspect_ratio=panel_aspect_ratio,
             auto_style=auto_style,
             theme=theme,
         )
@@ -434,7 +434,7 @@ def create_figure_grid(
         figure_scale=figure_scale,
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        aspect_ratio=aspect_ratio,
+        panel_aspect_ratio=panel_aspect_ratio,
         panel_column_spacing=panel_column_spacing,
         panel_row_spacing=panel_row_spacing,
         share_x_axis=share_x_axis,
