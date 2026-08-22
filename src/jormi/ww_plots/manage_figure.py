@@ -323,53 +323,33 @@ def create_figure(
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_panel_rows is None) and (num_panel_columns is None):
-        _ensure_figure_sizing(
-            panel_shape=panel_shape,
-            figure_layout=figure_layout,
-            panel_aspect_ratio=panel_aspect_ratio,
-        )
-        figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
-        figure_shape = _compute_figure_shape(
-            panel_shape=panel_shape,
-            figure_layout=figure_layout,
-            num_panel_rows=1,
-            num_panel_columns=1,
-            panel_aspect_ratio=panel_aspect_ratio,
-        )
-        figure, panel = mpl_plot.subplots(
-            nrows=1,
-            ncols=1,
-            figsize=figure_shape.as_mpl_shape,
-            sharex=share_x_axis,
-            sharey=share_y_axis,
-            squeeze=True,
-        )
-        _set_figure_margins(
-            figure=figure,
-            figure_shape=figure_shape,
-            figure_margins=figure_layout.figure_margins,
-        )
-        return figure, panel
-    if (num_panel_rows is None) or (num_panel_columns is None):
+        is_single_panel = True
+        num_grid_rows = 1
+        num_grid_columns = 1
+    elif (num_panel_rows is None) or (num_panel_columns is None):
         raise ValueError(
             "Either specify both `num_panel_rows` and `num_panel_columns`, or neither."
             " Mixed None/int combinations are not supported.",
         )
-    validate_types.ensure_finite_int(
-        param=num_panel_rows,
-        param_name="num_panel_rows",
-        require_positive=True,
-    )
-    validate_types.ensure_finite_int(
-        param=num_panel_columns,
-        param_name="num_panel_columns",
-        require_positive=True,
-    )
-    if (num_panel_rows == 1) and (num_panel_columns == 1):
-        raise ValueError(
-            "For a single-panel figure, omit `num_panel_rows` and `num_panel_columns` so that"
-            " a single Axis is returned instead of a 1x1 Axes grid.",
+    else:
+        validate_types.ensure_finite_int(
+            param=num_panel_rows,
+            param_name="num_panel_rows",
+            require_positive=True,
         )
+        validate_types.ensure_finite_int(
+            param=num_panel_columns,
+            param_name="num_panel_columns",
+            require_positive=True,
+        )
+        if (num_panel_rows == 1) and (num_panel_columns == 1):
+            raise ValueError(
+                "For a single-panel figure, omit `num_panel_rows` and `num_panel_columns` so that"
+                " a single Panel is returned instead of a 1x1 panel grid.",
+            )
+        is_single_panel = False
+        num_grid_rows = num_panel_rows
+        num_grid_columns = num_panel_columns
     _ensure_figure_sizing(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
@@ -379,23 +359,26 @@ def create_figure(
     figure_shape = _compute_figure_shape(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        num_panel_rows=num_panel_rows,
-        num_panel_columns=num_panel_columns,
+        num_panel_rows=num_grid_rows,
+        num_panel_columns=num_grid_columns,
         panel_aspect_ratio=panel_aspect_ratio,
     )
     figure, panels = mpl_plot.subplots(
-        nrows=num_panel_rows,
-        ncols=num_panel_columns,
+        nrows=num_grid_rows,
+        ncols=num_grid_columns,
         figsize=figure_shape.as_mpl_shape,
         sharex=share_x_axis,
         sharey=share_y_axis,
-        squeeze=False,
+        ## squeeze a 1x1 grid down to the single Panel the caller asked for
+        squeeze=is_single_panel,
     )
     _set_figure_margins(
         figure=figure,
         figure_shape=figure_shape,
         figure_margins=figure_layout.figure_margins,
     )
+    if is_single_panel:
+        return figure, panels
     _set_panel_spacing(
         figure=figure,
         panel_column_spacing=panel_column_spacing,
