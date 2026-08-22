@@ -16,10 +16,12 @@ from numpy.typing import NDArray
 from jormi.ww_io import manage_log
 from jormi.ww_plots import (
     add_color,
+    annotate_panel,
     manage_plots,
     style_plots,
 )
 from jormi.ww_plots.color_palettes import SequentialPalette
+from jormi.ww_types import box_positions
 
 ##
 ## === DEMO DATA
@@ -112,19 +114,15 @@ def main() -> None:
             cbar_length=0.95,
             cbar_thickness=0.1,
         )
-        panel.text(
-            0.5,
-            0.95,
-            title,
-            fontsize=14,
-            va="top",
-            ha="center",
-            transform=panel.transAxes,
-            bbox=dict(
-                facecolor="white",
-                edgecolor="black",
-                boxstyle="round,pad=0.3",
-            ),
+        annotate_panel.add_text(
+            panel=panel,
+            x_pos=0.5,
+            y_pos=0.95,
+            label=title,
+            x_alignment=box_positions.Positions.Center.Center,
+            y_alignment=box_positions.Positions.Side.Top,
+            text_size=14,
+            box_alpha=1.0,
         )
         panel.set_xticks([])
         panel.set_yticks([])

@@ -18,7 +18,8 @@ from jormi.ww_arrays import compute_array_stats
 from jormi.ww_arrays.farrays_3d import difference_sarrays
 from jormi.ww_data import fit_series
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_types import box_positions
 
 ##
 ## === TYPE ALIASES
@@ -309,13 +310,13 @@ class TestFiniteDifferenceConvergence:
         y_min, y_max = panels_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)
         panels_grid[1, 0].set_ylim([y_min, y_max_new])
-        panels_grid[1, 0].text(
-            0.5,
-            0.95,
-            f"example with {self.num_samples_for_exact_soln} sampled points",
-            ha="center",
-            va="top",
-            transform=panels_grid[1, 0].transAxes,
+        annotate_panel.add_text(
+            panel=panels_grid[1, 0],
+            x_pos=0.5,
+            y_pos=0.95,
+            label=f"example with {self.num_samples_for_exact_soln} sampled points",
+            x_alignment=box_positions.Positions.Center.Center,
+            y_alignment=box_positions.Positions.Side.Top,
         )
         panels_grid[0, 0].set_xticklabels([])
         panels_grid[0, 0].set_ylabel(r"$y^*$")

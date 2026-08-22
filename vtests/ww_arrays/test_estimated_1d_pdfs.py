@@ -16,7 +16,8 @@ import numpy
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_types import box_positions
 
 ##
 ## === TYPE ALIASES
@@ -178,13 +179,13 @@ class TestEstimated1DPDFs:
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > self.integral_error_tol:
                 failed_bins.append(num_bins)
-        panel.text(
-            0.95,
-            0.95,
-            pdf_label,
-            ha="right",
-            va="top",
-            transform=panel.transAxes,
+        annotate_panel.add_text(
+            panel=panel,
+            x_pos=0.95,
+            y_pos=0.95,
+            label=pdf_label,
+            x_alignment=box_positions.Positions.Side.Right,
+            y_alignment=box_positions.Positions.Side.Top,
         )
         panel.set_ylabel(r"PDF$(x)$")
         return failed_bins

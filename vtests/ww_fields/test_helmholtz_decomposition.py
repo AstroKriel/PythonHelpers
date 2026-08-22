@@ -21,7 +21,8 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
 )
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_plots, style_plots
+from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_types
 
 ##
@@ -250,18 +251,14 @@ def plot_vfield_slice(
     )
     min_label = f"min: {sfield_q_magn_min:.2e}"
     max_label = f"max: {sfield_q_magn_max:.2e}"
-    panel.text(
-        0.05,
-        0.05,
-        f"{min_label}\n{max_label}",
-        va="bottom",
-        ha="left",
-        transform=panel.transAxes,
-        bbox=dict(
-            facecolor="white",
-            edgecolor="black",
-            boxstyle="round,pad=0.3",
-        ),
+    annotate_panel.add_text(
+        panel=panel,
+        x_pos=0.05,
+        y_pos=0.05,
+        label=f"{min_label}\n{max_label}",
+        x_alignment=box_positions.Positions.Side.Left,
+        y_alignment=box_positions.Positions.Side.Bottom,
+        box_alpha=1.0,
     )
     panel.set_xlim((domain_bounds[0], domain_bounds[1]))
     panel.set_ylim((domain_bounds[0], domain_bounds[1]))
@@ -269,23 +266,19 @@ def plot_vfield_slice(
     panel.set_yticks([])
 
 
-def annotate_ax(
+def annotate_panel_title(
     *,
     panel: manage_plots.PlotPanel,
     text: str,
 ) -> None:
-    panel.text(
-        0.5,
-        0.95,
-        text,
-        va="top",
-        ha="center",
-        transform=panel.transAxes,
-        bbox=dict(
-            facecolor="white",
-            edgecolor="black",
-            boxstyle="round,pad=0.3",
-        ),
+    annotate_panel.add_text(
+        panel=panel,
+        x_pos=0.5,
+        y_pos=0.95,
+        label=text,
+        x_alignment=box_positions.Positions.Center.Center,
+        y_alignment=box_positions.Positions.Side.Top,
+        box_alpha=1.0,
     )
 
 
@@ -523,7 +516,7 @@ class TestHelmholtzDecomposition:
                 vfield_3d=plot_vfield_3d,
                 domain_bounds=self.domain_bounds,
             )
-            annotate_ax(
+            annotate_panel_title(
                 panel=panel,
                 text=plot_annotation,
             )

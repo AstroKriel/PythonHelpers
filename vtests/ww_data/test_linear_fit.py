@@ -43,8 +43,8 @@ def plot_fit(
     fit_index: int,
     num_fits: int,
 ) -> None:
-    is_top_ax = fit_index == 0
-    is_bottom_ax = fit_index == num_fits - 1
+    is_top_panel = fit_index == 0
+    is_bottom_panel = fit_index == num_fits - 1
     x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
     panel.errorbar(
         gaussian_series.x_values,
@@ -52,7 +52,7 @@ def plot_fit(
         yerr=gaussian_series.y_sigmas,
         fmt="o",
         color="black",
-        label="data" if is_top_ax else None,
+        label="data" if is_top_panel else None,
     )
     panel.plot(
         x_fit_values,
@@ -65,7 +65,7 @@ def plot_fit(
         fontsize=20,
         loc="upper left",
     )
-    if is_bottom_ax:
+    if is_bottom_panel:
         panel.set_xlabel("x")
     else:
         panel.tick_params(labelbottom=False)

@@ -46,8 +46,8 @@ def plot_order(
     order_index: int,
     num_orders: int,
 ) -> None:
-    is_top_ax = order_index == 0
-    is_bottom_ax = order_index == num_orders - 1
+    is_top_panel = order_index == 0
+    is_bottom_panel = order_index == num_orders - 1
     panel.plot(
         result.x_values,
         result.y_values,
@@ -59,21 +59,21 @@ def plot_order(
         data_series.y_values,
         color="black",
         zorder=3,
-        label="input data" if is_top_ax else None,
+        label="input data" if is_top_panel else None,
     )
     panel.plot(
         result.x_values,
         evaluate_model(result.x_values),
         color="black",
         ls="--",
-        label="true f(x)" if is_top_ax else None,
+        label="true f(x)" if is_top_panel else None,
     )
     panel.set_ylabel("y")
     panel.legend(
         fontsize=20,
         loc="upper right",
     )
-    if is_bottom_ax:
+    if is_bottom_panel:
         panel.set_xlabel("x")
     else:
         panel.tick_params(labelbottom=False)
