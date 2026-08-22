@@ -127,24 +127,24 @@ def _set_figure_margins(
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     `figure_shape` is what converts between the two.
     """
-    width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
-    height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
-    if (figure_margins.left + figure_margins.right) >= width_pt:
+    figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
+    figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
+    if (figure_margins.left + figure_margins.right) >= figure_width_pt:
         raise ValueError(
             f"margins `left` + `right` ({figure_margins.left + figure_margins.right} pt)"
-            f" leave no room for the panels in a figure {width_pt:.1f} pt wide.",
+            f" leave no room for the panels in a figure {figure_width_pt:.1f} pt wide.",
         )
-    if (figure_margins.bottom + figure_margins.top) >= height_pt:
+    if (figure_margins.bottom + figure_margins.top) >= figure_height_pt:
         raise ValueError(
             f"margins `bottom` + `top` ({figure_margins.bottom + figure_margins.top} pt)"
-            f" leave no room for the panels in a figure {height_pt:.1f} pt tall.",
+            f" leave no room for the panels in a figure {figure_height_pt:.1f} pt tall.",
         )
     ## Matplotlib positions panels from the figure's left and bottom edges, so the right
     ## and top margins are measured back from the far edge
-    left_position = figure_margins.left / width_pt
-    right_position = 1.0 - (figure_margins.right / width_pt)
-    bottom_position = figure_margins.bottom / height_pt
-    top_position = 1.0 - (figure_margins.top / height_pt)
+    left_position = figure_margins.left / figure_width_pt
+    right_position = 1.0 - (figure_margins.right / figure_width_pt)
+    bottom_position = figure_margins.bottom / figure_height_pt
+    top_position = 1.0 - (figure_margins.top / figure_height_pt)
     figure.subplots_adjust(
         left=left_position,
         right=right_position,
@@ -172,7 +172,7 @@ def _set_panel_spacing(
 
 def _split_width_across_panels(
     *,
-    width_cm: float,
+    figure_width_cm: float,
     num_panel_columns: int,
     panel_aspect_ratio: float,
 ) -> BoxShape:
@@ -186,7 +186,7 @@ def _split_width_across_panels(
         raise ValueError(f"`num_panel_columns` must be >= 1, but got {num_panel_columns}.")
     if not (panel_aspect_ratio > 0):
         raise ValueError(f"`panel_aspect_ratio` must be positive, but got {panel_aspect_ratio}.")
-    panel_width_cm = width_cm / num_panel_columns
+    panel_width_cm = figure_width_cm / num_panel_columns
     return BoxShape(
         height_cm=panel_width_cm / panel_aspect_ratio,
         width_cm=panel_width_cm,
@@ -217,7 +217,7 @@ def _get_figure_shape(
         if panel_aspect_ratio is None:
             panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
         page_panel_shape = _split_width_across_panels(
-            width_cm=active_figure_layout.figure_width.width_cm,
+            figure_width_cm=active_figure_layout.figure_width.width_cm,
             num_panel_columns=num_panel_columns,
             panel_aspect_ratio=panel_aspect_ratio,
         )
