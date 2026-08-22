@@ -53,16 +53,16 @@ class TextSizes:
                 f"`size_ratio` must be greater than one, but got {self.size_ratio}."
                 " A ratio of one or less would step text up rather than down.",
             )
-        for name in (
+        for param_name in (
             "axis_label_level",
             "tick_label_level",
             "annotation_level",
             "legend_level",
         ):
-            level = getattr(self, name)
+            level = getattr(self, param_name)
             if level < 0:
                 raise ValueError(
-                    f"`{name}` must not be negative, but got {level}."
+                    f"`{param_name}` must not be negative, but got {level}."
                     " No text may be larger than `largest_size`.",
                 )
 
@@ -147,15 +147,15 @@ class FigureMargins:
     top: float = 6.0
 
     def __post_init__(self) -> None:
-        for name in (
+        for param_name in (
             "left",
             "right",
             "bottom",
             "top",
         ):
-            value = getattr(self, name)
+            value = getattr(self, param_name)
             if value < 0:
-                raise ValueError(f"`{name}` must not be negative, but got {value}.")
+                raise ValueError(f"`{param_name}` must not be negative, but got {value}.")
 
 
 @dataclasses.dataclass(

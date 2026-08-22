@@ -67,13 +67,13 @@ class BoxShape:
     height_cm: float
 
     def __post_init__(self) -> None:
-        for name in (
+        for param_name in (
             "width_cm",
             "height_cm",
         ):
-            value = getattr(self, name)
+            value = getattr(self, param_name)
             if not (value > 0):
-                raise ValueError(f"`{name}` must be positive, but got {value}.")
+                raise ValueError(f"`{param_name}` must be positive, but got {value}.")
 
     @property
     def as_mpl_shape(self) -> tuple[float, float]:
