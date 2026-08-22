@@ -170,14 +170,14 @@ def _set_panel_spacing(
     )
 
 
-def _split_width_across_panels(
+def _compute_panel_shape(
     *,
     figure_width_cm: float,
     num_panel_columns: int,
     panel_aspect_ratio: float,
 ) -> BoxShape:
     """
-    Share a figure's width between the panels in a row, giving the share each one gets.
+    Compute the share of a figure (cm) given to one panel, splitting its width by column.
 
     `panel_aspect_ratio` is the width / height of that share; a panel is drawn smaller than
     its share, by whatever the margins hold.
@@ -248,13 +248,13 @@ def _get_figure_shape(
     if panel_shape is None:
         if panel_aspect_ratio is None:
             panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
-        panel_shape = _split_width_across_panels(
+        page_panel_shape = _compute_panel_shape(
             figure_width_cm=figure_layout.figure_width.width_cm,
             num_panel_columns=num_panel_columns,
             panel_aspect_ratio=panel_aspect_ratio,
         )
         return _compute_figure_shape(
-            panel_shape=panel_shape,
+            panel_shape=page_panel_shape,
             num_panel_rows=num_panel_rows,
             num_panel_columns=num_panel_columns,
         )
