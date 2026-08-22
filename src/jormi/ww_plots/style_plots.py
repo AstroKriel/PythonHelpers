@@ -204,14 +204,14 @@ class FigureLayout:
     How tall a figure is, and how many axes it holds, are decided per figure instead.
     """
 
-    width: FigureWidth = FigureWidth()
-    margins: FigureMargins = FigureMargins()
+    figure_width: FigureWidth = FigureWidth()
+    figure_margins: FigureMargins = FigureMargins()
 
 
 ## a figure spanning the full text width, and one spanning half of it, which is a single
 ## column of a two-column page
-FULL_PAGE_FIGURE_LAYOUT = FigureLayout(width=FigureWidth(width_fraction=1.0))
-HALF_PAGE_FIGURE_LAYOUT = FigureLayout(width=FigureWidth(width_fraction=0.5))
+FULL_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=1.0))
+HALF_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=0.5))
 
 
 ##

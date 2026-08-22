@@ -194,14 +194,14 @@ def _get_figure_shape(
     panels are added, and the figure is no longer tied to a page.
     """
     if figure_layout is None:
-        active_layout = style_plots.get_figure_layout()
+        active_figure_layout = style_plots.get_figure_layout()
     else:
-        active_layout = figure_layout
+        active_figure_layout = figure_layout
     if panel_shape is None:
         if aspect_ratio is None:
             aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
         page_panel_shape = _split_width_across_panels(
-            width_cm=active_layout.width.width_cm,
+            width_cm=active_figure_layout.figure_width.width_cm,
             num_cols=num_cols,
             aspect_ratio=aspect_ratio,
         )
@@ -210,7 +210,7 @@ def _get_figure_shape(
             num_cols=num_cols,
             panel_shape=page_panel_shape,
         )
-        return figure_shape, active_layout
+        return figure_shape, active_figure_layout
     if figure_layout is not None:
         raise ValueError(
             "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
@@ -227,7 +227,7 @@ def _get_figure_shape(
         figure_scale=figure_scale,
         panel_shape=panel_shape,
     )
-    return figure_shape, active_layout
+    return figure_shape, active_figure_layout
 
 
 ##
@@ -314,7 +314,7 @@ def create_figure(
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_rows is None) and (num_cols is None):
-        figure_shape, active_layout = _get_figure_shape(
+        figure_shape, active_figure_layout = _get_figure_shape(
             num_rows=1,
             num_cols=1,
             figure_scale=figure_scale,
@@ -333,7 +333,7 @@ def create_figure(
         _place_panels_in_figure(
             figure=figure,
             figure_shape=figure_shape,
-            figure_margins=active_layout.margins,
+            figure_margins=active_figure_layout.figure_margins,
         )
         return figure, panel
     if (num_rows is None) or (num_cols is None):
@@ -356,7 +356,7 @@ def create_figure(
             "For a single-panel figure, omit `num_rows` and `num_cols` so that"
             " a single Axis is returned instead of a 1x1 Axes grid.",
         )
-    figure_shape, active_layout = _get_figure_shape(
+    figure_shape, active_figure_layout = _get_figure_shape(
         num_rows=num_rows,
         num_cols=num_cols,
         figure_scale=figure_scale,
@@ -375,7 +375,7 @@ def create_figure(
     _place_panels_in_figure(
         figure=figure,
         figure_shape=figure_shape,
-        figure_margins=active_layout.margins,
+        figure_margins=active_figure_layout.figure_margins,
         x_spacing=x_spacing,
         y_spacing=y_spacing,
     )
