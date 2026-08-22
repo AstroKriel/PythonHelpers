@@ -131,7 +131,7 @@ class TestGradientWLSConvergence:
         file_path = Path(__file__).parent / "gradient_wls_convergence.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=file_path,
+            figure_path=file_path,
         )
         lower_bound, upper_bound = self.convergence_order_bounds
         converged = bool(lower_bound < fitted_slope.value < upper_bound)

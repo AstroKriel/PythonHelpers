@@ -362,10 +362,10 @@ class TestHelmholtzDecomposition:
                 )
             manage_log.log_empty_lines()
         ## always save even on failure, so a fail stays inspectable
-        fig_path = Path(__file__).parent / "helmholtz_decomposition.png"
+        figure_path = Path(__file__).parent / "helmholtz_decomposition.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
         )
         assert not failed_vfields, (
             f"Test failed for the following vector field(s): "

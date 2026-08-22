@@ -145,10 +145,10 @@ class TestSeriesInterpolation:
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "interpolated_series.png"
+        figure_path = Path(__file__).parent / "interpolated_series.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
         )
         assert not failed_orders, (
             f"Test failed for spline orders: {ww_lists.as_string(elems=failed_orders)}"

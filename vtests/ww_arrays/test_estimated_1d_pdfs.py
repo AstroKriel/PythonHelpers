@@ -86,10 +86,10 @@ class TestEstimated1DPDFs:
         )
         axs_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
-        fig_path = Path(__file__).parent / "estimated_1d_pdfs.png"
+        figure_path = Path(__file__).parent / "estimated_1d_pdfs.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
         )
         assert not failed_pdfs, (
             f"Test failed for the following distributions: {ww_lists.as_string(elems=failed_pdfs)}"

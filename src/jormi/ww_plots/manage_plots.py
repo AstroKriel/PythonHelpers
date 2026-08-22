@@ -96,19 +96,19 @@ DEFAULT_AXIS_SHAPE: BoxShape = BoxShape(
 )
 
 
-def _get_fig_shape(
+def _get_figure_shape(
     *,
     num_rows: int = 1,
     num_cols: int = 1,
-    fig_scale: float = 1.0,
+    figure_scale: float = 1.0,
     axis_shape: BoxShape = DEFAULT_AXIS_SHAPE,
 ) -> BoxShape:
     """Compute figure size (inches) from the share each axis gets."""
     if (num_rows < 1) or (num_cols < 1):
         raise ValueError("`num_rows` and `num_cols` must both be >= 1.")
     return BoxShape(
-        width=fig_scale * axis_shape.width * num_cols,
-        height=fig_scale * axis_shape.height * num_rows,
+        width=figure_scale * axis_shape.width * num_cols,
+        height=figure_scale * axis_shape.height * num_rows,
     )
 
 
@@ -174,11 +174,11 @@ def _split_width_across_axes(
     )
 
 
-def _resolve_fig_shape(
+def _resolve_figure_shape(
     *,
     num_rows: int,
     num_cols: int,
-    fig_scale: float,
+    figure_scale: float,
     axis_shape: BoxShape | None,
     figure_layout: style_plots.FigureLayout | None,
     aspect_ratio: float | None,
@@ -193,7 +193,7 @@ def _resolve_fig_shape(
     active_layout = style_plots.get_figure_layout() if (figure_layout is None) else figure_layout
     if axis_shape is None:
         return (
-            _get_fig_shape(
+            _get_figure_shape(
                 num_rows=num_rows,
                 num_cols=num_cols,
                 axis_shape=_split_width_across_axes(
@@ -215,10 +215,10 @@ def _resolve_fig_shape(
             " with `axis_shape` the shape of each axis is already set by it.",
         )
     return (
-        _get_fig_shape(
+        _get_figure_shape(
             num_rows=num_rows,
             num_cols=num_cols,
-            fig_scale=fig_scale,
+            figure_scale=figure_scale,
             axis_shape=axis_shape,
         ),
         active_layout,
@@ -235,7 +235,7 @@ def create_figure(
     *,
     num_rows: None = None,
     num_cols: None = None,
-    fig_scale: float = 1.0,
+    figure_scale: float = 1.0,
     axis_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
@@ -254,7 +254,7 @@ def create_figure(
     *,
     num_rows: int,
     num_cols: int,
-    fig_scale: float = 1.0,
+    figure_scale: float = 1.0,
     axis_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
@@ -272,7 +272,7 @@ def create_figure(
     *,
     num_rows: int | None = None,
     num_cols: int | None = None,
-    fig_scale: float = 1.0,
+    figure_scale: float = 1.0,
     axis_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
@@ -309,10 +309,10 @@ def create_figure(
     if auto_style and (theme is not None):
         style_plots.set_theme(theme=theme)
     if (num_rows is None) and (num_cols is None):
-        fig_shape, active_layout = _resolve_fig_shape(
+        figure_shape, active_layout = _resolve_figure_shape(
             num_rows=1,
             num_cols=1,
-            fig_scale=fig_scale,
+            figure_scale=figure_scale,
             axis_shape=axis_shape,
             figure_layout=figure_layout,
             aspect_ratio=aspect_ratio,
@@ -320,7 +320,7 @@ def create_figure(
         fig, ax = mpl_plot.subplots(
             nrows=1,
             ncols=1,
-            figsize=fig_shape.as_mpl_shape,
+            figsize=figure_shape.as_mpl_shape,
             sharex=share_x,
             sharey=share_y,
             squeeze=True,
@@ -350,10 +350,10 @@ def create_figure(
             "For a single-panel figure, omit `num_rows` and `num_cols` so that"
             " a single Axis is returned instead of a 1x1 Axes grid.",
         )
-    fig_shape, active_layout = _resolve_fig_shape(
+    figure_shape, active_layout = _resolve_figure_shape(
         num_rows=num_rows,
         num_cols=num_cols,
-        fig_scale=fig_scale,
+        figure_scale=figure_scale,
         axis_shape=axis_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
@@ -361,7 +361,7 @@ def create_figure(
     fig, axs = mpl_plot.subplots(
         nrows=num_rows,
         ncols=num_cols,
-        figsize=fig_shape.as_mpl_shape,
+        figsize=figure_shape.as_mpl_shape,
         sharex=share_x,
         sharey=share_y,
         squeeze=False,
@@ -380,7 +380,7 @@ def create_figure_grid(
     *,
     num_rows: int = 1,
     num_cols: int = 1,
-    fig_scale: float = 1.0,
+    figure_scale: float = 1.0,
     axis_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     aspect_ratio: float | None = None,
@@ -397,7 +397,7 @@ def create_figure_grid(
     """
     if (num_rows == 1) and (num_cols == 1):
         fig, ax = create_figure(
-            fig_scale=fig_scale,
+            figure_scale=figure_scale,
             axis_shape=axis_shape,
             figure_layout=figure_layout,
             aspect_ratio=aspect_ratio,
@@ -409,7 +409,7 @@ def create_figure_grid(
     fig, axs_grid = create_figure(
         num_rows=num_rows,
         num_cols=num_cols,
-        fig_scale=fig_scale,
+        figure_scale=figure_scale,
         axis_shape=axis_shape,
         figure_layout=figure_layout,
         aspect_ratio=aspect_ratio,
@@ -551,40 +551,40 @@ def add_inset_axis(
 def save_figure(
     *,
     fig: mpl_Figure,
-    fig_path: str | Path,
+    figure_path: str | Path,
     dpi: int = 200,
     verbose: bool = True,
 ) -> None:
     """
-    Save `fig` to `fig_path`; close it.
+    Save `fig` to `figure_path`; close it.
 
     Accepts `.png` or `.pdf` paths; errors are logged rather than raised.
     """
-    if not str(fig_path).endswith(".png") and not str(fig_path).endswith(".pdf"):
+    if not str(figure_path).endswith(".png") and not str(figure_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
     try:
-        fig.savefig(fig_path, dpi=dpi)
+        fig.savefig(figure_path, dpi=dpi)
         if verbose:
             manage_log.log_action(
                 title="Save figure",
                 outcome=manage_log.ActionOutcome.SUCCESS,
                 message="Saved figure.",
-                notes={"file": str(fig_path)},
+                notes={"file": str(figure_path)},
             )
     except FileNotFoundError as exception:
         manage_log.log_error(text=f"FileNotFoundError: {exception}")
     except PermissionError as exception:
         manage_log.log_error(
-            text=f"PermissionError: You do not have permission to save to: {fig_path}",
+            text=f"PermissionError: You do not have permission to save to: {figure_path}",
             notes={"details": str(exception)},
         )
     except IOError as exception:
         manage_log.log_error(
-            text=f"IOError: An error occurred while trying to save the figure to: {fig_path}",
+            text=f"IOError: An error occurred while trying to save the figure to: {figure_path}",
             notes={"details": str(exception)},
         )
     except Exception as exception:
-        manage_log.log_error(text=f"Unexpected error while saving the figure to {fig_path}: {exception}")
+        manage_log.log_error(text=f"Unexpected error while saving the figure to {figure_path}: {exception}")
     finally:
         mpl_plot.close(fig)
 

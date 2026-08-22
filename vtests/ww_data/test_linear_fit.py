@@ -134,10 +134,10 @@ class TestLinearFit:
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "linear_fit.png"
+        figure_path = Path(__file__).parent / "linear_fit.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
         )
         assert not failed_fits, (
             f"Test failed for the following fit methods: {ww_lists.as_string(elems=failed_fits)}"

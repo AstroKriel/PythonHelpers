@@ -145,10 +145,10 @@ class TestEstimated2DJPDF:
             jpdf * bin_widths_y[:, numpy.newaxis] * bin_widths_x[numpy.newaxis, :]
         )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "estimated_2d_jpdf.png"
+        figure_path = Path(__file__).parent / "estimated_2d_jpdf.png"
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
         )
         assert abs(pdf_integral - 1.0) < self.integral_error_tol, (
             f"JPDF with {self.num_bins} x {self.num_bins} bins sums to {pdf_integral:.6f}"

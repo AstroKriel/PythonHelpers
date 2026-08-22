@@ -127,7 +127,7 @@ class TestFiniteDifferenceConvergence:
         fig, axs_grid = manage_plots.create_figure(
             num_rows=2,
             num_cols=2,
-            fig_scale=2.0,
+            figure_scale=2.0,
             x_spacing=0.35,
         )
         self._plot_exact_soln(axs_grid)
@@ -137,7 +137,7 @@ class TestFiniteDifferenceConvergence:
         file_path = Path(__file__).parent / file_name
         manage_plots.save_figure(
             fig=fig,
-            fig_path=file_path,
+            figure_path=file_path,
         )
         assert len(
             failed_methods,

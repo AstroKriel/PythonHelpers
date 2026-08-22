@@ -132,7 +132,7 @@ def main() -> None:
     script_path = Path(__file__).parent
     manage_plots.save_figure(
         fig=fig,
-        fig_path=script_path / "sequential_palettes.png",
+        figure_path=script_path / "sequential_palettes.png",
     )
 
 

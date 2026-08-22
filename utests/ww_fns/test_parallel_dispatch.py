@@ -114,10 +114,10 @@ def plot_task(
             label=r"$(0.05, 0.95)$ \% of the fig uniform_domain",
         )
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
-        fig_path = fig_directory / fig_name
+        figure_path = fig_directory / fig_name
         manage_plots.save_figure(
             fig=fig,
-            fig_path=fig_path,
+            figure_path=figure_path,
             verbose=False,
         )
         return PlotTaskResult(
