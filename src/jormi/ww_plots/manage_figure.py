@@ -553,7 +553,7 @@ def add_inset_panel(
     bounds: tuple[float, float, float, float] = (0.0, 1.0, 1.0, 0.5),
     x_label: str | None = None,
     y_label: str | None = None,
-    fontsize: float | None = None,
+    text_size: float | None = None,
     x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> Panel:
@@ -561,18 +561,18 @@ def add_inset_panel(
     x_label_side = validate_box_positions.as_box_side(x_label_alignment)
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)
     inset_panel = panel.inset_axes(bounds)
-    if fontsize is None:
-        fontsize = rcParams["axes.labelsize"]
+    if text_size is None:
+        text_size = rcParams["axes.labelsize"]
     if x_label is not None:
         inset_panel.set_xlabel(
             xlabel=x_label,
-            fontsize=fontsize,
+            fontsize=text_size,
         )
         inset_panel.xaxis.set_label_position(x_label_side.value)  # pyright: ignore[reportArgumentType]
     if y_label is not None:
         inset_panel.set_ylabel(
             ylabel=y_label,
-            fontsize=fontsize,
+            fontsize=text_size,
         )
         inset_panel.yaxis.set_label_position(y_label_side.value)  # pyright: ignore[reportArgumentType]
     inset_panel.tick_params(

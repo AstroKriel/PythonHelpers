@@ -155,7 +155,7 @@ def _label_colorbar(
     colorbar: mpl_colorbar.Colorbar,
     label: str | None,
     colorbar_side: _Side,
-    label_size: int | float,
+    text_size: int | float,
     label_pad: float,
 ) -> None:
     if colorbar_side in (_Side.Left, _Side.Right):
@@ -163,7 +163,7 @@ def _label_colorbar(
         if label:
             colorbar.set_label(
                 label=label,
-                fontsize=label_size,
+                fontsize=text_size,
                 labelpad=label_pad,
                 rotation=90,
             )
@@ -175,7 +175,7 @@ def _label_colorbar(
         if label:
             colorbar.set_label(
                 label=label,
-                fontsize=label_size,
+                fontsize=text_size,
                 labelpad=label_pad,
             )
             axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
@@ -199,11 +199,11 @@ def add_colorbar(
     colorbar_length: float = 1.0,
     colorbar_pad: float = 0.01,
     label_pad: float = 10.0,
-    label_size: int | float | None = None,
+    text_size: int | float | None = None,
 ) -> mpl_colorbar.Colorbar:
-    """`label_size` defaults to the active axis-label text size."""
-    if label_size is None:
-        label_size = style_plots.get_text_sizes().axis_label_size
+    """`text_size` defaults to the active axis-label text size."""
+    if text_size is None:
+        text_size = style_plots.get_text_sizes().axis_label_size
     ## validate numeric params
     validate_types.ensure_finite_float(
         param=colorbar_thickness,
@@ -227,8 +227,8 @@ def add_colorbar(
         allow_zero=True,
     )
     validate_types.ensure_finite_scalar(
-        param=label_size,
-        param_name="label_size",
+        param=text_size,
+        param_name="text_size",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
@@ -265,7 +265,7 @@ def add_colorbar(
         colorbar=colorbar,
         label=label,
         colorbar_side=colorbar_side,
-        label_size=label_size,
+        text_size=text_size,
         label_pad=label_pad,
     )
     return colorbar
