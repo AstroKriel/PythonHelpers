@@ -259,8 +259,6 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    auto_style: bool = True,
-    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, Panel]:
     ...
 
@@ -277,8 +275,6 @@ def create_figure(
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
-    auto_style: bool = True,
-    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PanelGrid]:
     ...
 
@@ -294,8 +290,6 @@ def create_figure(
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
-    auto_style: bool = True,
-    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, Panel | PanelGrid]:
     """
     Create a Matplotlib figure and Axis / Axes grid.
@@ -320,8 +314,6 @@ def create_figure(
       panels is created and a 2D object-dtype array of Axes is returned.
     - Mixed None/int specifications are not allowed.
     """
-    if auto_style and (theme is not None):
-        style_plots.set_theme(theme=theme)
     if (num_panel_rows is None) and (num_panel_columns is None):
         is_single_panel = True
         num_grid_rows = 1
@@ -399,8 +391,6 @@ def create_figure_grid(
     panel_row_spacing: float = 0.05,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
-    auto_style: bool = True,
-    theme: style_plots.Theme | str | None = None,
 ) -> tuple[mpl_Figure, PanelGrid]:
     """
     Like `create_figure`, but always returns a 2D panel grid of shape (num_panel_rows, num_panel_columns), so
@@ -411,8 +401,6 @@ def create_figure_grid(
             panel_shape=panel_shape,
             figure_layout=figure_layout,
             panel_aspect_ratio=panel_aspect_ratio,
-            auto_style=auto_style,
-            theme=theme,
         )
         panel_grid: PanelGrid = numpy.asarray([[panel]], dtype=object)
         return figure, panel_grid
@@ -426,8 +414,6 @@ def create_figure_grid(
         panel_row_spacing=panel_row_spacing,
         share_x_axis=share_x_axis,
         share_y_axis=share_y_axis,
-        auto_style=auto_style,
-        theme=theme,
     )
     return figure, panel_grid
 
