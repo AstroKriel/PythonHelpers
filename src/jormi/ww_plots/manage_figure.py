@@ -119,33 +119,33 @@ def _place_panels_in_figure(
     *,
     figure: mpl_Figure,
     figure_shape: BoxShape,
-    margins: style_plots.FigureMargins,
+    figure_margins: style_plots.FigureMargins,
     x_spacing: float | None = None,
     y_spacing: float | None = None,
 ) -> None:
     """
-    Place the panels within `figure`, leaving `margins` clear around them.
+    Place the panels within `figure`, leaving `figure_margins` clear around them.
 
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     `figure_shape` is what converts between the two.
     """
     width_pt = figure_shape.width_cm * style_plots.PT_PER_CM
     height_pt = figure_shape.height_cm * style_plots.PT_PER_CM
-    if (margins.left_margin + margins.right_margin) >= width_pt:
+    if (figure_margins.left + figure_margins.right) >= width_pt:
         raise ValueError(
-            f"`left_margin` + `right_margin` ({margins.left_margin + margins.right_margin} pt)"
+            f"margins `left` + `right` ({figure_margins.left + figure_margins.right} pt)"
             f" leave no room for the panels in a figure {width_pt:.1f} pt wide.",
         )
-    if (margins.bottom_margin + margins.top_margin) >= height_pt:
+    if (figure_margins.bottom + figure_margins.top) >= height_pt:
         raise ValueError(
-            f"`bottom_margin` + `top_margin` ({margins.bottom_margin + margins.top_margin} pt)"
+            f"margins `bottom` + `top` ({figure_margins.bottom + figure_margins.top} pt)"
             f" leave no room for the panels in a figure {height_pt:.1f} pt tall.",
         )
     figure.subplots_adjust(
-        left=margins.left_margin / width_pt,
-        right=1.0 - (margins.right_margin / width_pt),
-        bottom=margins.bottom_margin / height_pt,
-        top=1.0 - (margins.top_margin / height_pt),
+        left=figure_margins.left / width_pt,
+        right=1.0 - (figure_margins.right / width_pt),
+        bottom=figure_margins.bottom / height_pt,
+        top=1.0 - (figure_margins.top / height_pt),
     )
     if (x_spacing is not None) and (y_spacing is not None):
         figure.subplots_adjust(
@@ -333,7 +333,7 @@ def create_figure(
         _place_panels_in_figure(
             figure=figure,
             figure_shape=figure_shape,
-            margins=active_layout.margins,
+            figure_margins=active_layout.margins,
         )
         return figure, panel
     if (num_rows is None) or (num_cols is None):
@@ -375,7 +375,7 @@ def create_figure(
     _place_panels_in_figure(
         figure=figure,
         figure_shape=figure_shape,
-        margins=active_layout.margins,
+        figure_margins=active_layout.margins,
         x_spacing=x_spacing,
         y_spacing=y_spacing,
     )

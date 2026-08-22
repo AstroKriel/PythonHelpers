@@ -141,17 +141,17 @@ class FigureMargins:
     figure more room than its labels need and a narrow one too little.
     """
 
-    left_margin: float = 34.0
-    right_margin: float = 6.0
-    bottom_margin: float = 28.0
-    top_margin: float = 6.0
+    left: float = 34.0
+    right: float = 6.0
+    bottom: float = 28.0
+    top: float = 6.0
 
     def __post_init__(self) -> None:
         for name in (
-            "left_margin",
-            "right_margin",
-            "bottom_margin",
-            "top_margin",
+            "left",
+            "right",
+            "bottom",
+            "top",
         ):
             value = getattr(self, name)
             if value < 0:
