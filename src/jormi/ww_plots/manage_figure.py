@@ -620,7 +620,8 @@ def save_figure(
     if not (pixels_per_cm > 0):
         raise ValueError(f"`pixels_per_cm` must be positive, but got {pixels_per_cm}.")
     try:
-        figure.savefig(figure_path, dpi=pixels_per_cm * style_plots.CM_PER_INCH)
+        pixels_per_inch = style_plots.CM_PER_INCH * pixels_per_cm
+        figure.savefig(figure_path, dpi=pixels_per_inch)
         if verbose:
             manage_log.log_action(
                 title="Save figure",
@@ -646,23 +647,24 @@ def save_figure(
         mpl_plot.close(figure)
 
 
-def animate_pngs_to_mp4(
+def animate_frames_to_video(
     *,
     frames_dir: str | Path,
-    mp4_path: str | Path,
+    video_path: str | Path,
     pattern: str = "frame_*.png",
-    fps: int = 30,
+    frames_per_second: int = 30,
     timeout_seconds: int = 60,
 ) -> None:
     """
-    Combine PNG frames in `frames_dir` matching `pattern` into an MP4 at `mp4_path`.
+    Combine the frames in `frames_dir` matching `pattern` into a video at `video_path`.
 
-    Requires `ffmpeg` on the system path. Creates the parent directory of `mp4_path` if needed.
+    Requires `ffmpeg` on the system path. Creates the parent directory of `video_path` if
+    needed.
     """
     frames_dir = Path(frames_dir)
-    mp4_path = Path(mp4_path)
+    video_path = Path(video_path)
     manage_io.create_directory(
-        directory=mp4_path.parent,
+        directory=video_path.parent,
         verbose=False,
     )
     args = " ".join(
@@ -670,16 +672,16 @@ def animate_pngs_to_mp4(
             "-hide_banner",  # less stdout
             "-loglevel error",  # only errors
             "-y",  # overwrite output
-            f"-framerate {fps}",  # input fps (put before -i)
+            f"-framerate {frames_per_second}",  # input rate (put before -i)
             "-pattern_type glob",  # enable glob input (put before -i)
             f'-i "{pattern}"',  # input pattern (e.g., frame_*.png)
             '-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"',  # enforce even dims
             "-c:v mpeg4 -q:v 3",  # codec + quality
             "-pix_fmt yuv420p",  # broad compatibility
-            f"-r {fps}",  # output fps
+            f"-r {frames_per_second}",  # output rate
         ],
     )
-    cmd = f'ffmpeg {args} "{mp4_path}"'
+    cmd = f'ffmpeg {args} "{video_path}"'
     manage_shell.execute_shell_command(
         command=cmd,
         working_directory=frames_dir,
@@ -688,8 +690,8 @@ def animate_pngs_to_mp4(
     manage_log.log_action(
         title="Save animation",
         outcome=manage_log.ActionOutcome.SUCCESS,
-        message="Saved mp4.",
-        notes={"file": str(mp4_path)},
+        message="Saved video.",
+        notes={"file": str(video_path)},
     )
 
 
