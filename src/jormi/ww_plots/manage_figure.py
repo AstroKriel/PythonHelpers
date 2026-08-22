@@ -137,59 +137,59 @@ def _set_figure_margins(
     )
 
 
-def _compute_mpl_spacing(
+def _compute_mpl_gap(
     *,
-    spacing_pt: float,
-    span_pt: float,
+    gap_length_pt: float,
+    total_length_pt: float,
     num_panels: int,
     param_name: str,
 ) -> float:
     """
-    Convert a gap between panels (pt) into the fraction of a panel that Matplotlib wants.
+    Convert the gap between two panels (pt) into the fraction of a panel Matplotlib wants.
 
-    Matplotlib measures a gap against the panel it sits beside, and the panels share
-    whatever `span_pt` the margins leave, so the gaps have to come out of that span first.
+    Matplotlib measures a gap against the panel beside it, and the panels share whatever
+    the margins leave, so the gaps come out of that total length before the panels do.
     """
-    total_spacing_pt = (num_panels - 1) * spacing_pt
-    if total_spacing_pt >= span_pt:
+    total_gap_length_pt = (num_panels - 1) * gap_length_pt
+    if total_gap_length_pt >= total_length_pt:
         raise ValueError(
-            f"`{param_name}` ({spacing_pt} pt) leaves no room for {num_panels} panels"
-            f" in the {span_pt:.1f} pt the margins leave.",
+            f"`{param_name}` ({gap_length_pt} pt) leaves no room for {num_panels} panels"
+            f" in the {total_length_pt:.1f} pt the margins leave.",
         )
-    panel_span_pt = (span_pt - total_spacing_pt) / num_panels
-    return spacing_pt / panel_span_pt
+    panel_length_pt = (total_length_pt - total_gap_length_pt) / num_panels
+    return gap_length_pt / panel_length_pt
 
 
-def _set_panel_spacing(
+def _set_panel_gaps(
     *,
     figure: mpl_Figure,
     figure_shape: BoxShape,
     figure_margins: style_plots.FigureMargins,
     num_panel_rows: int,
     num_panel_columns: int,
-    panel_column_spacing: float,
-    panel_row_spacing: float,
+    panel_column_gap: float,
+    panel_row_gap: float,
 ) -> None:
     """
-    Leave `panel_column_spacing` and `panel_row_spacing` (pt) between the panels in `figure`.
+    Leave `panel_column_gap` and `panel_row_gap` (pt) between each pair of panels in `figure`.
 
     Gaps are in pt like the margins, since a gap holds the neighbouring panel's tick and
-    axis labels; `figure_shape` and `figure_margins` give the span they are measured against.
+    axis labels; `figure_shape` and `figure_margins` give the length they are measured in.
     """
     figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
     figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
     figure.subplots_adjust(
-        wspace=_compute_mpl_spacing(
-            spacing_pt=panel_column_spacing,
-            span_pt=figure_width_pt - figure_margins.left - figure_margins.right,
+        wspace=_compute_mpl_gap(
+            gap_length_pt=panel_column_gap,
+            total_length_pt=figure_width_pt - figure_margins.left - figure_margins.right,
             num_panels=num_panel_columns,
-            param_name="panel_column_spacing",
+            param_name="panel_column_gap",
         ),
-        hspace=_compute_mpl_spacing(
-            spacing_pt=panel_row_spacing,
-            span_pt=figure_height_pt - figure_margins.bottom - figure_margins.top,
+        hspace=_compute_mpl_gap(
+            gap_length_pt=panel_row_gap,
+            total_length_pt=figure_height_pt - figure_margins.bottom - figure_margins.top,
             num_panels=num_panel_rows,
-            param_name="panel_row_spacing",
+            param_name="panel_row_gap",
         ),
     )
 
@@ -311,8 +311,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 10.0,
-    panel_row_spacing: float = 10.0,
+    panel_column_gap: float = 10.0,
+    panel_row_gap: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:
@@ -326,8 +326,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 10.0,
-    panel_row_spacing: float = 10.0,
+    panel_column_gap: float = 10.0,
+    panel_row_gap: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, Panel | PanelGrid]:
@@ -417,14 +417,14 @@ def create_figure(
     )
     if is_single_panel:
         return figure, panels
-    _set_panel_spacing(
+    _set_panel_gaps(
         figure=figure,
         figure_shape=figure_shape,
         figure_margins=figure_layout.figure_margins,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        panel_column_spacing=panel_column_spacing,
-        panel_row_spacing=panel_row_spacing,
+        panel_column_gap=panel_column_gap,
+        panel_row_gap=panel_row_gap,
     )
     panel_grid: PanelGrid = numpy.asarray(panels, dtype=object)
     return figure, panel_grid
@@ -437,8 +437,8 @@ def create_figure_grid(
     panel_shape: BoxShape | None = None,
     figure_layout: style_plots.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_spacing: float = 10.0,
-    panel_row_spacing: float = 10.0,
+    panel_column_gap: float = 10.0,
+    panel_row_gap: float = 10.0,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:
@@ -460,8 +460,8 @@ def create_figure_grid(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
         panel_aspect_ratio=panel_aspect_ratio,
-        panel_column_spacing=panel_column_spacing,
-        panel_row_spacing=panel_row_spacing,
+        panel_column_gap=panel_column_gap,
+        panel_row_gap=panel_row_gap,
         share_x_axis=share_x_axis,
         share_y_axis=share_y_axis,
     )
@@ -498,7 +498,7 @@ def compute_adjacent_panel_bounds(
 
     The new panel sits on the `side` of `panel`, offset by `gap` (in figure coordinates).
     `thickness` sets its extent perpendicular to `side`, as a fraction of `panel`'s
-    corresponding dimension. `length` sets its span parallel to `side`, also as a
+    corresponding dimension. `length` sets its extent parallel to `side`, also as a
     fraction, centered on `panel`'s edge.
     """
     box = panel.get_position()

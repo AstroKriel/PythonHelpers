@@ -128,7 +128,7 @@ class TestFiniteDifferenceConvergence:
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=2,
             num_panel_columns=2,
-            panel_column_spacing=60.0,
+            panel_column_gap=60.0,
         )
         self._plot_exact_soln(panel_grid)
         failed_methods = self._test_method_scaling(panel_grid)

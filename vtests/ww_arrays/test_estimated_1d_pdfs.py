@@ -60,7 +60,7 @@ class TestEstimated1DPDFs:
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_pdfs,
             num_panel_columns=1,
-            panel_row_spacing=60.0,
+            panel_row_gap=60.0,
         )
         failed_pdfs: list[str] = []
         for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
