@@ -605,18 +605,22 @@ def save_figure(
     *,
     figure: mpl_Figure,
     figure_path: str | Path,
-    dpi: int = 200,
+    pixels_per_cm: float = style_plots.DEFAULT_PIXELS_PER_CM,
     verbose: bool = True,
 ) -> None:
     """
     Save `figure` to `figure_path`; close it.
 
-    Accepts `.png` or `.pdf` paths; errors are logged rather than raised.
+    `pixels_per_cm` is how finely a raster is sampled, in the cm a figure is sized in;
+    Matplotlib wants it per inch. Accepts `.png` or `.pdf` paths; errors are logged
+    rather than raised.
     """
     if not str(figure_path).endswith(".png") and not str(figure_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
+    if not (pixels_per_cm > 0):
+        raise ValueError(f"`pixels_per_cm` must be positive, but got {pixels_per_cm}.")
     try:
-        figure.savefig(figure_path, dpi=dpi)
+        figure.savefig(figure_path, dpi=pixels_per_cm * style_plots.CM_PER_INCH)
         if verbose:
             manage_log.log_action(
                 title="Save figure",

@@ -127,6 +127,10 @@ CM_PER_INCH: float = 2.54
 PT_PER_INCH: float = 72.0
 PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
 
+## how finely a saved raster is sampled, in the cm a figure is sized in; Matplotlib wants
+## it per inch, so `CM_PER_INCH` converts at the point it is handed over
+DEFAULT_PIXELS_PER_CM: float = 80.0
+
 
 @dataclasses.dataclass(
     frozen=True,
@@ -398,7 +402,7 @@ def _get_base_rc_params(
             8.0,
             6.0,
         ),
-        "savefig.dpi": 200,
+        "savefig.dpi": DEFAULT_PIXELS_PER_CM * CM_PER_INCH,
         "savefig.bbox": None,
         "savefig.transparent": False,
         "savefig.pad_inches": 0.0,
