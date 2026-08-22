@@ -125,9 +125,9 @@ def _place_panels_in_figure(
     Margins are in points, while Matplotlib places panels as fractions of the figure, so
     the figure's own size is what converts between the two.
     """
-    width_points, height_points = (
-        float(length_inches) * style_plots.POINTS_PER_INCH for length_inches in figure.get_size_inches()
-    )
+    width_inches, height_inches = figure.get_size_inches()
+    width_points = float(width_inches) * style_plots.POINTS_PER_INCH
+    height_points = float(height_inches) * style_plots.POINTS_PER_INCH
     if (margins.left_margin + margins.right_margin) >= width_points:
         raise ValueError(
             f"`left_margin` + `right_margin` ({margins.left_margin + margins.right_margin} pt)"
@@ -190,20 +190,24 @@ def _get_figure_shape(
     smaller. `panel_shape` instead gives each panel a fixed size, so the figure grows as
     panels are added, and the figure is no longer tied to a page.
     """
-    active_layout = style_plots.get_figure_layout() if (figure_layout is None) else figure_layout
+    if figure_layout is None:
+        active_layout = style_plots.get_figure_layout()
+    else:
+        active_layout = figure_layout
     if panel_shape is None:
-        return (
-            _compute_figure_shape(
-                num_rows=num_rows,
-                num_cols=num_cols,
-                panel_shape=_split_width_across_panels(
-                    width_inches=active_layout.width.width_inches,
-                    num_cols=num_cols,
-                    aspect_ratio=DEFAULT_PANEL_SHAPE.aspect_ratio if (aspect_ratio is None) else aspect_ratio,
-                ),
-            ),
-            active_layout,
+        if aspect_ratio is None:
+            aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
+        page_panel_shape = _split_width_across_panels(
+            width_inches=active_layout.width.width_inches,
+            num_cols=num_cols,
+            aspect_ratio=aspect_ratio,
         )
+        figure_shape = _compute_figure_shape(
+            num_rows=num_rows,
+            num_cols=num_cols,
+            panel_shape=page_panel_shape,
+        )
+        return figure_shape, active_layout
     if figure_layout is not None:
         raise ValueError(
             "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
@@ -214,15 +218,13 @@ def _get_figure_shape(
             "`aspect_ratio` only applies when a figure is sized to a page;"
             " with `panel_shape` the shape of each panel is already set by it.",
         )
-    return (
-        _compute_figure_shape(
-            num_rows=num_rows,
-            num_cols=num_cols,
-            figure_scale=figure_scale,
-            panel_shape=panel_shape,
-        ),
-        active_layout,
+    figure_shape = _compute_figure_shape(
+        num_rows=num_rows,
+        num_cols=num_cols,
+        figure_scale=figure_scale,
+        panel_shape=panel_shape,
     )
+    return figure_shape, active_layout
 
 
 ##
