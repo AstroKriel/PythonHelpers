@@ -38,11 +38,11 @@ class TextSizes:
     sits, and levels need not be whole steps.
     """
 
-    largest_size: float = 10.0
-    size_ratio: float = 1.2
+    largest_size: float = 12.0
+    size_ratio: float = 1.16
     axis_label_level: float = 0.0
     tick_label_level: float = 2.0
-    annotation_level: float = 1.0
+    annotation_level: float = 2.0
     legend_level: float = 1.0
 
     def __post_init__(self) -> None:
@@ -114,6 +114,82 @@ class TextSizes:
             "xtick.labelsize": self.tick_label_size,
             "ytick.labelsize": self.tick_label_size,
             "legend.fontsize": self.legend_size,
+        }
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class DataMarks:
+    """
+    How the data itself is drawn, in pt.
+
+    Like the text, these are chosen for the medium a figure is bound for rather than
+    derived from its size: a figure drawn wider keeps the same stroke weights, since a
+    pt stays a pt.
+    """
+
+    line_width: float = 0.9
+    marker_size: float = 5.0
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map each mark onto the Matplotlib rcParams that consume it."""
+        return {
+            "lines.linewidth": self.line_width,
+            "lines.markersize": self.marker_size,
+        }
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class PanelFrame:
+    """
+    The panel's furniture, in pt: its frame, its ticks, and the gaps around their labels.
+
+    One weight covers the frame, the ticks and any box drawn around text, since they are
+    all furniture holding the data rather than the data itself.
+    """
+
+    line_width: float = 0.6
+    major_tick_length: float = 3.0
+    minor_tick_length: float = 1.6
+    tick_label_gap: float = 2.5
+    axis_label_gap: float = 3.0
+    ticks_point_inward: bool = True
+    ticks_on_all_sides: bool = True
+    show_minor_ticks: bool = True
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map each part of the frame onto the Matplotlib rcParams that consume it."""
+        tick_direction = "in" if self.ticks_point_inward else "out"
+        return {
+            "axes.linewidth": self.line_width,
+            ## a box drawn around text is furniture too, and Matplotlib's default of 1.0
+            ## would outweigh both the frame and the data
+            "patch.linewidth": self.line_width,
+            "xtick.major.width": self.line_width,
+            "ytick.major.width": self.line_width,
+            "xtick.minor.width": self.line_width,
+            "ytick.minor.width": self.line_width,
+            "xtick.major.size": self.major_tick_length,
+            "ytick.major.size": self.major_tick_length,
+            "xtick.minor.size": self.minor_tick_length,
+            "ytick.minor.size": self.minor_tick_length,
+            "xtick.major.pad": self.tick_label_gap,
+            "ytick.major.pad": self.tick_label_gap,
+            "xtick.minor.pad": self.tick_label_gap,
+            "ytick.minor.pad": self.tick_label_gap,
+            ## measured against the frame rather than the text, so it sits here
+            "axes.labelpad": self.axis_label_gap,
+            "xtick.direction": tick_direction,
+            "ytick.direction": tick_direction,
+            "xtick.top": self.ticks_on_all_sides,
+            "ytick.right": self.ticks_on_all_sides,
+            "xtick.minor.visible": self.show_minor_ticks,
+            "ytick.minor.visible": self.show_minor_ticks,
         }
 
 
@@ -367,32 +443,8 @@ def _get_base_rc_params(
         ## font
         "font.family": "serif",
         **text_sizes.as_rc_params(),
-        ## Lines, ticks and pads are in pt, like the text, and are chosen for the
-        ## medium a figure is bound for rather than derived from the text size. A figure
-        ## drawn wider keeps the same stroke weights, since a point stays a point.
-        "lines.linewidth": 0.9,
-        "lines.markersize": 5.0,
-        "axes.linewidth": 0.6,
-        ## ticks
-        "xtick.top": True,
-        "ytick.right": True,
-        "xtick.direction": "in",
-        "ytick.direction": "in",
-        "xtick.minor.visible": True,
-        "ytick.minor.visible": True,
-        "xtick.major.size": 3.0,
-        "ytick.major.size": 3.0,
-        "xtick.minor.size": 1.6,
-        "ytick.minor.size": 1.6,
-        "xtick.major.width": 0.6,
-        "ytick.major.width": 0.6,
-        "xtick.minor.width": 0.6,
-        "ytick.minor.width": 0.6,
-        "axes.labelpad": 3.0,
-        "xtick.major.pad": 2.5,
-        "ytick.major.pad": 2.5,
-        "xtick.minor.pad": 2.5,
-        "ytick.minor.pad": 2.5,
+        **DataMarks().as_rc_params(),
+        **PanelFrame().as_rc_params(),
         ## legend
         "legend.labelspacing": 0.2,
         "legend.loc": "upper right",
