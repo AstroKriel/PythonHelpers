@@ -141,7 +141,7 @@ def draw_palette(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    style_figure.set_theme()
+    style_figure.set_figure_params()
     array_2d = generate_gradient()
     palettes = build_palettes()
     ## each column carries a colorbar on the figure's outer edge, so both side margins

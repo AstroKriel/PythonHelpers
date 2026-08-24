@@ -141,7 +141,7 @@ def clear_stale_frames(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    style_figure.set_theme()
+    style_figure.set_figure_params()
     demo_dir = Path(__file__).parent
     frames_dir = demo_dir / "frames"
     manage_io.create_directory(frames_dir, verbose=False)

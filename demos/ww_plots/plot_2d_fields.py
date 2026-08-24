@@ -179,7 +179,7 @@ def main() -> None:
     ## the layout goes in the style rather than to `create_figure`, so that the colorbar
     ## picks up the same gap the panels are spaced by; the top margin is what holds it,
     ## along with its tick labels and its label
-    style_figure.set_theme(
+    style_figure.set_figure_params(
         figure_params=style_figure.FigureParams(
             figure_layout=style_figure.FigureLayout(
                 figure_margins=style_figure.FigureMargins(top=42.0),

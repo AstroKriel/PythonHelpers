@@ -313,7 +313,7 @@ def report_drawn_sizes(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    style_figure.set_theme()
+    style_figure.set_figure_params()
     all_series = generate_all_series()
     figures_dir = Path(__file__).parent
     ## the full page carries every series and the residual inset; the half page carries a

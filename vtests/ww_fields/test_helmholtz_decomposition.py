@@ -528,7 +528,7 @@ class TestHelmholtzDecomposition:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_figure.set_theme()
+    style_figure.set_figure_params()
     test = TestHelmholtzDecomposition()
     test.run()
 

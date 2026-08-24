@@ -599,11 +599,11 @@ _active_figure_params: FigureParams | None = None
 
 def get_figure_params() -> FigureParams:
     """
-    The parameters set by the most recent `set_theme` call.
+    The parameters set by the most recent `set_figure_params` call.
 
-    Read them here rather than from the store, which `set_theme` owns: it also pushes the
-    rc-bearing groups into Matplotlib, so writing the store alone leaves the two
-    disagreeing. Figures already built keep the layout they were built with.
+    Read them here rather than from the store, which `set_figure_params` owns: it also
+    pushes the rc-bearing groups into Matplotlib, so writing the store alone leaves the
+    two disagreeing. Figures already built keep the layout they were built with.
     """
     if _active_figure_params is None:
         return FigureParams()
@@ -611,11 +611,11 @@ def get_figure_params() -> FigureParams:
 
 
 ##
-## === THEME SELECTION
+## === STYLE SELECTION
 ##
 
 
-def set_theme(
+def set_figure_params(
     *,
     figure_params: FigureParams | None = None,
 ) -> None:
@@ -632,16 +632,16 @@ def set_theme(
     matplotlib.rcParams.update(figure_params.as_rc_params())
 
 
-def apply_theme_if_unset() -> None:
+def apply_figure_params_if_unset() -> None:
     """
-    Apply the default style, unless `set_theme` has already run.
+    Apply the default style, unless `set_figure_params` has already run.
 
     Without this a figure comes out half-styled: whatever jormi draws itself takes the
     calibrated sizes, while whatever Matplotlib draws takes its own defaults. A spawned
     worker starts with no style at all, so this also runs once per process.
     """
     if _active_figure_params is None:
-        set_theme()
+        set_figure_params()
 
 
 ## } MODULE

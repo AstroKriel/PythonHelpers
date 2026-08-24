@@ -254,7 +254,7 @@ def _resolve_figure_layout(
     *,
     figure_layout: style_figure.FigureLayout | None,
 ) -> style_figure.FigureLayout:
-    """The layout given, or the one set by the most recent `set_theme` call."""
+    """The layout given, or the one set by the most recent `set_figure_params` call."""
     if figure_layout is None:
         figure_params = style_figure.get_figure_params()
         return figure_params.figure_layout
@@ -350,7 +350,7 @@ def create_figure(
     A figure is sized in one of two ways, and asking for both is refused.
 
     By default it takes its share of the page, from `figure_layout` or from the one
-    `set_theme` last set. The figure width is then fixed, so adding columns makes each
+    `set_figure_params` last set. The figure width is then fixed, so adding columns makes each
     panel narrower, and `panel_aspect_ratio` sets the shape of the share each panel gets.
 
     Passing `panel_shape` instead sizes each panel outright in cm, so the figure grows as
@@ -369,7 +369,7 @@ def create_figure(
       returned; 1x1 is refused, since that is the single-panel case.
     - Mixed None/int specifications are not allowed.
     """
-    style_figure.apply_theme_if_unset()
+    style_figure.apply_figure_params_if_unset()
     if (num_panel_rows is None) and (num_panel_columns is None):
         num_panel_rows = 1
         num_panel_columns = 1
