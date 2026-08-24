@@ -189,32 +189,35 @@ def _compute_colorbar_thickness(
     *,
     panel: manage_figure.Panel,
     colorbar_side: _Side,
-    colorbar_thickness: float | None,
+    colorbar_length: float,
+    colorbar_aspect_ratio: float | None,
     figure_params: style_figure.FigureParams,
 ) -> float:
     """
-    Convert how thick a colorbar is drawn (pt) into the share of the panel Matplotlib
-    measures a neighbouring panel by.
+    Convert the bar's length-over-thickness into the share of the panel Matplotlib
+    measures a neighbouring panel's thickness by.
 
-    Thickness runs across the bar, so it is measured against the panel's width beside it
-    and its height above or below it.
+    Length runs along the bar and thickness across it, so which panel dimension each is
+    taken from swaps with the side the bar sits on.
     """
-    if colorbar_thickness is None:
-        colorbar_thickness = figure_params.colorbar_layout.thickness
+    if colorbar_aspect_ratio is None:
+        colorbar_aspect_ratio = figure_params.colorbar_layout.aspect_ratio
     validate_types.ensure_finite_float(
-        param=colorbar_thickness,
-        param_name="colorbar_thickness",
+        param=colorbar_aspect_ratio,
+        param_name="colorbar_aspect_ratio",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
     figure_width_pt, figure_height_pt = _get_figure_shape_pt(panel=panel)
     panel_box = panel.get_position()
+    panel_width_pt = panel_box.width * figure_width_pt
+    panel_height_pt = panel_box.height * figure_height_pt
     if colorbar_side in (_Side.Left, _Side.Right):
-        panel_length_pt = panel_box.width * figure_width_pt
+        length_pt, across_panel_pt = (colorbar_length * panel_height_pt), panel_width_pt
     else:
-        panel_length_pt = panel_box.height * figure_height_pt
-    return colorbar_thickness / panel_length_pt
+        length_pt, across_panel_pt = (colorbar_length * panel_width_pt), panel_height_pt
+    return (length_pt / colorbar_aspect_ratio) / across_panel_pt
 
 
 def _compute_colorbar_gap(
@@ -294,7 +297,7 @@ def add_colorbar(
     palette: color_palettes.ColorPalette,
     label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-    colorbar_thickness: float | None = None,
+    colorbar_aspect_ratio: float | None = None,
     colorbar_length: float = 1.0,
     colorbar_gap: float | None = None,
     label_gap: float | None = None,
@@ -302,11 +305,12 @@ def add_colorbar(
     figure_params: style_figure.FigureParams | None = None,
 ) -> mpl_colorbar.Colorbar:
     """
-    `colorbar_thickness` and `colorbar_gap` are both in pt, like the margins and the gaps
-    between panels, and default to what the active style asks for: the gap being the one
-    the figure already spaces its panels by. `text_size` defaults to the active axis-label
-    text size, and `label_gap` to the gap the active style leaves between a panel's tick
-    labels and its axis label.
+    `colorbar_length` is a share of the panel, and may exceed 1 for a bar spanning several;
+    `colorbar_aspect_ratio` then sets how thick it is drawn, as its length over its
+    thickness. `colorbar_gap` is in pt like the gaps between panels. All three default to
+    what the active style asks for, the gap being the one the figure already spaces its
+    panels by. `text_size` defaults to the active axis-label text size, and `label_gap` to
+    the gap the active style leaves between a panel's tick labels and its axis label.
     """
     if figure_params is None:
         figure_params = style_figure.get_figure_params()
@@ -337,7 +341,8 @@ def add_colorbar(
         thickness=_compute_colorbar_thickness(
             panel=panel,
             colorbar_side=colorbar_side,
-            colorbar_thickness=colorbar_thickness,
+            colorbar_length=colorbar_length,
+            colorbar_aspect_ratio=colorbar_aspect_ratio,
             figure_params=figure_params,
         ),
         length=colorbar_length,

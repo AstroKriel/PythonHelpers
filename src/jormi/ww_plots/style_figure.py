@@ -414,8 +414,11 @@ class ColorbarLayout:
     """
     How thick a colorbar is drawn, and where it sits relative to the panel it describes.
 
-    `thickness` is in pt, like the margins and gaps, because a bar is furniture holding a
-    scale rather than data: it stays the same on the page whatever size the panel is.
+    `aspect_ratio` is the bar's length over its thickness, so a bar keeps its proportions
+    however long it is drawn: one spanning three panels comes out thicker than one beside
+    a single panel, without asking for a different number. Measuring it against the bar
+    itself is what makes a single value work everywhere, since measuring against the panel
+    would ignore how far the bar reaches past it.
 
     A colorbar is placed as a panel neighbouring its own, so the space between the two is
     a panel gap: `gap.column` for a bar on the left or right, `gap.row` for one above or
@@ -423,12 +426,12 @@ class ColorbarLayout:
     covers the whole figure; set it to space a bar differently from the panels.
     """
 
-    thickness: float = 10.0
+    aspect_ratio: float = 40.0
     gap: PanelGaps | None = None
 
     def __post_init__(self) -> None:
-        if not (self.thickness > 0):
-            raise ValueError(f"`thickness` must be positive, but got {self.thickness}.")
+        if not (self.aspect_ratio > 0):
+            raise ValueError(f"`aspect_ratio` must be positive, but got {self.aspect_ratio}.")
 
 
 ## a figure spanning the full text width, and one spanning half of it, which is a single
