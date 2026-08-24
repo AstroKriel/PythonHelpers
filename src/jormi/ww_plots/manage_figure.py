@@ -256,7 +256,8 @@ def _resolve_figure_layout(
 ) -> style_figure.FigureLayout:
     """The layout given, or the one set by the most recent `set_theme` call."""
     if figure_layout is None:
-        return style_figure.get_figure_params().figure_layout
+        figure_params = style_figure.get_figure_params()
+        return figure_params.figure_layout
     return figure_layout
 
 
@@ -561,7 +562,8 @@ def add_inset_panel(
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)
     inset_panel = panel.inset_axes(bounds)
     if text_size is None:
-        text_size = style_figure.get_figure_params().text_size_params.axis_label_size
+        figure_params = style_figure.get_figure_params()
+        text_size = figure_params.text_size_params.axis_label_size
     if x_label is not None:
         inset_panel.set_xlabel(
             xlabel=x_label,

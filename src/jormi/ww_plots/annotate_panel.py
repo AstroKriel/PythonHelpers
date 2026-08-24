@@ -70,8 +70,9 @@ def add_text(
 
     `text_size` defaults to the active annotation text size.
     """
+    figure_params = style_figure.get_figure_params()
     if text_size is None:
-        text_size = style_figure.get_figure_params().text_size_params.annotation_size
+        text_size = figure_params.text_size_params.annotation_size
     ## validate position in panel coordinates [0, 1]
     validate_types.ensure_in_bounds(
         param=x_pos,
@@ -159,12 +160,15 @@ def add_custom_legend(
     marker and line sizes default to those the data is drawn with, so a swatch matches
     what it stands for.
     """
+    figure_params = style_figure.get_figure_params()
+    text_size_params = figure_params.text_size_params
+    draw_data_params = figure_params.draw_data_params
     if text_size is None:
-        text_size = style_figure.get_figure_params().text_size_params.legend_size
+        text_size = text_size_params.legend_size
     if marker_size is None:
-        marker_size = style_figure.get_figure_params().draw_data_params.marker_size
+        marker_size = draw_data_params.marker_size
     if line_width is None:
-        line_width = style_figure.get_figure_params().draw_data_params.line_width
+        line_width = draw_data_params.line_width
     ## validate parallel lists
     validate_types.ensure_list_of_strings(
         param=artists,

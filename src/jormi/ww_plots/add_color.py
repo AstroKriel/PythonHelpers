@@ -203,7 +203,8 @@ def add_colorbar(
 ) -> mpl_colorbar.Colorbar:
     """`text_size` defaults to the active axis-label text size."""
     if text_size is None:
-        text_size = style_figure.get_figure_params().text_size_params.axis_label_size
+        figure_params = style_figure.get_figure_params()
+        text_size = figure_params.text_size_params.axis_label_size
     ## validate numeric params
     validate_types.ensure_finite_float(
         param=colorbar_thickness,

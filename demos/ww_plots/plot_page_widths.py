@@ -99,7 +99,8 @@ def report_drawn_sizes(
     """Log the figure width and drawn text size, both in the units they were asked in."""
     figure_width_cm = float(figure.get_size_inches()[0]) * style_figure.CM_PER_INCH
     panel_width_cm = panel.get_position().width * figure_width_cm
-    text_size_params = style_figure.get_figure_params().text_size_params
+    figure_params = style_figure.get_figure_params()
+    text_size_params = figure_params.text_size_params
     manage_log.log_action(
         title=label,
         outcome=manage_log.ActionOutcome.SUCCESS,
