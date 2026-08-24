@@ -167,7 +167,6 @@ def plot_2d_array(
 ):
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
-    add_color.ensure_continuous_config(config=palette_config)
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -176,14 +175,24 @@ def plot_2d_array(
         data_array=array_2d,
         data_format=data_format,
     )
-    min_value, max_value = _get_value_range(
-        array_2d=array_view,
-        colorbar_range=colorbar_range,
-    )
-    palette = add_color.make_palette(
-        config=palette_config,
-        value_range=(min_value, max_value),
-    )
+    ## a discrete palette is bounded by its own bin edges, so there is no range to take
+    ## from the data, and none to accept from the caller either
+    if isinstance(palette_config, add_color.DiscreteConfig):
+        if colorbar_range is not None:
+            raise ValueError(
+                "`colorbar_range` cannot apply to a discrete palette; its `bin_edges`"
+                " already bound it.",
+            )
+        palette = add_color.make_palette(config=palette_config)
+    else:
+        min_value, max_value = _get_value_range(
+            array_2d=array_view,
+            colorbar_range=colorbar_range,
+        )
+        palette = add_color.make_palette(
+            config=palette_config,
+            value_range=(min_value, max_value),
+        )
     axis_extent = _as_axis_extent(axis_ranges)
     im_obj = panel.imshow(
         array_view,

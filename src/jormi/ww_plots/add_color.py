@@ -105,30 +105,56 @@ def ensure_discrete_config(
         )
 
 
+def _ensure_value_range(
+    *,
+    config: PaletteConfig,
+    value_range: tuple[float, float] | None,
+) -> tuple[float, float]:
+    """Require the range a continuous palette spans, having none of its own to fall back on."""
+    if value_range is None:
+        raise ValueError(f"a {type(config).__name__} spans a `value_range`, so one must be given.")
+    return value_range
+
+
 def make_palette(
     *,
     config: PaletteConfig,
-    value_range: tuple[float, float],
+    value_range: tuple[float, float] | None = None,
 ) -> ColorPalette:
     """
     Construct a ColorPalette from a PaletteConfig and a data-driven value range.
     For full control over palette construction, use the palette classes directly.
+
+    A continuous palette spans `value_range`, so it must be given one. A discrete palette
+    is bounded by its own `bin_edges` instead, so passing it a range is a contradiction
+    rather than something to quietly ignore.
     """
     match config:
         case SequentialConfig():
             return SequentialPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
-                value_range=value_range,
+                value_range=_ensure_value_range(
+                    config=config,
+                    value_range=value_range,
+                ),
             )
         case DivergingConfig():
             return DivergingPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
-                value_range=value_range,
+                value_range=_ensure_value_range(
+                    config=config,
+                    value_range=value_range,
+                ),
                 mid_value=config.mid_value,
             )
         case DiscreteConfig():
+            if value_range is not None:
+                raise ValueError(
+                    "`value_range` cannot apply to a DiscreteConfig; its `bin_edges`"
+                    " already bound the palette.",
+                )
             return DiscretePalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
