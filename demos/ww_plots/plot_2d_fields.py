@@ -128,6 +128,7 @@ def add_shared_colorbar(
         label=label,
         colorbar_side=box_positions.Positions.Side.Top,
         colorbar_length=spanning_length,
+        colorbar_thickness=0.08,
     )
 
 
