@@ -17,6 +17,20 @@ import matplotlib
 from cycler import cycler
 
 ##
+## === UNITS
+##
+
+## figure sizes are given in cm and text sizes in pt, the two units a page is specified
+## in; inches appear only where Matplotlib insists on them
+CM_PER_INCH: float = 2.54
+PT_PER_INCH: float = 72.0
+PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
+
+## how finely a saved raster is sampled, in the cm a figure is sized in; Matplotlib wants
+## it per inch, so `CM_PER_INCH` converts at the point it is handed over
+DEFAULT_PIXELS_PER_CM: float = 80.0
+
+##
 ## === FONT SIZES
 ##
 
@@ -193,20 +207,58 @@ class PanelFrame:
         }
 
 
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class LegendStyle:
+    """Where a legend sits and how tightly its entries are packed."""
+
+    ## a fraction of the legend's own text size, as Matplotlib measures it
+    entry_gap: float = 0.2
+    location: str = "upper right"
+    show_frame: bool = False
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map the legend style onto the Matplotlib rcParams that consume it."""
+        return {
+            "legend.labelspacing": self.entry_gap,
+            "legend.loc": self.location,
+            "legend.frameon": self.show_frame,
+        }
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class SaveStyle:
+    """
+    How a figure is written to file.
+
+    `crop_to_ink` is off by default, and deliberately: cropping makes the saved file a
+    different size from the figure that was asked for, which is what page anchoring
+    exists to prevent.
+    """
+
+    pixels_per_cm: float = DEFAULT_PIXELS_PER_CM
+    crop_to_ink: bool = False
+    crop_padding_cm: float = 0.0
+    transparent_background: bool = False
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map the save style onto the Matplotlib rcParams that consume it."""
+        return {
+            "savefig.dpi": self.pixels_per_cm * CM_PER_INCH,
+            "savefig.bbox": "tight" if self.crop_to_ink else None,
+            "savefig.pad_inches": self.crop_padding_cm / CM_PER_INCH,
+            "savefig.transparent": self.transparent_background,
+        }
+
+
 ##
 ## === FIGURE LAYOUT
 ##
-
-## figure sizes are given in cm and text sizes in pt, the two units a page is specified
-## in; inches appear only where Matplotlib insists on them
-CM_PER_INCH: float = 2.54
-PT_PER_INCH: float = 72.0
-PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
-
-## how finely a saved raster is sampled, in the cm a figure is sized in; Matplotlib wants
-## it per inch, so `CM_PER_INCH` converts at the point it is handed over
-DEFAULT_PIXELS_PER_CM: float = 80.0
-
 
 @dataclasses.dataclass(
     frozen=True,
@@ -440,24 +492,13 @@ def _get_base_rc_params(
     if text_sizes is None:
         text_sizes = TextSizes()
     rc_params: dict[str, object] = {
-        ## font
+        ## the typeface, which pairs with the LaTeX settings applied below
         "font.family": "serif",
         **text_sizes.as_rc_params(),
         **DataMarks().as_rc_params(),
         **PanelFrame().as_rc_params(),
-        ## legend
-        "legend.labelspacing": 0.2,
-        "legend.loc": "upper right",
-        "legend.frameon": False,
-        ## figure + saving
-        "figure.figsize": (
-            8.0,
-            6.0,
-        ),
-        "savefig.dpi": DEFAULT_PIXELS_PER_CM * CM_PER_INCH,
-        "savefig.bbox": None,
-        "savefig.transparent": False,
-        "savefig.pad_inches": 0.0,
+        **LegendStyle().as_rc_params(),
+        **SaveStyle().as_rc_params(),
     }
     if use_tex and (shutil.which("latex") is not None):
         rc_params.update(
