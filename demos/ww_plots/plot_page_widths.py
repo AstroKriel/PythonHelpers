@@ -99,7 +99,7 @@ def report_drawn_sizes(
     """Log the figure width and drawn text size, both in the units they were asked in."""
     figure_width_cm = float(figure.get_size_inches()[0]) * style_plots.CM_PER_INCH
     panel_width_cm = panel.get_position().width * figure_width_cm
-    text_sizes = style_plots.get_text_sizes()
+    text_size_params = style_plots.get_text_size_params()
     manage_log.log_action(
         title=label,
         outcome=manage_log.ActionOutcome.SUCCESS,
@@ -107,8 +107,8 @@ def report_drawn_sizes(
         notes={
             "figure width": f"{figure_width_cm:.2f} cm",
             "panel width": f"{panel_width_cm:.2f} cm",
-            "axis label": f"{text_sizes.axis_label_size:.2f} pt",
-            "tick label": f"{text_sizes.tick_label_size:.2f} pt",
+            "axis label": f"{text_size_params.axis_label_size:.2f} pt",
+            "tick label": f"{text_size_params.tick_label_size:.2f} pt",
         },
     )
 

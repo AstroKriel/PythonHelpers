@@ -72,7 +72,7 @@ def add_text(
     `text_size` defaults to the active annotation text size.
     """
     if text_size is None:
-        text_size = style_plots.get_text_sizes().annotation_size
+        text_size = style_plots.get_text_size_params().annotation_size
     ## validate position in panel coordinates [0, 1]
     validate_types.ensure_in_bounds(
         param=x_pos,
@@ -161,7 +161,7 @@ def add_custom_legend(
     what it stands for.
     """
     if text_size is None:
-        text_size = style_plots.get_text_sizes().legend_size
+        text_size = style_plots.get_text_size_params().legend_size
     if marker_size is None:
         marker_size = float(rcParams["lines.markersize"])
     if line_width is None:

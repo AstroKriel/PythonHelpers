@@ -39,7 +39,7 @@ DEFAULT_PIXELS_PER_CM: float = 80.0
     frozen=True,
     kw_only=True,
 )
-class TextSizes:
+class TextSizeParams:
     """
     Point sizes for each kind of text that appears on a figure.
 
@@ -135,7 +135,7 @@ class TextSizes:
     frozen=True,
     kw_only=True,
 )
-class ArtistParams:
+class DataParams:
     """
     How the data itself is drawn, in pt.
 
@@ -159,7 +159,7 @@ class ArtistParams:
     frozen=True,
     kw_only=True,
 )
-class PanelFrame:
+class PanelFrameParams:
     """
     The panel's furniture, in pt: its frame, its ticks, and the gaps around their labels.
 
@@ -350,18 +350,18 @@ HALF_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=0
 ## === ACTIVE STYLE
 ##
 
-_active_text_sizes: TextSizes = TextSizes()
+_active_text_size_params: TextSizeParams = TextSizeParams()
 _active_figure_layout: FigureLayout = FULL_PAGE_FIGURE_LAYOUT
 
 
-def get_text_sizes() -> TextSizes:
+def get_text_size_params() -> TextSizeParams:
     """
     Text sizes set by the most recent `set_theme` call.
 
     Read them here rather than from the store, which `set_theme` owns: it also pushes the
     sizes into rcParams, so writing the store alone leaves the two disagreeing.
     """
-    return _active_text_sizes
+    return _active_text_size_params
 
 
 def get_figure_layout() -> FigureLayout:
@@ -480,16 +480,16 @@ THEMES: Mapping[Theme, ThemeParams] = {
 def _get_base_rc_params(
     *,
     use_tex: bool = True,
-    text_sizes: TextSizes | None = None,
+    text_size_params: TextSizeParams | None = None,
 ) -> dict[str, object]:
-    if text_sizes is None:
-        text_sizes = TextSizes()
+    if text_size_params is None:
+        text_size_params = TextSizeParams()
     rc_params: dict[str, object] = {
         ## the typeface, which pairs with the LaTeX settings applied below
         "font.family": "serif",
-        **text_sizes.as_rc_params(),
-        **ArtistParams().as_rc_params(),
-        **PanelFrame().as_rc_params(),
+        **text_size_params.as_rc_params(),
+        **DataParams().as_rc_params(),
+        **PanelFrameParams().as_rc_params(),
         **LegendParams().as_rc_params(),
         **SaveParams().as_rc_params(),
     }
@@ -519,22 +519,22 @@ def set_theme(
     *,
     theme: Theme | str = Theme.LIGHT,
     use_tex: bool = True,
-    text_sizes: TextSizes | None = None,
+    text_size_params: TextSizeParams | None = None,
     figure_layout: FigureLayout | None = None,
 ) -> None:
     """
     Apply a theme to Matplotlib's global rcParams.
 
-    `text_sizes` sets the point size of each kind of text. `figure_layout` becomes the
+    `text_size_params` sets the point size of each kind of text. `figure_layout` becomes the
     default for figures made after it, setting how much page they take and how much is
     left clear for their labels.
     """
-    global _active_text_sizes, _active_figure_layout
-    if text_sizes is None:
-        text_sizes = TextSizes()
+    global _active_text_size_params, _active_figure_layout
+    if text_size_params is None:
+        text_size_params = TextSizeParams()
     if figure_layout is None:
         figure_layout = FULL_PAGE_FIGURE_LAYOUT
-    _active_text_sizes = text_sizes
+    _active_text_size_params = text_size_params
     _active_figure_layout = figure_layout
     if isinstance(theme, str):
         theme = Theme(theme)
@@ -542,7 +542,7 @@ def set_theme(
     ## one of Matplotlib's style sheets here would change keys no theme sets back
     rc_params = _get_base_rc_params(
         use_tex=use_tex,
-        text_sizes=text_sizes,
+        text_size_params=text_size_params,
     )
     rc_params.update(THEMES[theme].as_rc_params())
     matplotlib.rcParams.update(rc_params)
