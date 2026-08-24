@@ -374,26 +374,6 @@ HALF_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=0
 
 
 ##
-## === ACTIVE STYLE
-##
-
-_active_figure_params: "FigureParams | None" = None
-
-
-def get_figure_params() -> "FigureParams":
-    """
-    The parameters set by the most recent `set_theme` call.
-
-    Read them here rather than from the store, which `set_theme` owns: it also pushes the
-    rc-bearing groups into Matplotlib, so writing the store alone leaves the two
-    disagreeing. Figures already built keep the layout they were built with.
-    """
-    if _active_figure_params is None:
-        return FigureParams()
-    return _active_figure_params
-
-
-##
 ## === COLOR THEMES
 ##
 
@@ -546,6 +526,26 @@ class FigureParams:
         else:
             rc_params.update({"text.usetex": False})
         return rc_params
+
+
+##
+## === ACTIVE STYLE
+##
+
+_active_figure_params: FigureParams | None = None
+
+
+def get_figure_params() -> FigureParams:
+    """
+    The parameters set by the most recent `set_theme` call.
+
+    Read them here rather than from the store, which `set_theme` owns: it also pushes the
+    rc-bearing groups into Matplotlib, so writing the store alone leaves the two
+    disagreeing. Figures already built keep the layout they were built with.
+    """
+    if _active_figure_params is None:
+        return FigureParams()
+    return _active_figure_params
 
 
 ##
