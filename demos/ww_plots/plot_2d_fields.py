@@ -11,8 +11,8 @@ from typing import Any
 ## third-party
 import numpy
 
-from matplotlib.colorbar import Colorbar as mpl_colorbar
-from matplotlib.figure import Figure as mpl_figure
+from matplotlib.colorbar import Colorbar as mpl_Colorbar
+from matplotlib.figure import Figure as mpl_Figure
 from numpy.typing import NDArray
 
 ## local
@@ -108,7 +108,7 @@ def add_shared_colorbar(
     *,
     panel_row: manage_figure.PanelGrid,
     label: str,
-) -> mpl_colorbar:
+) -> mpl_Colorbar:
     """
     Put one colorbar above the row, spanning it.
 
@@ -134,9 +134,9 @@ def add_shared_colorbar(
 
 def report_drawn_sizes(
     *,
-    figure: mpl_figure,
+    figure: mpl_Figure,
     panel: manage_figure.Panel,
-    colorbar: mpl_colorbar,
+    colorbar: mpl_Colorbar,
 ) -> None:
     """Report the drawn panel and colorbar, and the room left at the figure's top edge."""
     figure_width_cm, figure_height_cm = (

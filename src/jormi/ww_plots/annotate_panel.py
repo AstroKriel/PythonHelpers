@@ -12,8 +12,8 @@ import numpy
 from numpy.typing import NDArray
 
 from matplotlib.collections import LineCollection as mpl_LineCollection
-from matplotlib.legend import Legend as mpl_legend
-from matplotlib.lines import Line2D as mpl_line2d
+from matplotlib.legend import Legend as mpl_Legend
+from matplotlib.lines import Line2D as mpl_Line2D
 
 ## local
 from jormi.ww_plots import manage_figure, style_figure
@@ -241,14 +241,14 @@ def add_custom_legend(
     for artist, color in zip(artists, colors):
         label_colors.append(text_color if artist is not None else color)
         if artist is None:
-            artist_to_draw = mpl_line2d(
+            artist_to_draw = mpl_Line2D(
                 [0],
                 [0],
                 linestyle="",
                 marker="",
             )
         elif artist in _VALID_MARKERS:
-            artist_to_draw = mpl_line2d(
+            artist_to_draw = mpl_Line2D(
                 [0],
                 [0],
                 marker=artist,
@@ -258,7 +258,7 @@ def add_custom_legend(
                 markersize=marker_size,
             )
         elif artist in _VALID_LINES:
-            artist_to_draw = mpl_line2d(
+            artist_to_draw = mpl_Line2D(
                 [0],
                 [0],
                 linestyle=artist,
@@ -280,7 +280,7 @@ def add_custom_legend(
     handle_length = 0.0 if has_no_swatches else None
     handle_gap = 0.0 if has_no_swatches else None
     ## draw legend; use Legend directly so multiple legends can coexist on the same panel
-    legend = mpl_legend(
+    legend = mpl_Legend(
         panel,
         handles=artists_to_draw,
         labels=labels,
