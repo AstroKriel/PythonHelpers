@@ -13,6 +13,8 @@ matplotlib.use("Agg", force=True)
 ##
 
 ## stdlib
+import dataclasses
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import (
@@ -250,15 +252,37 @@ def _ensure_figure_sizing(
         )
 
 
-def _resolve_figure_layout(
+def _compose_figure_params(
     *,
+    figure_params: style_figure.FigureParams | None,
     figure_layout: style_figure.FigureLayout | None,
-) -> style_figure.FigureLayout:
-    """The layout given, or the one set by the most recent `set_figure_params` call."""
-    if figure_layout is None:
+    panel_column_gap: float | None,
+    panel_row_gap: float | None,
+) -> style_figure.FigureParams:
+    """
+    Fold the arguments a figure is built from into one set of params describing it.
+
+    Each argument overrides the matching part of `figure_params`, which in turn stands in
+    for the active style when it is not given. Composing them into one object is what lets
+    a colorbar added later sit at the same gap the panels were spaced by.
+    """
+    if figure_params is None:
         figure_params = style_figure.get_figure_params()
-        return figure_params.figure_layout
-    return figure_layout
+    if figure_layout is None:
+        figure_layout = figure_params.figure_layout
+    panel_gaps = figure_layout.panel_gaps
+    if (panel_column_gap is not None) or (panel_row_gap is not None):
+        panel_gaps = style_figure.PanelGaps(
+            column=(panel_gaps.column if panel_column_gap is None else panel_column_gap),
+            row=(panel_gaps.row if panel_row_gap is None else panel_row_gap),
+        )
+    return dataclasses.replace(
+        figure_params,
+        figure_layout=dataclasses.replace(
+            figure_layout,
+            panel_gaps=panel_gaps,
+        ),
+    )
 
 
 def _compute_figure_shape(
@@ -304,6 +328,7 @@ def create_figure(
     num_panel_rows: None = None,
     num_panel_columns: None = None,
     panel_shape: BoxShape | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
 ) -> tuple[mpl_Figure, Panel]:
@@ -316,6 +341,7 @@ def create_figure(
     num_panel_rows: int,
     num_panel_columns: int,
     panel_shape: BoxShape | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float | None = None,
@@ -331,6 +357,7 @@ def create_figure(
     num_panel_rows: int | None = None,
     num_panel_columns: int | None = None,
     panel_shape: BoxShape | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float | None = None,
@@ -369,7 +396,6 @@ def create_figure(
       returned; 1x1 is refused, since that is the single-panel case.
     - Mixed None/int specifications are not allowed.
     """
-    style_figure.apply_figure_params_if_unset()
     if (num_panel_rows is None) and (num_panel_columns is None):
         num_panel_rows = 1
         num_panel_columns = 1
@@ -401,7 +427,16 @@ def create_figure(
         figure_layout=figure_layout,
         panel_aspect_ratio=panel_aspect_ratio,
     )
-    figure_layout = _resolve_figure_layout(figure_layout=figure_layout)
+    ## everything the figure is built from, gathered into one object and made active, so
+    ## that whatever is drawn onto the figure afterwards is styled and spaced to match it
+    figure_params = _compose_figure_params(
+        figure_params=figure_params,
+        figure_layout=figure_layout,
+        panel_column_gap=panel_column_gap,
+        panel_row_gap=panel_row_gap,
+    )
+    style_figure.set_figure_params(figure_params=figure_params)
+    figure_layout = figure_params.figure_layout
     figure_shape = _compute_figure_shape(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
@@ -425,6 +460,7 @@ def create_figure(
     )
     if is_single_panel:
         return figure, panels
+    ## the gap arguments were folded into the composed layout, so read them back from it
     panel_gaps = figure_layout.panel_gaps
     _set_panel_gaps(
         figure=figure,
@@ -432,8 +468,8 @@ def create_figure(
         figure_margins=figure_layout.figure_margins,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        panel_column_gap=(panel_gaps.column if panel_column_gap is None else panel_column_gap),
-        panel_row_gap=(panel_gaps.row if panel_row_gap is None else panel_row_gap),
+        panel_column_gap=panel_gaps.column,
+        panel_row_gap=panel_gaps.row,
     )
     panel_grid: PanelGrid = numpy.asarray(panels, dtype=object)
     return figure, panel_grid
@@ -444,6 +480,7 @@ def create_figure_grid(
     num_panel_rows: int = 1,
     num_panel_columns: int = 1,
     panel_shape: BoxShape | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float | None = None,
@@ -458,6 +495,7 @@ def create_figure_grid(
     if (num_panel_rows == 1) and (num_panel_columns == 1):
         figure, panel = create_figure(
             panel_shape=panel_shape,
+            figure_params=figure_params,
             figure_layout=figure_layout,
             panel_aspect_ratio=panel_aspect_ratio,
         )
@@ -467,6 +505,7 @@ def create_figure_grid(
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         panel_shape=panel_shape,
+        figure_params=figure_params,
         figure_layout=figure_layout,
         panel_aspect_ratio=panel_aspect_ratio,
         panel_column_gap=panel_column_gap,
@@ -556,15 +595,17 @@ def add_inset_panel(
     x_label: str | None = None,
     y_label: str | None = None,
     text_size: float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> Panel:
-    """Add an inset Axis to `panel`."""
+    """Add an inset Axis to `panel`; `text_size` defaults to the active axis-label size."""
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     x_label_side = validate_box_positions.as_box_side(x_label_alignment)
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)
     inset_panel = panel.inset_axes(bounds)
     if text_size is None:
-        figure_params = style_figure.get_figure_params()
         text_size = figure_params.text_size_params.axis_label_size
     if x_label is not None:
         inset_panel.set_xlabel(
@@ -609,6 +650,7 @@ def save_figure(
     figure: mpl_Figure,
     figure_path: str | Path,
     pixels_per_cm: float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
     verbose: bool = True,
 ) -> None:
     """
@@ -619,7 +661,8 @@ def save_figure(
     asks for a density gets it. Accepts `.png` or `.pdf` paths; errors are logged
     rather than raised.
     """
-    figure_params = style_figure.get_figure_params()
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     if pixels_per_cm is None:
         pixels_per_cm = figure_params.save_params.pixels_per_cm
     if not str(figure_path).endswith(".png") and not str(figure_path).endswith(".pdf"):

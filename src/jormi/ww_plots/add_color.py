@@ -181,6 +181,7 @@ def _compute_colorbar_gap(
     panel: manage_figure.Panel,
     colorbar_side: _Side,
     colorbar_gap: float | None,
+    figure_params: style_figure.FigureParams,
 ) -> float:
     """
     Convert the gap between a panel and its colorbar (pt) into the share of the figure
@@ -190,7 +191,6 @@ def _compute_colorbar_gap(
     figure already spaces its panels by: the column gap beside a panel, the row gap above
     or below one.
     """
-    figure_params = style_figure.get_figure_params()
     is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
     if colorbar_gap is None:
         panel_gaps = figure_params.colorbar_layout.gap
@@ -266,6 +266,7 @@ def add_colorbar(
     colorbar_gap: float | None = None,
     label_gap: float | None = None,
     text_size: int | float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
 ) -> mpl_colorbar.Colorbar:
     """
     `colorbar_gap` is in pt, like the gaps between panels, and defaults to the gap the
@@ -273,7 +274,8 @@ def add_colorbar(
     text size, and `label_gap` to the gap the active style leaves between a panel's tick
     labels and its axis label.
     """
-    figure_params = style_figure.get_figure_params()
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     if text_size is None:
         text_size = figure_params.text_size_params.axis_label_size
     if label_gap is None:
@@ -311,6 +313,7 @@ def add_colorbar(
             panel=panel,
             colorbar_side=colorbar_side,
             colorbar_gap=colorbar_gap,
+            figure_params=figure_params,
         ),
     )
     colorbar_panel = panel.figure.add_axes(

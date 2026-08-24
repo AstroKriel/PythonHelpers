@@ -176,27 +176,20 @@ def report_drawn_sizes(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    ## the layout goes in the style rather than to `create_figure`, so that the colorbar
-    ## picks up the same gap the panels are spaced by; the top margin is what holds it,
-    ## along with its tick labels and its label
-    style_figure.set_figure_params(
-        figure_params=style_figure.FigureParams(
-            figure_layout=style_figure.FigureLayout(
-                figure_margins=style_figure.FigureMargins(top=42.0),
-                panel_gaps=style_figure.PanelGaps(
-                    column=PANEL_GAP_PT,
-                    row=PANEL_GAP_PT,
-                ),
-            ),
-        ),
-    )
     velocity_x, velocity_y, vorticity = generate_vortex()
+    ## the top margin holds the shared colorbar, its tick labels and its label; the gaps
+    ## given here also place the colorbar, since it neighbours the panels
     figure, panel_grid = manage_figure.create_figure(
         num_panel_rows=1,
         num_panel_columns=3,
         ## the share is taller than it is wide, so that once the margins are taken out of
         ## it the drawn panel is square, matching the square domain
         panel_aspect_ratio=0.752,
+        panel_column_gap=PANEL_GAP_PT,
+        panel_row_gap=PANEL_GAP_PT,
+        figure_layout=style_figure.FigureLayout(
+            figure_margins=style_figure.FigureMargins(top=42.0),
+        ),
     )
     ## a grid keeps its row axis unless it is 1x1, so a single row arrives shaped (1, 3)
     panel_row = panel_grid[0]

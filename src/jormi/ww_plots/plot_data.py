@@ -17,6 +17,7 @@ from jormi.ww_plots import (
     manage_figure,
     style_figure,
 )
+from jormi.ww_plots.color_palettes import ColorPalette
 from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
 
@@ -164,7 +165,14 @@ def plot_2d_array(
     add_colorbar: bool = True,
     colorbar_label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-):
+    figure_params: style_figure.FigureParams | None = None,
+) -> ColorPalette:
+    """
+    Draw `array_2d` onto `panel`, with a colorbar beside it unless one is turned down.
+
+    Returns the palette it was drawn through, so a caller can key a colorbar of their own
+    to it: a shared one across panels, or one placed where this function would not put it.
+    """
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
     validate_arrays.ensure_dims(
@@ -194,7 +202,7 @@ def plot_2d_array(
             value_range=(min_value, max_value),
         )
     axis_extent = _as_axis_extent(axis_ranges)
-    im_obj = panel.imshow(
+    panel.imshow(
         array_view,
         extent=axis_extent,
         aspect=data_aspect_ratio,
@@ -212,8 +220,9 @@ def plot_2d_array(
             palette=palette,
             label=colorbar_label,
             colorbar_side=colorbar_side,
+            figure_params=figure_params,
         )
-    return im_obj
+    return palette
 
 
 def _generate_grid(
@@ -286,10 +295,12 @@ def plot_2d_streamlines(
     streamline_density: float = 2.0,
     arrow_size: float = 0.5,
     color: str = "white",
+    figure_params: style_figure.FigureParams | None = None,
 ):
     """`streamline_width` defaults to the width the active style draws data at."""
     if streamline_width is None:
-        figure_params = style_figure.get_figure_params()
+        if figure_params is None:
+            figure_params = style_figure.get_figure_params()
         streamline_width = figure_params.data_artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d_rows,
@@ -338,10 +349,12 @@ def plot_2d_contours(
     color: str = "white",
     linewidth: float | None = None,
     linestyle: str = "-",
+    figure_params: style_figure.FigureParams | None = None,
 ):
     """`linewidth` defaults to the width the active style draws data at."""
     if linewidth is None:
-        figure_params = style_figure.get_figure_params()
+        if figure_params is None:
+            figure_params = style_figure.get_figure_params()
         linewidth = figure_params.data_artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d,

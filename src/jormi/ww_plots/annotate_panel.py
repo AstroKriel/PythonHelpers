@@ -63,6 +63,7 @@ def add_text(
     box_alpha: float = 0.0,
     box_color: ColorType | None = None,
     rotate_deg: float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
 ):
     """
     Add a text label to a panel at a position given in panel coordinates [0, 1].
@@ -71,7 +72,8 @@ def add_text(
     `text_size` defaults to the active annotation text size, and the colours to the
     active theme, so a label stays legible when the theme changes.
     """
-    figure_params = style_figure.get_figure_params()
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     theme_params = figure_params.theme_params
     if text_size is None:
         text_size = figure_params.text_size_params.annotation_size
@@ -155,6 +157,7 @@ def add_custom_legend(
     frame_alpha: float = 0.0,
     num_legend_columns: int = 1,
     marker_first: bool = True,
+    figure_params: style_figure.FigureParams | None = None,
 ):
     """
     Add a custom legend to a panel, built from explicit style strings rather than plot handles.
@@ -170,7 +173,8 @@ def add_custom_legend(
     for. How tightly the legend packs is left to Matplotlib to read from the rcParams the
     style sets.
     """
-    figure_params = style_figure.get_figure_params()
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     text_size_params = figure_params.text_size_params
     data_artist_params = figure_params.data_artist_params
     theme_params = figure_params.theme_params
@@ -307,6 +311,7 @@ def overlay_curve(
     label: str | None = None,
     alpha: float = 1.0,
     zorder: float = 1.0,
+    figure_params: style_figure.FigureParams | None = None,
 ):
     """
     Overlay a 2D curve onto a panel without affecting its axis limits.
@@ -314,7 +319,8 @@ def overlay_curve(
     `x_values` and `y_values` must be 1D and the same length, with at least two points.
     The colour and width default to the active style's.
     """
-    figure_params = style_figure.get_figure_params()
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
     if color is None:
         color = figure_params.theme_params.foreground_color
     if linewidth is None:
