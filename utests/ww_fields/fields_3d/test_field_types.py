@@ -64,6 +64,21 @@ def _make_vfield_3d(
     )
 
 
+def _make_r2tfield_3d(
+    *,
+    resolution: tuple[int, int, int] = (4, 4, 4),
+    label: str = "test_tensor",
+    sim_time: float | None = None,
+) -> field_models.RankTwoTensorField_3D:
+    return field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+        r2tarray_3d=numpy.ones((3, 3) + resolution),
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
+        field_name=label,
+        latex_label=label,
+        sim_time=sim_time,
+    )
+
+
 def _make_unit_varray_3d(
     resolution: tuple[int, int, int],
 ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
@@ -433,6 +448,114 @@ class TestVectorField3D_Properties(unittest.TestCase):
         self.assertEqual(
             vfield.comp_axes,
             cartesian_axes.DEFAULT_3D_AXES_ORDER,
+        )
+
+
+class TestRankTwoTensorField3D_Construction(unittest.TestCase):
+
+    def test_valid_construction_via_from_3d_r2tarray(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d()
+        self.assertIsInstance(
+            r2tfield,
+            field_models.RankTwoTensorField_3D,
+        )
+
+    def test_label_is_stored(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d(label="velocity_gradient")
+        self.assertEqual(
+            r2tfield.latex_label,
+            "velocity_gradient",
+        )
+
+    def test_sim_time_is_stored(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d(sim_time=2.5)
+        assert r2tfield.sim_time is not None
+        self.assertAlmostEqual(
+            r2tfield.sim_time,
+            2.5,
+        )
+
+    def test_wrong_leading_dims_raises(
+        self,
+    ):
+        with self.assertRaises((TypeError, ValueError)):
+            field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+                r2tarray_3d=numpy.ones((3, 2, 4, 4, 4)),  # pyright: ignore[reportArgumentType]
+                uniform_domain_3d=_make_3d_uniform_domain(),
+                field_name="bad",
+                latex_label="bad",
+            )
+
+    def test_wrong_array_rank_raises(
+        self,
+    ):
+        with self.assertRaises((TypeError, ValueError)):
+            field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+                r2tarray_3d=numpy.ones((3, 4, 4, 4)),  # pyright: ignore[reportArgumentType]
+                uniform_domain_3d=_make_3d_uniform_domain(),
+                field_name="bad",
+                latex_label="bad",
+            )
+
+    def test_resolution_mismatch_raises(
+        self,
+    ):
+        with self.assertRaises((TypeError, ValueError)):
+            field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+                r2tarray_3d=numpy.ones((3, 3, 4, 4, 4)),
+                uniform_domain_3d=_make_3d_uniform_domain(resolution=(8, 8, 8)),
+                field_name="bad",
+                latex_label="bad",
+            )
+
+
+class TestRankTwoTensorField3D_Properties(unittest.TestCase):
+
+    def test_fdata_is_tensor(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d()
+        self.assertTrue(
+            r2tfield.fdata.is_tensor,
+        )
+        self.assertFalse(
+            r2tfield.fdata.is_scalar,
+        )
+        self.assertFalse(
+            r2tfield.fdata.is_vector,
+        )
+
+    def test_fdata_num_ranks(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d()
+        self.assertEqual(
+            r2tfield.fdata.num_ranks,
+            2,
+        )
+
+    def test_fdata_num_comps(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d()
+        self.assertEqual(
+            r2tfield.fdata.num_comps,
+            9,
+        )
+
+    def test_fdata_shape_includes_both_component_axes(
+        self,
+    ):
+        r2tfield = _make_r2tfield_3d(resolution=(3, 5, 7))
+        self.assertEqual(
+            r2tfield.fdata.shape,
+            (3, 3, 3, 5, 7),
         )
 
 

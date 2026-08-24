@@ -259,4 +259,40 @@ def compute_vfield_divergence(
     )
 
 
+def compute_vfield_gradient(
+    vfield_3d: field_models.VectorField_3D,
+    *,
+    out_r2tarray_3d: NDArray[Any] | None = None,
+    field_name: str,
+    latex_label: str,
+    grad_order: int = 2,
+) -> field_models.RankTwoTensorField_3D:
+    """Compute the gradient d_i f_j of a 3D vector field."""
+    validate_types.ensure_finite_int(
+        param=grad_order,
+        param_name="<grad_order>",
+        allow_none=False,
+        require_positive=True,
+    )
+    varray_3d = field_models.extract_3d_varray(
+        vfield_3d=vfield_3d,
+        param_name="<vfield_3d>",
+    )
+    uniform_domain_3d = vfield_3d.uniform_domain
+    sim_time = vfield_3d.sim_time
+    grad_f_r2tarray_3d = farray_operators.compute_varray_grad(
+        varray_3d=varray_3d,
+        cell_widths_3d=uniform_domain_3d.cell_widths,
+        grad_f_r2tarray_3d=out_r2tarray_3d,
+        grad_order=grad_order,
+    )
+    return field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+        r2tarray_3d=grad_f_r2tarray_3d,
+        uniform_domain_3d=uniform_domain_3d,
+        field_name=field_name,
+        latex_label=latex_label,
+        sim_time=sim_time,
+    )
+
+
 ## } MODULE

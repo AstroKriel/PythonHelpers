@@ -12,10 +12,12 @@ from typing import Any
 import numpy
 
 ## local
+from jormi.ww_arrays.farrays_3d import compute_spectra as _array_compute_spectra
 from jormi.ww_fields.fields_3d import (
     compute_spectra,
     domain_models,
     field_models,
+    field_operators,
 )
 
 ##
@@ -59,6 +61,45 @@ def _cosine_mode_field(
     ).copy()
 
 
+def _make_vfield(
+    varray_3d: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> field_models.VectorField_3D:
+    resolution = varray_3d.shape[1:]
+    return field_models.VectorField_3D.from_3d_varray(
+        varray_3d=varray_3d,
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
+        field_name="v",
+        latex_label="v",
+    )
+
+
+def _make_r2tfield(
+    r2tarray_3d: numpy.ndarray[Any, numpy.dtype[Any]],
+) -> field_models.RankTwoTensorField_3D:
+    resolution = r2tarray_3d.shape[2:]
+    return field_models.RankTwoTensorField_3D.from_3d_r2tarray(
+        r2tarray_3d=r2tarray_3d,
+        uniform_domain_3d=_make_3d_uniform_domain(resolution),
+        field_name="grad_v",
+        latex_label="grad_v",
+    )
+
+
+def _cosine_mode_varray(
+    *,
+    mode_k: int,
+    num_cells: int,
+    comp_index: int,
+) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]:
+    """Return a (3, N, N, N) array with a pure cosine wave at integer mode `mode_k`, in one component only."""
+    varray_3d = numpy.zeros((3, num_cells, num_cells, num_cells))
+    varray_3d[comp_index] = _cosine_mode_field(
+        mode_k=mode_k,
+        num_cells=num_cells,
+    )
+    return varray_3d
+
+
 ##
 ## === TEST SUITES
 ##
@@ -74,7 +115,7 @@ class TestKBinCenters(unittest.TestCase):
             sfield = _make_sfield(
                 numpy.ones((num_cells, num_cells, num_cells)),
             )
-            spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
+            spectrum = compute_spectra.compute_isotropic_power_spectrum_field(sfield)
             expected_centers = numpy.arange(1, num_cells // 2 + 1, dtype=float)
             numpy.testing.assert_array_equal(
                 spectrum.k_bin_centers_1d,
@@ -89,10 +130,10 @@ class TestKBinCenters(unittest.TestCase):
             sfield = _make_sfield(
                 numpy.ones((num_cells, num_cells, num_cells)),
             )
-            spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
+            spectrum = compute_spectra.compute_isotropic_power_spectrum_field(sfield)
             self.assertEqual(
                 spectrum.k_bin_centers_1d.shape,
-                spectrum.spectrum_1d.shape,
+                spectrum.power_spectrum_1d.shape,
             )
 
 
@@ -106,9 +147,9 @@ class TestDCExclusion(unittest.TestCase):
         for num_cells in (8, 16):
             sarray_3d = numpy.full((num_cells, num_cells, num_cells), fill_value=3.14)
             sfield = _make_sfield(sarray_3d)
-            spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
+            spectrum = compute_spectra.compute_isotropic_power_spectrum_field(sfield)
             numpy.testing.assert_allclose(
-                spectrum.spectrum_1d,
+                spectrum.power_spectrum_1d,
                 numpy.zeros(num_cells // 2),
                 atol=1e-10,
                 err_msg=f"Constant field should produce zero spectrum for N={num_cells}",
@@ -136,10 +177,10 @@ class TestPureModeBinPlacement(unittest.TestCase):
             num_cells=num_cells,
         )
         sfield = _make_sfield(sarray_3d)
-        spectrum = compute_spectra.compute_isotropic_power_spectrum_sfield(sfield)
+        spectrum = compute_spectra.compute_isotropic_power_spectrum_field(sfield)
         peak_index = int(
             numpy.argmax(
-                spectrum.spectrum_1d,
+                spectrum.power_spectrum_1d,
             ),
         )
         self.assertEqual(
@@ -187,6 +228,141 @@ class TestPureModeBinPlacement(unittest.TestCase):
             mode_k=3,
             num_cells=16,
         )
+
+
+class TestVectorDCExclusion(unittest.TestCase):
+
+    def test_constant_field_produces_zero_spectrum(
+        self,
+    ):
+        for num_cells in (8, 16):
+            varray_3d = numpy.full((3, num_cells, num_cells, num_cells), fill_value=3.14)
+            vfield = _make_vfield(varray_3d)
+            spectrum = compute_spectra.compute_isotropic_power_spectrum_field(vfield)
+            numpy.testing.assert_allclose(
+                spectrum.power_spectrum_1d,
+                numpy.zeros(num_cells // 2),
+                atol=1e-10,
+                err_msg=f"Constant vector field should produce zero spectrum for N={num_cells}",
+            )
+
+
+class TestVectorPureModeBinPlacement(unittest.TestCase):
+    """A pure cosine wave at integer mode k, in a single component, must peak in bin k."""
+
+    def _assert_peak_at_mode(
+        self,
+        *,
+        mode_k: int,
+        num_cells: int,
+        comp_index: int,
+    ) -> None:
+        varray_3d = _cosine_mode_varray(
+            mode_k=mode_k,
+            num_cells=num_cells,
+            comp_index=comp_index,
+        )
+        vfield = _make_vfield(varray_3d)
+        spectrum = compute_spectra.compute_isotropic_power_spectrum_field(vfield)
+        peak_index = int(
+            numpy.argmax(
+                spectrum.power_spectrum_1d,
+            ),
+        )
+        self.assertEqual(
+            spectrum.k_bin_centers_1d[peak_index],
+            mode_k,
+            msg=
+            f"Expected peak at k={mode_k}, got k={spectrum.k_bin_centers_1d[peak_index]} for N={num_cells}, comp={comp_index}",
+        )
+
+    def test_k1_each_component(
+        self,
+    ):
+        for comp_index in (0, 1, 2):
+            self._assert_peak_at_mode(
+                mode_k=1,
+                num_cells=16,
+                comp_index=comp_index,
+            )
+
+    def test_k2_mode(
+        self,
+    ):
+        for num_cells in (8, 16):
+            self._assert_peak_at_mode(
+                mode_k=2,
+                num_cells=num_cells,
+                comp_index=0,
+            )
+
+
+class TestRankTwoTensorFieldSpectrum(unittest.TestCase):
+    """Spectrum of an actual velocity-gradient tensor field, cross-checked against
+    computing directly from the raw farray, to confirm the field-level path (extracting
+    fdata.farray + uniform_domain.resolution) matches the array-level kernel exactly."""
+
+    def test_matches_array_level_kernel(
+        self,
+    ) -> None:
+        num_cells = 8
+        resolution_3d = (num_cells, num_cells, num_cells)
+        rng = numpy.random.default_rng(5)
+        vfield = field_models.VectorField_3D.from_3d_varray(
+            varray_3d=rng.standard_normal((3, *resolution_3d)),
+            uniform_domain_3d=_make_3d_uniform_domain(resolution_3d),
+            field_name="v",
+            latex_label="v",
+        )
+        grad_field = field_operators.compute_vfield_gradient(
+            vfield_3d=vfield,
+            field_name="grad_v",
+            latex_label="grad_v",
+        )
+        field_level_spectrum = compute_spectra.compute_isotropic_power_spectrum_field(grad_field)
+        array_level_spectrum = _array_compute_spectra.compute_isotropic_power_spectrum_farray(
+            farray_3d=grad_field.fdata.farray,
+            resolution_3d=resolution_3d,
+        )
+        numpy.testing.assert_allclose(
+            field_level_spectrum.power_spectrum_1d,
+            array_level_spectrum.power_spectrum_1d,
+        )
+
+
+class TestFieldTypeValidation(unittest.TestCase):
+    """compute_isotropic_power_spectrum_field must reject anything that isn't a
+    supported 3D field type, rather than silently misinterpreting it."""
+
+    def test_accepts_sfield(
+        self,
+    ) -> None:
+        sfield = _make_sfield(numpy.ones((8, 8, 8)))
+        compute_spectra.compute_isotropic_power_spectrum_field(sfield)
+
+    def test_accepts_vfield(
+        self,
+    ) -> None:
+        vfield = _make_vfield(numpy.ones((3, 8, 8, 8)))
+        compute_spectra.compute_isotropic_power_spectrum_field(vfield)
+
+    def test_accepts_r2tfield(
+        self,
+    ) -> None:
+        r2tfield = _make_r2tfield(numpy.ones((3, 3, 8, 8, 8)))
+        compute_spectra.compute_isotropic_power_spectrum_field(r2tfield)
+
+    def test_rejects_bare_array(
+        self,
+    ) -> None:
+        with self.assertRaises(TypeError):
+            compute_spectra.compute_isotropic_power_spectrum_field(numpy.ones((8, 8, 8)))  # pyright: ignore[reportArgumentType]
+
+    def test_rejects_none(
+        self,
+    ) -> None:
+        with self.assertRaises(TypeError):
+            compute_spectra.compute_isotropic_power_spectrum_field(None)  # pyright: ignore[reportArgumentType]
 
 
 ##

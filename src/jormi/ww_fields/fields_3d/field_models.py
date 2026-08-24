@@ -183,6 +183,48 @@ class UnitVectorField_3D(VectorField_3D):
         )
 
 
+@dataclass(frozen=True)
+class RankTwoTensorField_3D(_field_models.Field):
+    """3D rank-2 tensor field: num_ranks=2, num_comps=9, num_sdims=3."""
+
+    fdata: _field_data.Rank2TensorData_3D
+    uniform_domain: domain_models.UniformDomain_3D
+
+    def __post_init__(
+        self,
+    ) -> None:
+        super().__post_init__()
+        _field_data.ensure_3d_r2tdata(
+            r2tdata_3d=self.fdata,
+            param_name="<r2tfield_3d.fdata>",
+        )
+
+    @classmethod
+    def from_3d_r2tarray(
+        cls,
+        *,
+        r2tarray_3d: NDArray[Any],
+        uniform_domain_3d: domain_models.UniformDomain_3D,
+        field_name: str,
+        latex_label: str,
+        sim_time: float | None = None,
+    ) -> "RankTwoTensorField_3D":
+        """Construct a 3D rank-2 tensor field directly from a (3, 3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray and a 3D UniformDomain."""
+        return cls._from_farray(
+            farray=r2tarray_3d,
+            uniform_domain=uniform_domain_3d,
+            field_name=field_name,
+            latex_label=latex_label,
+            sim_time=sim_time,
+            fdata_fn=_field_data.Rank2TensorData_3D,
+            fdata_param_name="<r2tarray_3d>",
+        )
+
+
+## every concrete 3D field type; extend this when a new rank is added
+AnyField_3D = ScalarField_3D | VectorField_3D | RankTwoTensorField_3D
+
+
 def as_3d_uvfield(
     vfield_3d: VectorField_3D,
     *,
@@ -233,6 +275,18 @@ def ensure_3d_uvfield(
         param=uvfield_3d,
         param_name=param_name,
         valid_types=UnitVectorField_3D,
+    )
+
+
+def ensure_3d_r2tfield(
+    r2tfield_3d: RankTwoTensorField_3D,
+    *,
+    param_name: str = "<r2tfield_3d>",
+) -> None:
+    validate_types.ensure_type(
+        param=r2tfield_3d,
+        param_name=param_name,
+        valid_types=RankTwoTensorField_3D,
     )
 
 
@@ -381,6 +435,22 @@ def extract_3d_varray(
     )
     return _field_data.extract_3d_varray(
         vdata_3d=vfield_3d.fdata,
+        param_name=f"{param_name}.fdata",
+    )
+
+
+def extract_3d_r2tarray(
+    r2tfield_3d: RankTwoTensorField_3D,
+    *,
+    param_name: str = "<r2tfield_3d>",
+) -> NDArray[Any]:
+    """Validate and extract the underlying (3, 3, num_x0_cells, num_x1_cells, num_x2_cells) ndarray from a 3D rank-2 tensor field."""
+    ensure_3d_r2tfield(
+        r2tfield_3d=r2tfield_3d,
+        param_name=param_name,
+    )
+    return _field_data.extract_3d_r2tarray(
+        r2tdata_3d=r2tfield_3d.fdata,
         param_name=f"{param_name}.fdata",
     )
 

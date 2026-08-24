@@ -521,6 +521,121 @@ class TestVectorFieldCurl(unittest.TestCase):
         )
 
 
+class TestVectorFieldGrad(unittest.TestCase):
+
+    def test_grad_returns_rank2_tensor_field(
+        self,
+    ):
+        self.assertIsInstance(
+            field_operators.compute_vfield_gradient(
+                vfield_3d=_make_constant_vfield(
+                    value_in_x0=1.0,
+                    value_in_x1=0.0,
+                    value_in_x2=0.0,
+                ),
+                field_name="grad_q",
+                latex_label=r"\nabla\vec{q}",
+            ),
+            field_models.RankTwoTensorField_3D,
+        )
+
+    def test_grad_result_has_same_domain(
+        self,
+    ):
+        vfield = _make_constant_vfield(
+            value_in_x0=1.0,
+            value_in_x1=0.0,
+            value_in_x2=0.0,
+        )
+        self.assertEqual(
+            field_operators.compute_vfield_gradient(
+                vfield_3d=vfield,
+                field_name="grad_q",
+                latex_label=r"\nabla\vec{q}",
+            ).uniform_domain,
+            vfield.uniform_domain,
+        )
+
+    def test_grad_result_has_expected_shape(
+        self,
+    ):
+        vfield = _make_constant_vfield(
+            value_in_x0=1.0,
+            value_in_x1=0.0,
+            value_in_x2=0.0,
+        )
+        self.assertEqual(
+            field_operators.compute_vfield_gradient(
+                vfield_3d=vfield,
+                field_name="grad_q",
+                latex_label=r"\nabla\vec{q}",
+            ).fdata.shape,
+            (3, 3) + _RESOLUTION,
+        )
+
+    def test_grad_of_constant_field_is_zero(
+        self,
+    ):
+        vfield = _make_constant_vfield(
+            value_in_x0=1.0,
+            value_in_x1=2.0,
+            value_in_x2=3.0,
+        )
+        grad_field = field_operators.compute_vfield_gradient(
+            vfield_3d=vfield,
+            field_name="grad_q",
+            latex_label=r"\nabla\vec{q}",
+        )
+        numpy.testing.assert_allclose(
+            grad_field.fdata.farray,
+            numpy.zeros((3, 3) + _RESOLUTION),
+            atol=1e-10,
+        )
+
+    def test_grad_preserves_sim_time(
+        self,
+    ):
+        vfield = field_models.VectorField_3D.from_3d_varray(
+            varray_3d=numpy.ones((3, ) + _RESOLUTION),
+            uniform_domain_3d=_make_3d_uniform_domain(),
+            field_name="q",
+            latex_label=r"\vec{q}",
+            sim_time=4.0,
+        )
+        grad_field = field_operators.compute_vfield_gradient(
+            vfield_3d=vfield,
+            field_name="grad_q",
+            latex_label=r"\nabla\vec{q}",
+        )
+        assert grad_field.sim_time is not None
+        self.assertAlmostEqual(
+            grad_field.sim_time,
+            4.0,
+        )
+
+    def test_grad_output_buffer_reused_when_compatible(
+        self,
+    ):
+        vfield = _make_constant_vfield(
+            value_in_x0=1.0,
+            value_in_x1=0.0,
+            value_in_x2=0.0,
+        )
+        array = numpy.empty((3, 3) + _RESOLUTION)
+        result = field_operators.compute_vfield_gradient(
+            vfield_3d=vfield,
+            out_r2tarray_3d=array,
+            field_name="grad_q",
+            latex_label=r"\nabla\vec{q}",
+        )
+        self.assertTrue(
+            numpy.shares_memory(
+                result.fdata.farray,
+                array,
+            ),
+        )
+
+
 ##
 ## === ENTRY POINT
 ##
