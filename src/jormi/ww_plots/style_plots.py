@@ -378,105 +378,86 @@ def get_figure_layout() -> FigureLayout:
 ## === COLOR THEMES
 ##
 
-LIGHT_RC_PARAMS: dict[str, object] = {
-    ## backgrounds
-    "figure.facecolor":
-    "white",
-    "axes.facecolor":
-    "white",
-    "savefig.facecolor":
-    "white",
-    "figure.edgecolor":
-    "white",
-    ## foreground
-    "patch.edgecolor":
-    "#222222",
-    "lines.color":
-    "#222222",
-    "axes.edgecolor":
-    "#222222",
-    "axes.labelcolor":
-    "#222222",
-    "text.color":
-    "#222222",
-    "axes.titlecolor":
-    "#222222",
-    "xtick.color":
-    "#333333",
-    "ytick.color":
-    "#333333",
-    ## grid
-    "grid.color":
-    "#dddddd",
-    "grid.alpha":
-    0.6,
-    ## default colors
-    "axes.prop_cycle":
-    cycler(
-        color=[
-            "#1f77b4",
-            "#2ca02c",
-            "#d62728",
-            "#ff7f0e",
-            "#9467bd",
-            "#17becf",
-            "#8c564b",
-            "#e377c2",
-            "#7f7f7f",
-            "#bcbd22",
-        ],
-    ),
-}
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class ThemeParams:
+    """
+    The colours a theme sets, each named for what it colours rather than for the keys
+    it lands in.
 
-DARK_RC_PARAMS: dict[str, object] = {
-    ## backgrounds
-    "figure.facecolor":
-    "#0b0b0e",
-    "axes.facecolor":
-    "#0b0b0e",
-    "savefig.facecolor":
-    "#0b0b0e",
-    "figure.edgecolor":
-    "#0b0b0e",
-    ## foreground
-    "patch.edgecolor":
-    "#e6e6e6",
-    "lines.color":
-    "#e6e6e6",
-    "axes.edgecolor":
-    "#e6e6e6",
-    "axes.labelcolor":
-    "#e6e6e6",
-    "text.color":
-    "#e6e6e6",
-    "axes.titlecolor":
-    "#e6e6e6",
-    "xtick.color":
-    "#cfcfd2",
-    "ytick.color":
-    "#cfcfd2",
-    ## grid
-    "grid.color":
-    "#2e2e35",
-    "grid.alpha":
-    0.3,
-    ## default colors
-    "axes.prop_cycle":
-    cycler(
-        color=[
-            "#7aa2f7",
-            "#9ece6a",
-            "#f7768e",
-            "#e0af68",
-            "#bb9af7",
-            "#7dcfff",
-            "#f6bd60",
-            "#c0caf5",
-            "#89ddff",
-            "#ff9e64",
-        ],
+    A theme is only this overlay, so the two are structurally identical and switching
+    between them puts every key back.
+    """
+
+    background: str
+    foreground: str
+    tick_color: str
+    grid_color: str
+    grid_alpha: float
+    cycle_colors: tuple[str, ...]
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map each colour onto the Matplotlib rcParams that consume it."""
+        return {
+            "figure.facecolor": self.background,
+            "axes.facecolor": self.background,
+            "savefig.facecolor": self.background,
+            "figure.edgecolor": self.background,
+            "patch.edgecolor": self.foreground,
+            "lines.color": self.foreground,
+            "axes.edgecolor": self.foreground,
+            "axes.labelcolor": self.foreground,
+            "text.color": self.foreground,
+            "axes.titlecolor": self.foreground,
+            "xtick.color": self.tick_color,
+            "ytick.color": self.tick_color,
+            "grid.color": self.grid_color,
+            "grid.alpha": self.grid_alpha,
+            "axes.prop_cycle": cycler(color=list(self.cycle_colors)),
+        }
+
+
+LIGHT_THEME_PARAMS = ThemeParams(
+    background="white",
+    foreground="#222222",
+    tick_color="#333333",
+    grid_color="#dddddd",
+    grid_alpha=0.6,
+    cycle_colors=(
+        "#1f77b4",
+        "#2ca02c",
+        "#d62728",
+        "#ff7f0e",
+        "#9467bd",
+        "#17becf",
+        "#8c564b",
+        "#e377c2",
+        "#7f7f7f",
+        "#bcbd22",
     ),
-}
+)
+
+DARK_THEME_PARAMS = ThemeParams(
+    background="#0b0b0e",
+    foreground="#e6e6e6",
+    tick_color="#cfcfd2",
+    grid_color="#2e2e35",
+    grid_alpha=0.3,
+    cycle_colors=(
+        "#7aa2f7",
+        "#9ece6a",
+        "#f7768e",
+        "#e0af68",
+        "#bb9af7",
+        "#7dcfff",
+        "#f6bd60",
+        "#c0caf5",
+        "#89ddff",
+        "#ff9e64",
+    ),
+)
 
 
 class Theme(Enum):
@@ -486,9 +467,9 @@ class Theme(Enum):
     DARK = "dark"
 
 
-THEMES: Mapping[Theme, dict[str, object]] = {
-    Theme.LIGHT: LIGHT_RC_PARAMS,
-    Theme.DARK: DARK_RC_PARAMS,
+THEMES: Mapping[Theme, ThemeParams] = {
+    Theme.LIGHT: LIGHT_THEME_PARAMS,
+    Theme.DARK: DARK_THEME_PARAMS,
 }
 
 ##
@@ -563,7 +544,7 @@ def set_theme(
         use_tex=use_tex,
         text_sizes=text_sizes,
     )
-    rc_params.update(THEMES[theme])
+    rc_params.update(THEMES[theme].as_rc_params())
     matplotlib.rcParams.update(rc_params)
 
 
