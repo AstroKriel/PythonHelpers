@@ -607,23 +607,26 @@ def save_figure(
     *,
     figure: mpl_Figure,
     figure_path: str | Path,
-    pixels_per_cm: float = style_figure.DEFAULT_PIXELS_PER_CM,
+    pixels_per_cm: float | None = None,
     verbose: bool = True,
 ) -> None:
     """
     Save `figure` to `figure_path`; close it.
 
     `pixels_per_cm` is how finely a raster is sampled, in the cm a figure is sized in;
-    Matplotlib wants it per inch. Accepts `.png` or `.pdf` paths; errors are logged
+    Matplotlib wants it per inch. It defaults to the active style's, so a style that
+    asks for a density gets it. Accepts `.png` or `.pdf` paths; errors are logged
     rather than raised.
     """
+    figure_params = style_figure.get_figure_params()
+    if pixels_per_cm is None:
+        pixels_per_cm = figure_params.save_params.pixels_per_cm
     if not str(figure_path).endswith(".png") and not str(figure_path).endswith(".pdf"):
         raise ValueError("figures must end with `.png` or `.pdf`.")
     if not (pixels_per_cm > 0):
         raise ValueError(f"`pixels_per_cm` must be positive, but got {pixels_per_cm}.")
     try:
         pixels_per_inch = style_figure.CM_PER_INCH * pixels_per_cm
-        figure_params = style_figure.get_figure_params()
         if figure_params.save_params.transparent_background:
             figure.savefig(figure_path, dpi=pixels_per_inch)
         else:
