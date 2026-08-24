@@ -165,6 +165,16 @@ class PanelFrameParams:
 
     One weight covers the frame, the ticks and any box drawn around text, since they are
     all furniture holding the data rather than the data itself.
+
+    The two gaps are measured in a chain rather than from the same edge:
+
+        frame --`tick_label_gap`--> tick labels --`axis_label_gap`--> axis label
+
+    so they do not compound, and longer tick labels push the axis label outward on their
+    own. Together with the labels themselves, that chain is what a margin has to hold.
+
+    Tick lengths run inward while `ticks_point_inward` holds, so they take room from the
+    panel rather than from the margin.
     """
 
     line_width: float = 0.6
