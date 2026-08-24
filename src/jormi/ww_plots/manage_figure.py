@@ -23,7 +23,6 @@ from typing import (
 ## third-party
 import numpy
 from matplotlib import pyplot as mpl_plot
-from matplotlib import rcParams
 from matplotlib.axes import Axes as mpl_Axes
 from matplotlib.figure import Figure as mpl_Figure
 from numpy.typing import NDArray
@@ -562,7 +561,7 @@ def add_inset_panel(
     y_label_side = validate_box_positions.as_box_side(y_label_alignment)
     inset_panel = panel.inset_axes(bounds)
     if text_size is None:
-        text_size = rcParams["axes.labelsize"]
+        text_size = style_figure.get_figure_params().text_size_params.axis_label_size
     if x_label is not None:
         inset_panel.set_xlabel(
             xlabel=x_label,

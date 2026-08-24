@@ -11,7 +11,6 @@ from typing import Any
 import numpy
 from numpy.typing import NDArray
 
-from matplotlib import rcParams
 from matplotlib.collections import LineCollection
 from matplotlib.legend import Legend as mpl_legend
 from matplotlib.lines import Line2D as mpl_line2d
@@ -163,9 +162,9 @@ def add_custom_legend(
     if text_size is None:
         text_size = style_figure.get_figure_params().text_size_params.legend_size
     if marker_size is None:
-        marker_size = float(rcParams["lines.markersize"])
+        marker_size = style_figure.get_figure_params().draw_data_params.marker_size
     if line_width is None:
-        line_width = float(rcParams["lines.linewidth"])
+        line_width = style_figure.get_figure_params().draw_data_params.line_width
     ## validate parallel lists
     validate_types.ensure_list_of_strings(
         param=artists,
