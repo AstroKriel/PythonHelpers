@@ -19,7 +19,7 @@ from jormi.ww_plots import (
     add_color,
     annotate_panel,
     manage_figure,
-    style_plots,
+    style_figure,
 )
 from jormi.ww_plots.color_palettes import (
     ColorPalette,
@@ -141,7 +141,7 @@ def draw_palette(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_theme()
     array_2d = generate_gradient()
     palettes = build_palettes()
     ## each column carries a colorbar on the figure's outer edge, so both side margins
@@ -152,8 +152,8 @@ def main() -> None:
         panel_aspect_ratio=PANEL_ASPECT_RATIO,
         panel_column_gap=16.0,
         panel_row_gap=14.0,
-        figure_layout=style_plots.FigureLayout(
-            figure_margins=style_plots.FigureMargins(
+        figure_layout=style_figure.FigureLayout(
+            figure_margins=style_figure.FigureMargins(
                 left=50.0,
                 right=50.0,
                 ## no ticks or x label below the panels, so the default 28 pt is unused

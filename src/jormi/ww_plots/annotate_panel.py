@@ -17,7 +17,7 @@ from matplotlib.legend import Legend as mpl_legend
 from matplotlib.lines import Line2D as mpl_line2d
 
 ## local
-from jormi.ww_plots import manage_figure, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 from jormi.ww_validation import validate_arrays, validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
@@ -72,7 +72,7 @@ def add_text(
     `text_size` defaults to the active annotation text size.
     """
     if text_size is None:
-        text_size = style_plots.get_text_size_params().annotation_size
+        text_size = style_figure.get_figure_params().text_size_params.annotation_size
     ## validate position in panel coordinates [0, 1]
     validate_types.ensure_in_bounds(
         param=x_pos,
@@ -161,7 +161,7 @@ def add_custom_legend(
     what it stands for.
     """
     if text_size is None:
-        text_size = style_plots.get_text_size_params().legend_size
+        text_size = style_figure.get_figure_params().text_size_params.legend_size
     if marker_size is None:
         marker_size = float(rcParams["lines.markersize"])
     if line_width is None:

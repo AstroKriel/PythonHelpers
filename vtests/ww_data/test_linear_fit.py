@@ -16,7 +16,7 @@ from jormi import ww_lists
 from jormi.ww_data import fit_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_figure, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 
 ##
 ## === TYPE ALIASES
@@ -209,7 +209,7 @@ class TestLinearFit:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_theme()
     test = TestLinearFit()
     test.run()
 

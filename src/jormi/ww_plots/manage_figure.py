@@ -34,7 +34,7 @@ from jormi.ww_io import (
     manage_log,
     manage_shell,
 )
-from jormi.ww_plots import style_plots
+from jormi.ww_plots import style_figure
 from jormi.ww_validation import validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
@@ -79,8 +79,8 @@ class BoxShape:
     def as_mpl_shape(self) -> tuple[float, float]:
         """The pair, width first and in inches, as Matplotlib's `figsize` reads it."""
         return (
-            self.width_cm / style_plots.CM_PER_INCH,
-            self.height_cm / style_plots.CM_PER_INCH,
+            self.width_cm / style_figure.CM_PER_INCH,
+            self.height_cm / style_figure.CM_PER_INCH,
         )
 
     @property
@@ -103,7 +103,7 @@ def _set_figure_margins(
     *,
     figure: mpl_Figure,
     figure_shape: BoxShape,
-    figure_margins: style_plots.FigureMargins,
+    figure_margins: style_figure.FigureMargins,
 ) -> None:
     """
     Leave `figure_margins` clear around the panels in `figure`.
@@ -111,8 +111,8 @@ def _set_figure_margins(
     Margins are in pt, while Matplotlib places panels as fractions of the figure, so
     `figure_shape` is what converts between the two.
     """
-    figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
-    figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
+    figure_width_pt = style_figure.PT_PER_CM * figure_shape.width_cm
+    figure_height_pt = style_figure.PT_PER_CM * figure_shape.height_cm
     if (figure_margins.left + figure_margins.right) >= figure_width_pt:
         raise ValueError(
             f"margins `left` + `right` ({figure_margins.left + figure_margins.right} pt)"
@@ -167,7 +167,7 @@ def _set_panel_gaps(
     *,
     figure: mpl_Figure,
     figure_shape: BoxShape,
-    figure_margins: style_plots.FigureMargins,
+    figure_margins: style_figure.FigureMargins,
     num_panel_rows: int,
     num_panel_columns: int,
     panel_column_gap: float,
@@ -179,8 +179,8 @@ def _set_panel_gaps(
     Gaps are in pt like the margins, since a gap holds the neighbouring panel's tick and
     axis labels; `figure_shape` and `figure_margins` give the length they are measured in.
     """
-    figure_width_pt = style_plots.PT_PER_CM * figure_shape.width_cm
-    figure_height_pt = style_plots.PT_PER_CM * figure_shape.height_cm
+    figure_width_pt = style_figure.PT_PER_CM * figure_shape.width_cm
+    figure_height_pt = style_figure.PT_PER_CM * figure_shape.height_cm
     figure.subplots_adjust(
         wspace=_compute_mpl_panel_gap(
             gap_length_pt=panel_column_gap,
@@ -227,7 +227,7 @@ def _compute_panel_shape(
 def _ensure_figure_sizing(
     *,
     panel_shape: BoxShape | None,
-    figure_layout: style_plots.FigureLayout | None,
+    figure_layout: style_figure.FigureLayout | None,
     panel_aspect_ratio: float | None,
 ) -> None:
     """
@@ -253,18 +253,18 @@ def _ensure_figure_sizing(
 
 def _resolve_figure_layout(
     *,
-    figure_layout: style_plots.FigureLayout | None,
-) -> style_plots.FigureLayout:
+    figure_layout: style_figure.FigureLayout | None,
+) -> style_figure.FigureLayout:
     """The layout given, or the one set by the most recent `set_theme` call."""
     if figure_layout is None:
-        return style_plots.get_figure_layout()
+        return style_figure.get_figure_params().figure_layout
     return figure_layout
 
 
 def _compute_figure_shape(
     *,
     panel_shape: BoxShape | None,
-    figure_layout: style_plots.FigureLayout,
+    figure_layout: style_figure.FigureLayout,
     num_panel_rows: int,
     num_panel_columns: int,
     panel_aspect_ratio: float | None,
@@ -304,7 +304,7 @@ def create_figure(
     num_panel_rows: None = None,
     num_panel_columns: None = None,
     panel_shape: BoxShape | None = None,
-    figure_layout: style_plots.FigureLayout | None = None,
+    figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
 ) -> tuple[mpl_Figure, Panel]:
     ...
@@ -316,7 +316,7 @@ def create_figure(
     num_panel_rows: int,
     num_panel_columns: int,
     panel_shape: BoxShape | None = None,
-    figure_layout: style_plots.FigureLayout | None = None,
+    figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float = 10.0,
     panel_row_gap: float = 10.0,
@@ -331,7 +331,7 @@ def create_figure(
     num_panel_rows: int | None = None,
     num_panel_columns: int | None = None,
     panel_shape: BoxShape | None = None,
-    figure_layout: style_plots.FigureLayout | None = None,
+    figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float = 10.0,
     panel_row_gap: float = 10.0,
@@ -442,7 +442,7 @@ def create_figure_grid(
     num_panel_rows: int = 1,
     num_panel_columns: int = 1,
     panel_shape: BoxShape | None = None,
-    figure_layout: style_plots.FigureLayout | None = None,
+    figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
     panel_column_gap: float = 10.0,
     panel_row_gap: float = 10.0,
@@ -605,7 +605,7 @@ def save_figure(
     *,
     figure: mpl_Figure,
     figure_path: str | Path,
-    pixels_per_cm: float = style_plots.DEFAULT_PIXELS_PER_CM,
+    pixels_per_cm: float = style_figure.DEFAULT_PIXELS_PER_CM,
     verbose: bool = True,
 ) -> None:
     """
@@ -620,7 +620,7 @@ def save_figure(
     if not (pixels_per_cm > 0):
         raise ValueError(f"`pixels_per_cm` must be positive, but got {pixels_per_cm}.")
     try:
-        pixels_per_inch = style_plots.CM_PER_INCH * pixels_per_cm
+        pixels_per_inch = style_figure.CM_PER_INCH * pixels_per_cm
         figure.savefig(figure_path, dpi=pixels_per_inch)
         if verbose:
             manage_log.log_action(

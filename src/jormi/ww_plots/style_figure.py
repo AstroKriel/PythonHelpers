@@ -138,7 +138,7 @@ class TextSizeParams:
     frozen=True,
     kw_only=True,
 )
-class DataParams:
+class DrawDataParams:
     """
     How the data itself is drawn, in pt.
 
@@ -377,28 +377,20 @@ HALF_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=0
 ## === ACTIVE STYLE
 ##
 
-_active_text_size_params: TextSizeParams = TextSizeParams()
-_active_figure_layout: FigureLayout = FULL_PAGE_FIGURE_LAYOUT
+_active_figure_params: "FigureParams | None" = None
 
 
-def get_text_size_params() -> TextSizeParams:
+def get_figure_params() -> "FigureParams":
     """
-    Text sizes set by the most recent `set_theme` call.
+    The parameters set by the most recent `set_theme` call.
 
     Read them here rather than from the store, which `set_theme` owns: it also pushes the
-    sizes into rcParams, so writing the store alone leaves the two disagreeing.
+    rc-bearing groups into Matplotlib, so writing the store alone leaves the two
+    disagreeing. Figures already built keep the layout they were built with.
     """
-    return _active_text_size_params
-
-
-def get_figure_layout() -> FigureLayout:
-    """
-    Figure layout set by the most recent `set_theme` call.
-
-    Read it here rather than from the store, which `set_theme` owns. Figures already built
-    keep the layout they were built with.
-    """
-    return _active_figure_layout
+    if _active_figure_params is None:
+        return FigureParams()
+    return _active_figure_params
 
 
 ##
@@ -504,37 +496,56 @@ THEMES: Mapping[Theme, ThemeParams] = {
 ##
 
 
-def _get_base_rc_params(
-    *,
-    use_tex: bool = True,
-    text_size_params: TextSizeParams | None = None,
-) -> dict[str, object]:
-    if text_size_params is None:
-        text_size_params = TextSizeParams()
-    rc_params: dict[str, object] = {
-        ## the typeface, which pairs with the LaTeX settings applied below
-        "font.family": "serif",
-        **text_size_params.as_rc_params(),
-        **DataParams().as_rc_params(),
-        **PanelFrameParams().as_rc_params(),
-        **LegendParams().as_rc_params(),
-        **SaveParams().as_rc_params(),
-    }
-    if use_tex and (shutil.which("latex") is not None):
-        rc_params.update(
-            {
-                "text.usetex":
-                True,
-                "text.latex.preamble":
-                r"""
-                    \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
-                    \providecommand{\mathdefault}[1]{#1}
-                """,
-            },
-        )
-    else:
-        rc_params.update({"text.usetex": False})
-    return rc_params
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class FigureParams:
+    """
+    Every choice that styles a figure, gathered so one value describes the whole style.
+
+    Each group knows the rcParams it produces; `figure_layout` is the exception, since
+    jormi places panels itself rather than handing that to Matplotlib.
+    """
+
+    theme: Theme = Theme.LIGHT
+    use_tex: bool = True
+    text_size_params: TextSizeParams = TextSizeParams()
+    draw_data_params: DrawDataParams = DrawDataParams()
+    panel_frame_params: PanelFrameParams = PanelFrameParams()
+    legend_params: LegendParams = LegendParams()
+    save_params: SaveParams = SaveParams()
+    figure_layout: FigureLayout = FULL_PAGE_FIGURE_LAYOUT
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Gather every group's rcParams, with the theme's colours overlaid last."""
+        rc_params: dict[str, object] = {
+            ## the typeface, which pairs with the LaTeX settings below
+            "font.family": "serif",
+            **self.text_size_params.as_rc_params(),
+            **self.draw_data_params.as_rc_params(),
+            **self.panel_frame_params.as_rc_params(),
+            **self.legend_params.as_rc_params(),
+            **self.save_params.as_rc_params(),
+        }
+        ## a theme is only a colour overlay, so switching between them is symmetric;
+        ## applying one of Matplotlib's style sheets would change keys no theme sets back
+        rc_params.update(THEMES[self.theme].as_rc_params())
+        if self.use_tex and (shutil.which("latex") is not None):
+            rc_params.update(
+                {
+                    "text.usetex":
+                    True,
+                    "text.latex.preamble":
+                    r"""
+                        \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
+                        \providecommand{\mathdefault}[1]{#1}
+                    """,
+                },
+            )
+        else:
+            rc_params.update({"text.usetex": False})
+        return rc_params
 
 
 ##
@@ -544,35 +555,19 @@ def _get_base_rc_params(
 
 def set_theme(
     *,
-    theme: Theme | str = Theme.LIGHT,
-    use_tex: bool = True,
-    text_size_params: TextSizeParams | None = None,
-    figure_layout: FigureLayout | None = None,
+    figure_params: FigureParams | None = None,
 ) -> None:
     """
-    Apply a theme to Matplotlib's global rcParams.
+    Apply `figure_params` to Matplotlib's global rcParams, and make it the active style.
 
-    `text_size_params` sets the point size of each kind of text. `figure_layout` becomes the
-    default for figures made after it, setting how much page they take and how much is
-    left clear for their labels.
+    Figures made afterwards take their layout from it. To change one part of the style,
+    build on what is already active: `dataclasses.replace(get_figure_params(), ...)`.
     """
-    global _active_text_size_params, _active_figure_layout
-    if text_size_params is None:
-        text_size_params = TextSizeParams()
-    if figure_layout is None:
-        figure_layout = FULL_PAGE_FIGURE_LAYOUT
-    _active_text_size_params = text_size_params
-    _active_figure_layout = figure_layout
-    if isinstance(theme, str):
-        theme = Theme(theme)
-    ## a theme is only a colour overlay, so switching between them is symmetric; applying
-    ## one of Matplotlib's style sheets here would change keys no theme sets back
-    rc_params = _get_base_rc_params(
-        use_tex=use_tex,
-        text_size_params=text_size_params,
-    )
-    rc_params.update(THEMES[theme].as_rc_params())
-    matplotlib.rcParams.update(rc_params)
+    global _active_figure_params
+    if figure_params is None:
+        figure_params = FigureParams()
+    _active_figure_params = figure_params
+    matplotlib.rcParams.update(figure_params.as_rc_params())
 
 
 ## } MODULE

@@ -18,7 +18,7 @@ from jormi.ww_plots.color_palettes import (
     DivergingPalette,
     SequentialPalette,
 )
-from jormi.ww_plots import manage_figure, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_box_positions, validate_types
 
@@ -203,7 +203,7 @@ def add_colorbar(
 ) -> mpl_colorbar.Colorbar:
     """`text_size` defaults to the active axis-label text size."""
     if text_size is None:
-        text_size = style_plots.get_text_size_params().axis_label_size
+        text_size = style_figure.get_figure_params().text_size_params.axis_label_size
     ## validate numeric params
     validate_types.ensure_finite_float(
         param=colorbar_thickness,

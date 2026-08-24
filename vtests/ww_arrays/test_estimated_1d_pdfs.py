@@ -16,7 +16,7 @@ import numpy
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import annotate_panel, manage_figure, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_figure
 from jormi.ww_types import box_positions
 
 ##
@@ -197,7 +197,7 @@ class TestEstimated1DPDFs:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_theme()
     test = TestEstimated1DPDFs()
     test.run()
 

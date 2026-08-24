@@ -16,7 +16,7 @@ from jormi.ww_arrays.farrays_3d_unstructured import gradient_operators
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_figure, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 from jormi.ww_types import box_positions
 
 ##
@@ -198,7 +198,7 @@ class TestGradientWLSConvergence:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_theme()
     test = TestGradientWLSConvergence()
     test.run()
 

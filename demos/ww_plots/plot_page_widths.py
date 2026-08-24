@@ -17,7 +17,7 @@ from jormi.ww_io import manage_log
 from jormi.ww_plots import (
     annotate_panel,
     manage_figure,
-    style_plots,
+    style_figure,
 )
 from jormi.ww_types import box_positions
 
@@ -97,9 +97,9 @@ def report_drawn_sizes(
     panel: manage_figure.Panel,
 ) -> None:
     """Log the figure width and drawn text size, both in the units they were asked in."""
-    figure_width_cm = float(figure.get_size_inches()[0]) * style_plots.CM_PER_INCH
+    figure_width_cm = float(figure.get_size_inches()[0]) * style_figure.CM_PER_INCH
     panel_width_cm = panel.get_position().width * figure_width_cm
-    text_size_params = style_plots.get_text_size_params()
+    text_size_params = style_figure.get_figure_params().text_size_params
     manage_log.log_action(
         title=label,
         outcome=manage_log.ActionOutcome.SUCCESS,
@@ -120,18 +120,18 @@ def report_drawn_sizes(
 
 def main() -> None:
     manage_log.set_block_width_mode(mode=manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_theme()
     x_values, y_values = generate_scattered_series(
         seed=SEED,
         num_points=NUM_POINTS,
     )
     figures_dir = Path(__file__).parent
     page_layouts = {
-        "full page": style_plots.FULL_PAGE_FIGURE_LAYOUT,
-        "0.9 page": style_plots.FigureLayout(
-            figure_width=style_plots.FigureWidth(width_fraction=0.9),
+        "full page": style_figure.FULL_PAGE_FIGURE_LAYOUT,
+        "0.9 page": style_figure.FigureLayout(
+            figure_width=style_figure.FigureWidth(width_fraction=0.9),
         ),
-        "half page": style_plots.HALF_PAGE_FIGURE_LAYOUT,
+        "half page": style_figure.HALF_PAGE_FIGURE_LAYOUT,
     }
     for label, figure_layout in page_layouts.items():
         figure, panel = manage_figure.create_figure(
