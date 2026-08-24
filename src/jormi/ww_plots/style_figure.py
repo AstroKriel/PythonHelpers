@@ -570,4 +570,16 @@ def set_theme(
     matplotlib.rcParams.update(figure_params.as_rc_params())
 
 
+def apply_theme_if_unset() -> None:
+    """
+    Apply the default style, unless `set_theme` has already run.
+
+    Without this a figure comes out half-styled: whatever jormi draws itself takes the
+    calibrated sizes, while whatever Matplotlib draws takes its own defaults. A spawned
+    worker starts with no style at all, so this also runs once per process.
+    """
+    if _active_figure_params is None:
+        set_theme()
+
+
 ## } MODULE

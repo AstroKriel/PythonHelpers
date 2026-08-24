@@ -369,6 +369,7 @@ def create_figure(
       returned; 1x1 is refused, since that is the single-panel case.
     - Mixed None/int specifications are not allowed.
     """
+    style_figure.apply_theme_if_unset()
     if (num_panel_rows is None) and (num_panel_columns is None):
         num_panel_rows = 1
         num_panel_columns = 1
@@ -622,7 +623,18 @@ def save_figure(
         raise ValueError(f"`pixels_per_cm` must be positive, but got {pixels_per_cm}.")
     try:
         pixels_per_inch = style_figure.CM_PER_INCH * pixels_per_cm
-        figure.savefig(figure_path, dpi=pixels_per_inch)
+        figure_params = style_figure.get_figure_params()
+        if figure_params.save_params.transparent_background:
+            figure.savefig(figure_path, dpi=pixels_per_inch)
+        else:
+            ## take the colours off the figure rather than from the active style, so a
+            ## theme set after this figure was built cannot repaint it on the way out
+            figure.savefig(
+                figure_path,
+                dpi=pixels_per_inch,
+                facecolor=figure.get_facecolor(),
+                edgecolor=figure.get_edgecolor(),
+            )
         if verbose:
             manage_log.log_action(
                 title="Save figure",
