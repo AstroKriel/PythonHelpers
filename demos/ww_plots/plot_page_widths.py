@@ -39,8 +39,6 @@ X_SCATTER = 0.25
 PIXELS_PER_CM = 160.0
 PANEL_ASPECT_RATIO = 1.4
 
-## every slope is positive, so the data fans through the lower-left and upper-right and
-## leaves the other two corners clear for the legends and the inset
 DATA_COLORS = (
     "royalblue",
     "orangered",
@@ -87,7 +85,12 @@ def generate_series(
 
 
 def generate_all_series() -> list[ScatteredSeries]:
-    """Three series that differ in both slope and how tightly they hold to it."""
+    """
+    Three series that differ in both slope and how tightly they hold to it.
+
+    Every slope is positive, so the data fans through the lower-left and upper-right and
+    leaves the other two corners clear for the legends and the inset.
+    """
     settings = (
         (1.6, 1.2),
         (1.0, 0.6),
@@ -251,7 +254,7 @@ def add_residual_inset(
         x_label_alignment=box_positions.Positions.Side.Bottom,
         y_label_alignment=box_positions.Positions.Side.Right,
     )
-    max_abs_residual = 0
+    max_abs_residual = 0.0
     for series in all_series:
         residual = series.y_values - series.slope * series.x_values
         max_abs_residual = max(max_abs_residual, abs(residual).max())
@@ -267,7 +270,7 @@ def add_residual_inset(
         ls="--",
         color="black",
     )
-    inset_panel.set_ylim(-1.1*max_abs_residual, 1.1*max_abs_residual)
+    inset_panel.set_ylim(-1.1 * max_abs_residual, 1.1 * max_abs_residual)
 
 
 def report_drawn_sizes(
