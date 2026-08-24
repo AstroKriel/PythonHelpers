@@ -11,7 +11,7 @@ from typing import Any
 import numpy
 from numpy.typing import NDArray
 
-from matplotlib.collections import LineCollection
+from matplotlib.collections import LineCollection as mpl_LineCollection
 from matplotlib.legend import Legend as mpl_legend
 from matplotlib.lines import Line2D as mpl_line2d
 
@@ -357,7 +357,7 @@ def overlay_curve(
     )
     if x_array.size < 2:
         raise ValueError("need at least 2 points to plot a curve.")
-    collection = LineCollection(
+    collection = mpl_LineCollection(
         [numpy.column_stack((x_array, y_array))],
         colors=color,
         linestyles=linestyle,

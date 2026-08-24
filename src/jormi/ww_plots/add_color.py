@@ -12,13 +12,7 @@ import matplotlib.cm as mpl_cm
 import matplotlib.colorbar as mpl_colorbar
 
 ## local
-from jormi.ww_plots.color_palettes import (
-    ColorPalette,
-    DiscretePalette,
-    DivergingPalette,
-    SequentialPalette,
-)
-from jormi.ww_plots import manage_figure, style_figure
+from jormi.ww_plots import color_palettes, manage_figure, style_figure
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_box_positions, validate_types
 
@@ -120,7 +114,7 @@ def make_palette(
     *,
     config: PaletteConfig,
     value_range: tuple[float, float] | None = None,
-) -> ColorPalette:
+) -> color_palettes.ColorPalette:
     """
     Construct a ColorPalette from a PaletteConfig and a data-driven value range.
     For full control over palette construction, use the palette classes directly.
@@ -131,7 +125,7 @@ def make_palette(
     """
     match config:
         case SequentialConfig():
-            return SequentialPalette.from_name(
+            return color_palettes.SequentialPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
                 value_range=_ensure_value_range(
@@ -140,7 +134,7 @@ def make_palette(
                 ),
             )
         case DivergingConfig():
-            return DivergingPalette.from_name(
+            return color_palettes.DivergingPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
                 value_range=_ensure_value_range(
@@ -155,7 +149,7 @@ def make_palette(
                     "`value_range` cannot apply to a DiscreteConfig; its `bin_edges`"
                     " already bound the palette.",
                 )
-            return DiscretePalette.from_name(
+            return color_palettes.DiscretePalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
                 bin_edges=config.bin_edges,
@@ -258,7 +252,7 @@ def _label_colorbar(
 def add_colorbar(
     *,
     panel: manage_figure.Panel,
-    palette: ColorPalette,
+    palette: color_palettes.ColorPalette,
     label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     colorbar_thickness: float = 0.075,
