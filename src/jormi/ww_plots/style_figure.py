@@ -412,7 +412,10 @@ class FigureLayout:
 )
 class ColorbarLayout:
     """
-    Where a colorbar sits relative to the panel it describes.
+    How thick a colorbar is drawn, and where it sits relative to the panel it describes.
+
+    `thickness` is in pt, like the margins and gaps, because a bar is furniture holding a
+    scale rather than data: it stays the same on the page whatever size the panel is.
 
     A colorbar is placed as a panel neighbouring its own, so the space between the two is
     a panel gap: `gap.column` for a bar on the left or right, `gap.row` for one above or
@@ -420,7 +423,12 @@ class ColorbarLayout:
     covers the whole figure; set it to space a bar differently from the panels.
     """
 
+    thickness: float = 10.0
     gap: PanelGaps | None = None
+
+    def __post_init__(self) -> None:
+        if not (self.thickness > 0):
+            raise ValueError(f"`thickness` must be positive, but got {self.thickness}.")
 
 
 ## a figure spanning the full text width, and one spanning half of it, which is a single
@@ -630,18 +638,6 @@ def set_figure_params(
         figure_params = FigureParams()
     _active_figure_params = figure_params
     matplotlib.rcParams.update(figure_params.as_rc_params())
-
-
-def apply_figure_params_if_unset() -> None:
-    """
-    Apply the default style, unless `set_figure_params` has already run.
-
-    Without this a figure comes out half-styled: whatever jormi draws itself takes the
-    calibrated sizes, while whatever Matplotlib draws takes its own defaults. A spawned
-    worker starts with no style at all, so this also runs once per process.
-    """
-    if _active_figure_params is None:
-        set_figure_params()
 
 
 ## } MODULE
