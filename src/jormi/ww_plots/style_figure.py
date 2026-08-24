@@ -138,9 +138,12 @@ class TextSizeParams:
     frozen=True,
     kw_only=True,
 )
-class DrawDataParams:
+class DataArtistParams:
     """
-    How the data itself is drawn, in pt.
+    The marks that draw the data, in pt: the lines and the markers.
+
+    Narrower than what Matplotlib calls an artist, which is anything drawable at all;
+    the text, the panel frame and the legend are each styled by their own group.
 
     Like the text, these are chosen for the medium a figure is bound for rather than
     derived from its size: a figure drawn wider keeps the same stroke weights, since a
@@ -225,10 +228,17 @@ class PanelFrameParams:
     kw_only=True,
 )
 class LegendParams:
-    """Where a legend sits and how tightly its entries are packed."""
+    """
+    Where a legend sits and how tightly it is packed.
 
-    ## a fraction of the legend's own text size, as Matplotlib measures it
+    The three spacings are each measured as a fraction of the legend's own text size, as
+    Matplotlib measures them, so they hold their proportions as the text size changes.
+    """
+
     entry_gap: float = 0.2
+    handle_gap: float = 0.8
+    column_gap: float = 2.0
+    frame_margin: float = 0.4
     location: str = "upper right"
     show_frame: bool = False
 
@@ -236,6 +246,9 @@ class LegendParams:
         """Map the legend style onto the Matplotlib rcParams that consume it."""
         return {
             "legend.labelspacing": self.entry_gap,
+            "legend.handletextpad": self.handle_gap,
+            "legend.columnspacing": self.column_gap,
+            "legend.borderpad": self.frame_margin,
             "legend.loc": self.location,
             "legend.frameon": self.show_frame,
         }
@@ -355,16 +368,59 @@ class FigureWidth:
     frozen=True,
     kw_only=True,
 )
+class PanelGaps:
+    """
+    Space between one pair of neighbouring panels, in pt (1 pt = 1/72 inch).
+
+    In pt for the same reason the margins are: a gap holds the tick and axis labels of
+    the panel beside it, and those are measured in pt.
+    """
+
+    column: float = 10.0
+    row: float = 10.0
+
+    def __post_init__(self) -> None:
+        for param_name in (
+            "column",
+            "row",
+        ):
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class FigureLayout:
     """
     How much of the page a figure takes, and how much of that is left clear for labels.
 
-    Both are decisions about where a figure sits on a page, so they travel together.
+    All three are decisions about where a figure sits on a page, so they travel together.
     How tall a figure is, and how many axes it holds, are decided per figure instead.
     """
 
     figure_width: FigureWidth = FigureWidth()
     figure_margins: FigureMargins = FigureMargins()
+    panel_gaps: PanelGaps = PanelGaps()
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class ColorbarLayout:
+    """
+    Where a colorbar sits relative to the panel it describes.
+
+    A colorbar is placed as a panel neighbouring its own, so the space between the two is
+    a panel gap: `gap.column` for a bar on the left or right, `gap.row` for one above or
+    below. Left unset it is the gap the figure already spaces its panels by, so one value
+    covers the whole figure; set it to space a bar differently from the panels.
+    """
+
+    gap: PanelGaps | None = None
 
 
 ## a figure spanning the full text width, and one spanning half of it, which is a single
@@ -484,18 +540,24 @@ class FigureParams:
     """
     Every choice that styles a figure, gathered so one value describes the whole style.
 
-    Each group knows the rcParams it produces; `figure_layout` is the exception, since
-    jormi places panels itself rather than handing that to Matplotlib.
+    Each group knows the rcParams it produces; the two layouts are the exception, since
+    jormi places panels and colorbars itself rather than handing that to Matplotlib.
     """
 
     theme: Theme = Theme.LIGHT
     use_tex: bool = True
     text_size_params: TextSizeParams = TextSizeParams()
-    draw_data_params: DrawDataParams = DrawDataParams()
+    data_artist_params: DataArtistParams = DataArtistParams()
     panel_frame_params: PanelFrameParams = PanelFrameParams()
     legend_params: LegendParams = LegendParams()
     save_params: SaveParams = SaveParams()
     figure_layout: FigureLayout = FULL_PAGE_FIGURE_LAYOUT
+    colorbar_layout: ColorbarLayout = ColorbarLayout()
+
+    @property
+    def theme_params(self) -> ThemeParams:
+        """The colours the chosen theme sets, for what jormi draws itself."""
+        return THEMES[self.theme]
 
     def as_rc_params(self) -> dict[str, object]:
         """Gather every group's rcParams, with the theme's colours overlaid last."""
@@ -503,7 +565,7 @@ class FigureParams:
             ## the typeface, which pairs with the LaTeX settings below
             "font.family": "serif",
             **self.text_size_params.as_rc_params(),
-            **self.draw_data_params.as_rc_params(),
+            **self.data_artist_params.as_rc_params(),
             **self.panel_frame_params.as_rc_params(),
             **self.legend_params.as_rc_params(),
             **self.save_params.as_rc_params(),

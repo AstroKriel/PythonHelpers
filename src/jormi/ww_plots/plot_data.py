@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 from jormi.ww_plots import (
     add_color,
     manage_figure,
+    style_figure,
 )
 from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
@@ -272,11 +273,15 @@ def plot_2d_streamlines(
     array_2d_rows: NDArray[Any],
     array_2d_cols: NDArray[Any],
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
-    streamline_width: float = 1.0,
+    streamline_width: float | None = None,
     streamline_density: float = 2.0,
-    arrow_size: float = 1.0,
+    arrow_size: float = 0.5,
     color: str = "white",
 ):
+    """`streamline_width` defaults to the width the active style draws data at."""
+    if streamline_width is None:
+        figure_params = style_figure.get_figure_params()
+        streamline_width = figure_params.data_artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d_rows,
         num_dims=2,
@@ -322,9 +327,13 @@ def plot_2d_contours(
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
     levels: int | NDArray[Any] = 10,
     color: str = "white",
-    linewidth: float = 0.8,
+    linewidth: float | None = None,
     linestyle: str = "-",
 ):
+    """`linewidth` defaults to the width the active style draws data at."""
+    if linewidth is None:
+        figure_params = style_figure.get_figure_params()
+        linewidth = figure_params.data_artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,

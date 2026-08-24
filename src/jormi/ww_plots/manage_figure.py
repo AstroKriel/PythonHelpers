@@ -318,8 +318,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_gap: float = 10.0,
-    panel_row_gap: float = 10.0,
+    panel_column_gap: float | None = None,
+    panel_row_gap: float | None = None,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:
@@ -333,8 +333,8 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_gap: float = 10.0,
-    panel_row_gap: float = 10.0,
+    panel_column_gap: float | None = None,
+    panel_row_gap: float | None = None,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, Panel | PanelGrid]:
@@ -425,14 +425,15 @@ def create_figure(
     )
     if is_single_panel:
         return figure, panels
+    panel_gaps = figure_layout.panel_gaps
     _set_panel_gaps(
         figure=figure,
         figure_shape=figure_shape,
         figure_margins=figure_layout.figure_margins,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        panel_column_gap=panel_column_gap,
-        panel_row_gap=panel_row_gap,
+        panel_column_gap=(panel_gaps.column if panel_column_gap is None else panel_column_gap),
+        panel_row_gap=(panel_gaps.row if panel_row_gap is None else panel_row_gap),
     )
     panel_grid: PanelGrid = numpy.asarray(panels, dtype=object)
     return figure, panel_grid
@@ -445,8 +446,8 @@ def create_figure_grid(
     panel_shape: BoxShape | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
     panel_aspect_ratio: float | None = None,
-    panel_column_gap: float = 10.0,
-    panel_row_gap: float = 10.0,
+    panel_column_gap: float | None = None,
+    panel_row_gap: float | None = None,
     share_x_axis: bool = False,
     share_y_axis: bool = False,
 ) -> tuple[mpl_Figure, PanelGrid]:

@@ -150,6 +150,46 @@ _SIDE_TO_ORIENTATION: dict[_Side, str] = {
 }
 
 
+def _compute_colorbar_gap(
+    *,
+    panel: manage_figure.Panel,
+    colorbar_side: _Side,
+    colorbar_gap: float | None,
+) -> float:
+    """
+    Convert the gap between a panel and its colorbar (pt) into the share of the figure
+    Matplotlib places panels in.
+
+    A colorbar is placed as a panel neighbouring its own, so an unset gap is the one the
+    figure already spaces its panels by: the column gap beside a panel, the row gap above
+    or below one.
+    """
+    figure_params = style_figure.get_figure_params()
+    is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
+    if colorbar_gap is None:
+        panel_gaps = figure_params.colorbar_layout.gap
+        if panel_gaps is None:
+            panel_gaps = figure_params.figure_layout.panel_gaps
+        colorbar_gap = panel_gaps.column if is_beside_panel else panel_gaps.row
+    validate_types.ensure_finite_float(
+        param=colorbar_gap,
+        param_name="colorbar_gap",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    ## the root figure, since a gap in pt is measured against the page the figure is drawn at
+    figure = panel.get_figure(root=True)
+    if figure is None:
+        raise ValueError("`panel` does not belong to a figure, so it has no size to measure a gap against.")
+    figure_shape_inches = figure.get_size_inches()
+    figure_length_pt = (
+        float(figure_shape_inches[0] if is_beside_panel else figure_shape_inches[1])
+        * style_figure.PT_PER_INCH
+    )
+    return colorbar_gap / figure_length_pt
+
+
 def _label_colorbar(
     *,
     colorbar: mpl_colorbar.Colorbar,
@@ -197,14 +237,21 @@ def add_colorbar(
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     colorbar_thickness: float = 0.075,
     colorbar_length: float = 1.0,
-    colorbar_gap: float = 0.01,
-    label_gap: float = 10.0,
+    colorbar_gap: float | None = None,
+    label_gap: float | None = None,
     text_size: int | float | None = None,
 ) -> mpl_colorbar.Colorbar:
-    """`text_size` defaults to the active axis-label text size."""
+    """
+    `colorbar_gap` is in pt, like the gaps between panels, and defaults to the gap the
+    figure already spaces its panels by. `text_size` defaults to the active axis-label
+    text size, and `label_gap` to the gap the active style leaves between a panel's tick
+    labels and its axis label.
+    """
+    figure_params = style_figure.get_figure_params()
     if text_size is None:
-        figure_params = style_figure.get_figure_params()
         text_size = figure_params.text_size_params.axis_label_size
+    if label_gap is None:
+        label_gap = figure_params.panel_frame_params.axis_label_gap
     ## validate numeric params
     validate_types.ensure_finite_float(
         param=colorbar_thickness,
@@ -212,13 +259,6 @@ def add_colorbar(
         allow_none=False,
         require_positive=True,
         allow_zero=False,
-    )
-    validate_types.ensure_finite_float(
-        param=colorbar_gap,
-        param_name="colorbar_gap",
-        allow_none=False,
-        require_positive=True,
-        allow_zero=True,
     )
     validate_types.ensure_finite_float(
         param=label_gap,
@@ -241,7 +281,11 @@ def add_colorbar(
         side=colorbar_side,
         thickness=colorbar_thickness,
         length=colorbar_length,
-        gap=colorbar_gap,
+        gap=_compute_colorbar_gap(
+            panel=panel,
+            colorbar_side=colorbar_side,
+            colorbar_gap=colorbar_gap,
+        ),
     )
     colorbar_panel = panel.figure.add_axes(
         (
