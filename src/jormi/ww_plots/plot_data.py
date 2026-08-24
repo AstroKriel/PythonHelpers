@@ -14,10 +14,10 @@ from numpy.typing import NDArray
 ## local
 from jormi.ww_plots import (
     add_color,
+    color_palettes,
     manage_figure,
     style_figure,
 )
-from jormi.ww_plots.color_palettes import ColorPalette
 from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
 
@@ -166,7 +166,7 @@ def plot_2d_array(
     colorbar_label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     figure_params: style_figure.FigureParams | None = None,
-) -> ColorPalette:
+) -> color_palettes.ColorPalette:
     """
     Draw `array_2d` onto `panel`, with a colorbar beside it unless one is turned down.
 
