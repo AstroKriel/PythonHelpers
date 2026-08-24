@@ -79,10 +79,11 @@ def _enable_plotting(
     os.environ.setdefault("TEXMFOUTPUT", tempfile.mkdtemp(prefix="mpl_tex_"))
     import matplotlib
     matplotlib.use("Agg", force=True)
-    from jormi.ww_plots.style_figure import FigureParams, Theme, set_theme
-    set_theme(
-        figure_params=FigureParams(
-            theme=Theme(theme),
+    ## imported here rather than at module scope, so it lands after the backend is set
+    from jormi.ww_plots import style_figure
+    style_figure.set_theme(
+        figure_params=style_figure.FigureParams(
+            theme=style_figure.Theme(theme),
             use_tex=use_tex,
         ),
     )
