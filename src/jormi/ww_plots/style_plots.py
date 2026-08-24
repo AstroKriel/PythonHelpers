@@ -253,7 +253,7 @@ class SaveParams:
 
     pixels_per_cm: float = DEFAULT_PIXELS_PER_CM
     crop_to_ink: bool = False
-    crop_padding_cm: float = 0.0
+    crop_margin_cm: float = 0.0
     transparent_background: bool = False
 
     def as_rc_params(self) -> dict[str, object]:
@@ -261,7 +261,7 @@ class SaveParams:
         return {
             "savefig.dpi": self.pixels_per_cm * CM_PER_INCH,
             "savefig.bbox": "tight" if self.crop_to_ink else None,
-            "savefig.pad_inches": self.crop_padding_cm / CM_PER_INCH,
+            "savefig.pad_inches": self.crop_margin_cm / CM_PER_INCH,
             "savefig.transparent": self.transparent_background,
         }
 

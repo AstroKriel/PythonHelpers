@@ -156,7 +156,7 @@ def _label_colorbar(
     label: str | None,
     colorbar_side: _Side,
     text_size: int | float,
-    label_pad: float,
+    label_gap: float,
 ) -> None:
     if colorbar_side in (_Side.Left, _Side.Right):
         axis = colorbar.ax.yaxis
@@ -164,7 +164,7 @@ def _label_colorbar(
             colorbar.set_label(
                 label=label,
                 fontsize=text_size,
-                labelpad=label_pad,
+                labelpad=label_gap,
                 rotation=90,
             )
             axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
@@ -176,7 +176,7 @@ def _label_colorbar(
             colorbar.set_label(
                 label=label,
                 fontsize=text_size,
-                labelpad=label_pad,
+                labelpad=label_gap,
             )
             axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
         axis.set_ticks_position(colorbar_side)  # pyright: ignore[reportArgumentType]
@@ -197,8 +197,8 @@ def add_colorbar(
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
     colorbar_thickness: float = 0.075,
     colorbar_length: float = 1.0,
-    colorbar_pad: float = 0.01,
-    label_pad: float = 10.0,
+    colorbar_gap: float = 0.01,
+    label_gap: float = 10.0,
     text_size: int | float | None = None,
 ) -> mpl_colorbar.Colorbar:
     """`text_size` defaults to the active axis-label text size."""
@@ -213,15 +213,15 @@ def add_colorbar(
         allow_zero=False,
     )
     validate_types.ensure_finite_float(
-        param=colorbar_pad,
-        param_name="colorbar_pad",
+        param=colorbar_gap,
+        param_name="colorbar_gap",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
     validate_types.ensure_finite_float(
-        param=label_pad,
-        param_name="label_pad",
+        param=label_gap,
+        param_name="label_gap",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
@@ -240,7 +240,7 @@ def add_colorbar(
         side=colorbar_side,
         thickness=colorbar_thickness,
         length=colorbar_length,
-        gap=colorbar_pad,
+        gap=colorbar_gap,
     )
     colorbar_panel = panel.figure.add_axes(
         (
@@ -266,7 +266,7 @@ def add_colorbar(
         label=label,
         colorbar_side=colorbar_side,
         text_size=text_size,
-        label_pad=label_pad,
+        label_gap=label_gap,
     )
     return colorbar
 
