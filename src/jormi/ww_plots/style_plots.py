@@ -135,7 +135,7 @@ class TextSizes:
     frozen=True,
     kw_only=True,
 )
-class DataMarks:
+class ArtistParams:
     """
     How the data itself is drawn, in pt.
 
@@ -211,7 +211,7 @@ class PanelFrame:
     frozen=True,
     kw_only=True,
 )
-class LegendStyle:
+class LegendParams:
     """Where a legend sits and how tightly its entries are packed."""
 
     ## a fraction of the legend's own text size, as Matplotlib measures it
@@ -232,7 +232,7 @@ class LegendStyle:
     frozen=True,
     kw_only=True,
 )
-class SaveStyle:
+class SaveParams:
     """
     How a figure is written to file.
 
@@ -386,7 +386,13 @@ LIGHT_RC_PARAMS: dict[str, object] = {
     "white",
     "savefig.facecolor":
     "white",
+    "figure.edgecolor":
+    "white",
     ## foreground
+    "patch.edgecolor":
+    "#222222",
+    "lines.color":
+    "#222222",
     "axes.edgecolor":
     "#222222",
     "axes.labelcolor":
@@ -430,7 +436,13 @@ DARK_RC_PARAMS: dict[str, object] = {
     "#0b0b0e",
     "savefig.facecolor":
     "#0b0b0e",
+    "figure.edgecolor":
+    "#0b0b0e",
     ## foreground
+    "patch.edgecolor":
+    "#e6e6e6",
+    "lines.color":
+    "#e6e6e6",
     "axes.edgecolor":
     "#e6e6e6",
     "axes.labelcolor":
@@ -495,10 +507,10 @@ def _get_base_rc_params(
         ## the typeface, which pairs with the LaTeX settings applied below
         "font.family": "serif",
         **text_sizes.as_rc_params(),
-        **DataMarks().as_rc_params(),
+        **ArtistParams().as_rc_params(),
         **PanelFrame().as_rc_params(),
-        **LegendStyle().as_rc_params(),
-        **SaveStyle().as_rc_params(),
+        **LegendParams().as_rc_params(),
+        **SaveParams().as_rc_params(),
     }
     if use_tex and (shutil.which("latex") is not None):
         rc_params.update(
@@ -514,20 +526,6 @@ def _get_base_rc_params(
         )
     else:
         rc_params.update({"text.usetex": False})
-    return rc_params
-
-
-def _compose_rc_params(
-    *,
-    theme: Theme = Theme.LIGHT,
-    use_tex: bool = True,
-    text_sizes: TextSizes | None = None,
-) -> dict[str, object]:
-    rc_params = _get_base_rc_params(
-        use_tex=use_tex,
-        text_sizes=text_sizes,
-    ).copy()
-    rc_params.update(THEMES[theme])
     return rc_params
 
 
@@ -559,19 +557,14 @@ def set_theme(
     _active_figure_layout = figure_layout
     if isinstance(theme, str):
         theme = Theme(theme)
-    if theme == Theme.DARK:
-        try:
-            import matplotlib.pyplot as _mpl_plot
-            _mpl_plot.style.use("dark_background")
-        except Exception:
-            pass
-    matplotlib.rcParams.update(
-        _compose_rc_params(
-            theme=theme,
-            use_tex=use_tex,
-            text_sizes=text_sizes,
-        ),
+    ## a theme is only a colour overlay, so switching between them is symmetric; applying
+    ## one of Matplotlib's style sheets here would change keys no theme sets back
+    rc_params = _get_base_rc_params(
+        use_tex=use_tex,
+        text_sizes=text_sizes,
     )
+    rc_params.update(THEMES[theme])
+    matplotlib.rcParams.update(rc_params)
 
 
 ## } MODULE
