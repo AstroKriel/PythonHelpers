@@ -62,6 +62,8 @@ def add_text(
     text_color: ColorType | None = None,
     box_alpha: float = 0.0,
     box_color: ColorType | None = None,
+    box_margin: float = 0.3,
+    box_corner_style: str = "round",
     rotate_deg: float | None = None,
     figure_params: style_figure.FigureParams | None = None,
 ):
@@ -70,7 +72,8 @@ def add_text(
     A background box is drawn when `box_alpha > 0`.
 
     `text_size` defaults to the active annotation text size, and the colours to the
-    active theme, so a label stays legible when the theme changes.
+    active theme, so a label stays legible when the theme changes. `box_margin` is the
+    room the box leaves around its text, as a fraction of that text's size.
     """
     if figure_params is None:
         figure_params = style_figure.get_figure_params()
@@ -120,12 +123,14 @@ def add_text(
     )
     x_anchor = validate_box_positions.as_mpl_ha(x_alignment)
     y_anchor = validate_box_positions.as_mpl_va(y_alignment)
+    ## Matplotlib spells the box's margin `pad` inside its style string, so the house name
+    ## is what is written here and the translation happens at the boundary
     box_params = (
         dict(
             facecolor=box_color,
             edgecolor=theme_params.foreground_color,
             alpha=box_alpha,
-            boxstyle="round,pad=0.3",
+            boxstyle=f"{box_corner_style},pad={box_margin}",
         ) if box_alpha > 0.0 else None
     )
     panel.text(
