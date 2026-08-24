@@ -16,6 +16,9 @@ import matplotlib
 
 from cycler import cycler
 
+## local
+from jormi.ww_io import manage_log
+
 ##
 ## === UNITS
 ##
@@ -256,6 +259,20 @@ class SaveParams:
     crop_margin_cm: float = 0.0
     transparent_background: bool = False
 
+    def __post_init__(self) -> None:
+        if not (self.pixels_per_cm > 0):
+            raise ValueError(f"`pixels_per_cm` must be positive, but got {self.pixels_per_cm}.")
+        if self.crop_margin_cm < 0:
+            raise ValueError(f"`crop_margin_cm` must not be negative, but got {self.crop_margin_cm}.")
+        if self.crop_to_ink:
+            manage_log.log_warning(
+                text=(
+                    "`crop_to_ink` makes the saved file the size of its ink, not the size the"
+                    " figure was asked for, so its text will no longer sit at the pt size the"
+                    " page expects. Widen the margins instead of cropping."
+                ),
+            )
+
     def as_rc_params(self) -> dict[str, object]:
         """Map the save style onto the Matplotlib rcParams that consume it."""
         return {
@@ -401,41 +418,41 @@ class ThemeParams:
     between them puts every key back.
     """
 
-    background: str
-    foreground: str
+    background_color: str
+    foreground_color: str
     tick_color: str
     grid_color: str
     grid_alpha: float
-    cycle_colors: tuple[str, ...]
+    cycled_colors: tuple[str, ...]
 
     def as_rc_params(self) -> dict[str, object]:
         """Map each colour onto the Matplotlib rcParams that consume it."""
         return {
-            "figure.facecolor": self.background,
-            "axes.facecolor": self.background,
-            "savefig.facecolor": self.background,
-            "figure.edgecolor": self.background,
-            "patch.edgecolor": self.foreground,
-            "lines.color": self.foreground,
-            "axes.edgecolor": self.foreground,
-            "axes.labelcolor": self.foreground,
-            "text.color": self.foreground,
-            "axes.titlecolor": self.foreground,
+            "figure.facecolor": self.background_color,
+            "axes.facecolor": self.background_color,
+            "savefig.facecolor": self.background_color,
+            "figure.edgecolor": self.background_color,
+            "patch.edgecolor": self.foreground_color,
+            "lines.color": self.foreground_color,
+            "axes.edgecolor": self.foreground_color,
+            "axes.labelcolor": self.foreground_color,
+            "text.color": self.foreground_color,
+            "axes.titlecolor": self.foreground_color,
             "xtick.color": self.tick_color,
             "ytick.color": self.tick_color,
             "grid.color": self.grid_color,
             "grid.alpha": self.grid_alpha,
-            "axes.prop_cycle": cycler(color=list(self.cycle_colors)),
+            "axes.prop_cycle": cycler(color=list(self.cycled_colors)),
         }
 
 
 LIGHT_THEME_PARAMS = ThemeParams(
-    background="white",
-    foreground="#222222",
+    background_color="white",
+    foreground_color="#222222",
     tick_color="#333333",
     grid_color="#dddddd",
     grid_alpha=0.6,
-    cycle_colors=(
+    cycled_colors=(
         "#1f77b4",
         "#2ca02c",
         "#d62728",
@@ -450,12 +467,12 @@ LIGHT_THEME_PARAMS = ThemeParams(
 )
 
 DARK_THEME_PARAMS = ThemeParams(
-    background="#0b0b0e",
-    foreground="#e6e6e6",
+    background_color="#0b0b0e",
+    foreground_color="#e6e6e6",
     tick_color="#cfcfd2",
     grid_color="#2e2e35",
     grid_alpha=0.3,
-    cycle_colors=(
+    cycled_colors=(
         "#7aa2f7",
         "#9ece6a",
         "#f7768e",
