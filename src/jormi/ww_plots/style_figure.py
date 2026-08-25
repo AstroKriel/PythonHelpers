@@ -30,8 +30,9 @@ PT_PER_INCH: float = 72.0
 PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
 
 ## how finely a saved raster is sampled, in the cm a figure is sized in; Matplotlib wants
-## it per inch, so `CM_PER_INCH` converts at the point it is handed over
-DEFAULT_PIXELS_PER_CM: float = 80.0
+## it per inch, so `CM_PER_INCH` converts at the point it is handed over. 250 is about 635
+## dpi, which is what line art wants in print, and a round number in the unit used here
+DEFAULT_PIXELS_PER_CM: float = 250.0
 
 ##
 ## === FONT SIZES
@@ -140,7 +141,7 @@ class TextSizeParams:
 )
 class DataArtistParams:
     """
-    The marks that draw the data, in pt: the lines and the markers.
+    The marks that draw the data, in pt: the lines, the markers, and the markers' edges.
 
     Narrower than what Matplotlib calls an artist, which is anything drawable at all;
     the text, the panel frame and the legend are each styled by their own group.
@@ -152,12 +153,16 @@ class DataArtistParams:
 
     line_width: float = 0.9
     marker_size: float = 5.0
+    marker_edge_width: float = 0.6
 
     def as_rc_params(self) -> dict[str, object]:
         """Map each mark onto the Matplotlib rcParams that consume it."""
         return {
             "lines.linewidth": self.line_width,
             "lines.markersize": self.marker_size,
+            ## an edge holds a marker rather than being it, so it is drawn lighter than the
+            ## data line; left unset Matplotlib would outweigh that line instead
+            "lines.markeredgewidth": self.marker_edge_width,
         }
 
 
@@ -183,7 +188,7 @@ class PanelFrameParams:
     panel rather than from the margin.
     """
 
-    line_width: float = 0.6
+    line_width: float = 0.4
     major_tick_length: float = 3.0
     minor_tick_length: float = 1.6
     tick_label_gap: float = 2.5
@@ -578,8 +583,11 @@ class FigureParams:
                 {
                     "text.usetex":
                     True,
+                    ## a figure has to be set in the same face as the document it is bound
+                    ## for, so the document needs `lmodern` too
                     "text.latex.preamble":
                     r"""
+                        \usepackage{lmodern}
                         \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
                         \providecommand{\mathdefault}[1]{#1}
                     """,
