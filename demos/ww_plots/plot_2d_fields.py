@@ -109,26 +109,15 @@ def add_shared_colorbar(
     panel_row: manage_figure.PanelGrid,
     label: str,
 ) -> mpl_Colorbar:
-    """
-    Put one colorbar above the row, spanning it.
-
-    `add_colorbar` centres the bar on the panel it is given and measures its length in
-    that panel's widths, so the middle panel of an odd row is the one that lines up.
-    """
-    middle_panel = panel_row[len(panel_row) // 2]
-    row_x_min = panel_row[0].get_position().x0
-    row_x_max = panel_row[-1].get_position().x1
-    spanning_length = (row_x_max - row_x_min) / middle_panel.get_position().width
+    """Put one colorbar above the row, spanning it."""
     return add_color.add_colorbar(
-        panel=middle_panel,
+        panels=panel_row,
         palette=add_color.make_palette(
             config=PALETTE_CONFIG,
             value_range=VORTICITY_RANGE,
         ),
         label=label,
         colorbar_side=box_positions.Positions.Side.Top,
-        colorbar_length=spanning_length,
-        colorbar_thickness=0.08,
     )
 
 

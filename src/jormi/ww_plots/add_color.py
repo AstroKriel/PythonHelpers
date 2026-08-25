@@ -170,6 +170,35 @@ _SIDE_TO_ORIENTATION: dict[_Side, str] = {
 }
 
 
+def _resolve_colorbar_gap_pt(
+    *,
+    colorbar_side: _Side,
+    colorbar_gap: float | None,
+    figure_params: style_figure.FigureParams,
+) -> float:
+    """
+    The gap between a panel and its colorbar, in pt.
+
+    A colorbar is placed as a panel neighbouring its own, so an unset gap is the one the
+    figure already spaces its panels by: the column gap beside a panel, the row gap above
+    or below one.
+    """
+    if colorbar_gap is None:
+        panel_gaps = figure_params.colorbar_layout.gap
+        if panel_gaps is None:
+            panel_gaps = figure_params.figure_layout.panel_gaps
+        is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
+        colorbar_gap = panel_gaps.column if is_beside_panel else panel_gaps.row
+    validate_types.ensure_finite_float(
+        param=colorbar_gap,
+        param_name="colorbar_gap",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    return colorbar_gap
+
+
 def _compute_colorbar_gap(
     *,
     panel: manage_figure.Panel,
@@ -186,17 +215,10 @@ def _compute_colorbar_gap(
     or below one.
     """
     is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
-    if colorbar_gap is None:
-        panel_gaps = figure_params.colorbar_layout.gap
-        if panel_gaps is None:
-            panel_gaps = figure_params.figure_layout.panel_gaps
-        colorbar_gap = panel_gaps.column if is_beside_panel else panel_gaps.row
-    validate_types.ensure_finite_float(
-        param=colorbar_gap,
-        param_name="colorbar_gap",
-        allow_none=False,
-        require_positive=True,
-        allow_zero=True,
+    colorbar_gap = _resolve_colorbar_gap_pt(
+        colorbar_side=colorbar_side,
+        colorbar_gap=colorbar_gap,
+        figure_params=figure_params,
     )
     ## the root figure, since a gap in pt is measured against the page the figure is drawn at
     figure = panel.get_figure(root=True)
@@ -251,18 +273,20 @@ def _label_colorbar(
 
 def add_colorbar(
     *,
-    panel: manage_figure.Panel,
+    panels: manage_figure.Panel | manage_figure.PanelGrid,
     palette: color_palettes.ColorPalette,
     label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-    colorbar_thickness: float = 0.075,
     colorbar_length: float = 1.0,
+    colorbar_aspect_ratio: float | None = None,
     colorbar_gap: float | None = None,
     label_gap: float | None = None,
     text_size: int | float | None = None,
     figure_params: style_figure.FigureParams | None = None,
 ) -> mpl_colorbar.Colorbar:
     """
+    `colorbar_length` is a share of what the bar describes, and `colorbar_aspect_ratio` its
+    length over its thickness, so a bar keeps its proportions whatever it spans.
     `colorbar_gap` is in pt, like the gaps between panels, and defaults to the gap the
     figure already spaces its panels by. `text_size` defaults to the active axis-label
     text size, and `label_gap` to the gap the active style leaves between a panel's tick
@@ -275,13 +299,6 @@ def add_colorbar(
     if label_gap is None:
         label_gap = figure_params.panel_frame_params.axis_label_gap
     ## validate numeric params
-    validate_types.ensure_finite_float(
-        param=colorbar_thickness,
-        param_name="colorbar_thickness",
-        allow_none=False,
-        require_positive=True,
-        allow_zero=False,
-    )
     validate_types.ensure_finite_float(
         param=label_gap,
         param_name="label_gap",
@@ -298,10 +315,26 @@ def add_colorbar(
     )
     colorbar_side = validate_box_positions.as_box_side(side=colorbar_side)
     colorbar_orientation = _SIDE_TO_ORIENTATION[colorbar_side]
+    described_panels = manage_figure.as_panel_list(panels=panels)
+    panel = described_panels[0]
+    if colorbar_aspect_ratio is None:
+        colorbar_aspect_ratio = figure_params.colorbar_layout.aspect_ratio
+    validate_types.ensure_finite_float(
+        param=colorbar_aspect_ratio,
+        param_name="colorbar_aspect_ratio",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
     panel_bounds = manage_figure.compute_neighbouring_panel_bounds(
-        panel=panel,
+        panels=described_panels,
         side=colorbar_side,
-        thickness=colorbar_thickness,
+        thickness=manage_figure.compute_colorbar_thickness_share(
+            panels=described_panels,
+            side=colorbar_side,
+            length=colorbar_length,
+            aspect_ratio=colorbar_aspect_ratio,
+        ),
         length=colorbar_length,
         gap=_compute_colorbar_gap(
             panel=panel,
@@ -316,6 +349,20 @@ def add_colorbar(
             panel_bounds.y_min,
             panel_bounds.x_width,
             panel_bounds.y_width,
+        ),
+    )
+    ## a bar is placed beyond its panel, so a figure fitted to its contents has to know the
+    ## bar is there: to leave room for it, and to place it again once the panels have moved
+    manage_figure.register_colorbar(
+        colorbar_panel=colorbar_panel,
+        panels=described_panels,
+        side=colorbar_side,
+        aspect_ratio=colorbar_aspect_ratio,
+        length=colorbar_length,
+        gap_pt=_resolve_colorbar_gap_pt(
+            colorbar_side=colorbar_side,
+            colorbar_gap=colorbar_gap,
+            figure_params=figure_params,
         ),
     )
     colorbar_mappable = mpl_cm.ScalarMappable(

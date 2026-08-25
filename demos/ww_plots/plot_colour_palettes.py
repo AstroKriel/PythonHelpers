@@ -112,7 +112,7 @@ def draw_palette(
         aspect="auto",
     )
     add_color.add_colorbar(
-        panel=panel,
+        panels=panel,
         palette=palette,
         colorbar_side=colorbar_side,
     )
