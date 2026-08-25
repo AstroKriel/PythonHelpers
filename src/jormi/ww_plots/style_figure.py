@@ -339,6 +339,36 @@ class FigureMargins:
     frozen=True,
     kw_only=True,
 )
+class FigurePadding:
+    """
+    Space left clear outside everything a figure draws, in pt.
+
+    Where `FigureMargins` says how much room to leave for the labels, this says how much to
+    leave beyond them. A label's extent is not knowable before it is drawn, so a figure that
+    is fitted to its contents measures the labels and is given only this one constant.
+    """
+
+    left: float = 6.0
+    right: float = 6.0
+    bottom: float = 6.0
+    top: float = 6.0
+
+    def __post_init__(self) -> None:
+        for param_name in (
+            "left",
+            "right",
+            "bottom",
+            "top",
+        ):
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
 class FigureWidth:
     """
     How wide a figure is drawn, so that its text is sized for the page.
@@ -408,6 +438,7 @@ class FigureLayout:
 
     figure_width: FigureWidth = FigureWidth()
     figure_margins: FigureMargins = FigureMargins()
+    figure_padding: FigurePadding = FigurePadding()
     panel_gaps: PanelGaps = PanelGaps()
 
 
@@ -423,9 +454,18 @@ class ColorbarLayout:
     a panel gap: `gap.column` for a bar on the left or right, `gap.row` for one above or
     below. Left unset it is the gap the figure already spaces its panels by, so one value
     covers the whole figure; set it to space a bar differently from the panels.
+
+    `aspect_ratio` is the bar's length over its thickness, so a bar keeps its proportions
+    whatever it describes: one beside a single panel and one spanning a whole grid are the
+    same shape, where a share of the panel would have made the second twice as thick.
     """
 
     gap: PanelGaps | None = None
+    aspect_ratio: float = 15.0
+
+    def __post_init__(self) -> None:
+        if not (self.aspect_ratio > 0):
+            raise ValueError(f"`aspect_ratio` must be positive, but got {self.aspect_ratio}.")
 
 
 ## a figure spanning the full text width, and one spanning half of it, which is a single
