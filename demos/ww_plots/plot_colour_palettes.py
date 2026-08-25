@@ -115,6 +115,9 @@ def draw_palette(
         panels=panel,
         palette=palette,
         colorbar_side=colorbar_side,
+        ## these bars are short, running the height of one small panel, so the style's
+        ## proportions would draw them too fine to read the palette off
+        colorbar_aspect_ratio=10.0,
     )
     annotate_panel.add_text(
         panel=panel,

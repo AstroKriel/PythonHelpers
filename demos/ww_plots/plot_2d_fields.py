@@ -118,6 +118,9 @@ def add_shared_colorbar(
         ),
         label=label,
         colorbar_side=box_positions.Positions.Side.Top,
+        ## this bar spans three panels, so keeping the style's proportions would make it as
+        ## thick as it is long here; it is set slimmer against its own length instead
+        colorbar_aspect_ratio=36.0,
     )
 
 
