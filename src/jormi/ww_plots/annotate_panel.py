@@ -374,4 +374,65 @@ def overlay_curve(
     panel.add_collection(collection, autolim=False)
 
 
+def add_shared_axis_label(
+    *,
+    panels: manage_figure.Panel | manage_figure.PanelGrid,
+    label: str,
+    side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Left,
+    gap: float | None = None,
+    text_size: float | None = None,
+    text_color: ColorType | None = None,
+    figure_params: style_figure.FigureParams | None = None,
+) -> None:
+    """
+    Add one axis label naming what several panels share, outside their own labels.
+
+    Where it goes is not known when it is added, since it sits beyond tick labels that have
+    yet to be drawn; the figure places it when it is fitted. `gap` is the room left between
+    it and those labels, in pt, defaulting to the gap the style leaves an axis label.
+    """
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
+    if text_size is None:
+        text_size = figure_params.text_size_params.axis_label_size
+    if text_color is None:
+        text_color = figure_params.theme_params.foreground_color
+    if gap is None:
+        gap = figure_params.panel_frame_params.axis_label_gap
+    validate_types.ensure_finite_float(
+        param=gap,
+        param_name="gap",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    side = validate_box_positions.as_box_side(side=side)
+    labelled_panels = manage_figure.as_panel_list(panels=panels)
+    if not labelled_panels:
+        raise ValueError("`panels` must name at least one panel for the label to sit beside.")
+    figure = labelled_panels[0].get_figure(root=True)
+    if figure is None:
+        raise ValueError("`panels` do not belong to a figure, so there is nothing to label.")
+    is_beside_panels = side in (
+        box_positions.Positions.Side.Left,
+        box_positions.Positions.Side.Right,
+    )
+    text = figure.text(
+        0.5,
+        0.5,
+        label,
+        ha="center",
+        va="center",
+        rotation=90.0 if is_beside_panels else 0.0,
+        fontsize=text_size,
+        color=text_color,
+    )
+    manage_figure.register_shared_label(
+        text=text,
+        panels=labelled_panels,
+        side=side,
+        gap_pt=gap,
+    )
+
+
 ## } MODULE
