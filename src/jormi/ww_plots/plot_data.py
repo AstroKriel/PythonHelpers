@@ -301,7 +301,7 @@ def plot_2d_streamlines(
     if streamline_width is None:
         if figure_params is None:
             figure_params = style_figure.get_figure_params()
-        streamline_width = figure_params.data_artist_params.line_width
+        streamline_width = figure_params.artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d_rows,
         num_dims=2,
@@ -355,7 +355,7 @@ def plot_2d_contours(
     if linewidth is None:
         if figure_params is None:
             figure_params = style_figure.get_figure_params()
-        linewidth = figure_params.data_artist_params.line_width
+        linewidth = figure_params.artist_params.line_width
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,

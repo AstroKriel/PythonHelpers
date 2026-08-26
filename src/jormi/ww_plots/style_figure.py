@@ -160,7 +160,7 @@ class TextSizeParams:
     frozen=True,
     kw_only=True,
 )
-class DataArtistParams:
+class ArtistParams:
     """
     The marks that draw the data, in pt: the lines, the markers, and the markers' edges.
 
@@ -202,7 +202,7 @@ class DataArtistParams:
     frozen=True,
     kw_only=True,
 )
-class PanelFrameParams:
+class FrameParams:
     """
     The panel's furniture, in pt: its frame, its ticks, and the gaps around their labels.
 
@@ -693,8 +693,8 @@ class FigureParams:
     theme: Theme = Theme.LIGHT
     latex_params: LatexParams = LatexParams()
     text_size_params: TextSizeParams = TextSizeParams()
-    data_artist_params: DataArtistParams = DataArtistParams()
-    panel_frame_params: PanelFrameParams = PanelFrameParams()
+    artist_params: ArtistParams = ArtistParams()
+    frame_params: FrameParams = FrameParams()
     legend_params: LegendParams = LegendParams()
     save_params: SaveParams = SaveParams()
     figure_layout: FigureLayout = FULL_PAGE_FIGURE_LAYOUT
@@ -711,8 +711,8 @@ class FigureParams:
             ## the typeface, which pairs with the LaTeX settings below
             "font.family": "serif",
             **self.text_size_params.as_rc_params(),
-            **self.data_artist_params.as_rc_params(),
-            **self.panel_frame_params.as_rc_params(),
+            **self.artist_params.as_rc_params(),
+            **self.frame_params.as_rc_params(),
             **self.legend_params.as_rc_params(),
             **self.save_params.as_rc_params(),
             **self.latex_params.as_rc_params(),

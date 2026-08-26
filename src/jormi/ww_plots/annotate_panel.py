@@ -181,16 +181,16 @@ def add_custom_legend(
     if figure_params is None:
         figure_params = style_figure.get_figure_params()
     text_size_params = figure_params.text_size_params
-    data_artist_params = figure_params.data_artist_params
+    artist_params = figure_params.artist_params
     theme_params = figure_params.theme_params
     if text_size is None:
         text_size = text_size_params.legend_size
     if text_color is None:
         text_color = theme_params.foreground_color
     if marker_size is None:
-        marker_size = data_artist_params.marker_size
+        marker_size = artist_params.marker_size
     if line_width is None:
-        line_width = data_artist_params.line_width
+        line_width = artist_params.line_width
     ## validate parallel lists; an artist may be None, for an entry that is text alone
     validate_types.ensure_sequence(
         param=artists,
@@ -329,7 +329,7 @@ def overlay_curve(
     if color is None:
         color = figure_params.theme_params.foreground_color
     if linewidth is None:
-        linewidth = figure_params.data_artist_params.line_width
+        linewidth = figure_params.artist_params.line_width
     ## validate line style
     validate_types.ensure_finite_scalar(
         param=linewidth,
@@ -398,7 +398,7 @@ def add_shared_axis_label(
     if text_color is None:
         text_color = figure_params.theme_params.foreground_color
     if gap is None:
-        gap = figure_params.panel_frame_params.axis_label_gap
+        gap = figure_params.frame_params.axis_label_gap
     validate_types.ensure_finite_float(
         param=gap,
         param_name="gap",

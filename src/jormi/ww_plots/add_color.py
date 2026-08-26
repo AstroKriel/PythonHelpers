@@ -297,7 +297,7 @@ def add_colorbar(
     if text_size is None:
         text_size = figure_params.text_size_params.axis_label_size
     if label_gap is None:
-        label_gap = figure_params.panel_frame_params.axis_label_gap
+        label_gap = figure_params.frame_params.axis_label_gap
     ## validate numeric params
     validate_types.ensure_finite_float(
         param=colorbar_length,
