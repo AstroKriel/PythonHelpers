@@ -35,6 +35,153 @@ PT_PER_CM: float = PT_PER_INCH / CM_PER_INCH
 ## dpi, which is what line art wants in print, and a round number in the unit used here
 DEFAULT_PIXELS_PER_CM: float = 250.0
 
+
+##
+## === COLOR THEMES
+##
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class ThemeParams:
+    """
+    The colours a theme sets, each named for what it colours rather than for the keys
+    it lands in.
+
+    A theme is only this overlay, so the two are structurally identical and switching
+    between them puts every key back.
+    """
+
+    background_color: str
+    foreground_color: str
+    tick_color: str
+    grid_color: str
+    grid_alpha: float
+    cycled_colors: tuple[str, ...]
+
+    def as_rc_params(self) -> dict[str, object]:
+        """Map each colour onto the Matplotlib rcParams that consume it."""
+        return {
+            "figure.facecolor": self.background_color,
+            "axes.facecolor": self.background_color,
+            "savefig.facecolor": self.background_color,
+            "figure.edgecolor": self.background_color,
+            "patch.edgecolor": self.foreground_color,
+            "lines.color": self.foreground_color,
+            "axes.edgecolor": self.foreground_color,
+            "axes.labelcolor": self.foreground_color,
+            "text.color": self.foreground_color,
+            "axes.titlecolor": self.foreground_color,
+            "xtick.color": self.tick_color,
+            "ytick.color": self.tick_color,
+            "grid.color": self.grid_color,
+            "grid.alpha": self.grid_alpha,
+            "axes.prop_cycle": cycler(color=list(self.cycled_colors)),
+        }
+
+
+LIGHT_THEME_PARAMS = ThemeParams(
+    background_color="white",
+    foreground_color="#222222",
+    tick_color="#333333",
+    grid_color="#dddddd",
+    grid_alpha=0.6,
+    cycled_colors=(
+        "#1f77b4",
+        "#2ca02c",
+        "#d62728",
+        "#ff7f0e",
+        "#9467bd",
+        "#17becf",
+        "#8c564b",
+        "#e377c2",
+        "#7f7f7f",
+        "#bcbd22",
+    ),
+)
+
+DARK_THEME_PARAMS = ThemeParams(
+    background_color="#0b0b0e",
+    foreground_color="#e6e6e6",
+    tick_color="#cfcfd2",
+    grid_color="#2e2e35",
+    grid_alpha=0.3,
+    cycled_colors=(
+        "#7aa2f7",
+        "#9ece6a",
+        "#f7768e",
+        "#e0af68",
+        "#bb9af7",
+        "#7dcfff",
+        "#f6bd60",
+        "#c0caf5",
+        "#89ddff",
+        "#ff9e64",
+    ),
+)
+
+
+class Theme(Enum):
+    """Available Matplotlib color themes."""
+
+    LIGHT = "light"
+    DARK = "dark"
+
+
+THEMES: Mapping[Theme, ThemeParams] = {
+    Theme.LIGHT: LIGHT_THEME_PARAMS,
+    Theme.DARK: DARK_THEME_PARAMS,
+}
+
+##
+## === TYPESETTING
+##
+
+
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class LatexParams:
+    """
+    How a figure's text is typeset, when LaTeX sets it.
+
+    With `use_tex`, every string goes through LaTeX rather than Matplotlib's own mathtext,
+    so a figure is set in the same face as the document it is bound for. Plain strings then
+    come out upright and `$...$` italic, which is why words read heavier than maths.
+
+    `font_package` is what makes the two match, so it should name the face the document
+    loads. `math_packages` are the ones the labels need; `extra_preamble` is for anything
+    else, and is placed last so it can override what comes before it.
+    """
+
+    use_tex: bool = True
+    font_package: str = "lmodern"
+    math_packages: tuple[str, ...] = ("amsmath",)
+    extra_preamble: str = ""
+
+    def as_rc_params(self) -> dict[str, object]:
+        """
+        Map the typesetting onto the Matplotlib rcParams that consume it.
+
+        LaTeX is only asked for when it is installed, so a figure still draws without it,
+        in Matplotlib's own mathtext rather than not at all.
+        """
+        if not (self.use_tex and (shutil.which("latex") is not None)):
+            return {"text.usetex": False}
+        packages = "\n".join(
+            f"\\usepackage{{{package_name}}}"
+            for package_name in (self.font_package, *self.math_packages)
+            if package_name
+        )
+        return {
+            "text.usetex": True,
+            "text.latex.preamble": f"{packages}\n{self.extra_preamble}",
+        }
+
+
+
 ##
 ## === FONT SIZES
 ##
@@ -356,50 +503,6 @@ class SaveParams:
             "savefig.pad_inches": self.crop_margin_cm / CM_PER_INCH,
             "savefig.transparent": self.transparent_background,
         }
-
-
-@dataclasses.dataclass(
-    frozen=True,
-    kw_only=True,
-)
-class LatexParams:
-    """
-    How a figure's text is typeset, when LaTeX sets it.
-
-    With `use_tex`, every string goes through LaTeX rather than Matplotlib's own mathtext,
-    so a figure is set in the same face as the document it is bound for. Plain strings then
-    come out upright and `$...$` italic, which is why words read heavier than maths.
-
-    `font_package` is what makes the two match, so it should name the face the document
-    loads. `math_packages` are the ones the labels need; `extra_preamble` is for anything
-    else, and is placed last so it can override what comes before it.
-    """
-
-    use_tex: bool = True
-    font_package: str = "lmodern"
-    math_packages: tuple[str, ...] = ("amsmath",)
-    extra_preamble: str = ""
-
-    def as_rc_params(self) -> dict[str, object]:
-        """
-        Map the typesetting onto the Matplotlib rcParams that consume it.
-
-        LaTeX is only asked for when it is installed, so a figure still draws without it,
-        in Matplotlib's own mathtext rather than not at all.
-        """
-        if not (self.use_tex and (shutil.which("latex") is not None)):
-            return {"text.usetex": False}
-        packages = "\n".join(
-            f"\\usepackage{{{package_name}}}"
-            for package_name in (self.font_package, *self.math_packages)
-            if package_name
-        )
-        return {
-            "text.usetex": True,
-            "text.latex.preamble": f"{packages}\n{self.extra_preamble}",
-        }
-
-
 ##
 ## === FIGURE LAYOUT
 ##
@@ -576,104 +679,6 @@ HALF_PAGE_FIGURE_LAYOUT = FigureLayout(figure_width=FigureWidth(width_fraction=0
 
 
 ##
-## === COLOR THEMES
-##
-
-@dataclasses.dataclass(
-    frozen=True,
-    kw_only=True,
-)
-class ThemeParams:
-    """
-    The colours a theme sets, each named for what it colours rather than for the keys
-    it lands in.
-
-    A theme is only this overlay, so the two are structurally identical and switching
-    between them puts every key back.
-    """
-
-    background_color: str
-    foreground_color: str
-    tick_color: str
-    grid_color: str
-    grid_alpha: float
-    cycled_colors: tuple[str, ...]
-
-    def as_rc_params(self) -> dict[str, object]:
-        """Map each colour onto the Matplotlib rcParams that consume it."""
-        return {
-            "figure.facecolor": self.background_color,
-            "axes.facecolor": self.background_color,
-            "savefig.facecolor": self.background_color,
-            "figure.edgecolor": self.background_color,
-            "patch.edgecolor": self.foreground_color,
-            "lines.color": self.foreground_color,
-            "axes.edgecolor": self.foreground_color,
-            "axes.labelcolor": self.foreground_color,
-            "text.color": self.foreground_color,
-            "axes.titlecolor": self.foreground_color,
-            "xtick.color": self.tick_color,
-            "ytick.color": self.tick_color,
-            "grid.color": self.grid_color,
-            "grid.alpha": self.grid_alpha,
-            "axes.prop_cycle": cycler(color=list(self.cycled_colors)),
-        }
-
-
-LIGHT_THEME_PARAMS = ThemeParams(
-    background_color="white",
-    foreground_color="#222222",
-    tick_color="#333333",
-    grid_color="#dddddd",
-    grid_alpha=0.6,
-    cycled_colors=(
-        "#1f77b4",
-        "#2ca02c",
-        "#d62728",
-        "#ff7f0e",
-        "#9467bd",
-        "#17becf",
-        "#8c564b",
-        "#e377c2",
-        "#7f7f7f",
-        "#bcbd22",
-    ),
-)
-
-DARK_THEME_PARAMS = ThemeParams(
-    background_color="#0b0b0e",
-    foreground_color="#e6e6e6",
-    tick_color="#cfcfd2",
-    grid_color="#2e2e35",
-    grid_alpha=0.3,
-    cycled_colors=(
-        "#7aa2f7",
-        "#9ece6a",
-        "#f7768e",
-        "#e0af68",
-        "#bb9af7",
-        "#7dcfff",
-        "#f6bd60",
-        "#c0caf5",
-        "#89ddff",
-        "#ff9e64",
-    ),
-)
-
-
-class Theme(Enum):
-    """Available Matplotlib color themes."""
-
-    LIGHT = "light"
-    DARK = "dark"
-
-
-THEMES: Mapping[Theme, ThemeParams] = {
-    Theme.LIGHT: LIGHT_THEME_PARAMS,
-    Theme.DARK: DARK_THEME_PARAMS,
-}
-
-##
 ## === HELPERS
 ##
 
@@ -686,8 +691,11 @@ class FigureParams:
     """
     Every choice that styles a figure, gathered so one value describes the whole style.
 
-    Each group knows the rcParams it produces; the two layouts are the exception, since
-    jormi places panels and colorbars itself rather than handing that to Matplotlib.
+    The groups are listed in three tiers, and defined above in the same order:
+
+        1. the theme and the typesetting, which colour and set everything else
+        2. the five that each know the rcParams they produce
+        3. the two layouts, which jormi reads itself rather than handing to Matplotlib
     """
 
     theme: Theme = Theme.LIGHT
