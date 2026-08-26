@@ -31,7 +31,7 @@ from numpy.typing import NDArray
 
 ## local
 from jormi.ww_plots import style_figure
-from jormi.ww_validation import validate_box_positions
+from jormi.ww_validation import validate_box_positions, validate_types
 from jormi.ww_types import box_positions
 
 ##
@@ -666,6 +666,25 @@ def compute_neighbouring_panel_bounds(
     fraction, centered on that edge. Given several panels it neighbours all of them, which
     is how one colorbar comes to describe a whole grid.
     """
+    for param_name, param_value in (
+        ("thickness", thickness),
+        ("length", length),
+    ):
+        validate_types.ensure_finite_float(
+            param=param_value,
+            param_name=param_name,
+            allow_none=False,
+            require_positive=True,
+            allow_zero=False,
+        )
+    ## a panel may sit flush against the one it neighbours, so no gap is a gap of zero
+    validate_types.ensure_finite_float(
+        param=gap,
+        param_name="gap",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
     box = mpl_transforms.Bbox.union([panel.get_position() for panel in as_panel_list(panels=panels)])
     if side in (_Side.Left, _Side.Right):
         x_width = box.width * thickness

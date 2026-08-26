@@ -379,7 +379,31 @@ def add_inset_panel(
     x_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Top,
     y_label_alignment: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
 ) -> Panel:
-    """Add an inset Axis to `panel`; `text_size` defaults to the active axis-label size."""
+    """
+    Add an inset Axis to `panel`; `text_size` defaults to the active axis-label size.
+
+    `bounds` is (x, y, width, height) in the panel's own coordinates, so an inset sits
+    inside its panel when they fall in [0, 1].
+    """
+    validate_types.ensure_tuple_of_numbers(
+        param=bounds,
+        param_name="bounds",
+        seq_length=4,
+    )
+    for param_name, param_value in zip(
+        (
+            "bounds[2]",
+            "bounds[3]",
+        ),
+        bounds[2:],
+    ):
+        validate_types.ensure_finite_float(
+            param=param_value,
+            param_name=param_name,
+            allow_none=False,
+            require_positive=True,
+            allow_zero=False,
+        )
     if figure_params is None:
         figure_params = style_figure.get_figure_params()
     x_label_side = validate_box_positions.as_box_side(x_label_alignment)

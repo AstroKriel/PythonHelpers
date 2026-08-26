@@ -300,6 +300,13 @@ def add_colorbar(
         label_gap = figure_params.panel_frame_params.axis_label_gap
     ## validate numeric params
     validate_types.ensure_finite_float(
+        param=colorbar_length,
+        param_name="colorbar_length",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    validate_types.ensure_finite_float(
         param=label_gap,
         param_name="label_gap",
         allow_none=False,
