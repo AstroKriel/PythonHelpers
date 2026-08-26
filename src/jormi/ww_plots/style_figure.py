@@ -714,21 +714,25 @@ class FigureParams:
         return THEMES[self.theme]
 
     def as_rc_params(self) -> dict[str, object]:
-        """Gather every group's rcParams, with the theme's colours overlaid last."""
-        rc_params: dict[str, object] = {
-            ## the typeface, which pairs with the LaTeX settings below
+        """
+        Gather the rcParams every group produces.
+
+        No two groups write the same key, so they are gathered in the order the fields are
+        listed rather than in one that would decide who wins. A theme sets only colours,
+        which is what keeps switching between them symmetric: applying one of Matplotlib's
+        style sheets instead would change keys no theme sets back.
+        """
+        return {
+            ## the typeface, which pairs with the LaTeX settings the typesetting group sets
             "font.family": "serif",
+            **self.theme_params.as_rc_params(),
+            **self.latex_params.as_rc_params(),
             **self.text_size_params.as_rc_params(),
             **self.artist_params.as_rc_params(),
             **self.frame_params.as_rc_params(),
             **self.legend_params.as_rc_params(),
             **self.save_params.as_rc_params(),
-            **self.latex_params.as_rc_params(),
         }
-        ## a theme is only a colour overlay, so switching between them is symmetric;
-        ## applying one of Matplotlib's style sheets would change keys no theme sets back
-        rc_params.update(THEMES[self.theme].as_rc_params())
-        return rc_params
 
 
 ##
