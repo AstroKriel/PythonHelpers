@@ -1,6 +1,7 @@
 # Figure layout: fit the figure to what it draws
 
-Draft spec. Not implemented.
+Built. `panel_aspect_ratio` and `FigureLayout.figure_margins` are gone, so this is the only
+way a figure is sized. See "As built" for where it differed from the spec.
 
 ## The problem
 
@@ -97,28 +98,31 @@ still writes build-then-save and sees none of it.
   `kriel-quokka-mhd` this is `current-sheet/plot_evolution.py`, which reads
   `get_position()` to place a shared colorbar and two shared axis labels.
 
-## Open calls
+## As built
 
-- **Shared colorbars.** Spanning a panel grid is currently done by the caller, by reading
-  panel positions and adding a dummy axis. That is the one thing a save-time fit would
-  disturb. Either `add_colorbar` grows a way to span a grid, or the fit is triggered
-  explicitly before such reads.
-- **Auto tick locators.** `MaxNLocator` picks tick values from the axes size, so a panel that
-  resizes between the measure and the final draw can change its widest label. Anything on an
-  explicit `MultipleLocator` is immune. Pin the locator during layout, or accept a rare
-  one-character miss. Neither needs a loop.
+Resolved along the way:
+
+- **Shared colorbars.** `add_colorbar` takes `panels`, so it spans whatever it describes.
+  No caller reads a panel position any more, and the dummy anchor axis is gone.
+- **Shared labels.** `add_shared_axis_label` names an axis once for a grid, placed outside
+  the panels' own labels by the fit. This replaced `figure.supylabel`, which is anchored to
+  the figure and so was left behind when the panels moved.
+- **Auto tick locators.** Not rare: two of fourteen figures clipped. The fit pins the ticks
+  it measured, so what was measured is what is drawn, and one pass still suffices.
+- **Colorbar thickness.** Now a ratio of the bar's own length, so a bar keeps its
+  proportions whatever it spans. The bar no longer grows thicker for describing a grid.
+- **The colorbar guard is unnecessary.** A fitted figure leaves room for its bars by
+  construction, so the off-page case it would have caught cannot arise.
+
+Still open:
+
+- **Padding is measured against text boxes, not ink**, so visual clearance varies by a few
+  pt with whatever is outermost on a side. Only fixable by rasterising.
+- **`usetex` sizes are optically banded.** LaTeX takes metrics from the nearest whole-point
+  design, and small designs are drawn wider, so a smaller requested size can give a *longer*
+  label. Measure, do not infer length from size. `fix-cm` does not help; this was tested.
+- **Thickness follows length**, so a bar spanning a wide row is proportionally thick. Fine
+  when bars are of similar length, as in a paper; the demos need per-call overrides.
 - **Is padding constant in drawn pt or printed pt?** Only the same thing once the base width
   equals the page's text width. Today a single-column figure is magnified 1.072 on the page
-  and a full-width one 1.116, so a 6 pt padding prints as 6.4 or 6.7. Related but separable.
-- **Colorbar thickness: self-similar or uniform?** As a fraction of the panel, a bar in a
-  single-column figure is physically thinner than one in a full-width figure. Taste call.
-
-## Suggested order
-
-1. Guard `add_colorbar` against placing its axes outside the figure. Independent of all of
-   the above, and worth having on its own: it failed silently on four figures in
-   `kriel-quokka-mhd`, one of which reached the published paper.
-2. Prototype the fit on one figure with an awkward label, to check the measurement lands
-   without hand-tuning.
-3. The rename and the rollout.
-4. The base-width fix, after the rename, so no aspect has to be re-solved.
+  and a full-width one 1.116, so a 6 pt padding prints as 6.4 or 6.7. Separable.
