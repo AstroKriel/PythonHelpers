@@ -153,15 +153,22 @@ class LatexParams:
 
     `font_package` is what makes the two match, so it should name the face the document
     loads, and `font_family` which of that face's shapes to set text in. `math_packages`
-    are the ones the labels need; `extra_preamble` is for anything else, and is placed
-    last so it can override what comes before it.
+    are the ones the labels need, given as bare names, so a package taking options does
+    not go here.
     """
 
     use_tex: bool = True
     font_package: str = "lmodern"
     font_family: str = "serif"
     math_packages: tuple[str, ...] = ("amsmath",)
-    extra_preamble: str = ""
+
+    def _get_packages(self) -> str:
+        """The `\\usepackage` lines, the face first so the maths is set to match it."""
+        return "\n".join(
+            f"\\usepackage{{{package_name}}}"
+            for package_name in (self.font_package, *self.math_packages)
+            if package_name
+        )
 
     def as_rc_params(self) -> dict[str, object]:
         """
@@ -171,23 +178,12 @@ class LatexParams:
         in Matplotlib's own mathtext rather than not at all. The face is set either way,
         since it is what the text is shaped in rather than what typesets it.
         """
-        rc_params: dict[str, object] = {"font.family": self.font_family}
-        if not (self.use_tex and (shutil.which("latex") is not None)):
-            return {
-                **rc_params,
-                "text.usetex": False,
-            }
-        packages = "\n".join(
-            f"\\usepackage{{{package_name}}}"
-            for package_name in (self.font_package, *self.math_packages)
-            if package_name
-        )
+        available_and_requested = self.use_tex and (shutil.which("latex") is not None)
         return {
-            **rc_params,
-            "text.usetex": True,
-            "text.latex.preamble": f"{packages}\n{self.extra_preamble}",
+            "font.family": self.font_family,
+            "text.usetex": available_and_requested,
+            "text.latex.preamble": self._get_packages() if available_and_requested else "",
         }
-
 
 
 ##
