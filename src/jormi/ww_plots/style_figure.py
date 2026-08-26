@@ -6,6 +6,7 @@
 
 ## stdlib
 import dataclasses
+import math
 import shutil
 
 from collections.abc import Mapping
@@ -117,6 +118,26 @@ class TextSizeParams:
                 " No text may be larger than `largest_size`.",
             )
         return self.largest_size * self.size_ratio**(-level)
+
+    def compute_level_at_size(
+        self,
+        *,
+        text_size: float,
+    ) -> float:
+        """
+        Level that `text_size` sits at, inverting `compute_size_at_level`.
+
+        Sizes are set by level rather than in pt, so asking for a size a little under one of
+        the named kinds of text means finding the level it falls at.
+        """
+        if not (text_size > 0):
+            raise ValueError(f"`text_size` must be positive, but got {text_size}.")
+        if text_size > self.largest_size:
+            raise ValueError(
+                f"`text_size` ({text_size}) is larger than `largest_size` ({self.largest_size}),"
+                " and no text may be larger than that.",
+            )
+        return math.log(self.largest_size / text_size) / math.log(self.size_ratio)
 
     def as_rc_params(self) -> dict[str, object]:
         """Map each kind of text onto the Matplotlib rcParams that consume it."""
