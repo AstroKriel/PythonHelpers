@@ -84,7 +84,7 @@ def _enable_plotting(
     style_figure.set_figure_params(
         figure_params=style_figure.FigureParams(
             theme=style_figure.Theme(theme),
-            use_tex=use_tex,
+            latex_params=style_figure.LatexParams(use_tex=use_tex),
         ),
     )
 

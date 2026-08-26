@@ -358,6 +358,48 @@ class SaveParams:
         }
 
 
+@dataclasses.dataclass(
+    frozen=True,
+    kw_only=True,
+)
+class LatexParams:
+    """
+    How a figure's text is typeset, when LaTeX sets it.
+
+    With `use_tex`, every string goes through LaTeX rather than Matplotlib's own mathtext,
+    so a figure is set in the same face as the document it is bound for. Plain strings then
+    come out upright and `$...$` italic, which is why words read heavier than maths.
+
+    `font_package` is what makes the two match, so it should name the face the document
+    loads. `math_packages` are the ones the labels need; `extra_preamble` is for anything
+    else, and is placed last so it can override what comes before it.
+    """
+
+    use_tex: bool = True
+    font_package: str = "lmodern"
+    math_packages: tuple[str, ...] = ("amsmath",)
+    extra_preamble: str = ""
+
+    def as_rc_params(self) -> dict[str, object]:
+        """
+        Map the typesetting onto the Matplotlib rcParams that consume it.
+
+        LaTeX is only asked for when it is installed, so a figure still draws without it,
+        in Matplotlib's own mathtext rather than not at all.
+        """
+        if not (self.use_tex and (shutil.which("latex") is not None)):
+            return {"text.usetex": False}
+        packages = "\n".join(
+            f"\\usepackage{{{package_name}}}"
+            for package_name in (self.font_package, *self.math_packages)
+            if package_name
+        )
+        return {
+            "text.usetex": True,
+            "text.latex.preamble": f"{packages}\n{self.extra_preamble}",
+        }
+
+
 ##
 ## === FIGURE LAYOUT
 ##
@@ -649,7 +691,7 @@ class FigureParams:
     """
 
     theme: Theme = Theme.LIGHT
-    use_tex: bool = True
+    latex_params: LatexParams = LatexParams()
     text_size_params: TextSizeParams = TextSizeParams()
     data_artist_params: DataArtistParams = DataArtistParams()
     panel_frame_params: PanelFrameParams = PanelFrameParams()
@@ -673,27 +715,11 @@ class FigureParams:
             **self.panel_frame_params.as_rc_params(),
             **self.legend_params.as_rc_params(),
             **self.save_params.as_rc_params(),
+            **self.latex_params.as_rc_params(),
         }
         ## a theme is only a colour overlay, so switching between them is symmetric;
         ## applying one of Matplotlib's style sheets would change keys no theme sets back
         rc_params.update(THEMES[self.theme].as_rc_params())
-        if self.use_tex and (shutil.which("latex") is not None):
-            rc_params.update(
-                {
-                    "text.usetex":
-                    True,
-                    ## a figure has to be set in the same face as the document it is bound
-                    ## for, so the document needs `lmodern` too
-                    "text.latex.preamble":
-                    r"""
-                        \usepackage{lmodern}
-                        \usepackage{bm,amsmath,mathrsfs,amssymb,url,xfrac}
-                        \providecommand{\mathdefault}[1]{#1}
-                    """,
-                },
-            )
-        else:
-            rc_params.update({"text.usetex": False})
         return rc_params
 
 
