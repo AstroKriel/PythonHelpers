@@ -152,12 +152,14 @@ class LatexParams:
     come out upright and `$...$` italic, which is why words read heavier than maths.
 
     `font_package` is what makes the two match, so it should name the face the document
-    loads. `math_packages` are the ones the labels need; `extra_preamble` is for anything
-    else, and is placed last so it can override what comes before it.
+    loads, and `font_family` which of that face's shapes to set text in. `math_packages`
+    are the ones the labels need; `extra_preamble` is for anything else, and is placed
+    last so it can override what comes before it.
     """
 
     use_tex: bool = True
     font_package: str = "lmodern"
+    font_family: str = "serif"
     math_packages: tuple[str, ...] = ("amsmath",)
     extra_preamble: str = ""
 
@@ -166,16 +168,22 @@ class LatexParams:
         Map the typesetting onto the Matplotlib rcParams that consume it.
 
         LaTeX is only asked for when it is installed, so a figure still draws without it,
-        in Matplotlib's own mathtext rather than not at all.
+        in Matplotlib's own mathtext rather than not at all. The face is set either way,
+        since it is what the text is shaped in rather than what typesets it.
         """
+        rc_params: dict[str, object] = {"font.family": self.font_family}
         if not (self.use_tex and (shutil.which("latex") is not None)):
-            return {"text.usetex": False}
+            return {
+                **rc_params,
+                "text.usetex": False,
+            }
         packages = "\n".join(
             f"\\usepackage{{{package_name}}}"
             for package_name in (self.font_package, *self.math_packages)
             if package_name
         )
         return {
+            **rc_params,
             "text.usetex": True,
             "text.latex.preamble": f"{packages}\n{self.extra_preamble}",
         }
@@ -723,8 +731,6 @@ class FigureParams:
         style sheets instead would change keys no theme sets back.
         """
         return {
-            ## the typeface, which pairs with the LaTeX settings the typesetting group sets
-            "font.family": "serif",
             **self.theme_params.as_rc_params(),
             **self.latex_params.as_rc_params(),
             **self.text_size_params.as_rc_params(),
