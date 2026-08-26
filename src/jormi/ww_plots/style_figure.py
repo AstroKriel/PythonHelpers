@@ -176,6 +176,17 @@ class DataArtistParams:
     marker_size: float = 5.0
     marker_edge_width: float = 0.6
 
+    def __post_init__(self) -> None:
+        ## a mark is turned off by giving it no width, so zero is allowed and only a negative is not
+        for param_name in (
+            "line_width",
+            "marker_size",
+            "marker_edge_width",
+        ):
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
+
     def as_rc_params(self) -> dict[str, object]:
         """Map each mark onto the Matplotlib rcParams that consume it."""
         return {
@@ -217,6 +228,19 @@ class PanelFrameParams:
     ticks_point_inward: bool = True
     ticks_on_all_sides: bool = True
     show_minor_ticks: bool = True
+
+    def __post_init__(self) -> None:
+        ## a frame with no ticks asks for a length of zero, so only a negative is refused
+        for param_name in (
+            "line_width",
+            "major_tick_length",
+            "minor_tick_length",
+            "tick_label_gap",
+            "axis_label_gap",
+        ):
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
 
     def as_rc_params(self) -> dict[str, object]:
         """Map each part of the frame onto the Matplotlib rcParams that consume it."""
@@ -267,6 +291,18 @@ class LegendParams:
     frame_margin: float = 0.4
     location: str = "upper right"
     show_frame: bool = False
+
+    def __post_init__(self) -> None:
+        ## a legend packed hard against its anchor asks for gaps of zero, so only a negative is refused
+        for param_name in (
+            "entry_gap",
+            "handle_gap",
+            "column_gap",
+            "frame_margin",
+        ):
+            param_value = getattr(self, param_name)
+            if param_value < 0:
+                raise ValueError(f"`{param_name}` must not be negative, but got {param_value}.")
 
     def as_rc_params(self) -> dict[str, object]:
         """Map the legend style onto the Matplotlib rcParams that consume it."""
