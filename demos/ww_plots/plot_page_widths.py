@@ -37,7 +37,8 @@ X_SCATTER = 0.25
 ## the same density for both figures, so the half-page file is exactly half as wide in
 ## pixels and any difference in the text is real rather than resampling
 PIXELS_PER_CM = 160.0
-PANEL_ASPECT_RATIO = 1.4
+## the width over height of the panel as it is drawn
+PANEL_ASPECT = 1.426
 
 DATA_COLORS = (
     "royalblue",
@@ -327,7 +328,7 @@ def main() -> None:
     ):
         figure, panel = manage_figure.create_figure(
             figure_layout=figure_layout,
-            panel_aspect_ratio=PANEL_ASPECT_RATIO,
+            panel_aspect=PANEL_ASPECT,
         )
         series_to_draw = (
             all_series if is_full_page

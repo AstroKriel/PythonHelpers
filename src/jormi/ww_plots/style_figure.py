@@ -451,14 +451,16 @@ class PanelGaps:
 )
 class FigureLayout:
     """
-    How much of the page a figure takes, and how much of that is left clear for labels.
+    How much of the page a figure takes, and how much of that is left clear around it.
 
     All three are decisions about where a figure sits on a page, so they travel together.
     How tall a figure is, and how many axes it holds, are decided per figure instead.
+
+    Room for the labels is not among them: how much they need is not knowable until they
+    are drawn, so a figure is measured and its margins derived when it is saved.
     """
 
     figure_width: FigureWidth = FigureWidth()
-    figure_margins: FigureMargins = FigureMargins()
     figure_padding: FigurePadding = FigurePadding()
     panel_gaps: PanelGaps = PanelGaps()
 

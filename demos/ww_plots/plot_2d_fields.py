@@ -174,14 +174,11 @@ def main() -> None:
     figure, panel_grid = manage_figure.create_figure(
         num_panel_rows=1,
         num_panel_columns=3,
-        ## the share is taller than it is wide, so that once the margins are taken out of
-        ## it the drawn panel is square, matching the square domain
-        panel_aspect_ratio=0.752,
+        ## square, matching the square domain; the figure is fitted around it, so the room
+        ## its labels and its colorbar need is measured rather than named here
+        panel_aspect=1.0,
         panel_column_gap=PANEL_GAP_PT,
         panel_row_gap=PANEL_GAP_PT,
-        figure_layout=style_figure.FigureLayout(
-            figure_margins=style_figure.FigureMargins(top=42.0),
-        ),
     )
     ## a grid keeps its row axis unless it is 1x1, so a single row arrives shaped (1, 3)
     panel_row = panel_grid[0]

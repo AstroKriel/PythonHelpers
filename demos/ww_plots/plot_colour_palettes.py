@@ -30,7 +30,8 @@ from jormi.ww_types import box_positions
 
 NUM_CELLS = 128
 PIXELS_PER_CM = 160.0
-PANEL_ASPECT_RATIO = 2.6
+## the width over height of the panel as it is drawn
+PANEL_ASPECT = 2.284
 VALUE_RANGE = (-1.3, 1.3)
 DIVERGING_MID_VALUE = 0.0
 DISCRETE_BIN_EDGES = (-1.3, -0.6, -0.2, 0.2, 0.6, 1.3)
@@ -142,22 +143,14 @@ def main() -> None:
     style_figure.set_figure_params()
     array_2d = generate_gradient()
     palettes = build_palettes()
-    ## each column carries a colorbar on the figure's outer edge, so both side margins
-    ## have to hold a bar, its tick labels, and the clearance the other sides get
+    ## each column carries a colorbar on the figure's outer edge; the figure is fitted, so
+    ## the room those bars and their tick labels need is measured rather than named here
     figure, panel_grid = manage_figure.create_figure(
         num_panel_rows=len(palettes),
         num_panel_columns=2,
-        panel_aspect_ratio=PANEL_ASPECT_RATIO,
+        panel_aspect=PANEL_ASPECT,
         panel_column_gap=16.0,
         panel_row_gap=14.0,
-        figure_layout=style_figure.FigureLayout(
-            figure_margins=style_figure.FigureMargins(
-                left=50.0,
-                right=50.0,
-                ## no ticks or x label below the panels, so the default 28 pt is unused
-                bottom=6.0,
-            ),
-        ),
     )
     column_sides = (
         box_positions.Positions.Side.Left,

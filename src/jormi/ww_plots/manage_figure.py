@@ -104,6 +104,10 @@ DEFAULT_PANEL_SHAPE: BoxShape = BoxShape(
     height_cm=10.0,
 )
 
+## where the panels start out. A figure sized to a page is measured and given margins of its
+## own when it is saved, so these only stand for a figure sized in its own terms.
+DEFAULT_FIGURE_MARGINS: style_figure.FigureMargins = style_figure.FigureMargins()
+
 
 def _set_figure_margins(
     *,
@@ -207,34 +211,11 @@ def _set_panel_gaps(
     )
 
 
-def _compute_panel_shape(
-    *,
-    figure_width_cm: float,
-    num_panel_columns: int,
-    panel_aspect_ratio: float,
-) -> BoxShape:
-    """
-    Compute the share of a figure (cm) given to one panel, splitting its width by column.
-
-    `panel_aspect_ratio` is the width / height of that share; a panel is drawn smaller than
-    its share, by whatever the margins hold.
-    """
-    if num_panel_columns < 1:
-        raise ValueError(f"`num_panel_columns` must be >= 1, but got {num_panel_columns}.")
-    if not (panel_aspect_ratio > 0):
-        raise ValueError(f"`panel_aspect_ratio` must be positive, but got {panel_aspect_ratio}.")
-    panel_width_cm = figure_width_cm / num_panel_columns
-    return BoxShape(
-        height_cm=panel_width_cm / panel_aspect_ratio,
-        width_cm=panel_width_cm,
-    )
-
-
 def _ensure_figure_sizing(
     *,
     panel_shape: BoxShape | None,
     figure_layout: style_figure.FigureLayout | None,
-    panel_aspect_ratio: float | None,
+    panel_aspect: float | None,
 ) -> None:
     """
     Check that a figure is sized from a page layout, or in its own terms, but not both.
@@ -250,9 +231,9 @@ def _ensure_figure_sizing(
             "`figure_layout` and `panel_shape` are mutually exclusive: a layout sizes the"
             " figure to a share of the page, while `panel_shape` sizes each panel outright.",
         )
-    if panel_aspect_ratio is not None:
+    if panel_aspect is not None:
         raise ValueError(
-            "`panel_aspect_ratio` only applies when a figure is sized to a page;"
+            "`panel_aspect` only applies when a figure is sized to a page;"
             " with `panel_shape` the shape of each panel is already set by it.",
         )
 
@@ -296,23 +277,24 @@ def _compute_figure_shape(
     figure_layout: style_figure.FigureLayout,
     num_panel_rows: int,
     num_panel_columns: int,
-    panel_aspect_ratio: float | None,
+    panel_aspect: float | None,
 ) -> BoxShape:
     """
     Size a figure (cm), either from its share of the page or from the size each panel is given.
 
     `panel_shape` is what chooses between the two; `_ensure_figure_sizing` is what checks
     the two ways were not both asked for.
+
+    Sized to a page, this is only where the figure starts: `fit_figure_to_content` measures
+    what it holds and sizes it again, so that `panel_aspect` is what the panel is drawn at.
     """
     if (num_panel_rows < 1) or (num_panel_columns < 1):
         raise ValueError("`num_panel_rows` and `num_panel_columns` must both be >= 1.")
     if panel_shape is None:
-        if panel_aspect_ratio is None:
-            panel_aspect_ratio = DEFAULT_PANEL_SHAPE.aspect_ratio
-        figure_panel_shape = _compute_panel_shape(
-            figure_width_cm=figure_layout.figure_width.width_cm,
-            num_panel_columns=num_panel_columns,
-            panel_aspect_ratio=panel_aspect_ratio,
+        panel_width_cm = figure_layout.figure_width.width_cm / num_panel_columns
+        figure_panel_shape = BoxShape(
+            width_cm=panel_width_cm,
+            height_cm=panel_width_cm / (panel_aspect or DEFAULT_PANEL_SHAPE.aspect_ratio),
         )
     else:
         figure_panel_shape = panel_shape
@@ -365,8 +347,8 @@ class FigureFit:
     """
     What a figure needs to be fitted to its contents.
 
-    `panel_aspect` is the width / height of the panel as drawn, unlike `panel_aspect_ratio`,
-    which is the share of the figure a panel is given before its labels are taken out of it.
+    `panel_aspect` is the width / height of the panel as it is drawn, so what the margins
+    hold is taken out of the figure around it rather than out of the panel.
     """
 
     num_panel_rows: int
@@ -783,7 +765,6 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
-    panel_aspect_ratio: float | None = None,
     panel_aspect: float | None = None,
 ) -> tuple[mpl_Figure, Panel]:
     ...
@@ -797,7 +778,6 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
-    panel_aspect_ratio: float | None = None,
     panel_aspect: float | None = None,
     panel_column_gap: float | None = None,
     panel_row_gap: float | None = None,
@@ -814,7 +794,6 @@ def create_figure(
     panel_shape: BoxShape | None = None,
     figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
-    panel_aspect_ratio: float | None = None,
     panel_aspect: float | None = None,
     panel_column_gap: float | None = None,
     panel_row_gap: float | None = None,
@@ -834,15 +813,14 @@ def create_figure(
 
     By default it takes its share of the page, from `figure_layout` or from the one
     `set_figure_params` last set. The figure width is then fixed, so adding columns makes each
-    panel narrower, and `panel_aspect_ratio` sets the shape of the share each panel gets.
+    panel narrower, and `panel_aspect` sets the shape each panel is drawn at.
 
     Passing `panel_shape` instead sizes each panel outright in cm, so the figure grows as
     panels are added and is no longer tied to a page.
 
-    Either way, `panel_shape` is the share of the figure a panel gets, not the size it is
-    drawn at: tick labels and axis labels are held in margins taken out of that share, so
-    the panel itself is drawn smaller. A colorbar is placed beyond the panel rather than
-    within those margins, and so can reach past the figure edge.
+    Sized to a page, the figure is fitted to what it holds when it is saved: its labels and
+    any colorbar are measured, and the margins and the figure height follow from them, so
+    `panel_aspect` describes the panel itself rather than a share it is drawn inside.
 
     Notes
     -----
@@ -878,18 +856,12 @@ def create_figure(
             )
     ## a 1x1 grid is rejected above, so both being 1 means the arguments were omitted
     is_single_panel = (num_panel_rows == 1) and (num_panel_columns == 1)
-    if (panel_aspect is not None) and (panel_aspect_ratio is not None):
-        raise ValueError(
-            "`panel_aspect` and `panel_aspect_ratio` shape a figure in different terms, so only"
-            " one applies: `panel_aspect` is the panel as drawn, and the figure is fitted around"
-            " it, while `panel_aspect_ratio` is the share of the figure a panel is given.",
-        )
     if (panel_aspect is not None) and not (panel_aspect > 0):
         raise ValueError(f"`panel_aspect` must be positive, but got {panel_aspect}.")
     _ensure_figure_sizing(
         panel_shape=panel_shape,
         figure_layout=figure_layout,
-        panel_aspect_ratio=panel_aspect_ratio,
+        panel_aspect=panel_aspect,
     )
     ## everything the figure is built from, gathered into one object and made active, so
     ## that whatever is drawn onto the figure afterwards is styled and spaced to match it
@@ -906,7 +878,7 @@ def create_figure(
         figure_layout=figure_layout,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
-        panel_aspect_ratio=panel_aspect_ratio,
+        panel_aspect=panel_aspect,
     )
     figure, panels = mpl_plot.subplots(
         nrows=num_panel_rows,
@@ -920,7 +892,7 @@ def create_figure(
     _set_figure_margins(
         figure=figure,
         figure_shape=figure_shape,
-        figure_margins=figure_layout.figure_margins,
+        figure_margins=DEFAULT_FIGURE_MARGINS,
     )
     ## the gap arguments were folded into the composed layout, so read them back from it
     panel_gaps = figure_layout.panel_gaps
@@ -940,7 +912,7 @@ def create_figure(
     _set_panel_gaps(
         figure=figure,
         figure_shape=figure_shape,
-        figure_margins=figure_layout.figure_margins,
+        figure_margins=DEFAULT_FIGURE_MARGINS,
         num_panel_rows=num_panel_rows,
         num_panel_columns=num_panel_columns,
         panel_column_gap=panel_gaps.column,
@@ -957,7 +929,6 @@ def create_figure_grid(
     panel_shape: BoxShape | None = None,
     figure_params: style_figure.FigureParams | None = None,
     figure_layout: style_figure.FigureLayout | None = None,
-    panel_aspect_ratio: float | None = None,
     panel_aspect: float | None = None,
     panel_column_gap: float | None = None,
     panel_row_gap: float | None = None,
@@ -973,8 +944,7 @@ def create_figure_grid(
             panel_shape=panel_shape,
             figure_params=figure_params,
             figure_layout=figure_layout,
-            panel_aspect_ratio=panel_aspect_ratio,
-            panel_aspect=panel_aspect,
+                panel_aspect=panel_aspect,
         )
         panel_grid: PanelGrid = numpy.asarray([[panel]], dtype=object)
         return figure, panel_grid
@@ -984,7 +954,6 @@ def create_figure_grid(
         panel_shape=panel_shape,
         figure_params=figure_params,
         figure_layout=figure_layout,
-        panel_aspect_ratio=panel_aspect_ratio,
         panel_aspect=panel_aspect,
         panel_column_gap=panel_column_gap,
         panel_row_gap=panel_row_gap,
