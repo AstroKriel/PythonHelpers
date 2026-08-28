@@ -93,6 +93,7 @@ class TestGenericPowerSpectrumKernel(unittest.TestCase):
                 power_spectrum = _compute_spectra.compute_power_spectrum_farray(
                     farray=farray,
                     resolution=resolution,
+                    num_ranks=len(leading_shape),
                 )
                 self.assertEqual(
                     power_spectrum.shape,
@@ -123,10 +124,12 @@ class TestGenericPowerSpectrumKernel(unittest.TestCase):
             centered_spectrum = _compute_spectra.compute_power_spectrum_farray(
                 farray=farray,
                 resolution=resolution,
+                num_ranks=2,
             )
             scalar_spectrum = _compute_spectra.compute_isotropic_power_spectrum_farray(
                 farray=comp_sarray,
                 resolution=resolution,
+                num_ranks=0,
             )
             rank2_spectrum = _compute_spectra._integrate_over_shells(
                 power_spectrum=centered_spectrum,
@@ -148,6 +151,7 @@ class TestGenericPowerSpectrumKernel(unittest.TestCase):
             _compute_spectra.compute_power_spectrum_farray(
                 farray=[[1.0, 2.0], [3.0, 4.0]],  # pyright: ignore[reportArgumentType]
                 resolution=(8, 8, 8),
+                num_ranks=0,
             )
 
     def test_rejects_non_isotropic_resolution(
@@ -158,7 +162,23 @@ class TestGenericPowerSpectrumKernel(unittest.TestCase):
             _compute_spectra.compute_power_spectrum_farray(
                 farray=rng.standard_normal((8, 16)),
                 resolution=(8, 16),
+                num_ranks=0,
             )
+
+    def test_rejects_num_ranks_mismatch(
+        self,
+    ) -> None:
+        ## an array with the wrong number of leading axes must raise, not be silently
+        ## reinterpreted as a different, valid rank
+        rng = numpy.random.default_rng(6)
+        for resolution in _RESOLUTIONS:
+            farray = rng.standard_normal((3, 4, *resolution))
+            with self.assertRaises(ValueError):
+                _compute_spectra.compute_power_spectrum_farray(
+                    farray=farray,
+                    resolution=resolution,
+                    num_ranks=1,
+                )
 
 
 ##

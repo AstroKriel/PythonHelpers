@@ -60,6 +60,7 @@ class TestVarrayPowerSpectrum(unittest.TestCase):
             power_spectrum_3d = compute_spectra.compute_power_spectrum_farray(
                 farray_3d=varray_3d,
                 resolution_3d=resolution_3d,
+                num_ranks=1,
             )
             total_power_k_space = numpy.sum(power_spectrum_3d)
             total_power_real_space = numpy.sum(numpy.square(varray_3d)) / (num_cells**3)

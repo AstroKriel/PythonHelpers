@@ -323,6 +323,7 @@ class TestRankTwoTensorFieldSpectrum(unittest.TestCase):
         array_level_spectrum = _array_compute_spectra.compute_isotropic_power_spectrum_farray(
             farray_3d=grad_field.fdata.farray,
             resolution_3d=resolution_3d,
+            num_ranks=grad_field.fdata.num_ranks,
         )
         numpy.testing.assert_allclose(
             field_level_spectrum.power_spectrum_1d,

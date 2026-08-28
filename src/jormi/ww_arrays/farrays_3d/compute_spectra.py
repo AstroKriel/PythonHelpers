@@ -24,15 +24,17 @@ def compute_power_spectrum_farray(
     *,
     farray_3d: NDArray[Any],
     resolution_3d: tuple[int, int, int],
+    num_ranks: int,
 ) -> NDArray[Any]:
     """
     Compute the 3D power spectrum of a field array whose trailing 3 axes are the spatial
-    grid (num_x0_cells, num_x1_cells, num_x2_cells), preceded by zero or more leading
-    component axes, e.g. () for a scalar, (3,) for a vector, (3, 3) for a rank-2 tensor.
+    grid (num_x0_cells, num_x1_cells, num_x2_cells), preceded by `num_ranks` leading
+    component axes, e.g. 0 for a scalar, 1 for a vector, 2 for a rank-2 tensor.
     """
     return _compute_spectra.compute_power_spectrum_farray(
         farray=farray_3d,
         resolution=resolution_3d,
+        num_ranks=num_ranks,
     )
 
 
@@ -40,11 +42,13 @@ def compute_isotropic_power_spectrum_farray(
     *,
     farray_3d: NDArray[Any],
     resolution_3d: tuple[int, int, int],
+    num_ranks: int,
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a 3D field array of any rank."""
     return _compute_spectra.compute_isotropic_power_spectrum_farray(
         farray=farray_3d,
         resolution=resolution_3d,
+        num_ranks=num_ranks,
     )
 
 
@@ -61,6 +65,7 @@ def compute_isotropic_power_spectrum_sarray(
     return compute_isotropic_power_spectrum_farray(
         farray_3d=sarray_3d,
         resolution_3d=resolution_3d,
+        num_ranks=0,
     )
 
 
@@ -77,6 +82,7 @@ def compute_isotropic_power_spectrum_varray(
     return compute_isotropic_power_spectrum_farray(
         farray_3d=varray_3d,
         resolution_3d=resolution_3d,
+        num_ranks=1,
     )
 
 

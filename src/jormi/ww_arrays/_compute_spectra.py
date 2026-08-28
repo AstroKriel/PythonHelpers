@@ -143,14 +143,17 @@ def compute_power_spectrum_farray(
     *,
     farray: NDArray[Any],
     resolution: tuple[int, ...],
+    num_ranks: int,
 ) -> NDArray[Any]:
     """
     Compute the power spectrum of a field array whose trailing `len(resolution)` axes are
-    the spatial grid, preceded by zero or more leading component axes, e.g. () for a scalar,
-    (3,) for a vector, (3, 3) for a rank-2 tensor.
+    the spatial grid, preceded by `num_ranks` leading component axes, e.g. 0 for a scalar,
+    1 for a vector, 2 for a rank-2 tensor.
 
     Sums |f(k)|^2 over every leading component axis; the same FFT kernel serves any rank and
-    any number of spatial dimensions.
+    any number of spatial dimensions. `num_ranks` is required (not inferred from shape) so a
+    malformed array with an unexpected number of leading axes raises instead of silently
+    being summed over as if it were a different, valid rank.
     """
     validate_arrays.ensure_array(
         array=farray,
@@ -161,7 +164,17 @@ def compute_power_spectrum_farray(
         param_name="<resolution>",
         allow_none=False,
     )
+    validate_types.ensure_finite_int(
+        param=num_ranks,
+        param_name="<num_ranks>",
+        require_positive=True,
+    )
     num_spatial_dims = len(resolution)
+    if farray.ndim != num_ranks + num_spatial_dims:
+        raise ValueError(
+            "compute_power_spectrum_farray expects `farray.ndim == num_ranks + len(resolution)`:"
+            f" got farray.ndim={farray.ndim}, num_ranks={num_ranks}, resolution={resolution}.",
+        )
     if farray.shape[-num_spatial_dims:] != resolution:
         raise ValueError(
             "compute_power_spectrum_farray expects `farray.shape` to end with"
@@ -186,7 +199,7 @@ def compute_power_spectrum_farray(
                 shifted_fft_farray,
             ),
         ),
-        axis=tuple(range(farray.ndim - num_spatial_dims)),
+        axis=tuple(range(num_ranks)),
     )
 
 
@@ -194,11 +207,13 @@ def compute_isotropic_power_spectrum_farray(
     *,
     farray: NDArray[Any],
     resolution: tuple[int, ...],
+    num_ranks: int,
 ) -> IsotropicPowerSpectrum:
     """Compute the 1D (shell-integrated) power spectrum of a field array of any rank."""
     power_spectrum = compute_power_spectrum_farray(
         farray=farray,
         resolution=resolution,
+        num_ranks=num_ranks,
     )
     return _integrate_over_shells(
         power_spectrum=power_spectrum,

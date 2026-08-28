@@ -42,6 +42,7 @@ def compute_isotropic_power_spectrum_field(
     return _compute_spectra.compute_isotropic_power_spectrum_farray(
         farray_2d=farray_2d,
         resolution_2d=field_2d.uniform_domain.resolution,
+        num_ranks=field_2d.fdata.num_ranks,
     )
 
 

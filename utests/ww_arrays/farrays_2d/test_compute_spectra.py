@@ -77,6 +77,7 @@ class TestVarrayPowerSpectrum(unittest.TestCase):
             power_spectrum_2d = compute_spectra.compute_power_spectrum_farray(
                 farray_2d=varray_2d,
                 resolution_2d=resolution_2d,
+                num_ranks=1,
             )
             total_power_k_space = numpy.sum(power_spectrum_2d)
             total_power_real_space = numpy.sum(numpy.square(varray_2d)) / (num_cells**2)
