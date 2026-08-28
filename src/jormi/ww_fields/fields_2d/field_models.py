@@ -118,6 +118,10 @@ class VectorField_2D(_field_models.Field):
         return isinstance(self.uniform_domain, domain_models.UniformDomain_2D_Sliced3D)
 
 
+## every concrete 2D field type; extend this when a new rank is added
+AnyField_2D = ScalarField_2D | VectorField_2D
+
+
 @dataclass(frozen=True)
 class SlicedVectorFields_2D:
     """
