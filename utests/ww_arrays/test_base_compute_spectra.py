@@ -17,7 +17,7 @@ from jormi.ww_arrays._compute_spectra import IsotropicPowerSpectrum
 _N = 8
 
 ## resolutions covering every supported spatial dimensionality
-_RESOLUTIONS = ((8, 8, 8), (8, 8))
+_RESOLUTIONS = ((8, 8, 8), (8, 8), (8,))
 
 ##
 ## === TEST SUITES
