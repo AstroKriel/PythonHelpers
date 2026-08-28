@@ -18,7 +18,8 @@ from jormi.ww_arrays import compute_array_stats
 from jormi.ww_arrays.farrays_3d import difference_sarrays
 from jormi.ww_data import fit_series
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_figure
+from jormi.ww_types import box_positions
 
 ##
 ## === TYPE ALIASES
@@ -124,20 +125,19 @@ class TestFiniteDifferenceConvergence:
     def run(
         self,
     ) -> None:
-        fig, axs_grid = manage_plots.create_figure(
-            num_rows=2,
-            num_cols=2,
-            fig_scale=2.0,
-            x_spacing=0.35,
+        figure, panel_grid = manage_figure.create_figure(
+            num_panel_rows=2,
+            num_panel_cols=2,
+            panel_col_gap_pt=60.0,
         )
-        self._plot_exact_soln(axs_grid)
-        failed_methods = self._test_method_scaling(axs_grid)
-        self._annotate_figure(axs_grid)
+        self._plot_exact_soln(panel_grid)
+        failed_methods = self._test_method_scaling(panel_grid)
+        self._annotate_figure(panel_grid)
         file_name = "finite_difference_convergence.png"
         file_path = Path(__file__).parent / file_name
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=file_path,
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=file_path,
         )
         assert len(
             failed_methods,
@@ -150,7 +150,7 @@ class TestFiniteDifferenceConvergence:
 
     def _plot_exact_soln(
         self,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
     ) -> None:
         x_values = sample_domain(
             domain_bounds=self.domain_bounds,
@@ -158,14 +158,14 @@ class TestFiniteDifferenceConvergence:
         )
         y_values = evaluate_model(x_values)
         dydx_values = evaluate_exact_dydx(x_values)
-        axs_grid[0, 0].plot(
+        panel_grid[0, 0].plot(
             x_values,
             y_values,
             color="black",
             ls="-",
             lw=2,
         )
-        axs_grid[1, 0].plot(
+        panel_grid[1, 0].plot(
             x_values,
             dydx_values,
             color="black",
@@ -177,7 +177,7 @@ class TestFiniteDifferenceConvergence:
     def _plot_approx_soln(
         self,
         *,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
         dydx_fn: Callable[..., numpy.ndarray[Any, numpy.dtype[Any]]],
         color: str,
         label: str,
@@ -192,7 +192,7 @@ class TestFiniteDifferenceConvergence:
             y_values=y_values,
             dydx_fn=dydx_fn,
         )
-        axs_grid[1, 0].plot(
+        panel_grid[1, 0].plot(
             x_values,
             dydx_values,
             marker="o",
@@ -205,7 +205,7 @@ class TestFiniteDifferenceConvergence:
 
     def _test_method_scaling(
         self,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
     ) -> list[str]:
         failed_methods: list[str] = []
         for grad_method in self.grad_methods:
@@ -214,7 +214,7 @@ class TestFiniteDifferenceConvergence:
             color = grad_method.color
             label = grad_method.label
             self._plot_approx_soln(
-                axs_grid=axs_grid,
+                panel_grid=panel_grid,
                 dydx_fn=dydx_fn,
                 color=color,
                 label=label,
@@ -235,7 +235,7 @@ class TestFiniteDifferenceConvergence:
                 rms_error = compute_array_stats.compute_rms(dydx_exact - dydx_approx)
                 rms_errors.append(rms_error)
             has_converged = self._check_convergence(
-                axs_grid=axs_grid,
+                panel_grid=panel_grid,
                 rms_errors=rms_errors,
                 expected_scaling=expected_scaling,
                 color=color,
@@ -246,9 +246,7 @@ class TestFiniteDifferenceConvergence:
             manage_log.log_outcome(
                 text=f"{label} (expected scaling O(h^{expected_scaling}))",
                 outcome=(
-                    manage_log.ActionOutcome.SUCCESS
-                    if has_converged
-                    else manage_log.ActionOutcome.FAILURE
+                    manage_log.ActionOutcome.SUCCESS if has_converged else manage_log.ActionOutcome.FAILURE
                 ),
             )
         return failed_methods
@@ -256,7 +254,7 @@ class TestFiniteDifferenceConvergence:
     def _check_convergence(
         self,
         *,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
         rms_errors: list[float],
         expected_scaling: int,
         color: str,
@@ -272,7 +270,7 @@ class TestFiniteDifferenceConvergence:
         )
         expected_errors = amplitude * numpy.power(inverse_dx_values, expected_scaling)
         residuals = (numpy.array(rms_errors) - expected_errors) / expected_errors
-        axs_grid[0, 1].plot(
+        panel_grid[0, 1].plot(
             inverse_dx_values,
             rms_errors,
             marker="o",
@@ -281,7 +279,7 @@ class TestFiniteDifferenceConvergence:
             color=color,
             label=label,
         )
-        axs_grid[0, 1].plot(
+        panel_grid[0, 1].plot(
             inverse_dx_values,
             expected_errors,
             ls="--",
@@ -291,7 +289,7 @@ class TestFiniteDifferenceConvergence:
             scalex=False,
             scaley=False,
         )
-        axs_grid[1, 1].plot(
+        panel_grid[1, 1].plot(
             inverse_dx_values[1:],
             numpy.abs(residuals[1:]),
             marker="o",
@@ -304,40 +302,40 @@ class TestFiniteDifferenceConvergence:
 
     def _annotate_figure(
         self,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
     ) -> None:
-        y_min, y_max = axs_grid[1, 0].get_ylim()
+        y_min, y_max = panel_grid[1, 0].get_ylim()
         y_max_new = y_max + 0.2 * (y_max - y_min)
-        axs_grid[1, 0].set_ylim([y_min, y_max_new])
-        axs_grid[1, 0].text(
-            0.5,
-            0.95,
-            f"example with {self.num_samples_for_exact_soln} sampled points",
-            ha="center",
-            va="top",
-            transform=axs_grid[1, 0].transAxes,
+        panel_grid[1, 0].set_ylim([y_min, y_max_new])
+        annotate_panel.add_text(
+            panel=panel_grid[1, 0],
+            x_pos_fraction=0.5,
+            y_pos_fraction=0.95,
+            label=f"example with {self.num_samples_for_exact_soln} sampled points",
+            x_alignment=box_positions.Positions.Center.Center,
+            y_alignment=box_positions.Positions.Side.Top,
         )
-        axs_grid[0, 0].set_xticklabels([])
-        axs_grid[0, 0].set_ylabel(r"$y^*$")
-        axs_grid[1, 0].set_xlabel(r"$x$")
-        axs_grid[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
-        axs_grid[1, 0].legend(loc="lower right")
-        axs_grid[0, 1].set_xscale("log")
-        axs_grid[0, 1].set_yscale("log")
-        axs_grid[0, 1].set_xticklabels([])
-        axs_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
-        axs_grid[0, 1].legend(loc="lower left")
-        axs_grid[0, 1].grid(
+        panel_grid[0, 0].set_xticklabels([])
+        panel_grid[0, 0].set_ylabel(r"$y^*$")
+        panel_grid[1, 0].set_xlabel(r"$x$")
+        panel_grid[1, 0].set_ylabel(r"${\rm d}y/{\rm d}x$")
+        panel_grid[1, 0].legend(loc="lower right")
+        panel_grid[0, 1].set_xscale("log")
+        panel_grid[0, 1].set_yscale("log")
+        panel_grid[0, 1].set_xticklabels([])
+        panel_grid[0, 1].set_ylabel(r"$e_i \equiv (N)^{-1/2} \sum_{i=1}^N (y_i - y_i^*)^{1/2}$")
+        panel_grid[0, 1].legend(loc="lower left")
+        panel_grid[0, 1].grid(
             True,
             which="both",
             linestyle="--",
             linewidth=0.5,
         )
-        axs_grid[1, 1].set_xscale("log")
-        axs_grid[1, 1].set_yscale("log")
-        axs_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
-        axs_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
-        axs_grid[1, 1].grid(
+        panel_grid[1, 1].set_xscale("log")
+        panel_grid[1, 1].set_yscale("log")
+        panel_grid[1, 1].set_xlabel(r"$1 / \Delta x = N / L$")
+        panel_grid[1, 1].set_ylabel(r"$|(e_i - e_i^*) / e_i^*|$")
+        panel_grid[1, 1].grid(
             True,
             which="both",
             linestyle="--",
@@ -351,7 +349,7 @@ class TestFiniteDifferenceConvergence:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestFiniteDifferenceConvergence()
     test.run()
 

@@ -5,21 +5,14 @@
 ##
 
 ## stdlib
-from dataclasses import dataclass
+import dataclasses
 
 ## third-party
-import matplotlib.axes as mpl_axes
 import matplotlib.cm as mpl_cm
 import matplotlib.colorbar as mpl_colorbar
 
 ## local
-from jormi.ww_plots.color_palettes import (
-    ColorPalette,
-    DiscretePalette,
-    DivergingPalette,
-    SequentialPalette,
-)
-from jormi.ww_plots import manage_plots
+from jormi.ww_plots import color_palettes, manage_figure, style_figure
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_box_positions, validate_types
 
@@ -28,7 +21,7 @@ from jormi.ww_validation import validate_box_positions, validate_types
 ##
 
 
-@dataclass
+@dataclasses.dataclass
 class SequentialConfig:
     """Lightweight config for a sequential (single-direction) palette."""
 
@@ -36,7 +29,7 @@ class SequentialConfig:
     palette_range: tuple[float, float] = (0.0, 1.0)
 
 
-@dataclass
+@dataclasses.dataclass
 class DivergingConfig:
     """Lightweight config for a diverging (two-sided) palette."""
 
@@ -45,7 +38,7 @@ class DivergingConfig:
     palette_range: tuple[float, float] = (0.0, 1.0)
 
 
-@dataclass
+@dataclasses.dataclass
 class DiscreteConfig:
     """Lightweight config for a discrete (binned) palette."""
 
@@ -106,31 +99,57 @@ def ensure_discrete_config(
         )
 
 
+def _ensure_value_range(
+    *,
+    config: PaletteConfig,
+    value_range: tuple[float, float] | None,
+) -> tuple[float, float]:
+    """Raise ValueError if `value_range` is not given; a continuous palette has no default."""
+    if value_range is None:
+        raise ValueError(f"a {type(config).__name__} spans a `value_range`, so one must be given.")
+    return value_range
+
+
 def make_palette(
     *,
     config: PaletteConfig,
-    value_range: tuple[float, float],
-) -> ColorPalette:
+    value_range: tuple[float, float] | None = None,
+) -> color_palettes.ColorPalette:
     """
     Construct a ColorPalette from a PaletteConfig and a data-driven value range.
     For full control over palette construction, use the palette classes directly.
+
+    A continuous palette spans `value_range`, so it must be given one. A discrete palette
+    is bounded by its own `bin_edges` instead, so passing it a range is a contradiction
+    rather than something to quietly ignore.
     """
     match config:
         case SequentialConfig():
-            return SequentialPalette.from_name(
+            return color_palettes.SequentialPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
-                value_range=value_range,
+                value_range=_ensure_value_range(
+                    config=config,
+                    value_range=value_range,
+                ),
             )
         case DivergingConfig():
-            return DivergingPalette.from_name(
+            return color_palettes.DivergingPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
-                value_range=value_range,
+                value_range=_ensure_value_range(
+                    config=config,
+                    value_range=value_range,
+                ),
                 mid_value=config.mid_value,
             )
         case DiscreteConfig():
-            return DiscretePalette.from_name(
+            if value_range is not None:
+                raise ValueError(
+                    "`value_range` cannot apply to a DiscreteConfig; its `bin_edges`"
+                    " already bound the palette.",
+                )
+            return color_palettes.DiscretePalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
                 bin_edges=config.bin_edges,
@@ -151,38 +170,96 @@ _SIDE_TO_ORIENTATION: dict[_Side, str] = {
 }
 
 
-def _label_cbar(
+def _resolve_colorbar_gap_pt(
     *,
-    cbar: mpl_colorbar.Colorbar,
+    colorbar_side: _Side,
+    colorbar_gap_pt: float | None,
+    figure_params: style_figure.FigureParams,
+) -> float:
+    """
+    The gap between a panel and its colorbar, in pt.
+
+    A colorbar is placed as a panel neighbouring its own, so an unset gap is the one the
+    figure already spaces its panels by: the column gap beside a panel, the row gap above
+    or below one.
+    """
+    if colorbar_gap_pt is None:
+        panel_gaps = figure_params.colorbar_layout.gap
+        if panel_gaps is None:
+            panel_gaps = figure_params.figure_layout.panel_gaps
+        is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
+        colorbar_gap_pt = panel_gaps.col_pt if is_beside_panel else panel_gaps.row_pt
+    validate_types.ensure_finite_float(
+        param=colorbar_gap_pt,
+        param_name="colorbar_gap_pt",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    return colorbar_gap_pt
+
+
+def _compute_colorbar_gap_fraction(
+    *,
+    panel: manage_figure.Panel,
+    colorbar_side: _Side,
+    colorbar_gap_pt: float | None,
+    figure_params: style_figure.FigureParams,
+) -> float:
+    """
+    Convert the gap between a panel and its colorbar (in pt) into the share of the figure
+    Matplotlib places panels in.
+    """
+    is_beside_panel = colorbar_side in (_Side.Left, _Side.Right)
+    resolved_gap_pt = _resolve_colorbar_gap_pt(
+        colorbar_side=colorbar_side,
+        colorbar_gap_pt=colorbar_gap_pt,
+        figure_params=figure_params,
+    )
+    ## the root figure, since a gap in pt is measured against the page the figure is drawn at
+    figure = manage_figure.get_figure(
+        panels=[panel],
+        param_name="panel",
+    )
+    figure_size = manage_figure.FigureSize(figure=figure)
+    figure_length_pt = figure_size.width_pt if is_beside_panel else figure_size.height_pt
+    return resolved_gap_pt / figure_length_pt
+
+
+def _label_colorbar(
+    *,
+    colorbar: mpl_colorbar.Colorbar,
     label: str | None,
-    cbar_side: _Side,
-    label_size: int | float,
-    label_pad: float,
+    colorbar_side: _Side,
+    text_size_pt: int | float,
+    label_gap_pt: float,
 ) -> None:
-    if cbar_side in (_Side.Left, _Side.Right):
-        axis = cbar.ax.yaxis
+    if colorbar_side in (_Side.Left, _Side.Right):
+        axis = colorbar.ax.yaxis
         if label:
-            cbar.set_label(
+            colorbar.set_label(
                 label=label,
-                fontsize=label_size,
-                labelpad=label_pad,
+                fontsize=text_size_pt,
+                labelpad=label_gap_pt,
                 rotation=90,
             )
-            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
-        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
+            axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(colorbar_side)  # pyright: ignore[reportArgumentType]
         axis.label.set_verticalalignment("center")
-    elif cbar_side in (_Side.Top, _Side.Bottom):
-        axis = cbar.ax.xaxis
+    elif colorbar_side in (_Side.Top, _Side.Bottom):
+        axis = colorbar.ax.xaxis
         if label:
-            cbar.set_label(
+            colorbar.set_label(
                 label=label,
-                fontsize=label_size,
-                labelpad=label_pad,
+                fontsize=text_size_pt,
+                labelpad=label_gap_pt,
             )
-            axis.set_label_position(cbar_side)  # pyright: ignore[reportArgumentType]
-        axis.set_ticks_position(cbar_side)  # pyright: ignore[reportArgumentType]
+            axis.set_label_position(colorbar_side)  # pyright: ignore[reportArgumentType]
+        axis.set_ticks_position(colorbar_side)  # pyright: ignore[reportArgumentType]
     else:
-        raise ValueError(f"unexpected cbar_side: {cbar_side!r}.")  # pyright: ignore[reportUnreachable]
+        raise ValueError(
+            f"unexpected colorbar_side: {colorbar_side!r}.",
+        )  # pyright: ignore[reportUnreachable]
 
 
 ##
@@ -192,81 +269,125 @@ def _label_cbar(
 
 def add_colorbar(
     *,
-    ax: mpl_axes.Axes,
-    palette: ColorPalette,
+    panels: manage_figure.Panel | manage_figure.PanelGrid,
+    palette: color_palettes.ColorPalette,
     label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-    cbar_thickness: float = 0.075,
-    cbar_length: float = 1.0,
-    cbar_pad: float = 0.01,
-    label_pad: float = 10.0,
-    label_size: int | float = 20.0,
+    colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    colorbar_length_fraction: float = 1.0,
+    colorbar_aspect_ratio: float | None = None,
+    colorbar_gap_pt: float | None = None,
+    label_gap_pt: float | None = None,
+    text_size_pt: int | float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
 ) -> mpl_colorbar.Colorbar:
+    """
+    Add a colorbar next to `panels`.
+
+    `colorbar_length_fraction` is a share of what the bar describes; `colorbar_aspect_ratio`
+    is its length over its thickness, so a bar keeps its proportions whatever it spans.
+    `colorbar_gap_pt` defaults to the panel gap the figure already uses, `text_size_pt` to
+    the active axis-label size, and `label_gap_pt` to the active tick-to-axis-label gap.
+    """
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
+    if text_size_pt is None:
+        text_size_pt = figure_params.text_size_params.axis_label_size_pt
+    if label_gap_pt is None:
+        label_gap_pt = figure_params.frame_params.axis_label_gap_pt
     ## validate numeric params
     validate_types.ensure_finite_float(
-        param=cbar_thickness,
-        param_name="cbar_thickness",
+        param=colorbar_length_fraction,
+        param_name="colorbar_length_fraction",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
     validate_types.ensure_finite_float(
-        param=cbar_pad,
-        param_name="cbar_pad",
-        allow_none=False,
-        require_positive=True,
-        allow_zero=True,
-    )
-    validate_types.ensure_finite_float(
-        param=label_pad,
-        param_name="label_pad",
+        param=label_gap_pt,
+        param_name="label_gap_pt",
         allow_none=False,
         require_positive=True,
         allow_zero=True,
     )
     validate_types.ensure_finite_scalar(
-        param=label_size,
-        param_name="label_size",
+        param=text_size_pt,
+        param_name="text_size_pt",
         allow_none=False,
         require_positive=True,
         allow_zero=False,
     )
-    cbar_side = validate_box_positions.as_box_side(side=cbar_side)
-    cbar_orientation = _SIDE_TO_ORIENTATION[cbar_side]
-    ax_bounds = manage_plots.compute_adjacent_ax_bounds(
-        ax=ax,
-        side=cbar_side,
-        thickness=cbar_thickness,
-        length=cbar_length,
-        gap=cbar_pad,
+    colorbar_side = validate_box_positions.as_box_side(side=colorbar_side)
+    colorbar_orientation = _SIDE_TO_ORIENTATION[colorbar_side]
+    neighbouring_panels = manage_figure.as_panel_list(panels=panels)
+    manage_figure.get_figure(panels=neighbouring_panels)
+    panel = neighbouring_panels[0]
+    if colorbar_aspect_ratio is None:
+        colorbar_aspect_ratio = figure_params.colorbar_layout.aspect_ratio
+    validate_types.ensure_finite_float(
+        param=colorbar_aspect_ratio,
+        param_name="colorbar_aspect_ratio",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
     )
-    cbar_ax = ax.figure.add_axes(
-        (
-            ax_bounds.x_min,
-            ax_bounds.y_min,
-            ax_bounds.x_width,
-            ax_bounds.y_width,
+    panel_bounds = manage_figure.compute_panel_fractional_bounds(
+        neighbouring_panels=neighbouring_panels,
+        side=colorbar_side,
+        gap_fraction=_compute_colorbar_gap_fraction(
+            panel=panel,
+            colorbar_side=colorbar_side,
+            colorbar_gap_pt=colorbar_gap_pt,
+            figure_params=figure_params,
+        ),
+        length_fraction=colorbar_length_fraction,
+        thickness_fraction=manage_figure.compute_colorbar_thickness_fraction(
+            neighbouring_panels=neighbouring_panels,
+            side=colorbar_side,
+            length_fraction=colorbar_length_fraction,
+            aspect_ratio=colorbar_aspect_ratio,
         ),
     )
-    cbar_mappable = mpl_cm.ScalarMappable(
+    colorbar_panel = panel.figure.add_axes(
+        (
+            panel_bounds.x_min_fraction,
+            panel_bounds.y_min_fraction,
+            panel_bounds.x_width_fraction,
+            panel_bounds.y_width_fraction,
+        ),
+    )
+    ## a bar is placed beyond its panel, so a figure fitted to its contents has to know the
+    ## bar is there: to leave room for it, and to place it again once the panels have moved
+    manage_figure.register_colorbar(
+        colorbar_panel=colorbar_panel,
+        neighbouring_panels=neighbouring_panels,
+        side=colorbar_side,
+        length_fraction=colorbar_length_fraction,
+        aspect_ratio=colorbar_aspect_ratio,
+        gap_pt=_resolve_colorbar_gap_pt(
+            colorbar_side=colorbar_side,
+            colorbar_gap_pt=colorbar_gap_pt,
+            figure_params=figure_params,
+        ),
+    )
+    colorbar_mappable = mpl_cm.ScalarMappable(
         norm=palette.mpl_norm,
         cmap=palette.mpl_cmap,
     )
     ## required by mpl to suppress warning when ScalarMappable has no data
-    cbar_mappable.set_array([])
-    cbar = ax.figure.colorbar(
-        mappable=cbar_mappable,
-        cax=cbar_ax,
-        orientation=cbar_orientation,
+    colorbar_mappable.set_array([])
+    colorbar = panel.figure.colorbar(
+        mappable=colorbar_mappable,
+        cax=colorbar_panel,
+        orientation=colorbar_orientation,
     )
-    _label_cbar(
-        cbar=cbar,
+    _label_colorbar(
+        colorbar=colorbar,
         label=label,
-        cbar_side=cbar_side,
-        label_size=label_size,
-        label_pad=label_pad,
+        colorbar_side=colorbar_side,
+        text_size_pt=text_size_pt,
+        label_gap_pt=label_gap_pt,
     )
-    return cbar
+    return colorbar
 
 
 ## } MODULE

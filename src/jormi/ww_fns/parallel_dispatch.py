@@ -79,10 +79,13 @@ def _enable_plotting(
     os.environ.setdefault("TEXMFOUTPUT", tempfile.mkdtemp(prefix="mpl_tex_"))
     import matplotlib
     matplotlib.use("Agg", force=True)
-    from jormi.ww_plots.style_plots import set_theme
-    set_theme(
-        theme=theme,
-        use_tex=use_tex,
+    ## imported here rather than at module scope, so it lands after the backend is set
+    from jormi.ww_plots import style_figure
+    style_figure.set_figure_params(
+        figure_params=style_figure.FigureParams(
+            theme=style_figure.Theme(theme),
+            latex_params=style_figure.LatexParams(use_tex=use_tex),
+        ),
     )
 
 
@@ -137,7 +140,7 @@ def run_in_parallel(
         tasks produce plots. `theme` and `use_tex` only apply when this is `True`.
 
     - `theme`:
-        Plot theme passed to `set_theme`; only used when `enable_plotting` is `True`.
+        Plot theme passed to `set_figure_params`; only used when `enable_plotting` is `True`.
 
     - `use_tex`:
         Whether to enable LaTeX rendering; only used when `enable_plotting` is `True`.

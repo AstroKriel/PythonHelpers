@@ -14,7 +14,7 @@ import numpy
 ## local
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 
 ##
 ## === HELPER FUNCTIONS
@@ -40,7 +40,7 @@ def sample_from_ellipse(
 
 def plot_jpdf(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_figure.Panel,
     jpdf: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_rows: numpy.ndarray[Any, numpy.dtype[Any]],
     bin_centers_cols: numpy.ndarray[Any, numpy.dtype[Any]],
@@ -48,7 +48,7 @@ def plot_jpdf(
     y_samples: numpy.ndarray[Any, numpy.dtype[Any]],
     plot_samples: bool,
 ) -> None:
-    ax.imshow(
+    panel.imshow(
         jpdf,
         extent=(
             bin_centers_cols.min(),
@@ -61,29 +61,29 @@ def plot_jpdf(
         cmap="Blues",
     )
     if plot_samples:
-        ax.scatter(
+        panel.scatter(
             x_samples,
             y_samples,
             color="red",
             s=3,
             alpha=1e-2,
         )
-    ax.set_xlabel(r"$x$")
-    ax.set_ylabel(r"$y$")
-    ax.axhline(
+    panel.set_xlabel(r"$x$")
+    panel.set_ylabel(r"$y$")
+    panel.axhline(
         y=0.0,
         color="black",
         ls="--",
         zorder=1,
     )
-    ax.axvline(
+    panel.axvline(
         x=0.0,
         color="black",
         ls="--",
         zorder=1,
     )
-    ax.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
-    ax.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
+    panel.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
+    panel.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
 
 
 ##
@@ -119,7 +119,7 @@ class TestEstimated2DJPDF:
             num_samples=self.num_points,
             rng=rng,
         )
-        fig, ax = manage_plots.create_figure()
+        figure, panel = manage_figure.create_figure()
         result = compute_array_stats.estimate_jpdf(
             data_x=x_samples,
             data_y=y_samples,
@@ -130,7 +130,7 @@ class TestEstimated2DJPDF:
         bin_centers_rows = result.row_centers
         bin_centers_cols = result.col_centers
         plot_jpdf(
-            ax=ax,
+            panel=panel,
             jpdf=jpdf,
             bin_centers_rows=bin_centers_rows,
             bin_centers_cols=bin_centers_cols,
@@ -142,13 +142,13 @@ class TestEstimated2DJPDF:
         bin_widths_x = numpy.diff(result.col_edges)
         bin_widths_y = numpy.diff(result.row_edges)
         pdf_integral = numpy.sum(
-            jpdf * bin_widths_y[:, numpy.newaxis] * bin_widths_x[numpy.newaxis, :]
+            jpdf * bin_widths_y[:, numpy.newaxis] * bin_widths_x[numpy.newaxis, :],
         )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "estimated_2d_jpdf.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = Path(__file__).parent / "estimated_2d_jpdf.png"
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
         )
         assert abs(pdf_integral - 1.0) < self.integral_error_tol, (
             f"JPDF with {self.num_bins} x {self.num_bins} bins sums to {pdf_integral:.6f}"
@@ -167,7 +167,7 @@ class TestEstimated2DJPDF:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestEstimated2DJPDF()
     test.run()
 

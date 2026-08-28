@@ -138,6 +138,16 @@ _BUILTIN_PALETTES: dict[str, mpl_colors.Colormap] = dict(
             name="purple-white-green",
             colors=["#68287d", "#d0a7c7", "#f2f0e0", "#d5e370", "#275b0e"],
         ),
+        _make_builtin_palette(
+            name="pink-white-green",
+            colors=[
+                "#c51b7d",
+                "#f1b6da",
+                "#f7f7f7",
+                "#b8e186",
+                "#4d9221",
+            ],
+        ),
     ],
 )
 

@@ -16,7 +16,8 @@ import numpy
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_figure
+from jormi.ww_types import box_positions
 
 ##
 ## === TYPE ALIASES
@@ -56,15 +57,15 @@ class TestEstimated1DPDFs:
     ) -> None:
         pdf_scenarios = self._generate_pdf_samples()
         num_pdfs = len(pdf_scenarios)
-        fig, axs_grid = manage_plots.create_figure(
-            num_rows=num_pdfs,
-            num_cols=1,
-            y_spacing=0.25,
+        figure, panel_grid = manage_figure.create_figure(
+            num_panel_rows=num_pdfs,
+            num_panel_cols=1,
+            panel_row_gap_pt=60.0,
         )
         failed_pdfs: list[str] = []
         for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
             failed_bins = self._plot_and_check_pdf(
-                ax=axs_grid[pdf_index, 0],
+                panel=panel_grid[pdf_index, 0],
                 pdf_samples=pdf_scenario.samples,
                 pdf_label=pdf_scenario.label,
             )
@@ -79,17 +80,17 @@ class TestEstimated1DPDFs:
                     text=f"{pdf_scenario.label}",
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
-        axs_grid[-1, 0].legend(
+        panel_grid[-1, 0].legend(
             loc="upper right",
             bbox_to_anchor=(1, 0.9),
             fontsize=20,
         )
-        axs_grid[-1, 0].set_xlabel(r"$x$")
+        panel_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
-        fig_path = Path(__file__).parent / "estimated_1d_pdfs.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = Path(__file__).parent / "estimated_1d_pdfs.png"
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
         )
         assert not failed_pdfs, (
             f"Test failed for the following distributions: {ww_lists.as_string(elems=failed_pdfs)}"
@@ -142,7 +143,7 @@ class TestEstimated1DPDFs:
     def _plot_and_check_pdf(
         self,
         *,
-        ax: manage_plots.PlotAxis,
+        panel: manage_figure.Panel,
         pdf_samples: numpy.ndarray[Any, numpy.dtype[Any]],
         pdf_label: str,
     ) -> list[int]:
@@ -166,7 +167,7 @@ class TestEstimated1DPDFs:
                 assert len(bin_centers) == num_bins, (
                     f"{pdf_label}: expected {num_bins} centers, got {len(bin_centers)}"
                 )
-            ax.step(
+            panel.step(
                 bin_centers,
                 estimated_pdf,
                 where="mid",
@@ -178,15 +179,15 @@ class TestEstimated1DPDFs:
             pdf_integral = numpy.sum(estimated_pdf * bin_widths)
             if abs(pdf_integral - 1.0) > self.integral_error_tol:
                 failed_bins.append(num_bins)
-        ax.text(
-            0.95,
-            0.95,
-            pdf_label,
-            ha="right",
-            va="top",
-            transform=ax.transAxes,
+        annotate_panel.add_text(
+            panel=panel,
+            x_pos_fraction=0.95,
+            y_pos_fraction=0.95,
+            label=pdf_label,
+            x_alignment=box_positions.Positions.Side.Right,
+            y_alignment=box_positions.Positions.Side.Top,
         )
-        ax.set_ylabel(r"PDF$(x)$")
+        panel.set_ylabel(r"PDF$(x)$")
         return failed_bins
 
 
@@ -196,7 +197,7 @@ class TestEstimated1DPDFs:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestEstimated1DPDFs()
     test.run()
 

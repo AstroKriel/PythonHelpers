@@ -16,7 +16,7 @@ from jormi import ww_lists
 from jormi.ww_data import interpolate_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 
 ##
 ## === HELPER FUNCTIONS
@@ -39,44 +39,44 @@ def measure_max_error(
 
 def plot_order(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_figure.Panel,
     data_series: series_types.DataSeries,
     result: series_types.DataSeries,
     spline_order: int,
     order_index: int,
     num_orders: int,
 ) -> None:
-    is_top_ax = order_index == 0
-    is_bottom_ax = order_index == num_orders - 1
-    ax.plot(
+    is_top_panel = order_index == 0
+    is_bottom_panel = order_index == num_orders - 1
+    panel.plot(
         result.x_values,
         result.y_values,
         color="red",
         label=f"spline order = {spline_order}",
     )
-    ax.scatter(
+    panel.scatter(
         data_series.x_values,
         data_series.y_values,
         color="black",
         zorder=3,
-        label="input data" if is_top_ax else None,
+        label="input data" if is_top_panel else None,
     )
-    ax.plot(
+    panel.plot(
         result.x_values,
         evaluate_model(result.x_values),
         color="black",
         ls="--",
-        label="true f(x)" if is_top_ax else None,
+        label="true f(x)" if is_top_panel else None,
     )
-    ax.set_ylabel("y")
-    ax.legend(
+    panel.set_ylabel("y")
+    panel.legend(
         fontsize=20,
         loc="upper right",
     )
-    if is_bottom_ax:
-        ax.set_xlabel("x")
+    if is_bottom_panel:
+        panel.set_xlabel("x")
     else:
-        ax.tick_params(labelbottom=False)
+        panel.tick_params(labelbottom=False)
 
 
 ##
@@ -111,10 +111,10 @@ class TestSeriesInterpolation:
             self.num_interp_points,
         )
         num_orders = len(self.spline_orders_to_test)
-        fig, axs_grid = manage_plots.create_figure(
-            num_rows=num_orders,
-            num_cols=1,
-            share_x=True,
+        figure, panel_grid = manage_figure.create_figure(
+            num_panel_rows=num_orders,
+            num_panel_cols=1,
+            share_x_axis=True,
         )
         failed_orders: list[str] = []
         for order_index, spline_order in enumerate(self.spline_orders_to_test):
@@ -124,7 +124,7 @@ class TestSeriesInterpolation:
                 spline_order=spline_order,
             )
             plot_order(
-                ax=axs_grid[order_index, 0],
+                panel=panel_grid[order_index, 0],
                 data_series=data_series,
                 result=result,
                 spline_order=spline_order,
@@ -145,10 +145,10 @@ class TestSeriesInterpolation:
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "interpolated_series.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = Path(__file__).parent / "interpolated_series.png"
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
         )
         assert not failed_orders, (
             f"Test failed for spline orders: {ww_lists.as_string(elems=failed_orders)}"
@@ -176,7 +176,7 @@ class TestSeriesInterpolation:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestSeriesInterpolation()
     test.run()
 

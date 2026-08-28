@@ -21,8 +21,8 @@ import numpy
 from jormi.ww_fns import parallel_dispatch
 from jormi.ww_io import manage_io
 from jormi.ww_plots import (
-    annotate_axis,
-    manage_plots,
+    annotate_panel,
+    manage_figure,
 )
 
 ##
@@ -93,10 +93,10 @@ def plot_task(
     num_samples: int,
 ) -> PlotTaskResult:
     try:
-        fig, ax = manage_plots.create_figure()
+        figure, panel = manage_figure.create_figure()
         x_values = numpy.linspace(0, 5 * numpy.pi, num_samples)
         y_values = numpy.sin(x_values)
-        ax.plot(
+        panel.plot(
             x_values,
             y_values,
             color="black",
@@ -105,19 +105,19 @@ def plot_task(
             marker="o",
             ms=5,
         )
-        ax.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
-        ax.set_ylabel(r"$\sin(2\pi x + 32)$")
-        annotate_axis.add_text(
-            ax=ax,
-            x_pos=0.05,
-            y_pos=0.95,
-            label=r"$(0.05, 0.95)$ \% of the fig uniform_domain",
+        panel.set_xlabel(r"$\sum_{\forall i}x_{i}^{2}$")
+        panel.set_ylabel(r"$\sin(2\pi x + 32)$")
+        annotate_panel.add_text(
+            panel=panel,
+            x_pos_fraction=0.05,
+            y_pos_fraction=0.95,
+            label=r"$(0.05, 0.95)$ \% of the figure uniform_domain",
         )
         fig_name = f"plot_with_{(num_samples):04d}_samples.png"
-        fig_path = fig_directory / fig_name
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = fig_directory / fig_name
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
             verbose=False,
         )
         return PlotTaskResult(

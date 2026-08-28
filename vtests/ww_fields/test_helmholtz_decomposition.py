@@ -11,7 +11,6 @@ from typing import Any
 
 ## third-party
 import numpy
-from matplotlib.axes import Axes as mpl_Axes
 
 ## local
 from jormi import ww_lists
@@ -22,7 +21,8 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
 )
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import annotate_panel, manage_figure, style_figure
+from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_types
 
 ##
@@ -201,7 +201,7 @@ def compute_field_fraction(
 
 
 def plot_vfield_slice(
-    ax: mpl_Axes,
+    panel: manage_figure.Panel,
     vfield_3d: field_models.VectorField_3D,
     domain_bounds: tuple[float, float],
 ) -> None:
@@ -230,14 +230,14 @@ def plot_vfield_slice(
             sfield_q_magn_slice,
         ),
     )
-    ax.imshow(
+    panel.imshow(
         sfield_q_magn_slice.T,
         origin="lower",
         extent=(domain_bounds[0], domain_bounds[1], domain_bounds[0], domain_bounds[1]),
         cmap="viridis",
         alpha=0.7,
     )
-    ax.streamplot(
+    panel.streamplot(
         grid_x0,
         grid_x1,
         varray[0, :, :, index_x2],
@@ -251,42 +251,34 @@ def plot_vfield_slice(
     )
     min_label = f"min: {sfield_q_magn_min:.2e}"
     max_label = f"max: {sfield_q_magn_max:.2e}"
-    ax.text(
-        0.05,
-        0.05,
-        f"{min_label}\n{max_label}",
-        va="bottom",
-        ha="left",
-        transform=ax.transAxes,
-        bbox=dict(
-            facecolor="white",
-            edgecolor="black",
-            boxstyle="round,pad=0.3",
-        ),
+    annotate_panel.add_text(
+        panel=panel,
+        x_pos_fraction=0.05,
+        y_pos_fraction=0.05,
+        label=f"{min_label}\n{max_label}",
+        x_alignment=box_positions.Positions.Side.Left,
+        y_alignment=box_positions.Positions.Side.Bottom,
+        box_alpha=1.0,
     )
-    ax.set_xlim((domain_bounds[0], domain_bounds[1]))
-    ax.set_ylim((domain_bounds[0], domain_bounds[1]))
-    ax.set_xticks([])
-    ax.set_yticks([])
+    panel.set_xlim((domain_bounds[0], domain_bounds[1]))
+    panel.set_ylim((domain_bounds[0], domain_bounds[1]))
+    panel.set_xticks([])
+    panel.set_yticks([])
 
 
-def annotate_ax(
+def annotate_panel_title(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_figure.Panel,
     text: str,
 ) -> None:
-    ax.text(
-        0.5,
-        0.95,
-        text,
-        va="top",
-        ha="center",
-        transform=ax.transAxes,
-        bbox=dict(
-            facecolor="white",
-            edgecolor="black",
-            boxstyle="round,pad=0.3",
-        ),
+    annotate_panel.add_text(
+        panel=panel,
+        x_pos_fraction=0.5,
+        y_pos_fraction=0.95,
+        label=text,
+        x_alignment=box_positions.Positions.Center.Center,
+        y_alignment=box_positions.Positions.Side.Top,
+        box_alpha=1.0,
     )
 
 
@@ -325,10 +317,11 @@ class TestHelmholtzDecomposition:
         uniform_domain_3d = self._build_domain()
         input_vfields = self._build_input_vfields(uniform_domain_3d)
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
-        fig, axs_grid = manage_plots.create_figure(
-            num_rows=4,
-            num_cols=4,
-            axis_shape=(7, 8),
+        figure, panel_grid = manage_figure.create_figure(
+            num_panel_rows=4,
+            num_panel_cols=4,
+            panel_aspect_ratio=20.0 / 17.5,
+            panel_width_cm=20.0,
         )
         failed_vfields: list[str] = []
         for vfield_index, vfield_entry in enumerate(input_vfields):
@@ -340,7 +333,7 @@ class TestHelmholtzDecomposition:
                 uniform_domain_3d=uniform_domain_3d,
             )
             self._plot_vfield_column(
-                axs_grid=axs_grid,
+                panel_grid=panel_grid,
                 index_col=vfield_index,
                 vfield_name=vfield_name,
                 decomposed_vfields=decomposed_vfields,
@@ -359,10 +352,10 @@ class TestHelmholtzDecomposition:
                 )
             manage_log.log_empty_lines()
         ## always save even on failure, so a fail stays inspectable
-        fig_path = Path(__file__).parent / "helmholtz_decomposition.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = Path(__file__).parent / "helmholtz_decomposition.png"
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
         )
         assert not failed_vfields, (
             f"Test failed for the following vector field(s): "
@@ -438,7 +431,9 @@ class TestHelmholtzDecomposition:
         )
         ## residual: q - q_sum (should be ~0)
         residual_vfield_3d = field_models.VectorField_3D.from_3d_varray(
-            varray_3d=(field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(sum_vfield_3d)),
+            varray_3d=(
+                field_models.extract_3d_varray(vfield_3d) - field_models.extract_3d_varray(sum_vfield_3d)
+            ),
             uniform_domain_3d=uniform_domain_3d,
             field_name="q_residual",
             latex_label=r"\vec{q} - \vec{q}_\mathrm{sum}",
@@ -491,7 +486,9 @@ class TestHelmholtzDecomposition:
             manage_log.log_note(text=f"{check_label} median = {error_median:.2e} +/- {error_std:.2e}")
             error_threshold = self.check_thresholds[check_label]
             if error_median >= error_threshold:
-                failed_checks.append(f"{check_label}: median {error_median:.2e} >= threshold {error_threshold:.2e}")
+                failed_checks.append(
+                    f"{check_label}: median {error_median:.2e} >= threshold {error_threshold:.2e}",
+                )
         decomposed_vfields = DecomposedVFields(
             sum_vfield_3d=sum_vfield_3d,
             div_vfield_3d=div_vfield_3d,
@@ -503,7 +500,7 @@ class TestHelmholtzDecomposition:
     def _plot_vfield_column(
         self,
         *,
-        axs_grid: manage_plots.PlotAxesGrid,
+        panel_grid: manage_figure.PanelGrid,
         index_col: int,
         vfield_name: str,
         decomposed_vfields: DecomposedVFields,
@@ -515,14 +512,14 @@ class TestHelmholtzDecomposition:
             (decomposed_vfields.bulk_vfield_3d, "measured: bulk comp."),
         ]
         for plot_index, (plot_vfield_3d, plot_annotation) in enumerate(plot_vfields):
-            ax = axs_grid[plot_index, index_col]
+            panel = panel_grid[plot_index, index_col]
             plot_vfield_slice(
-                ax=ax,
+                panel=panel,
                 vfield_3d=plot_vfield_3d,
                 domain_bounds=self.domain_bounds,
             )
-            annotate_ax(
-                ax=ax,
+            annotate_panel_title(
+                panel=panel,
                 text=plot_annotation,
             )
 
@@ -533,7 +530,7 @@ class TestHelmholtzDecomposition:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestHelmholtzDecomposition()
     test.run()
 

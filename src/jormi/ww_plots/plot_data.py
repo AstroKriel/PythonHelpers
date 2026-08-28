@@ -5,16 +5,19 @@
 ##
 
 ## stdlib
-from typing import Any, Literal, cast
+import typing
 
 ## third-party
 import numpy
-from numpy.typing import NDArray
+
+from numpy import typing as numpy_typing
 
 ## local
 from jormi.ww_plots import (
     add_color,
-    manage_plots,
+    color_palettes,
+    manage_figure,
+    style_figure,
 )
 from jormi.ww_validation import validate_arrays, validate_types
 from jormi.ww_types import box_positions
@@ -23,7 +26,7 @@ from jormi.ww_types import box_positions
 ## === DATA TYPES
 ##
 
-DataFormat = Literal["xy", "ij"]
+DataFormat = typing.Literal["xy", "ij"]
 AxisRanges = tuple[
     tuple[float, float],  # (min_x_value, max_x_value)
     tuple[float, float],  # (min_y_value, max_y_value)
@@ -36,9 +39,9 @@ AxisRanges = tuple[
 
 def as_plot_view(
     *,
-    data_array: NDArray[Any],
+    data_array: numpy_typing.NDArray[typing.Any],
     data_format: DataFormat,
-) -> NDArray[Any]:
+) -> numpy_typing.NDArray[typing.Any]:
     """
     Convert a 2D array to a plot-ready array[rows, cols], given its current indexing format.
         - `data_format="xy"`: array is currently indexed [x, y] -> transpose to [rows, cols]
@@ -95,29 +98,29 @@ def _as_axis_extent(
 
 def _get_value_range(
     *,
-    array_2d: NDArray[Any],
-    cbar_range: tuple[float, float] | None,
+    array_2d: numpy_typing.NDArray[typing.Any],
+    colorbar_range: tuple[float, float] | None,
 ) -> tuple[float, float]:
     """
     Calculate the (min, max) value range for colorbar scaling.
 
-    If `cbar_range` is provided, validate and use it directly. Otherwise, infer from the finite
+    If `colorbar_range` is provided, validate and use it directly. Otherwise, infer from the finite
     values in `array_2d`, with a small pad applied.
     """
     finite_mask = numpy.isfinite(array_2d)
     ## validate user supplied bounds and return directly
-    if cbar_range is not None:
+    if colorbar_range is not None:
         validate_types.ensure_ordered_pair(
-            param=cbar_range,
-            param_name="cbar_range",
+            param=colorbar_range,
+            param_name="colorbar_range",
             allow_none=False,
         )
-        min_value, max_value = float(cbar_range[0]), float(cbar_range[1])
+        min_value, max_value = float(colorbar_range[0]), float(colorbar_range[1])
         if not (numpy.isfinite(min_value) and numpy.isfinite(max_value)):
-            raise ValueError(f"`cbar_range` must be finite, got ({min_value}, {max_value}).")
+            raise ValueError(f"`colorbar_range` must be finite, got ({min_value}, {max_value}).")
         in_range_mask = finite_mask & (array_2d >= min_value) & (array_2d <= max_value)
         if not numpy.any(in_range_mask):
-            raise ValueError(f"`cbar_range` ({min_value}, {max_value}) does not overlap with data.")
+            raise ValueError(f"`colorbar_range` ({min_value}, {max_value}) does not overlap with data.")
         return (
             min_value,
             max_value,
@@ -153,20 +156,26 @@ def _get_value_range(
 
 def plot_2d_array(
     *,
-    ax: manage_plots.PlotAxis,
-    array_2d: NDArray[Any],
+    panel: manage_figure.Panel,
+    array_2d: numpy_typing.NDArray[typing.Any],
     data_format: DataFormat,
-    axis_aspect_ratio: Literal["equal", "auto"] = "equal",
+    data_aspect_ratio: typing.Literal["equal", "auto"] = "equal",
     axis_ranges: AxisRanges | None = None,
-    cbar_range: tuple[float, float] | None = None,
+    colorbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
-    add_cbar: bool = True,
-    cbar_label: str | None = None,
-    cbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
-):
+    add_colorbar: bool = True,
+    colorbar_label: str | None = None,
+    colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
+    figure_params: style_figure.FigureParams | None = None,
+) -> color_palettes.ColorPalette:
+    """
+    Draw `array_2d` onto `panel`, with a colorbar beside it unless one is turned down.
+
+    Returns the palette it was drawn through, so a caller can key a colorbar of their own
+    to it: a shared one across panels, or one placed where this function would not put it.
+    """
     if palette_config is None:
         palette_config = add_color.SequentialConfig()
-    add_color.ensure_continuous_config(config=palette_config)
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -175,42 +184,53 @@ def plot_2d_array(
         data_array=array_2d,
         data_format=data_format,
     )
-    min_value, max_value = _get_value_range(
-        array_2d=array_view,
-        cbar_range=cbar_range,
-    )
-    palette = add_color.make_palette(
-        config=palette_config,
-        value_range=(min_value, max_value),
-    )
+    ## a discrete palette is bounded by its own bin edges, so there is no range to take
+    ## from the data, and none to accept from the caller either
+    if isinstance(palette_config, add_color.DiscreteConfig):
+        if colorbar_range is not None:
+            raise ValueError(
+                "`colorbar_range` cannot apply to a discrete palette; its `bin_edges`"
+                " already bound it.",
+            )
+        palette = add_color.make_palette(config=palette_config)
+    else:
+        min_value, max_value = _get_value_range(
+            array_2d=array_view,
+            colorbar_range=colorbar_range,
+        )
+        palette = add_color.make_palette(
+            config=palette_config,
+            value_range=(min_value, max_value),
+        )
     axis_extent = _as_axis_extent(axis_ranges)
-    im_obj = ax.imshow(
+    panel.imshow(
         array_view,
         extent=axis_extent,
-        aspect=axis_aspect_ratio,
+        aspect=data_aspect_ratio,
         origin="lower",
         cmap=palette.mpl_cmap,
         norm=palette.mpl_norm,
     )
     if axis_extent is not None:
         min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-        ax.set_xlim((min_x_value, max_x_value))
-        ax.set_ylim((min_y_value, max_y_value))
-    if add_cbar:
+        panel.set_xlim((min_x_value, max_x_value))
+        panel.set_ylim((min_y_value, max_y_value))
+    if add_colorbar:
         add_color.add_colorbar(
-            ax=ax,
+            panels=panel,
             palette=palette,
-            label=cbar_label,
-            cbar_side=cbar_side,
+            label=colorbar_label,
+            colorbar_side=colorbar_side,
+            figure_params=figure_params,
         )
-    return im_obj
+    return palette
 
 
 def _generate_grid(
     *,
     field_shape: tuple[int, int],
     axis_extent: tuple[float, float, float, float],
-) -> tuple[NDArray[Any], NDArray[Any]]:
+) -> tuple[numpy_typing.NDArray[typing.Any], numpy_typing.NDArray[typing.Any]]:
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     num_rows, num_cols = field_shape
     coords_x = numpy.linspace(min_x_value, max_x_value, num_cols)
@@ -221,12 +241,12 @@ def _generate_grid(
 
 def plot_2d_quiver(
     *,
-    ax: manage_plots.PlotAxis,
-    array_2d_rows: NDArray[Any],
-    array_2d_cols: NDArray[Any],
+    panel: manage_figure.Panel,
+    array_2d_rows: numpy_typing.NDArray[typing.Any],
+    array_2d_cols: numpy_typing.NDArray[typing.Any],
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
     num_quivers: int = 25,
-    quiver_width: float = 5e-3,
+    quiver_width_fraction: float = 5e-3,
     color: str = "white",
 ):
     validate_arrays.ensure_dims(
@@ -247,36 +267,42 @@ def plot_2d_quiver(
     if axis_extent is None:
         raise ValueError("`axis_ranges` must not be None.")
     grid_x, grid_y = _generate_grid(
-        field_shape=cast(tuple[int, int], array_2d_rows.shape),
+        field_shape=typing.cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
     )
     quiver_step_rows = max(1, array_2d_rows.shape[0] // num_quivers)
     quiver_step_cols = max(1, array_2d_cols.shape[1] // num_quivers)
-    quiver_obj = ax.quiver(
+    quiver_obj = panel.quiver(
         grid_x[::quiver_step_rows, ::quiver_step_cols],
         grid_y[::quiver_step_rows, ::quiver_step_cols],
         array_2d_cols[::quiver_step_rows, ::quiver_step_cols],
         array_2d_rows[::quiver_step_rows, ::quiver_step_cols],
-        width=quiver_width,
+        width=quiver_width_fraction,
         color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return quiver_obj
 
 
 def plot_2d_streamlines(
     *,
-    ax: manage_plots.PlotAxis,
-    array_2d_rows: NDArray[Any],
-    array_2d_cols: NDArray[Any],
+    panel: manage_figure.Panel,
+    array_2d_rows: numpy_typing.NDArray[typing.Any],
+    array_2d_cols: numpy_typing.NDArray[typing.Any],
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
-    streamline_width: float = 1.0,
+    streamline_width_pt: float | None = None,
     streamline_density: float = 2.0,
-    arrow_size: float = 1.0,
+    arrow_size: float = 0.5,
     color: str = "white",
+    figure_params: style_figure.FigureParams | None = None,
 ):
+    """`streamline_width_pt` defaults to the width the active style draws data at."""
+    if streamline_width_pt is None:
+        if figure_params is None:
+            figure_params = style_figure.get_figure_params()
+        streamline_width_pt = figure_params.artist_params.line_width_pt
     validate_arrays.ensure_dims(
         array=array_2d_rows,
         num_dims=2,
@@ -295,36 +321,42 @@ def plot_2d_streamlines(
     if axis_extent is None:
         raise ValueError("`axis_ranges` must not be None.")
     grid_x, grid_y = _generate_grid(
-        field_shape=cast(tuple[int, int], array_2d_rows.shape),
+        field_shape=typing.cast(tuple[int, int], array_2d_rows.shape),
         axis_extent=axis_extent,
     )
-    stream_obj = ax.streamplot(
+    stream_obj = panel.streamplot(
         grid_x,
         grid_y,
         array_2d_cols,
         array_2d_rows,
-        linewidth=streamline_width,
+        linewidth=streamline_width_pt,
         density=streamline_density,
         arrowsize=arrow_size,
         color=color,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return stream_obj
 
 
 def plot_2d_contours(
     *,
-    ax: manage_plots.PlotAxis,
-    array_2d: NDArray[Any],
+    panel: manage_figure.Panel,
+    array_2d: numpy_typing.NDArray[typing.Any],
     data_format: DataFormat,
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
-    levels: int | NDArray[Any] = 10,
+    levels: int | numpy_typing.NDArray[typing.Any] = 10,
     color: str = "white",
-    linewidth: float = 0.8,
+    linewidth_pt: float | None = None,
     linestyle: str = "-",
+    figure_params: style_figure.FigureParams | None = None,
 ):
+    """`linewidth_pt` defaults to the width the active style draws data at."""
+    if linewidth_pt is None:
+        if figure_params is None:
+            figure_params = style_figure.get_figure_params()
+        linewidth_pt = figure_params.artist_params.line_width_pt
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -332,23 +364,26 @@ def plot_2d_contours(
     axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
         raise ValueError("`axis_ranges` must not be None.")
-    array_view = as_plot_view(data_array=array_2d, data_format=data_format)
+    array_view = as_plot_view(
+        data_array=array_2d,
+        data_format=data_format,
+    )
     grid_x, grid_y = _generate_grid(
-        field_shape=cast(tuple[int, int], array_view.shape),
+        field_shape=typing.cast(tuple[int, int], array_view.shape),
         axis_extent=axis_extent,
     )
-    contour_obj = ax.contour(
+    contour_obj = panel.contour(
         grid_x,
         grid_y,
         array_view,
         levels=levels,
         colors=color,
-        linewidths=linewidth,
+        linewidths=linewidth_pt,
         linestyles=linestyle,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
-    ax.set_xlim((min_x_value, max_x_value))
-    ax.set_ylim((min_y_value, max_y_value))
+    panel.set_xlim((min_x_value, max_x_value))
+    panel.set_ylim((min_y_value, max_y_value))
     return contour_obj
 
 

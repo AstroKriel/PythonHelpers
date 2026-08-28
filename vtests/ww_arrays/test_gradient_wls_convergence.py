@@ -16,7 +16,7 @@ from jormi.ww_arrays.farrays_3d_unstructured import gradient_operators
 from jormi.ww_data import fit_series
 from jormi.ww_data.series_types import GaussianSeries
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 from jormi.ww_types import box_positions
 
 ##
@@ -53,14 +53,14 @@ def compute_typical_spacing(
 
 def plot_convergence(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_figure.Panel,
     typical_spacings: numpy.ndarray[Any, numpy.dtype[Any]],
     rms_errors: numpy.ndarray[Any, numpy.dtype[Any]],
 ) -> fit_series.FitStatistic:
     ## resolution increases rightward, matching `test_finite_difference_convergence.py`'s
     ## `inverse_dx_values` convention, rather than plotting spacing directly
     inverse_spacings = 1.0 / typical_spacings
-    ## fit log(e) = slope * log(dx_tilde) + const; slope > 0 means error shrinks as dx_tilde shrinks
+    ## fit log(e) = slope * log(mean_dx) + const; slope > 0 means error shrinks as mean_dx shrinks
     log_series = GaussianSeries(
         x_values=numpy.log(typical_spacings),
         y_values=numpy.log(rms_errors),
@@ -68,28 +68,26 @@ def plot_convergence(
     fit = fit_series.fit_linear_model(log_series)
     fitted_slope = fit.slope
     fitted_errors = numpy.exp(fit.evaluate_fit(log_series.x_values))
-    ax.plot(
+    panel.plot(
         inverse_spacings,
         rms_errors,
         marker="o",
-        ms=10,
         ls="",
-        color="royalblue",
+        color="black",
         label="measured",
     )
-    ax.plot(
+    panel.plot(
         inverse_spacings,
         fitted_errors,
         ls="--",
-        lw=2,
-        color="royalblue",
+        color="black",
         label=rf"$e \sim O(\tilde{{\Delta x}}^{{{fitted_slope.value:.2f} \pm {fitted_slope.sigma:.2f}}})$",
     )
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
-    ax.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
-    ax.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
+    panel.set_xscale("log")
+    panel.set_yscale("log")
+    panel.set_xlabel(r"$1/\tilde{\Delta x} \sim (N_{\rm points} / V)^{1/3}$")
+    panel.set_ylabel(r"$e \equiv {\rm RMS}\,|\nabla f - \nabla f^*|$")
+    panel.legend(loc=box_positions.MPLPositions.Anchor.Corner.TopRight)
     return fitted_slope
 
 
@@ -123,17 +121,17 @@ class TestGradientWLSConvergence:
     def run(
         self,
     ) -> None:
-        fig, ax = manage_plots.create_figure(fig_scale=1.25)
+        figure, panel = manage_figure.create_figure()
         typical_spacings, rms_errors = self._measure_convergence()
         fitted_slope = plot_convergence(
-            ax=ax,
+            panel=panel,
             typical_spacings=typical_spacings,
             rms_errors=rms_errors,
         )
         file_path = Path(__file__).parent / "gradient_wls_convergence.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=file_path,
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=file_path,
         )
         lower_bound, upper_bound = self.convergence_order_bounds
         converged = bool(lower_bound < fitted_slope.value < upper_bound)
@@ -200,7 +198,7 @@ class TestGradientWLSConvergence:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestGradientWLSConvergence()
     test.run()
 

@@ -16,7 +16,7 @@ from jormi import ww_lists
 from jormi.ww_data import fit_series
 from jormi.ww_data import series_types
 from jormi.ww_io import manage_log
-from jormi.ww_plots import manage_plots, style_plots
+from jormi.ww_plots import manage_figure, style_figure
 
 ##
 ## === TYPE ALIASES
@@ -36,39 +36,39 @@ class FitScenario:
 
 def plot_fit(
     *,
-    ax: manage_plots.PlotAxis,
+    panel: manage_figure.Panel,
     gaussian_series: series_types.GaussianSeries,
     fit: fit_series.LinearFitSummary,
     fit_label: str,
     fit_index: int,
     num_fits: int,
 ) -> None:
-    is_top_ax = fit_index == 0
-    is_bottom_ax = fit_index == num_fits - 1
+    is_top_panel = fit_index == 0
+    is_bottom_panel = fit_index == num_fits - 1
     x_fit_values = numpy.linspace(gaussian_series.x_bounds[0], gaussian_series.x_bounds[1], 200)
-    ax.errorbar(
+    panel.errorbar(
         gaussian_series.x_values,
         gaussian_series.y_values,
         yerr=gaussian_series.y_sigmas,
         fmt="o",
         color="black",
-        label="data" if is_top_ax else None,
+        label="data" if is_top_panel else None,
     )
-    ax.plot(
+    panel.plot(
         x_fit_values,
         fit.evaluate_fit(x_fit_values),
         color="red",
         label=fit_label,
     )
-    ax.set_ylabel("y")
-    ax.legend(
+    panel.set_ylabel("y")
+    panel.legend(
         fontsize=20,
         loc="upper left",
     )
-    if is_bottom_ax:
-        ax.set_xlabel("x")
+    if is_bottom_panel:
+        panel.set_xlabel("x")
     else:
-        ax.tick_params(labelbottom=False)
+        panel.tick_params(labelbottom=False)
 
 
 ##
@@ -101,16 +101,16 @@ class TestLinearFit:
         gaussian_series = self._generate_gaussian_series()
         fits_to_test = self._compute_fits(gaussian_series)
         num_fits = len(fits_to_test)
-        fig, axs_grid = manage_plots.create_figure(
-            num_rows=num_fits,
-            num_cols=1,
-            share_x=True,
+        figure, panel_grid = manage_figure.create_figure(
+            num_panel_rows=num_fits,
+            num_panel_cols=1,
+            share_x_axis=True,
         )
         failed_fits: list[str] = []
         for fit_index, fit_scenario in enumerate(fits_to_test):
-            ax = axs_grid[fit_index, 0]
+            panel = panel_grid[fit_index, 0]
             plot_fit(
-                ax=ax,
+                panel=panel,
                 gaussian_series=gaussian_series,
                 fit=fit_scenario.fit,
                 fit_label=fit_scenario.label,
@@ -134,10 +134,10 @@ class TestLinearFit:
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         ## always save even on failure
-        fig_path = Path(__file__).parent / "linear_fit.png"
-        manage_plots.save_figure(
-            fig=fig,
-            fig_path=fig_path,
+        figure_path = Path(__file__).parent / "linear_fit.png"
+        manage_figure.save_figure(
+            figure=figure,
+            figure_path=figure_path,
         )
         assert not failed_fits, (
             f"Test failed for the following fit methods: {ww_lists.as_string(elems=failed_fits)}"
@@ -193,9 +193,8 @@ class TestLinearFit:
             failed_checks.append(
                 f"slope error {slope_error:.4f} > {self.sigma_tol} * sigma ({fitted_slope.sigma:.4f})",
             )
-        if (fitted_intercept.sigma is not None) and (
-            intercept_error > self.sigma_tol * fitted_intercept.sigma
-        ):
+        if (fitted_intercept.sigma is not None) and (intercept_error
+                                                     > self.sigma_tol * fitted_intercept.sigma):
             failed_checks.append(
                 f"intercept error {intercept_error:.4f} > {self.sigma_tol} * sigma"
                 f" ({fitted_intercept.sigma:.4f})",
@@ -209,7 +208,7 @@ class TestLinearFit:
 
 if __name__ == "__main__":
     manage_log.set_block_width_mode(manage_log.BlockWidthMode.PRACTICAL)
-    style_plots.set_theme()
+    style_figure.set_figure_params()
     test = TestLinearFit()
     test.run()
 
