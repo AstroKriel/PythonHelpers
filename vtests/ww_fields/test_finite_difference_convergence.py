@@ -128,7 +128,10 @@ class TestFiniteDifferenceConvergence:
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=2,
             num_panel_cols=2,
-            panel_col_gap_pt=60.0,
+            panel_col_gap_pt=65.0,
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(max_width_cm=20.0),
+            ),
         )
         self._plot_exact_soln(panel_grid)
         failed_methods = self._test_method_scaling(panel_grid)
@@ -163,14 +166,12 @@ class TestFiniteDifferenceConvergence:
             y_values,
             color="black",
             ls="-",
-            lw=2,
         )
         panel_grid[1, 0].plot(
             x_values,
             dydx_values,
             color="black",
             ls="-",
-            lw=2,
             label=r"${\rm d}y^* / {\rm d}x$",
         )
 
@@ -196,9 +197,7 @@ class TestFiniteDifferenceConvergence:
             x_values,
             dydx_values,
             marker="o",
-            ms=10,
             ls="-",
-            lw=2,
             color=color,
             label=label,
         )
@@ -274,7 +273,6 @@ class TestFiniteDifferenceConvergence:
             inverse_dx_values,
             rms_errors,
             marker="o",
-            ms=10,
             ls="",
             color=color,
             label=label,
@@ -283,7 +281,6 @@ class TestFiniteDifferenceConvergence:
             inverse_dx_values,
             expected_errors,
             ls="--",
-            lw=2,
             color=color,
             label=rf"$e_i^* \sim O(h^{{{expected_scaling}}})$",
             scalex=False,
@@ -293,9 +290,7 @@ class TestFiniteDifferenceConvergence:
             inverse_dx_values[1:],
             numpy.abs(residuals[1:]),
             marker="o",
-            ms=10,
             ls="-",
-            lw=2,
             color=color,
         )
         return residual_is_plateauing(residuals)
@@ -305,8 +300,9 @@ class TestFiniteDifferenceConvergence:
         panel_grid: manage_figure.PanelGrid,
     ) -> None:
         y_min, y_max = panel_grid[1, 0].get_ylim()
+        y_min_new = y_min - 0.1 * (y_max - y_min)
         y_max_new = y_max + 0.2 * (y_max - y_min)
-        panel_grid[1, 0].set_ylim([y_min, y_max_new])
+        panel_grid[1, 0].set_ylim([y_min_new, y_max_new])
         annotate_panel.add_text(
             panel=panel_grid[1, 0],
             x_pos_fraction=0.5,
@@ -329,7 +325,6 @@ class TestFiniteDifferenceConvergence:
             True,
             which="both",
             linestyle="--",
-            linewidth=0.5,
         )
         panel_grid[1, 1].set_xscale("log")
         panel_grid[1, 1].set_yscale("log")
@@ -339,7 +334,6 @@ class TestFiniteDifferenceConvergence:
             True,
             which="both",
             linestyle="--",
-            linewidth=0.5,
         )
 
 

@@ -121,7 +121,11 @@ class TestGradientWLSConvergence:
     def run(
         self,
     ) -> None:
-        figure, panel = manage_figure.create_figure()
+        figure, panel = manage_figure.create_figure(
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(width_fraction=0.6),
+            ),
+        )
         typical_spacings, rms_errors = self._measure_convergence()
         fitted_slope = plot_convergence(
             panel=panel,

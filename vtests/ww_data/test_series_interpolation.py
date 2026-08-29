@@ -70,7 +70,6 @@ def plot_order(
     )
     panel.set_ylabel("y")
     panel.legend(
-        fontsize=20,
         loc="upper right",
     )
     if is_bottom_panel:
@@ -115,6 +114,9 @@ class TestSeriesInterpolation:
             num_panel_rows=num_orders,
             num_panel_cols=1,
             share_x_axis=True,
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(width_fraction=0.6),
+            ),
         )
         failed_orders: list[str] = []
         for order_index, spline_order in enumerate(self.spline_orders_to_test):
@@ -145,7 +147,7 @@ class TestSeriesInterpolation:
                     outcome=manage_log.ActionOutcome.SUCCESS,
                 )
         ## always save even on failure
-        figure_path = Path(__file__).parent / "interpolated_series.png"
+        figure_path = Path(__file__).parent / "series_interpolation.png"
         manage_figure.save_figure(
             figure=figure,
             figure_path=figure_path,

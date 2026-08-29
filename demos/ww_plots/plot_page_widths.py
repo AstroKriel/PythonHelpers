@@ -270,41 +270,6 @@ def add_residual_inset(
     inset_panel.set_ylim(-1.1 * max_abs_residual, 1.1 * max_abs_residual)
 
 
-def report_drawn_sizes(
-    *,
-    label: str,
-    figure: Any,
-    panel: manage_figure.Panel,
-) -> None:
-    """Log the figure width, the drawn text size, and the room left at either side edge."""
-    figure_width_cm = float(figure.get_size_inches()[0]) * style_figure.CM_PER_INCH
-    figure_width_pt = figure_width_cm * style_figure.PT_PER_CM
-    panel_width_cm = panel.get_position().width * figure_width_cm
-    figure_params = style_figure.get_figure_params()
-    text_size_params = figure_params.text_size_params
-    ink_bounds = panel.get_tightbbox()
-    if ink_bounds is None:
-        raise RuntimeError("the panel has no drawn extent to measure.")
-    ink_box = ink_bounds.transformed(figure.dpi_scale_trans.inverted())
-    left_clearance_pt = ink_box.x0 * style_figure.PT_PER_INCH
-    right_clearance_pt = figure_width_pt - (ink_box.x1 * style_figure.PT_PER_INCH)
-    manage_log.log_action(
-        title=label,
-        outcome=(
-            manage_log.ActionOutcome.SUCCESS
-            if min(left_clearance_pt, right_clearance_pt) >= 0.0 else manage_log.ActionOutcome.FAILURE
-        ),
-        message="Text holds its size while the panel narrows.",
-        notes={
-            "figure width": f"{figure_width_cm:.2f} cm",
-            "panel width": f"{panel_width_cm:.2f} cm",
-            "axis label": f"{text_size_params.axis_label_size_pt:.2f} pt",
-            "tick label": f"{text_size_params.tick_label_size_pt:.2f} pt",
-            "clearance": f"{left_clearance_pt:.1f} pt left, {right_clearance_pt:.1f} pt right",
-        },
-    )
-
-
 ##
 ## === PROGRAM MAIN
 ##
@@ -349,11 +314,6 @@ def main() -> None:
                 panel=panel,
                 series=series_to_draw[0],
             )
-        report_drawn_sizes(
-            label=label,
-            figure=figure,
-            panel=panel,
-        )
         manage_figure.save_figure(
             figure=figure,
             figure_path=figures_dir / f"page-width-{label.replace(' ', '-')}.png",

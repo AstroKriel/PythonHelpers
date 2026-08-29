@@ -21,7 +21,13 @@ from jormi.ww_fields.fields_3d import (
     field_operators,
 )
 from jormi.ww_io import manage_log
-from jormi.ww_plots import annotate_panel, manage_figure, style_figure
+from jormi.ww_plots import (
+    add_color,
+    annotate_panel,
+    manage_figure,
+    plot_data,
+    style_figure,
+)
 from jormi.ww_types import box_positions
 from jormi.ww_validation import validate_types
 
@@ -60,7 +66,7 @@ def generate_div_vfield(
         x2_centers,
         indexing="ij",
     )
-    varray = numpy.stack([2 * grid_x0, 2 * grid_x1, 2 * grid_x2])
+    varray = numpy.stack([-2 * grid_x0, -2 * grid_x1, -2 * grid_x2])
     return field_models.VectorField_3D.from_3d_varray(
         varray_3d=varray,
         uniform_domain_3d=uniform_domain_3d,
@@ -72,7 +78,7 @@ def generate_div_vfield(
 def generate_sol_vfield(
     uniform_domain_3d: domain_models.UniformDomain_3D,
 ) -> field_models.VectorField_3D:
-    """Generate a solenoidal (divergence-free) vector field."""
+    """Generate a solenoidal (divergence-free) vector field: a periodic vortex."""
     x0_centers, x1_centers, x2_centers = uniform_domain_3d.cell_centers
     domain_length = uniform_domain_3d.domain_lengths[0]
     wavenumber = 2 * numpy.pi / domain_length
@@ -82,8 +88,8 @@ def generate_sol_vfield(
         x2_centers,
         indexing="ij",
     )
-    vcomp_x0 = -wavenumber * grid_x0 * numpy.sin(wavenumber * grid_x0 * grid_x1)
-    vcomp_x1 = wavenumber * grid_x1 * numpy.sin(wavenumber * grid_x0 * grid_x1)
+    vcomp_x0 = numpy.sin(wavenumber * grid_x0) * numpy.cos(wavenumber * grid_x1)
+    vcomp_x1 = -numpy.cos(wavenumber * grid_x0) * numpy.sin(wavenumber * grid_x1)
     vcomp_x2 = numpy.zeros_like(grid_x2)
     varray = numpy.stack([vcomp_x0, vcomp_x1, vcomp_x2])
     return field_models.VectorField_3D.from_3d_varray(
@@ -206,13 +212,7 @@ def plot_vfield_slice(
     domain_bounds: tuple[float, float],
 ) -> None:
     varray = field_models.extract_3d_varray(vfield_3d)
-    num_cells_x0, num_cells_x1, num_cells_x2 = varray.shape[1:]
-    index_x2 = num_cells_x2 // 2  # middle slice in the z-direction
-    grid_x0, grid_x1 = numpy.meshgrid(
-        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x0),
-        numpy.linspace(domain_bounds[0], domain_bounds[1], num_cells_x1),
-        indexing="xy",
-    )
+    index_x2 = varray.shape[3] // 2  # middle slice in the z-direction
     sfield_q_magn_3d = field_operators.compute_vfield_magnitude(
         vfield_3d,
         field_name="q_magnitude",
@@ -220,48 +220,46 @@ def plot_vfield_slice(
     )
     sfield_q_magn_array = field_models.extract_3d_sarray(sfield_q_magn_3d)
     sfield_q_magn_slice = sfield_q_magn_array[:, :, index_x2]
-    sfield_q_magn_min = float(
-        numpy.min(
-            sfield_q_magn_slice,
-        ),
+    figure_params = style_figure.get_figure_params()
+    axis_ranges = (
+        (domain_bounds[0], domain_bounds[1]),
+        (domain_bounds[0], domain_bounds[1]),
     )
-    sfield_q_magn_max = float(
-        numpy.max(
-            sfield_q_magn_slice,
-        ),
+    value_range = (
+        float(numpy.min(sfield_q_magn_slice)),
+        float(numpy.max(sfield_q_magn_slice)),
     )
-    panel.imshow(
-        sfield_q_magn_slice.T,
-        origin="lower",
-        extent=(domain_bounds[0], domain_bounds[1], domain_bounds[0], domain_bounds[1]),
-        cmap="viridis",
+    plot_data.plot_2d_array(
+        panel=panel,
+        array_2d=sfield_q_magn_slice,
+        data_format="xy",
+        axis_ranges=axis_ranges,
+        colorbar_range=value_range,
+        palette_config=add_color.SequentialConfig(palette_name="viridis"),
         alpha=0.7,
+        add_colorbar=False,
     )
-    panel.streamplot(
-        grid_x0,
-        grid_x1,
-        varray[0, :, :, index_x2],
-        varray[1, :, :, index_x2],
-        color="black",
-        arrowstyle="->",
-        linewidth=2.0,
-        density=1.0,
-        arrowsize=1.0,
+    plot_data.plot_2d_streamlines(
+        panel=panel,
+        array_2d_rows=varray[1, :, :, index_x2],
+        array_2d_cols=varray[0, :, :, index_x2],
+        data_format="xy",
+        axis_ranges=axis_ranges,
+        streamline_density=0.6,
+        arrow_size=0.6,
+        color=figure_params.theme_params.foreground_color,
         broken_streamlines=False,
     )
-    min_label = f"min: {sfield_q_magn_min:.2e}"
-    max_label = f"max: {sfield_q_magn_max:.2e}"
+    min_label = f"min: {value_range[0]:.2e}"
+    max_label = f"max: {value_range[1]:.2e}"
     annotate_panel.add_text(
         panel=panel,
-        x_pos_fraction=0.05,
+        x_pos_fraction=0.5,
         y_pos_fraction=0.05,
         label=f"{min_label}\n{max_label}",
-        x_alignment=box_positions.Positions.Side.Left,
         y_alignment=box_positions.Positions.Side.Bottom,
         box_alpha=1.0,
     )
-    panel.set_xlim((domain_bounds[0], domain_bounds[1]))
-    panel.set_ylim((domain_bounds[0], domain_bounds[1]))
     panel.set_xticks([])
     panel.set_yticks([])
 
@@ -301,7 +299,7 @@ class TestHelmholtzDecomposition:
         self.num_cells: int = 50
         self.domain_bounds: tuple[float, float] = (-1.0, 1.0)
         ## bulk component included in the mixed and pure-bulk inputs
-        self.bulk_vector: tuple[float, float, float] = (0.3, -0.1, 0.2)
+        self.bulk_vector: tuple[float, float, float] = (0.0, 0.3, 0.2)
         ## pass criteria: per-check thresholds on the abs-median of each diagnostic
         self.check_thresholds: dict[str, float] = {
             "|q - (q_div + q_sol + q_bulk)|": 0.5,
@@ -316,12 +314,20 @@ class TestHelmholtzDecomposition:
     ) -> None:
         uniform_domain_3d = self._build_domain()
         input_vfields = self._build_input_vfields(uniform_domain_3d)
+        ## smaller text and thinner lines than the page default, so both stay legible
+        ## against panels this small
+        figure_params = style_figure.FigureParams(
+            text_size_params=style_figure.TextSizeParams(largest_size_pt=8.0),
+            artist_params=style_figure.ArtistParams(line_width_pt=0.4),
+        )
         ## 4 rows (input + 3 measured) x 4 cols (combined, div-only, sol-only, bulk-only)
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=4,
             num_panel_cols=4,
-            panel_aspect_ratio=20.0 / 17.5,
-            panel_width_cm=20.0,
+            panel_aspect_ratio=1.0,
+            panel_row_gap_pt=4.0,
+            panel_col_gap_pt=8.0,
+            figure_params=figure_params,
         )
         failed_vfields: list[str] = []
         for vfield_index, vfield_entry in enumerate(input_vfields):

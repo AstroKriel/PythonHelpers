@@ -12,7 +12,6 @@ from typing import Any
 import numpy
 
 from matplotlib.colorbar import Colorbar as mpl_Colorbar
-from matplotlib.figure import Figure as mpl_Figure
 from numpy.typing import NDArray
 
 ## local
@@ -22,7 +21,6 @@ from jormi.ww_plots import (
     annotate_panel,
     manage_figure,
     plot_data,
-    style_figure,
 )
 from jormi.ww_types import box_positions
 
@@ -124,41 +122,6 @@ def add_shared_colorbar(
     )
 
 
-def report_drawn_sizes(
-    *,
-    figure: mpl_Figure,
-    panel: manage_figure.Panel,
-    colorbar: mpl_Colorbar,
-) -> None:
-    """Report the drawn panel and colorbar, and the room left at the figure's top edge."""
-    figure_width_cm, figure_height_cm = (
-        float(length) * style_figure.CM_PER_INCH for length in figure.get_size_inches()
-    )
-    panel_box = panel.get_position()
-    colorbar_box = colorbar.ax.get_position()
-    ink_bounds = colorbar.ax.get_tightbbox()
-    if ink_bounds is None:
-        raise RuntimeError("the colorbar has no drawn extent to measure.")
-    ink_box = ink_bounds.transformed(figure.dpi_scale_trans.inverted())
-    figure_height_pt = figure_height_cm * style_figure.PT_PER_CM
-    clearance_pt = figure_height_pt - (ink_box.y1 * style_figure.PT_PER_INCH)
-    panel_width_cm = panel_box.width * figure_width_cm
-    panel_height_cm = panel_box.height * figure_height_cm
-    manage_log.log_action(
-        title="Drawn sizes",
-        outcome=(
-            manage_log.ActionOutcome.SUCCESS if clearance_pt >= 0.0 else manage_log.ActionOutcome.FAILURE
-        ),
-        message="What the panels and the shared colorbar came out as.",
-        notes={
-            "panel": f"{panel_width_cm:.2f} x {panel_height_cm:.2f} cm"
-            f" (w/h = {panel_width_cm / panel_height_cm:.2f})",
-            "colorbar thickness": f"{colorbar_box.height * figure_height_cm * style_figure.PT_PER_CM:.1f} pt",
-            "clearance above colorbar": f"{clearance_pt:.1f} pt",
-        },
-    )
-
-
 ##
 ## === PROGRAM MAIN
 ##
@@ -232,14 +195,9 @@ def main() -> None:
         ## only the leftmost panel carries y tick labels; the three share a y axis
         if panel_index > 0:
             panel.set_yticklabels([])
-    colorbar = add_shared_colorbar(
+    add_shared_colorbar(
         panel_row=panel_row,
         label=r"$\omega_z$",
-    )
-    report_drawn_sizes(
-        figure=figure,
-        panel=panel_row[0],
-        colorbar=colorbar,
     )
     manage_figure.save_figure(
         figure=figure,

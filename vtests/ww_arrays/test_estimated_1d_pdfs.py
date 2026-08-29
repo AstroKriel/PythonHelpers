@@ -12,6 +12,8 @@ from typing import Any
 ## third-party
 import numpy
 
+from matplotlib import ticker as mpl_ticker
+
 ## local
 from jormi import ww_lists
 from jormi.ww_arrays import compute_array_stats
@@ -60,7 +62,10 @@ class TestEstimated1DPDFs:
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_pdfs,
             num_panel_cols=1,
-            panel_row_gap_pt=60.0,
+            panel_row_gap_pt=25.0,
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(width_fraction=0.6),
+            ),
         )
         failed_pdfs: list[str] = []
         for pdf_index, pdf_scenario in enumerate(pdf_scenarios):
@@ -83,7 +88,6 @@ class TestEstimated1DPDFs:
         panel_grid[-1, 0].legend(
             loc="upper right",
             bbox_to_anchor=(1, 0.9),
-            fontsize=20,
         )
         panel_grid[-1, 0].set_xlabel(r"$x$")
         ## always save even on failure
@@ -171,7 +175,6 @@ class TestEstimated1DPDFs:
                 bin_centers,
                 estimated_pdf,
                 where="mid",
-                lw=2,
                 label=f"{num_bins} bins",
             )
             ## normalisation check: sum(pdf * dx) should be ~1
@@ -188,6 +191,10 @@ class TestEstimated1DPDFs:
             y_alignment=box_positions.Positions.Side.Top,
         )
         panel.set_ylabel(r"PDF$(x)$")
+        if pdf_label == "delta":
+            ## the delta scenario spans a ~1e-9-wide range around its centre, so the
+            ## default locator packs in far more decimal ticks than that range can show
+            panel.xaxis.set_major_locator(mpl_ticker.MaxNLocator(nbins=4))
         return failed_bins
 
 

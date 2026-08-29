@@ -62,7 +62,6 @@ def plot_fit(
     )
     panel.set_ylabel("y")
     panel.legend(
-        fontsize=20,
         loc="upper left",
     )
     if is_bottom_panel:
@@ -99,12 +98,15 @@ class TestLinearFit:
         self,
     ) -> None:
         gaussian_series = self._generate_gaussian_series()
-        fits_to_test = self._compute_fits(gaussian_series)
+        fits_to_test = self._compute_fits_to_test(gaussian_series)
         num_fits = len(fits_to_test)
         figure, panel_grid = manage_figure.create_figure(
             num_panel_rows=num_fits,
             num_panel_cols=1,
             share_x_axis=True,
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(width_fraction=0.6),
+            ),
         )
         failed_fits: list[str] = []
         for fit_index, fit_scenario in enumerate(fits_to_test):
@@ -161,7 +163,7 @@ class TestLinearFit:
             y_sigmas=y_sigmas,
         )
 
-    def _compute_fits(
+    def _compute_fits_to_test(
         self,
         gaussian_series: series_types.GaussianSeries,
     ) -> list[FitScenario]:

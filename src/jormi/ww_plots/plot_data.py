@@ -163,6 +163,7 @@ def plot_2d_array(
     axis_ranges: AxisRanges | None = None,
     colorbar_range: tuple[float, float] | None = None,
     palette_config: add_color.PaletteConfig | None = None,
+    alpha: float = 1.0,
     add_colorbar: bool = True,
     colorbar_label: str | None = None,
     colorbar_side: box_positions.Positions.PositionLike = box_positions.Positions.Side.Right,
@@ -210,6 +211,7 @@ def plot_2d_array(
         origin="lower",
         cmap=palette.mpl_cmap,
         norm=palette.mpl_norm,
+        alpha=alpha,
     )
     if axis_extent is not None:
         min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
@@ -244,6 +246,7 @@ def plot_2d_quiver(
     panel: manage_figure.Panel,
     array_2d_rows: numpy_typing.NDArray[typing.Any],
     array_2d_cols: numpy_typing.NDArray[typing.Any],
+    data_format: DataFormat = "ij",
     axis_ranges: AxisRanges = ((-1.0, 1.0), (-1.0, 1.0)),
     num_quivers: int = 25,
     quiver_width_fraction: float = 5e-3,
@@ -262,6 +265,14 @@ def plot_2d_quiver(
         array_b=array_2d_cols,
         param_name_a="array_2d_rows",
         param_name_b="array_2d_cols",
+    )
+    array_2d_rows = as_plot_view(
+        data_array=array_2d_rows,
+        data_format=data_format,
+    )
+    array_2d_cols = as_plot_view(
+        data_array=array_2d_cols,
+        data_format=data_format,
     )
     axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
@@ -291,11 +302,13 @@ def plot_2d_streamlines(
     panel: manage_figure.Panel,
     array_2d_rows: numpy_typing.NDArray[typing.Any],
     array_2d_cols: numpy_typing.NDArray[typing.Any],
+    data_format: DataFormat = "ij",
     axis_ranges: AxisRanges = ((0.0, 1.0), (0.0, 1.0)),
     streamline_width_pt: float | None = None,
     streamline_density: float = 2.0,
     arrow_size: float = 0.5,
     color: str = "white",
+    broken_streamlines: bool = True,
     figure_params: style_figure.FigureParams | None = None,
 ):
     """`streamline_width_pt` defaults to the width the active style draws data at."""
@@ -317,6 +330,14 @@ def plot_2d_streamlines(
         param_name_a="array_2d_rows",
         param_name_b="array_2d_cols",
     )
+    array_2d_rows = as_plot_view(
+        data_array=array_2d_rows,
+        data_format=data_format,
+    )
+    array_2d_cols = as_plot_view(
+        data_array=array_2d_cols,
+        data_format=data_format,
+    )
     axis_extent = _as_axis_extent(axis_ranges)
     if axis_extent is None:
         raise ValueError("`axis_ranges` must not be None.")
@@ -333,6 +354,7 @@ def plot_2d_streamlines(
         density=streamline_density,
         arrowsize=arrow_size,
         color=color,
+        broken_streamlines=broken_streamlines,
     )
     min_x_value, max_x_value, min_y_value, max_y_value = axis_extent
     panel.set_xlim((min_x_value, max_x_value))

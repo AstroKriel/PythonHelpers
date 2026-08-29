@@ -673,22 +673,26 @@ def _measure_panel_content_overflow(
         extra_artists=extra_artists,
         renderer=renderer,
     )
+    ## content that stays inside the panel gives a negative raw difference; floor at zero,
+    ## since a margin can only be pushed out by overflow, never pulled in by its absence
     content_overflow = _SideOverflow(
-        left_pt=pt_per_pixel * (panel_pixel_bounding_box.x0 - content_pixel_bounding_box.x0),
-        right_pt=pt_per_pixel * (content_pixel_bounding_box.x1 - panel_pixel_bounding_box.x1),
-        bottom_pt=pt_per_pixel * (panel_pixel_bounding_box.y0 - content_pixel_bounding_box.y0),
-        top_pt=pt_per_pixel * (content_pixel_bounding_box.y1 - panel_pixel_bounding_box.y1),
+        left_pt=max(0.0, pt_per_pixel * (panel_pixel_bounding_box.x0 - content_pixel_bounding_box.x0)),
+        right_pt=max(0.0, pt_per_pixel * (content_pixel_bounding_box.x1 - panel_pixel_bounding_box.x1)),
+        bottom_pt=max(0.0, pt_per_pixel * (panel_pixel_bounding_box.y0 - content_pixel_bounding_box.y0)),
+        top_pt=max(0.0, pt_per_pixel * (content_pixel_bounding_box.y1 - panel_pixel_bounding_box.y1)),
     )
     colorbar_overflow = _measure_colorbar_overflow(
         resolved_layout=resolved_layout,
         renderer=renderer,
         pt_per_pixel=pt_per_pixel,
     )
+    ## the box a colorbar draws can exceed what nearby content needs; floor at zero
+    ## rather than letting that show up as negative overflow
     return _SideOverflow(
-        left_pt=content_overflow.left_pt - colorbar_overflow.left_pt,
-        right_pt=content_overflow.right_pt - colorbar_overflow.right_pt,
-        bottom_pt=content_overflow.bottom_pt - colorbar_overflow.bottom_pt,
-        top_pt=content_overflow.top_pt - colorbar_overflow.top_pt,
+        left_pt=max(0.0, content_overflow.left_pt - colorbar_overflow.left_pt),
+        right_pt=max(0.0, content_overflow.right_pt - colorbar_overflow.right_pt),
+        bottom_pt=max(0.0, content_overflow.bottom_pt - colorbar_overflow.bottom_pt),
+        top_pt=max(0.0, content_overflow.top_pt - colorbar_overflow.top_pt),
     )
 
 

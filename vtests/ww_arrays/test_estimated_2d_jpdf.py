@@ -70,18 +70,6 @@ def plot_jpdf(
         )
     panel.set_xlabel(r"$x$")
     panel.set_ylabel(r"$y$")
-    panel.axhline(
-        y=0.0,
-        color="black",
-        ls="--",
-        zorder=1,
-    )
-    panel.axvline(
-        x=0.0,
-        color="black",
-        ls="--",
-        zorder=1,
-    )
     panel.set_xlim((numpy.min(bin_centers_cols), numpy.max(bin_centers_cols)))
     panel.set_ylim((numpy.min(bin_centers_rows), numpy.max(bin_centers_rows)))
 
@@ -119,7 +107,11 @@ class TestEstimated2DJPDF:
             num_samples=self.num_points,
             rng=rng,
         )
-        figure, panel = manage_figure.create_figure()
+        figure, panel = manage_figure.create_figure(
+            figure_layout=style_figure.FigureLayout(
+                figure_width=style_figure.FigureWidth(width_fraction=0.6),
+            ),
+        )
         result = compute_array_stats.estimate_jpdf(
             data_x=x_samples,
             data_y=y_samples,
