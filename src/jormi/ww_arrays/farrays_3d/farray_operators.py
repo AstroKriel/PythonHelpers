@@ -11,6 +11,7 @@ import numpy
 from numpy.typing import NDArray
 
 ## local
+from jormi.ww_arrays import compute_array_stats
 from jormi.ww_arrays.farrays_3d import (
     difference_sarrays,
     farray_types,
@@ -654,6 +655,38 @@ def compute_varray_magnitude(
     return v_magn_sq_sarray_3d
 
 
+def compute_varray_normalized(
+    varray_3d: NDArray[Any],
+    *,
+    out_varray_3d: NDArray[Any] | None = None,
+) -> NDArray[Any]:
+    """
+    Compute the per-cell unit vector v / |v| for a 3D vector field.
+
+    A cell where |v| == 0 has no well-defined direction; rather than leaving nan/inf
+    there, this zeroes it.
+    """
+    farray_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
+    dtype = numpy.result_type(varray_3d.dtype, numpy.float64)
+    v_magn_sarray_3d = compute_varray_magnitude(varray_3d)
+    out_varray_3d = farray_types.ensure_farray_metadata(
+        farray_shape=varray_3d.shape,
+        farray=out_varray_3d,
+        dtype=dtype,
+    )
+    with compute_array_stats.suppress_divide_warnings():
+        numpy.divide(
+            varray_3d,
+            v_magn_sarray_3d[numpy.newaxis, ...],
+            out=out_varray_3d,
+        )
+    compute_array_stats.make_nonfinites_zero(out_varray_3d)
+    return out_varray_3d
+
+
 ##
 ## === RANK-2 TENSOR (3D) ARRAY OPERATORS
 ##
@@ -720,27 +753,66 @@ def compute_r2tarray_divergence(
     return out_varray_3d
 
 
+def compute_varray_r2tarray_double_dot(
+    *,
+    varray_3d: NDArray[Any],
+    r2tarray_3d: NDArray[Any],
+) -> NDArray[Any]:
+    """
+    Compute v_i v_j T_ij per cell: the double contraction of a 3D rank-2 tensor field
+    against the same 3D vector field on both indices.
+
+    varray_3d has shape (3, num_x0_cells, num_x1_cells, num_x2_cells); r2tarray_3d has
+    shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells). Returns a 3D ndarray with
+    shape (num_x0_cells, num_x1_cells, num_x2_cells).
+    """
+    farray_types.ensure_3d_varray(
+        varray_3d=varray_3d,
+        param_name="<varray_3d>",
+    )
+    farray_types.ensure_3d_r2tarray(
+        r2tarray_3d=r2tarray_3d,
+        param_name="<r2tarray_3d>",
+    )
+    if varray_3d.shape[1:] != r2tarray_3d.shape[2:]:
+        raise ValueError(
+            "compute_varray_r2tarray_double_dot expects <varray_3d> and <r2tarray_3d> to"
+            f" share a spatial domain: got varray_3d.shape={varray_3d.shape},"
+            f" r2tarray_3d.shape={r2tarray_3d.shape}.",
+        )
+    return numpy.einsum(
+        "ixyz,jxyz,ijxyz->xyz",
+        varray_3d,
+        varray_3d,
+        r2tarray_3d,
+        optimize=True,
+    )
+
+
 ##
-## === KINETIC DISSIPATION
+## === STRAIN RATE
 ##
 
 
-def compute_varray_kinetic_dissipation(
+def compute_varray_strain_rate(
     v_varray_3d: NDArray[Any],
     *,
     cell_widths_3d: tuple[float, float, float],
     grad_order: int = 2,
 ) -> NDArray[Any]:
     """
-    Compute d_j S_ji for a 3D velocity varray u_j, where
+    Compute the traceless strain-rate tensor of a 3D velocity varray u_j:
 
         S_ij = 0.5 * (d_i u_j + d_j u_i) - (1/3) delta_ij (d_k u_k)
+
+    Returns an r2tarray_3d with shape (3, 3, num_x0_cells, num_x1_cells, num_x2_cells);
+    S_ij is symmetric and traceless by construction, for any input velocity field.
     """
     farray_types.ensure_3d_varray(
         varray_3d=v_varray_3d,
         param_name="<v_varray_3d>",
     )
-    dtype = v_varray_3d.dtype
+    dtype = numpy.result_type(v_varray_3d.dtype, numpy.float64)
     grad_v_r2tarray_3d = compute_varray_grad(
         varray_3d=v_varray_3d,
         cell_widths_3d=cell_widths_3d,
@@ -752,9 +824,13 @@ def compute_varray_kinetic_dissipation(
         axis1=0,
         axis2=1,
     )
-    sym_r2tarray_3d = 0.5 * grad_v_r2tarray_3d + numpy.transpose(
-        grad_v_r2tarray_3d,
-        axes=(1, 0, 2, 3, 4),
+    ## the parentheses here are load-bearing: 0.5 * (A + A^T) is symmetric for any A;
+    ## 0.5 * A + A^T is not, unless A already is
+    sym_r2tarray_3d = 0.5 * (
+        grad_v_r2tarray_3d + numpy.transpose(
+            grad_v_r2tarray_3d,
+            axes=(1, 0, 2, 3, 4),
+        )
     )
     del grad_v_r2tarray_3d
     identity_matrix = numpy.eye(3, dtype=dtype)
@@ -767,6 +843,27 @@ def compute_varray_kinetic_dissipation(
     del div_v_sarray_3d
     S_r2tarray_3d = sym_r2tarray_3d - (1.0 / 3.0) * bulk_r2tarray_3d
     del sym_r2tarray_3d, bulk_r2tarray_3d
+    return S_r2tarray_3d
+
+
+##
+## === KINETIC DISSIPATION
+##
+
+
+def compute_varray_kinetic_dissipation(
+    v_varray_3d: NDArray[Any],
+    *,
+    cell_widths_3d: tuple[float, float, float],
+    grad_order: int = 2,
+) -> NDArray[Any]:
+    """Compute d_j S_ji for a 3D velocity varray u_j; see `compute_varray_strain_rate`
+    for S_ij."""
+    S_r2tarray_3d = compute_varray_strain_rate(
+        v_varray_3d,
+        cell_widths_3d=cell_widths_3d,
+        grad_order=grad_order,
+    )
     return compute_r2tarray_divergence(
         r2tarray_3d=S_r2tarray_3d,
         cell_widths_3d=cell_widths_3d,
