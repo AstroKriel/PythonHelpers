@@ -86,4 +86,21 @@ def compute_isotropic_power_spectrum_varray(
     )
 
 
+def compute_isotropic_power_spectrum_r2tarray(
+    *,
+    r2tarray_3d: NDArray[Any],
+    resolution_3d: tuple[int, int, int],
+) -> IsotropicPowerSpectrum:
+    """Compute the 1D (shell-integrated) power spectrum of a 3D rank-2 tensor array."""
+    farray_types.ensure_3d_r2tarray(
+        r2tarray_3d=r2tarray_3d,
+        param_name="<r2tarray_3d>",
+    )
+    return compute_isotropic_power_spectrum_farray(
+        farray_3d=r2tarray_3d,
+        resolution_3d=resolution_3d,
+        num_ranks=2,
+    )
+
+
 ## } MODULE

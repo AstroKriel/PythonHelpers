@@ -99,6 +99,88 @@ class TestVarrayPowerSpectrum(unittest.TestCase):
         )
 
 
+class TestR2TarrayPowerSpectrum(unittest.TestCase):
+    """Same checks as TestVarrayPowerSpectrum, one rank up: the tensor spectrum is built
+    by FFT-ing each of the 9 components and summing |.|^2 in k-space."""
+
+    def test_reduces_to_scalar_spectrum_for_single_nonzero_component(
+        self,
+    ) -> None:
+        for num_cells in (8, 16):
+            resolution_3d = (num_cells, num_cells, num_cells)
+            rng = numpy.random.default_rng(3)
+            comp_xy = rng.standard_normal(resolution_3d)
+            r2tarray_3d = numpy.zeros((3, 3, *resolution_3d))
+            r2tarray_3d[0, 1] = comp_xy
+            tensor_spectrum = compute_spectra.compute_isotropic_power_spectrum_r2tarray(
+                r2tarray_3d=r2tarray_3d,
+                resolution_3d=resolution_3d,
+            )
+            scalar_spectrum = compute_spectra.compute_isotropic_power_spectrum_sarray(
+                sarray_3d=comp_xy,
+                resolution_3d=resolution_3d,
+            )
+            numpy.testing.assert_allclose(
+                tensor_spectrum.power_spectrum_1d,
+                scalar_spectrum.power_spectrum_1d,
+                err_msg=f"Tensor spectrum with one nonzero component should match the scalar spectrum for N={num_cells}",
+            )
+
+    def test_parseval_total_power_matches_real_space_energy(
+        self,
+    ) -> None:
+        for num_cells in (8, 16):
+            resolution_3d = (num_cells, num_cells, num_cells)
+            rng = numpy.random.default_rng(4)
+            r2tarray_3d = rng.standard_normal((3, 3, *resolution_3d))
+            power_spectrum_3d = compute_spectra.compute_power_spectrum_farray(
+                farray_3d=r2tarray_3d,
+                resolution_3d=resolution_3d,
+                num_ranks=2,
+            )
+            total_power_k_space = numpy.sum(power_spectrum_3d)
+            total_power_real_space = numpy.sum(numpy.square(r2tarray_3d)) / (num_cells**3)
+            numpy.testing.assert_allclose(
+                total_power_k_space,
+                total_power_real_space,
+                rtol=1e-10,
+                err_msg=f"Parseval mismatch for N={num_cells}",
+            )
+
+    def test_matches_generic_kernel_directly(
+        self,
+    ) -> None:
+        ## the farrays_3d wrapper must not diverge from the shared N-dimensional core it
+        ## delegates to
+        num_cells = 16
+        resolution_3d = (num_cells, num_cells, num_cells)
+        rng = numpy.random.default_rng(5)
+        r2tarray_3d = rng.standard_normal((3, 3, *resolution_3d))
+        via_wrapper = compute_spectra.compute_isotropic_power_spectrum_r2tarray(
+            r2tarray_3d=r2tarray_3d,
+            resolution_3d=resolution_3d,
+        )
+        via_farray = compute_spectra.compute_isotropic_power_spectrum_farray(
+            farray_3d=r2tarray_3d,
+            resolution_3d=resolution_3d,
+            num_ranks=2,
+        )
+        numpy.testing.assert_allclose(
+            via_wrapper.power_spectrum_1d,
+            via_farray.power_spectrum_1d,
+        )
+
+    def test_rejects_wrong_leading_shape(
+        self,
+    ) -> None:
+        rng = numpy.random.default_rng(6)
+        with self.assertRaises(ValueError):
+            compute_spectra.compute_isotropic_power_spectrum_r2tarray(
+                r2tarray_3d=rng.standard_normal((3, 2, 8, 8, 8)),
+                resolution_3d=(8, 8, 8),
+            )
+
+
 ##
 ## === ENTRY POINT
 ##
