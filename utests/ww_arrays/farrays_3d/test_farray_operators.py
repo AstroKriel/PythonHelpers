@@ -1105,9 +1105,9 @@ class TestStrainRate(unittest.TestCase):
             varray,
             cell_widths_3d=(0.5, 1.0 / n, 0.5),
         )
-        expected_s01 = numpy.pi * numpy.cos(2.0 * numpy.pi * x1)[None, :, None] * numpy.ones((2, n, 2))
-        numpy.testing.assert_allclose(result[0, 1], expected_s01, atol=_ATOL_FINITE_DIFF)
-        numpy.testing.assert_allclose(result[1, 0], expected_s01, atol=_ATOL_FINITE_DIFF)
+        expected_strain_rate_01 = numpy.pi * numpy.cos(2.0 * numpy.pi * x1)[None, :, None] * numpy.ones((2, n, 2))
+        numpy.testing.assert_allclose(result[0, 1], expected_strain_rate_01, atol=_ATOL_FINITE_DIFF)
+        numpy.testing.assert_allclose(result[1, 0], expected_strain_rate_01, atol=_ATOL_FINITE_DIFF)
         for row_index in range(3):
             for col_index in range(3):
                 if {row_index, col_index} == {0, 1}:

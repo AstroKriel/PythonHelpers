@@ -847,9 +847,7 @@ def compute_varray_strain_rate(
         axis1=0,
         axis2=1,
     )
-    ## the parentheses here are load-bearing: 0.5 * (A + A^T) is symmetric for any A;
-    ## 0.5 * A + A^T is not, unless A already is
-    sym_r2tarray_3d = 0.5 * (
+    symmetric_grad_v_r2tarray_3d = 0.5 * (
         grad_v_r2tarray_3d + numpy.transpose(
             grad_v_r2tarray_3d,
             axes=(1, 0, 2, 3, 4),
@@ -864,9 +862,9 @@ def compute_varray_strain_rate(
         optimize=True,
     )
     del div_v_sarray_3d
-    S_r2tarray_3d = sym_r2tarray_3d - (1.0 / 3.0) * bulk_r2tarray_3d
-    del sym_r2tarray_3d, bulk_r2tarray_3d
-    return S_r2tarray_3d
+    strain_rate_r2tarray_3d = symmetric_grad_v_r2tarray_3d - (1.0 / 3.0) * bulk_r2tarray_3d
+    del symmetric_grad_v_r2tarray_3d, bulk_r2tarray_3d
+    return strain_rate_r2tarray_3d
 
 
 ##
@@ -882,13 +880,13 @@ def compute_varray_kinetic_dissipation(
 ) -> NDArray[Any]:
     """Compute d_j S_ji for a 3D velocity varray u_j; see `compute_varray_strain_rate`
     for S_ij."""
-    S_r2tarray_3d = compute_varray_strain_rate(
+    strain_rate_r2tarray_3d = compute_varray_strain_rate(
         v_varray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
     return compute_r2tarray_divergence(
-        r2tarray_3d=S_r2tarray_3d,
+        r2tarray_3d=strain_rate_r2tarray_3d,
         cell_widths_3d=cell_widths_3d,
         grad_order=grad_order,
     )
