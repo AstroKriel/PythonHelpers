@@ -994,6 +994,35 @@ class TestR2TarrayDoubleDot(unittest.TestCase):
             )
 
 
+class TestR2TarrayMagnitude(unittest.TestCase):
+
+    def test_magnitude_is_non_negative(
+        self,
+    ) -> None:
+        r2tarray = numpy.zeros((3, 3, *_SSHAPE))
+        r2tarray[0, 0] = -5.0
+        r2tarray[1, 2] = 3.0
+        result = farray_operators.compute_r2tarray_magnitude(r2tarray)
+        self.assertTrue(numpy.all(result >= 0.0))
+
+    def test_magnitude_of_known_tensor(
+        self,
+    ) -> None:
+        ## diag(3, 4, 0) -> sqrt(3^2 + 4^2) = 5
+        r2tarray = numpy.zeros((3, 3, *_SSHAPE))
+        r2tarray[0, 0] = 3.0
+        r2tarray[1, 1] = 4.0
+        result = farray_operators.compute_r2tarray_magnitude(r2tarray)
+        numpy.testing.assert_allclose(result, 5.0, atol=_ATOL_ROUNDOFF)
+
+    def test_magnitude_of_zero_tensor_is_zero(
+        self,
+    ) -> None:
+        r2tarray = numpy.zeros((3, 3, *_SSHAPE))
+        result = farray_operators.compute_r2tarray_magnitude(r2tarray)
+        numpy.testing.assert_allclose(result, 0.0, atol=_ATOL_ROUNDOFF)
+
+
 class TestStrainRate(unittest.TestCase):
 
     def test_constant_field_is_zero(

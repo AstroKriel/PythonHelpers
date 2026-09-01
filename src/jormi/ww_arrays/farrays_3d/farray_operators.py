@@ -789,6 +789,29 @@ def compute_varray_r2tarray_double_dot(
     )
 
 
+def compute_r2tarray_magnitude(
+    r2tarray_3d: NDArray[Any],
+) -> NDArray[Any]:
+    """
+    Compute the Frobenius norm |T| = sqrt(T_ij T_ij) per cell for a 3D rank-2 tensor
+    field.
+
+    Returns a 3D ndarray with shape (num_x0_cells, num_x1_cells, num_x2_cells).
+    """
+    farray_types.ensure_3d_r2tarray(
+        r2tarray_3d=r2tarray_3d,
+        param_name="<r2tarray_3d>",
+    )
+    magnitude_sq_sarray_3d = numpy.einsum(
+        "ijxyz,ijxyz->xyz",
+        r2tarray_3d,
+        r2tarray_3d,
+        optimize=True,
+    )
+    sqrt_sarray_inplace(magnitude_sq_sarray_3d)
+    return magnitude_sq_sarray_3d
+
+
 ##
 ## === STRAIN RATE
 ##
