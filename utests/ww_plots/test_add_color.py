@@ -60,6 +60,17 @@ class TestResolveContinuousConfig(unittest.TestCase):
         )
         self.assertIsInstance(config, add_color.SequentialPaletteConfig)
 
+    def test_flat_value_range_falls_back_to_sequential(
+        self,
+    ):
+        ## a uniform initial condition (eg. density = 1.0 everywhere) gives a zero-width
+        ## range; nothing can straddle it, so this must fall back rather than raise
+        config = add_color.resolve_continuous_palette_config(
+            pivot_value=0.0,
+            value_range=(1.0, 1.0),
+        )
+        self.assertIsInstance(config, add_color.SequentialPaletteConfig)
+
     def test_custom_palette_names_are_used(
         self,
     ):

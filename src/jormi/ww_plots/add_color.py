@@ -69,12 +69,13 @@ def resolve_continuous_palette_config(
 
     Falls back to sequential when `value_range` does not straddle `pivot_value`: a signed
     quantity can still have an instance that comes out one-sided, which a diverging palette
-    cannot render regardless of what the quantity looks like overall.
+    cannot render regardless of what the quantity looks like overall. A flat quantity (eg. a
+    uniform initial condition) has `value_range[0] == value_range[1]`, which falls back the
+    same way rather than being rejected: nothing can straddle a range with no width.
     """
     validate_types.ensure_ordered_pair(
         param=value_range,
         param_name="value_range",
-        strict_ordering=True,
     )
     min_value, max_value = value_range
     if (pivot_value is None) or not (min_value < pivot_value < max_value):
