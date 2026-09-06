@@ -176,7 +176,7 @@ def plot_2d_array(
     to it: a shared one across panels, or one placed where this function would not put it.
     """
     if palette_config is None:
-        palette_config = add_color.SequentialConfig()
+        palette_config = add_color.SequentialPaletteConfig()
     validate_arrays.ensure_dims(
         array=array_2d,
         num_dims=2,
@@ -187,7 +187,7 @@ def plot_2d_array(
     )
     ## a discrete palette is bounded by its own bin edges, so there is no range to take
     ## from the data, and none to accept from the caller either
-    if isinstance(palette_config, add_color.DiscreteConfig):
+    if isinstance(palette_config, add_color.DiscretePaletteConfig):
         if colorbar_range is not None:
             raise ValueError(
                 "`colorbar_range` cannot apply to a discrete palette; its `bin_edges`"

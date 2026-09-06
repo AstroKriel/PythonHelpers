@@ -22,7 +22,7 @@ from jormi.ww_validation import validate_box_positions, validate_types
 
 
 @dataclasses.dataclass
-class SequentialConfig:
+class SequentialPaletteConfig:
     """Lightweight config for a sequential (single-direction) palette."""
 
     palette_name: str = "cmr.arctic"
@@ -30,7 +30,7 @@ class SequentialConfig:
 
 
 @dataclasses.dataclass
-class DivergingConfig:
+class DivergingPaletteConfig:
     """Lightweight config for a diverging (two-sided) palette."""
 
     mid_value: float = 0.0
@@ -39,7 +39,7 @@ class DivergingConfig:
 
 
 @dataclasses.dataclass
-class DiscreteConfig:
+class DiscretePaletteConfig:
     """Lightweight config for a discrete (binned) palette."""
 
     bin_edges: tuple[float, ...]
@@ -47,16 +47,16 @@ class DiscreteConfig:
     palette_range: tuple[float, float] = (0.0, 1.0)
 
 
-ContinuousPaletteConfig = SequentialConfig | DivergingConfig
-PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
+ContinuousPaletteConfig = SequentialPaletteConfig | DivergingPaletteConfig
+PaletteConfig = SequentialPaletteConfig | DivergingPaletteConfig | DiscretePaletteConfig
 
 
-def resolve_continuous_config(
+def resolve_continuous_palette_config(
     *,
     pivot_value: float | None,
     value_range: tuple[float, float],
-    sequential_palette_name: str = SequentialConfig.palette_name,
-    diverging_palette_name: str = DivergingConfig.palette_name,
+    sequential_palette_name: str = SequentialPaletteConfig.palette_name,
+    diverging_palette_name: str = DivergingPaletteConfig.palette_name,
     palette_range: tuple[float, float] = (0.0, 1.0),
 ) -> ContinuousPaletteConfig:
     """
@@ -78,55 +78,55 @@ def resolve_continuous_config(
     )
     min_value, max_value = value_range
     if (pivot_value is None) or not (min_value < pivot_value < max_value):
-        return SequentialConfig(palette_name=sequential_palette_name, palette_range=palette_range)
-    return DivergingConfig(mid_value=pivot_value, palette_name=diverging_palette_name, palette_range=palette_range)
+        return SequentialPaletteConfig(palette_name=sequential_palette_name, palette_range=palette_range)
+    return DivergingPaletteConfig(mid_value=pivot_value, palette_name=diverging_palette_name, palette_range=palette_range)
 
 
-def ensure_sequential_config(
+def ensure_sequential_palette_config(
     config: PaletteConfig,
     *,
     param_name: str = "<palette_config>",
 ) -> None:
-    """Raise TypeError if config is not a SequentialConfig."""
-    if not isinstance(config, SequentialConfig):
+    """Raise TypeError if config is not a SequentialPaletteConfig."""
+    if not isinstance(config, SequentialPaletteConfig):
         raise TypeError(
-            f"`{param_name}` must be a SequentialConfig, got {type(config).__name__}.",
+            f"`{param_name}` must be a SequentialPaletteConfig, got {type(config).__name__}.",
         )
 
 
-def ensure_diverging_config(
+def ensure_diverging_palette_config(
     config: PaletteConfig,
     *,
     param_name: str = "<palette_config>",
 ) -> None:
-    """Raise TypeError if config is not a DivergingConfig."""
-    if not isinstance(config, DivergingConfig):
+    """Raise TypeError if config is not a DivergingPaletteConfig."""
+    if not isinstance(config, DivergingPaletteConfig):
         raise TypeError(
-            f"`{param_name}` must be a DivergingConfig, got {type(config).__name__}.",
+            f"`{param_name}` must be a DivergingPaletteConfig, got {type(config).__name__}.",
         )
 
 
-def ensure_continuous_config(
+def ensure_continuous_palette_config(
     config: PaletteConfig,
     *,
     param_name: str = "<palette_config>",
 ) -> None:
     """Raise TypeError if config is not a continuous palette config (sequential or diverging)."""
-    if not isinstance(config, (SequentialConfig, DivergingConfig)):
+    if not isinstance(config, (SequentialPaletteConfig, DivergingPaletteConfig)):
         raise TypeError(
-            f"`{param_name}` must be a continuous palette config (SequentialConfig or DivergingConfig), got {type(config).__name__}.",
+            f"`{param_name}` must be a continuous palette config (SequentialPaletteConfig or DivergingPaletteConfig), got {type(config).__name__}.",
         )
 
 
-def ensure_discrete_config(
+def ensure_discrete_palette_config(
     config: PaletteConfig,
     *,
     param_name: str = "<palette_config>",
 ) -> None:
-    """Raise TypeError if config is not a DiscreteConfig."""
-    if not isinstance(config, DiscreteConfig):
+    """Raise TypeError if config is not a DiscretePaletteConfig."""
+    if not isinstance(config, DiscretePaletteConfig):
         raise TypeError(
-            f"`{param_name}` must be a DiscreteConfig, got {type(config).__name__}.",
+            f"`{param_name}` must be a DiscretePaletteConfig, got {type(config).__name__}.",
         )
 
 
@@ -155,7 +155,7 @@ def make_palette(
     rather than something to quietly ignore.
     """
     match config:
-        case SequentialConfig():
+        case SequentialPaletteConfig():
             return color_palettes.SequentialPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
@@ -164,7 +164,7 @@ def make_palette(
                     value_range=value_range,
                 ),
             )
-        case DivergingConfig():
+        case DivergingPaletteConfig():
             return color_palettes.DivergingPalette.from_name(
                 palette_name=config.palette_name,
                 palette_range=config.palette_range,
@@ -174,10 +174,10 @@ def make_palette(
                 ),
                 mid_value=config.mid_value,
             )
-        case DiscreteConfig():
+        case DiscretePaletteConfig():
             if value_range is not None:
                 raise ValueError(
-                    "`value_range` cannot apply to a DiscreteConfig; its `bin_edges`"
+                    "`value_range` cannot apply to a DiscretePaletteConfig; its `bin_edges`"
                     " already bound the palette.",
                 )
             return color_palettes.DiscretePalette.from_name(

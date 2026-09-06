@@ -54,7 +54,7 @@ PANEL_GAP_PT = 4.0
 ## the vorticity of the vortex below peaks at 2 pi, so pinning the range here lets the
 ## panels and the shared colorbar build the same palette from the same numbers
 VORTICITY_RANGE = (-2.0 * numpy.pi, 2.0 * numpy.pi)
-PALETTE_CONFIG = add_color.DivergingConfig(mid_value=0.0)
+PALETTE_CONFIG = add_color.DivergingPaletteConfig(mid_value=0.0)
 
 OVERLAY_COLOR = "black"
 

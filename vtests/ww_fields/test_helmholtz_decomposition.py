@@ -235,7 +235,7 @@ def plot_vfield_slice(
         data_format="xy",
         axis_ranges=axis_ranges,
         colorbar_range=value_range,
-        palette_config=add_color.SequentialConfig(palette_name="viridis"),
+        palette_config=add_color.SequentialPaletteConfig(palette_name="viridis"),
         alpha=0.7,
         add_colorbar=False,
     )
