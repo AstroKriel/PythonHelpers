@@ -51,6 +51,37 @@ ContinuousPaletteConfig = SequentialConfig | DivergingConfig
 PaletteConfig = SequentialConfig | DivergingConfig | DiscreteConfig
 
 
+def resolve_continuous_config(
+    *,
+    pivot_value: float | None,
+    value_range: tuple[float, float],
+    sequential_palette_name: str = SequentialConfig.palette_name,
+    diverging_palette_name: str = DivergingConfig.palette_name,
+    palette_range: tuple[float, float] = (0.0, 1.0),
+) -> ContinuousPaletteConfig:
+    """
+    Choose a sequential or diverging config, centred at `pivot_value` when there is one.
+
+    `pivot_value` is the pivot for whatever `value_range` actually describes, not necessarily
+    a fixed fact about the underlying quantity: eg. log10 of a strictly-positive quantity
+    diverges around 0 even though the raw quantity has no pivot, so a caller resolves which
+    pivot value applies to the values it is about to plot.
+
+    Falls back to sequential when `value_range` does not straddle `pivot_value`: a signed
+    quantity can still have an instance that comes out one-sided, which a diverging palette
+    cannot render regardless of what the quantity looks like overall.
+    """
+    validate_types.ensure_ordered_pair(
+        param=value_range,
+        param_name="value_range",
+        strict_ordering=True,
+    )
+    min_value, max_value = value_range
+    if (pivot_value is None) or not (min_value < pivot_value < max_value):
+        return SequentialConfig(palette_name=sequential_palette_name, palette_range=palette_range)
+    return DivergingConfig(mid_value=pivot_value, palette_name=diverging_palette_name, palette_range=palette_range)
+
+
 def ensure_sequential_config(
     config: PaletteConfig,
     *,
