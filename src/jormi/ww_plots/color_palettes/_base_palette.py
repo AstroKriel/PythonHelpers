@@ -22,6 +22,7 @@ import numpy
 import cmasher  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
 ## local
+from jormi.ww_plots import annotate_panel
 from jormi.ww_validation import validate_types
 
 ##
@@ -193,6 +194,13 @@ class ColorPalette(ABC):
         palette_range: tuple[float, float],
     ) -> "ColorPalette":
         return dataclasses.replace(self, palette_range=palette_range)
+
+    def get_color(
+        self,
+        value: float,
+    ) -> annotate_panel.ColorType:
+        """Return the RGBA color `value` maps to, composing `mpl_norm` and `mpl_cmap`."""
+        return self.mpl_cmap(self.mpl_norm(value))
 
 
 ## } MODULE
