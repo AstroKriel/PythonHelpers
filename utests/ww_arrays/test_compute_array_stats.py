@@ -392,6 +392,24 @@ class TestEstimatedPDF_Properties(unittest.TestCase):
             len(_PDF_BIN_CENTERS),
         )
 
+    def test_log10_densities_matches_safe_log10_of_densities(
+        self,
+    ) -> None:
+        pdf = self._make_pdf()
+        numpy.testing.assert_array_equal(
+            pdf.log10_densities,
+            compute_array_stats.compute_safe_log10(_PDF_DENSITIES),
+        )
+
+    def test_log10_densities_is_nan_where_density_is_zero(
+        self,
+    ) -> None:
+        pdf = compute_array_stats.EstimatedPDF(
+            bin_centers=_PDF_BIN_CENTERS,
+            densities=numpy.array([0.5, 0.5, 0.0]),
+        )
+        self.assertTrue(numpy.isnan(pdf.log10_densities[2]))
+
 
 class TestEstimatedJPDF_Construction(unittest.TestCase):
 

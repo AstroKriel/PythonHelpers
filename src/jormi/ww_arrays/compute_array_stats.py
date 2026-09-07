@@ -502,6 +502,13 @@ class EstimatedPDF:
     ) -> NDArray[Any]:
         return _get_bin_edges_from_centers(self.bin_centers)
 
+    @functools.cached_property
+    def log10_densities(
+        self,
+    ) -> NDArray[Any]:
+        """log10 of `densities`; NaN where `densities` is zero."""
+        return compute_safe_log10(self.densities)
+
     @property
     def bounds(
         self,
