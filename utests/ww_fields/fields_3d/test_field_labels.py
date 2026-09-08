@@ -58,21 +58,21 @@ class TestGetLabel(unittest.TestCase):
     def test_returns_latex_label(
         self,
     ):
-        label = field_models.get_label(_make_sfield_3d())
-        self.assertIsInstance(label, latex_labels.LatexLabel)
+        latex_label = field_models.get_label(_make_sfield_3d())
+        self.assertIsInstance(latex_label, latex_labels.LatexLabel)
 
     def test_content_matches_field_latex_label(
         self,
     ):
         sfield_3d = _make_sfield_3d()
-        label = field_models.get_label(sfield_3d)
-        self.assertEqual(label.content, sfield_3d.latex_label)
+        latex_label = field_models.get_label(sfield_3d)
+        self.assertEqual(latex_label.content, sfield_3d.latex_label)
 
     def test_get_label_wraps_content_in_dollars(
         self,
     ):
-        label = field_models.get_label(_make_sfield_3d())
-        self.assertEqual(label.label, r"$\rho$")
+        latex_label = field_models.get_label(_make_sfield_3d())
+        self.assertEqual(latex_label.label, r"$\rho$")
 
 
 class TestGetVcompLabel(unittest.TestCase):
@@ -80,20 +80,20 @@ class TestGetVcompLabel(unittest.TestCase):
     def test_returns_latex_label(
         self,
     ):
-        label = field_models.get_vcomp_label(
+        latex_label = field_models.get_vcomp_label(
             vfield_3d=_make_vfield_3d(),
             comp_axis=cartesian_axes.CartesianAxis_3D.X0,
         )
-        self.assertIsInstance(label, latex_labels.LatexLabel)
+        self.assertIsInstance(latex_label, latex_labels.LatexLabel)
 
     def test_get_label_uses_bracket_subscript_notation(
         self,
     ):
-        label = field_models.get_vcomp_label(
+        latex_label = field_models.get_vcomp_label(
             vfield_3d=_make_vfield_3d(),
             comp_axis=cartesian_axes.CartesianAxis_3D.X0,
         )
-        self.assertEqual(label.label, r"$\left[\vec{v}\right]_0$")
+        self.assertEqual(latex_label.label, r"$\left[\vec{v}\right]_0$")
 
 
 ## } U-TEST

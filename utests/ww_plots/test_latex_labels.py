@@ -20,15 +20,17 @@ class Tests(unittest.TestCase):
     def test_label_wraps_content(
         self,
     ):
-        label = latex_labels.LatexLabel(content=r"\rho")
-        self.assertEqual(label.label, r"$\rho$")
+        latex_label = latex_labels.LatexLabel(content=r"\rho")
+        self.assertEqual(latex_label.label, r"$\rho$")
 
     def test_combining_labels(
         self,
     ):
-        field_label = latex_labels.LatexLabel(content=r"\rho")
-        combined = latex_labels.LatexLabel(content=rf"\mathrm{{rms}}\big({field_label.content}\big)")
-        self.assertEqual(combined.label, r"$\mathrm{rms}\big(\rho\big)$")
+        field_latex_label = latex_labels.LatexLabel(content=r"\rho")
+        combined_latex_label = latex_labels.LatexLabel(
+            content=rf"\mathrm{{rms}}\big({field_latex_label.content}\big)",
+        )
+        self.assertEqual(combined_latex_label.label, r"$\mathrm{rms}\big(\rho\big)$")
 
     def test_rejects_empty_content(
         self,
