@@ -19,7 +19,7 @@ from jormi.ww_validation import validate_types
 class LatexLabel:
     """Raw LaTeX math-mode content, without the surrounding `$` delimiters.
 
-    Combine labels by embedding `.content` into a new `LatexLabel`, then call `get_label()`
+    Combine labels by embedding `.content` into a new `LatexLabel`, then read `.label`
     once, at the point a string actually needs to be handed to a plot.
     """
 
@@ -34,12 +34,13 @@ class LatexLabel:
         )
         if "$" in self.content:
             raise ValueError(
-                f"`<content>` must not include `$`; call get_label() once instead of embedding it, got: {self.content!r}",
+                f"`<content>` must not include `$`; read `.label` once instead of embedding it, got: {self.content!r}",
             )
         if self.content.count("{") != self.content.count("}"):
             raise ValueError(f"`<content>` has unbalanced braces: {self.content!r}")
 
-    def get_label(
+    @property
+    def label(
         self,
     ) -> str:
         return f"${self.content}$"

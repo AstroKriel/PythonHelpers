@@ -72,7 +72,7 @@ class TestGetLabel(unittest.TestCase):
         self,
     ):
         label = field_models.get_label(_make_sfield_3d())
-        self.assertEqual(label.get_label(), r"$\rho$")
+        self.assertEqual(label.label, r"$\rho$")
 
 
 class TestGetVcompLabel(unittest.TestCase):
@@ -93,7 +93,7 @@ class TestGetVcompLabel(unittest.TestCase):
             vfield_3d=_make_vfield_3d(),
             comp_axis=cartesian_axes.CartesianAxis_3D.X0,
         )
-        self.assertEqual(label.get_label(), r"$\left[\vec{v}\right]_0$")
+        self.assertEqual(label.label, r"$\left[\vec{v}\right]_0$")
 
 
 ## } U-TEST
