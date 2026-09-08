@@ -22,6 +22,7 @@ from jormi.ww_fields.fields_3d import (
     domain_models,
     _field_data,
 )
+from jormi.ww_plots import latex_labels
 from jormi.ww_validation import validate_types
 
 ##
@@ -464,14 +465,14 @@ def get_label(
     field: _field_models.Field,
     *,
     param_name: str = "<field>",
-) -> str:
-    """Return the render-ready label for any field: wraps `field.latex_label` in `$...$`."""
+) -> latex_labels.LatexLabel:
+    """Return the label for any field, wrapping `field.latex_label` as a `LatexLabel`."""
     validate_types.ensure_type(
         param=field,
         param_name=param_name,
         valid_types=_field_models.Field,
     )
-    return f"${field.latex_label}$"
+    return latex_labels.LatexLabel(content=field.latex_label)
 
 
 def get_vcomp_label(
@@ -479,18 +480,18 @@ def get_vcomp_label(
     *,
     comp_axis: cartesian_axes.AxisLike_3D,
     param_name: str = "<vfield_3d>",
-) -> str:
-    """Return the render-ready label for a vector field component.
+) -> latex_labels.LatexLabel:
+    """Return the label for a vector field component.
 
     Uses big square brackets with a numeric subscript.
-    Example: vfield with label `\\vec{v}` + axis X0 -> `$\\left[\\vec{v}\\right]_0$`
+    Example: vfield with label `\\vec{v}` + axis X0 -> content `\\left[\\vec{v}\\right]_0`
     """
     ensure_3d_vfield(
         vfield_3d=vfield_3d,
         param_name=param_name,
     )
     comp_index = cartesian_axes.get_axis_index(comp_axis)
-    return f"$\\left[{vfield_3d.latex_label}\\right]_{comp_index}$"
+    return latex_labels.LatexLabel(content=rf"\left[{vfield_3d.latex_label}\right]_{comp_index}")
 
 
 ## } MODULE
