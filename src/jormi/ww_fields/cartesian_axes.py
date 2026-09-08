@@ -14,6 +14,7 @@ from typing import (
 )
 
 ## local
+from jormi.ww_plots import latex_labels
 from jormi.ww_validation import validate_enums, validate_types
 
 ##
@@ -92,6 +93,12 @@ class CartesianAxis_3D(str, Enum):
         return self._axis_label
 
     @property
+    def axis_latex_label(
+        self,
+    ) -> latex_labels.LatexLabel:
+        return latex_labels.LatexLabel(content=self._axis_label)
+
+    @property
     def axis_index(
         self,
     ) -> AxisIndex_3D:
@@ -153,6 +160,12 @@ def get_axis_label(
     axis: AxisLike_3D,
 ) -> AxisLabel_3D:
     return as_axis(axis=axis).axis_label
+
+
+def get_axis_latex_label(
+    axis: AxisLike_3D,
+) -> latex_labels.LatexLabel:
+    return as_axis(axis=axis).axis_latex_label
 
 
 def get_axis_index(

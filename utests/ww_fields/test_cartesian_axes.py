@@ -9,6 +9,7 @@ import unittest
 
 ## local
 from jormi.ww_fields import cartesian_axes
+from jormi.ww_plots import latex_labels
 
 ##
 ## === TEST SUITES
@@ -73,6 +74,19 @@ class TestCartesianAxis_3D(unittest.TestCase):
         self.assertEqual(
             cartesian_axes.CartesianAxis_3D.X2.axis_label,
             "x_2",
+        )
+        ## axis latex labels
+        self.assertEqual(
+            cartesian_axes.CartesianAxis_3D.X0.axis_latex_label,
+            latex_labels.LatexLabel(content="x_0"),
+        )
+        self.assertEqual(
+            cartesian_axes.CartesianAxis_3D.X1.axis_latex_label,
+            latex_labels.LatexLabel(content="x_1"),
+        )
+        self.assertEqual(
+            cartesian_axes.CartesianAxis_3D.X2.axis_latex_label,
+            latex_labels.LatexLabel(content="x_2"),
         )
         ## axis index
         self.assertEqual(
@@ -224,6 +238,28 @@ class TestGetAxisIndexAndLabel(unittest.TestCase):
             cartesian_axes.get_axis_label(axis="x3")
         with self.assertRaises(ValueError):
             cartesian_axes.get_axis_index(axis=3)
+
+
+class TestGetAxisLatexLabel(unittest.TestCase):
+
+    def test_returns_latex_label(
+        self,
+    ):
+        latex_label = cartesian_axes.get_axis_latex_label(axis=cartesian_axes.CartesianAxis_3D.X1)
+        self.assertIsInstance(latex_label, latex_labels.LatexLabel)
+        self.assertEqual(latex_label.content, "x_1")
+
+    def test_accepts_all_axis_like_inputs(
+        self,
+    ):
+        self.assertEqual(
+            cartesian_axes.get_axis_latex_label(axis="X0"),
+            latex_labels.LatexLabel(content="x_0"),
+        )
+        self.assertEqual(
+            cartesian_axes.get_axis_latex_label(axis=2),
+            latex_labels.LatexLabel(content="x_2"),
+        )
 
 
 ##
