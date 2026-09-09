@@ -73,8 +73,8 @@ def are_dicts_different(
     if len(dict_a) != len(dict_b):
         return True
     ## check if any key in dict_b is not in dict_a or if their values are different
-    for key in dict_b:
-        if (key not in dict_a) or (dict_b[key] != dict_a[key]):
+    for key, value in dict_b.items():
+        if (key not in dict_a) or (value != dict_a[key]):
             return True
     ## otherwise the dictionaries are the same
     return False

@@ -232,9 +232,9 @@ def _update_csv(
     )
     ## for columns that already exist, check that the amount they grow by are the same
     growth_of_existing_columns = None
-    for key in input_dict:
+    for key, value in input_dict.items():
         if key in existing_dataset:
-            input_column_length = len(input_dict[key])
+            input_column_length = len(value)
             if growth_of_existing_columns is None:
                 growth_of_existing_columns = input_column_length
             elif input_column_length != growth_of_existing_columns:
@@ -247,9 +247,9 @@ def _update_csv(
         growth_of_existing_columns = 0  # no existing columns are being extended
     expected_final_column_length = existing_column_length + growth_of_existing_columns
     ## check that new columns have the right length
-    for key in input_dict:
+    for key, value in input_dict.items():
         if key not in existing_dataset:
-            input_column_length = len(input_dict[key])
+            input_column_length = len(value)
             if input_column_length != expected_final_column_length:
                 raise ValueError(
                     f"New column `{key}` must have length"
@@ -257,11 +257,11 @@ def _update_csv(
                     f" but got {input_column_length}.",
                 )
     ## apply updates
-    for key in input_dict:
+    for key, value in input_dict.items():
         if key in existing_dataset:
-            existing_dataset[key].extend(input_dict[key])
+            existing_dataset[key].extend(value)
         else:
-            existing_dataset[key] = input_dict[key]
+            existing_dataset[key] = value
     ## final sanity check before saving
     final_dataset_shape = [len(column) for column in existing_dataset.values()]
     if len(set(final_dataset_shape)) != 1:
