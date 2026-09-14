@@ -69,14 +69,9 @@ def get_grad_fn(
         allow_none=False,
         require_positive=True,
     )
-    valid_grad_orders = {
-        2: second_order_centered_difference,
-        4: fourth_order_centered_difference,
-        6: sixth_order_centered_difference,
-    }
-    if grad_order not in valid_grad_orders:
+    if grad_order not in GRAD_FN_LOOKUP:
         raise ValueError(f"gradient order `{grad_order}` is unsupported.")
-    return valid_grad_orders[grad_order]
+    return GRAD_FN_LOOKUP[grad_order]
 
 
 def second_order_centered_difference(
@@ -234,5 +229,15 @@ def sixth_order_centered_difference(
     out_sarray_3d /= 60.0 * cell_width
     return out_sarray_3d
 
+
+##
+## === LOOKUP
+##
+
+GRAD_FN_LOOKUP = {
+    2: second_order_centered_difference,
+    4: fourth_order_centered_difference,
+    6: sixth_order_centered_difference,
+}
 
 ## } MODULE
