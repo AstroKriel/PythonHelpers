@@ -422,4 +422,150 @@ def add_colorbar(
     return colorbar
 
 
+##
+## === ADD INSET COLORBAR
+##
+
+_Corner = box_positions.Positions.Corner
+
+## the bar's ticks and label face into the panel, away from the panel edge it sits against
+_CORNER_TO_LABEL_SIDE: dict[_Corner, _Side] = {
+    _Corner.TopLeft: _Side.Bottom,
+    _Corner.TopRight: _Side.Bottom,
+    _Corner.BottomLeft: _Side.Top,
+    _Corner.BottomRight: _Side.Top,
+}
+
+
+def _compute_panel_size_pt(
+    *,
+    panel: manage_figure.Panel,
+) -> tuple[float, float]:
+    """The width and height of `panel`, in pt."""
+    figure = manage_figure.get_figure(
+        panels=[panel],
+        param_name="panel",
+    )
+    figure_size = manage_figure.FigureSize(figure=figure)
+    panel_bounds = panel.get_position()
+    return (
+        panel_bounds.width * figure_size.width_pt,
+        panel_bounds.height * figure_size.height_pt,
+    )
+
+
+def add_inset_colorbar(
+    *,
+    panel: manage_figure.Panel,
+    palette: color_palettes.ColorPalette,
+    label: str | None = None,
+    colorbar_corner: box_positions.Positions.PositionLike = _Corner.TopLeft,
+    colorbar_length_fraction: float = 0.45,
+    colorbar_aspect_ratio: float | None = None,
+    corner_gaps_pt: tuple[float, float] | None = None,
+    label_gap_pt: float | None = None,
+    text_size_pt: int | float | None = None,
+    figure_params: style_figure.FigureParams | None = None,
+) -> mpl_colorbar.Colorbar:
+    """
+    Add a horizontal colorbar inside `panel`, in `colorbar_corner`.
+
+    Unlike `add_colorbar`, the bar sits within the panel, so the figure leaves no room for it
+    and it moves with the panel. Its ticks and label face into the panel. `colorbar_length_fraction`
+    is a share of the panel width; `corner_gaps_pt` is the (horizontal, vertical) space between the
+    bar and the panel edges at the corner, defaulting to the gaps an outside colorbar leaves. The thickness is set
+    from the panel's shape when the bar is added, so it keeps its proportions as long as the
+    panel keeps its aspect ratio, as panels made with `panel_aspect_ratio` do.
+    """
+    if figure_params is None:
+        figure_params = style_figure.get_figure_params()
+    if text_size_pt is None:
+        text_size_pt = figure_params.text_size_params.axis_label_size_pt
+    if label_gap_pt is None:
+        label_gap_pt = figure_params.frame_params.axis_label_gap_pt
+    if colorbar_aspect_ratio is None:
+        colorbar_aspect_ratio = figure_params.colorbar_layout.aspect_ratio
+    validate_types.ensure_finite_float(
+        param=colorbar_length_fraction,
+        param_name="colorbar_length_fraction",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    if colorbar_length_fraction > 1.0:
+        raise ValueError(
+            f"`colorbar_length_fraction` must be at most 1; got {colorbar_length_fraction}.",
+        )
+    validate_types.ensure_finite_float(
+        param=colorbar_aspect_ratio,
+        param_name="colorbar_aspect_ratio",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=False,
+    )
+    validate_types.ensure_finite_float(
+        param=label_gap_pt,
+        param_name="label_gap_pt",
+        allow_none=False,
+        require_positive=True,
+        allow_zero=True,
+    )
+    colorbar_corner = validate_box_positions.as_box_corner(corner=colorbar_corner)
+    if corner_gaps_pt is None:
+        corner_gap_x_pt = None
+        corner_gap_y_pt = None
+    else:
+        corner_gap_x_pt, corner_gap_y_pt = corner_gaps_pt
+    resolved_gap_x_pt = _resolve_colorbar_gap_pt(
+        colorbar_side=_Side.Left,
+        colorbar_gap_pt=corner_gap_x_pt,
+        figure_params=figure_params,
+    )
+    resolved_gap_y_pt = _resolve_colorbar_gap_pt(
+        colorbar_side=_Side.Top,
+        colorbar_gap_pt=corner_gap_y_pt,
+        figure_params=figure_params,
+    )
+    panel_width_pt, panel_height_pt = _compute_panel_size_pt(panel=panel)
+    thickness_pt = colorbar_length_fraction * panel_width_pt / colorbar_aspect_ratio
+    thickness_fraction = thickness_pt / panel_height_pt
+    gap_x_fraction = resolved_gap_x_pt / panel_width_pt
+    gap_y_fraction = resolved_gap_y_pt / panel_height_pt
+    if colorbar_corner in (_Corner.TopLeft, _Corner.BottomLeft):
+        x_min_fraction = gap_x_fraction
+    else:
+        x_min_fraction = 1.0 - gap_x_fraction - colorbar_length_fraction
+    if colorbar_corner in (_Corner.TopLeft, _Corner.TopRight):
+        y_min_fraction = 1.0 - gap_y_fraction - thickness_fraction
+    else:
+        y_min_fraction = gap_y_fraction
+    colorbar_panel = panel.inset_axes(
+        (
+            x_min_fraction,
+            y_min_fraction,
+            colorbar_length_fraction,
+            thickness_fraction,
+        ),
+    )
+    colorbar_mappable = mpl_cm.ScalarMappable(
+        norm=palette.mpl_norm,
+        cmap=palette.mpl_cmap,
+    )
+    ## required by mpl to suppress warning when ScalarMappable has no data
+    colorbar_mappable.set_array([])
+    colorbar = panel.figure.colorbar(
+        mappable=colorbar_mappable,
+        cax=colorbar_panel,
+        orientation="horizontal",
+    )
+    _label_colorbar(
+        colorbar=colorbar,
+        label=label,
+        colorbar_side=_CORNER_TO_LABEL_SIDE[colorbar_corner],
+        text_size_pt=text_size_pt,
+        label_gap_pt=label_gap_pt,
+    )
+    return colorbar
+
+
 ## } MODULE
