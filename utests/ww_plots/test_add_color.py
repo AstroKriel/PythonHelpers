@@ -202,9 +202,8 @@ class TestAddInsetColorbar(unittest.TestCase):
                 figure_path=pathlib.Path(temp_dir) / "inset-colorbar.png",
                 verbose=False,
             )
-        renderer = figure.canvas.get_renderer()  # pyright: ignore[reportAttributeAccessIssue]
-        panel_box = panel.get_window_extent(renderer)
-        bar_box = colorbar.ax.get_window_extent(renderer)
+        panel_box = panel.get_window_extent()
+        bar_box = colorbar.ax.get_window_extent()
         self.assertGreaterEqual(bar_box.x0, panel_box.x0)
         self.assertLessEqual(bar_box.x1, panel_box.x1)
         self.assertGreaterEqual(bar_box.y0, panel_box.y0)
