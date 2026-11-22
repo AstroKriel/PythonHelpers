@@ -163,7 +163,7 @@ def add_custom_legend(
     num_legend_columns: int = 1,
     marker_first: bool = True,
     figure_params: style_figure.FigureParams | None = None,
-):
+) -> mpl_legend.Legend:
     """
     Add a custom legend to a panel, built from explicit style strings rather than plot handles.
 
@@ -303,6 +303,7 @@ def add_custom_legend(
         handletextpad=handle_gap,
     )
     panel.add_artist(legend)
+    return legend
 
 
 def overlay_curve(
