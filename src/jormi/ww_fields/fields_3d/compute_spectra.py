@@ -43,4 +43,15 @@ def compute_isotropic_power_spectrum_field(
     )
 
 
+def compute_isotropic_helical_power_spectrum_vfield(
+    vfield_3d: field_models.VectorField_3D,
+) -> IsotropicPowerSpectrum:
+    """Compute the 1D (shell-integrated) signed helical power spectrum of a 3D vector field."""
+    field_models.ensure_3d_vfield(vfield_3d)
+    return _compute_spectra.compute_isotropic_helical_power_spectrum_varray(
+        varray_3d=vfield_3d.fdata.farray,
+        resolution_3d=vfield_3d.uniform_domain.resolution,
+    )
+
+
 ## } MODULE
